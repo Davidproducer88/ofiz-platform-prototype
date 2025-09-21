@@ -287,7 +287,7 @@ export type Database = {
         | "appliance_repair"
         | "computer_repair"
       service_status: "draft" | "active" | "paused" | "completed"
-      user_type: "client" | "master"
+      user_type: "client" | "master" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -433,7 +433,7 @@ export const Constants = {
         "computer_repair",
       ],
       service_status: ["draft", "active", "paused", "completed"],
-      user_type: ["client", "master"],
+      user_type: ["client", "master", "admin"],
     },
   },
 } as const
