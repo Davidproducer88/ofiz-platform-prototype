@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 interface UserTypeSelectorProps {
-  onSelect: (type: 'client' | 'maestro') => void;
+  onSelect: (type: 'client' | 'master') => void;
 }
 
 export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
@@ -140,7 +140,7 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
                 size="lg" 
                 variant="secondary"
                 className="w-full group"
-                onClick={() => onSelect('maestro')}
+                onClick={() => onSelect('master')}
               >
                 Registrarme como Maestro
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />

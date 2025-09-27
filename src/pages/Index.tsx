@@ -5,7 +5,7 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { Footer } from "@/components/Footer";
 
 interface IndexProps {
-  userType?: 'client' | 'maestro' | null;
+  userType?: 'client' | 'master' | 'admin' | null;
   onShowOnboarding?: () => void;
 }
 

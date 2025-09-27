@@ -2,14 +2,36 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, User, Bell, Settings, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
-  userType?: 'client' | 'maestro' | null;
+  userType?: 'client' | 'master' | 'admin' | null;
   userName?: string;
 }
 
-export const Header = ({ userType, userName }: HeaderProps) => {
+export const Header = ({ userType }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMenuOpen(false);
+  };
+
+  const handleAuthAction = (action: 'login' | 'signup') => {
+    navigate('/auth');
+  };
+
+  const getUserTypeLabel = () => {
+    switch (userType) {
+      case 'master': return 'Profesional';
+      case 'client': return 'Cliente';
+      case 'admin': return 'Admin';
+      default: return 'Beta';
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -18,7 +40,7 @@ export const Header = ({ userType, userName }: HeaderProps) => {
         <div className="flex items-center space-x-4">
           <div className="text-2xl font-bold gradient-text">Ofiz</div>
           <Badge variant="secondary" className="hidden md:inline-flex">
-            {userType === 'maestro' ? 'Profesional' : userType === 'client' ? 'Cliente' : 'Beta'}
+            {getUserTypeLabel()}
           </Badge>
         </div>
 
@@ -30,7 +52,7 @@ export const Header = ({ userType, userName }: HeaderProps) => {
           <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
             ¿Cómo funciona?
           </a>
-          {userType === 'maestro' && (
+          {userType === 'master' && (
             <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Mis Trabajos
             </a>
@@ -65,7 +87,7 @@ export const Header = ({ userType, userName }: HeaderProps) => {
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
                   <User className="h-4 w-4" />
-                  <span className="hidden md:inline-block">{userName || 'Usuario'}</span>
+                  <span className="hidden md:inline-block">{profile?.full_name || 'Usuario'}</span>
                 </Button>
 
                 {isMenuOpen && (
@@ -79,18 +101,25 @@ export const Header = ({ userType, userName }: HeaderProps) => {
                       Configuración
                     </a>
                     <div className="border-t border-border my-1"></div>
-                    <a href="#" className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted text-destructive">
+                    <button 
+                      onClick={handleSignOut}
+                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted text-destructive w-full text-left"
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       Cerrar Sesión
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>
             </>
           ) : (
             <>
-              <Button variant="ghost">Iniciar Sesión</Button>
-              <Button variant="hero">Registrarse</Button>
+              <Button variant="ghost" onClick={() => handleAuthAction('login')}>
+                Iniciar Sesión
+              </Button>
+              <Button variant="hero" onClick={() => handleAuthAction('signup')}>
+                Registrarse
+              </Button>
             </>
           )}
         </div>
