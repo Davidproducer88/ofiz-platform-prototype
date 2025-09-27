@@ -151,10 +151,29 @@ const MasterDashboard = () => {
         .from('masters')
         .select('*')
         .eq('id', profile?.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
-      setMasterProfile(data);
+      if (error) throw error;
+      
+      // If no master profile exists, create one
+      if (!data && profile?.id) {
+        const { data: newMasterData, error: createError } = await supabase
+          .from('masters')
+          .insert({
+            id: profile.id,
+            business_name: `${profile.full_name} - Servicios`
+          })
+          .select()
+          .maybeSingle();
+        
+        if (createError) {
+          console.error('Error creating master profile:', createError);
+        } else {
+          setMasterProfile(newMasterData);
+        }
+      } else {
+        setMasterProfile(data);
+      }
     } catch (error) {
       console.error('Error fetching master profile:', error);
     }
@@ -223,7 +242,7 @@ const MasterDashboard = () => {
           .from('services')
           .select('title')
           .eq('id', review.booking_id)
-          .single();
+          .maybeSingle();
         
         return {
           ...review,
