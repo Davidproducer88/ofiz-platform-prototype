@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
+import ClientDashboard from "./pages/ClientDashboard";
 
 const queryClient = new QueryClient();
 
@@ -58,9 +59,19 @@ const AppContent = () => {
       <Route 
         path="/" 
         element={
-          <Index 
-            userType={profile?.user_type || null}
-          />
+          user && profile?.user_type === 'client' ? 
+            <Navigate to="/dashboard" replace /> : 
+            <Index 
+              userType={profile?.user_type || null}
+            />
+        } 
+      />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <ClientDashboard />
+          </ProtectedRoute>
         } 
       />
       <Route 
