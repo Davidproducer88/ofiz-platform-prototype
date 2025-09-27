@@ -10,6 +10,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
 import ClientDashboard from "./pages/ClientDashboard";
+import MasterDashboard from "./pages/MasterDashboard";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,8 @@ const AppContent = () => {
         element={
           user && profile?.user_type === 'client' ? 
             <Navigate to="/dashboard" replace /> : 
+            user && profile?.user_type === 'master' ?
+              <Navigate to="/master-dashboard" replace /> :
             <Index 
               userType={profile?.user_type || null}
             />
@@ -71,6 +74,14 @@ const AppContent = () => {
         element={
           <ProtectedRoute>
             <ClientDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/master-dashboard" 
+        element={
+          <ProtectedRoute>
+            <MasterDashboard />
           </ProtectedRoute>
         } 
       />
