@@ -4,6 +4,7 @@ import { Search, User, Bell, Settings, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | null;
@@ -66,6 +67,9 @@ export const Header = ({ userType }: HeaderProps) => {
 
         {/* Right side */}
         <div className="flex items-center space-x-3">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {userType ? (
             <>
               {/* Search */}
