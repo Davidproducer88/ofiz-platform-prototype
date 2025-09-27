@@ -112,16 +112,7 @@ export const Header = ({ userType }: HeaderProps) => {
                 )}
               </div>
             </>
-          ) : (
-            <>
-              <Button variant="ghost" onClick={() => handleAuthAction('login')}>
-                Iniciar Sesión
-              </Button>
-              <Button variant="hero" onClick={() => handleAuthAction('signup')}>
-                Registrarse
-              </Button>
-            </>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

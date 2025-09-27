@@ -2,10 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle, Users, Star, Wrench } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroClient from "@/assets/hero-client.jpg";
 import heroProfessionals from "@/assets/hero-professionals.jpg";
 
 export const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleServiceClick = () => {
+    navigate('/auth?type=client');
+  };
+
+  const handleProfessionalClick = () => {
+    navigate('/auth?type=master');
+  };
+
   return (
     <section className="relative bg-gradient-subtle">
       <div className="container py-20 md:py-32">
@@ -45,11 +56,11 @@ export const Hero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="xl" variant="hero" className="group">
+              <Button size="xl" variant="hero" className="group" onClick={handleServiceClick}>
                 Necesito un Servicio
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button size="xl" variant="outline" className="group">
+              <Button size="xl" variant="outline" className="group" onClick={handleProfessionalClick}>
                 Soy Profesional
                 <Wrench className="ml-2 h-5 w-5" />
               </Button>

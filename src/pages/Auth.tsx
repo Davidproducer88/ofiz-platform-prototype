@@ -1,13 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
 import { UserTypeSelector } from '@/components/UserTypeSelector';
+import { useSearchParams } from 'react-router-dom';
 
 const Auth = () => {
-  const [showUserTypeSelector, setShowUserTypeSelector] = useState(false);
-  const [selectedUserType, setSelectedUserType] = useState<'client' | 'master' | null>(null);
+  const [searchParams] = useSearchParams();
+  const typeParam = searchParams.get('type') as 'client' | 'master' | null;
+  
+  const [showUserTypeSelector, setShowUserTypeSelector] = useState(!typeParam);
+  const [selectedUserType, setSelectedUserType] = useState<'client' | 'master' | null>(typeParam);
+
+  useEffect(() => {
+    if (typeParam) {
+      setSelectedUserType(typeParam);
+      setShowUserTypeSelector(false);
+    }
+  }, [typeParam]);
 
   const handleUserTypeSelect = (type: 'client' | 'master') => {
     setSelectedUserType(type);
