@@ -47,15 +47,44 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchProfile = async (userId: string) => {
     try {
+      // Try to get the profile without forcing a single-object response to avoid 406 when no rows
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
         return null;
+      }
+
+      // If there is no profile, create a minimal one from auth metadata
+      if (!data) {
+        const { data: userRes } = await supabase.auth.getUser();
+        const authUser = userRes?.user;
+        const meta = (authUser?.user_metadata as any) || {};
+        const full_name = meta.full_name || authUser?.email?.split('@')[0] || 'Usuario';
+        const user_type = meta.user_type || 'client';
+
+        const { data: created, error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            full_name,
+            user_type,
+            phone: meta.phone ?? null,
+            address: meta.address ?? null,
+            city: meta.city ?? null,
+          })
+          .select()
+          .maybeSingle();
+
+        if (insertError) {
+          console.error('Error creating missing profile:', insertError);
+          return null;
+        }
+        return created;
       }
 
       return data;

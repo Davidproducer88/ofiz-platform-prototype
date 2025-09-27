@@ -88,7 +88,7 @@ interface MasterProfile {
 }
 
 const MasterDashboard = () => {
-  const { profile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -127,6 +127,9 @@ const MasterDashboard = () => {
   useEffect(() => {
     if (profile?.id) {
       fetchMasterData();
+    } else {
+      // If there's no profile yet, avoid infinite loading and show onboarding UI below
+      setLoading(false);
     }
   }, [profile]);
 
@@ -389,6 +392,19 @@ const MasterDashboard = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Cargando tu dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile?.id) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <Header userType="master" />
+        <div className="container py-16 text-center space-y-4">
+          <h1 className="text-2xl font-semibold">Preparando tu perfil de Maestro</h1>
+          <p>Estamos creando tu perfil. Si tarda demasiado, pulsa Reintentar.</p>
+          <Button onClick={refreshProfile}>Reintentar</Button>
         </div>
       </div>
     );
