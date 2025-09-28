@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 const URUGUAY_CITIES = [
   'Aiguá (Maldonado)',
   'Artigas (Artigas)',
-  'Atlántida (Canelones)','
+  'Atlántida (Canelones)',
   'Bella Unión (Artigas)',
   'Canelones (Canelones)',
   'Cardona (Soriano)',
