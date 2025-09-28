@@ -6,10 +6,40 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Camera, SkipForward, Save } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+const URUGUAY_CITIES = [
+  'Artigas',
+  'Canelones', 
+  'Carmelo',
+  'Colonia del Sacramento',
+  'Durazno',
+  'Florida',
+  'Fray Bentos',
+  'Las Piedras',
+  'Maldonado',
+  'Melo',
+  'Mercedes',
+  'Minas',
+  'Montevideo',
+  'Nueva Helvetia',
+  'Paysandú',
+  'Piriápolis',
+  'Punta del Este',
+  'Rivera',
+  'Rocha',
+  'Salto',
+  'San Carlos',
+  'San José de Mayo',
+  'Santa Lucía',
+  'Tacuarembó',
+  'Trinidad',
+  'Young'
+];
 
 const ProfileSetup = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -239,14 +269,22 @@ const ProfileSetup = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="city">Ciudad</Label>
-                <Input
-                  id="city"
-                  type="text"
-                  placeholder="Tu ciudad"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
+                <Select 
+                  value={formData.city} 
+                  onValueChange={(value) => handleInputChange('city', value)}
                   disabled={loading}
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona tu ciudad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {URUGUAY_CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
