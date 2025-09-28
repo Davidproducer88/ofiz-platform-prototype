@@ -134,33 +134,42 @@ export type Database = {
           avatar_url: string | null
           city: string | null
           created_at: string
+          email_verified: boolean | null
           full_name: string
           id: string
+          login_provider: string | null
           phone: string | null
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
+          verification_sent_at: string | null
         }
         Insert: {
           address?: string | null
           avatar_url?: string | null
           city?: string | null
           created_at?: string
+          email_verified?: boolean | null
           full_name: string
           id: string
+          login_provider?: string | null
           phone?: string | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+          verification_sent_at?: string | null
         }
         Update: {
           address?: string | null
           avatar_url?: string | null
           city?: string | null
           created_at?: string
+          email_verified?: boolean | null
           full_name?: string
           id?: string
+          login_provider?: string | null
           phone?: string | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+          verification_sent_at?: string | null
         }
         Relationships: []
       }

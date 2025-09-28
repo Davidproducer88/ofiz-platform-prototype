@@ -11,6 +11,9 @@ interface Profile {
   address?: string;
   city?: string;
   avatar_url?: string;
+  email_verified?: boolean;
+  login_provider?: string;
+  verification_sent_at?: string;
 }
 
 interface AuthContextType {
@@ -20,8 +23,10 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google' | 'facebook') => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  resendVerification: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -215,6 +220,65 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const signInWithOAuth = async (provider: 'google' | 'facebook') => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: provider === 'google' ? {
+            access_type: 'offline',
+            prompt: 'consent',
+          } : undefined,
+          scopes: provider === 'facebook' ? 'email' : undefined
+        }
+      });
+
+      return { error };
+    } catch (error: any) {
+      toast({
+        title: `Error con ${provider}`,
+        description: error.message,
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
+
+  const resendVerification = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Error al reenviar",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Correo reenviado",
+          description: "Te hemos enviado un nuevo enlace de verificación"
+        });
+      }
+
+      return { error };
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -241,8 +305,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading,
     signUp,
     signIn,
+    signInWithOAuth,
     signOut,
-    refreshProfile
+    refreshProfile,
+    resendVerification
   };
 
   return (

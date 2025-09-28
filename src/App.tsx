@@ -10,6 +10,8 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
+import ProfileSetup from "./pages/ProfileSetup";
 import ClientDashboard from "./pages/ClientDashboard";
 import MasterDashboard from "./pages/MasterDashboard";
 
@@ -17,7 +19,7 @@ const queryClient = new QueryClient();
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   
   if (loading) {
     return (
@@ -32,6 +34,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Check if user needs email verification
+  if (user && !user.email_confirmed_at && profile?.login_provider === 'email') {
+    const verificationUrl = `/auth?message=verify-email&email=${encodeURIComponent(user.email || '')}`;
+    return <Navigate to={verificationUrl} replace />;
   }
   
   return <>{children}</>;
@@ -59,12 +67,26 @@ const AppContent = () => {
         element={user ? <Navigate to="/" replace /> : <Auth />} 
       />
       <Route 
+        path="/auth/callback" 
+        element={<AuthCallback />} 
+      />
+      <Route 
+        path="/profile-setup" 
+        element={
+          <ProtectedRoute>
+            <ProfileSetup />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/" 
         element={
           user && profile?.user_type === 'client' ? 
             <Navigate to="/dashboard" replace /> : 
             user && profile?.user_type === 'master' ?
               <Navigate to="/master-dashboard" replace /> :
+            user && profile?.user_type === 'admin' ?
+              <Navigate to="/admin" replace /> :
             <Index 
               userType={profile?.user_type || null}
             />

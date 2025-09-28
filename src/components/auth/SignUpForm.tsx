@@ -24,9 +24,10 @@ const signUpSchema = z.object({
 interface SignUpFormProps {
   userType: 'client' | 'master';
   onBack: () => void;
+  onEmailVerification?: (email: string) => void;
 }
 
-export const SignUpForm = ({ userType, onBack }: SignUpFormProps) => {
+export const SignUpForm = ({ userType, onBack, onEmailVerification }: SignUpFormProps) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -75,8 +76,13 @@ export const SignUpForm = ({ userType, onBack }: SignUpFormProps) => {
       });
       
       if (!error) {
-        // Show success message and redirect or show email verification notice
-        navigate('/auth?message=verify-email');
+        // Show email verification notice if callback provided
+        if (onEmailVerification) {
+          onEmailVerification(formData.email);
+        } else {
+          // Fallback to URL redirect
+          navigate('/auth?message=verify-email&email=' + encodeURIComponent(formData.email));
+        }
       }
     } catch (error) {
       console.error('SignUp error:', error);

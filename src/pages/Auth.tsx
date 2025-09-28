@@ -1,24 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
+import { OAuthButtons } from '@/components/auth/OAuthButtons';
+import { EmailVerificationNotice } from '@/components/auth/EmailVerificationNotice';
 import { UserTypeSelector } from '@/components/UserTypeSelector';
 import { useSearchParams } from 'react-router-dom';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const typeParam = searchParams.get('type') as 'client' | 'master' | null;
+  const messageParam = searchParams.get('message');
+  const emailParam = searchParams.get('email');
   
   const [showUserTypeSelector, setShowUserTypeSelector] = useState(!typeParam);
   const [selectedUserType, setSelectedUserType] = useState<'client' | 'master' | null>(typeParam);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState(emailParam || '');
 
   useEffect(() => {
     if (typeParam) {
       setSelectedUserType(typeParam);
       setShowUserTypeSelector(false);
     }
-  }, [typeParam]);
+    
+    if (messageParam === 'verify-email' && emailParam) {
+      setShowEmailVerification(true);
+      setPendingEmail(emailParam);
+    }
+  }, [typeParam, messageParam, emailParam]);
 
   const handleUserTypeSelect = (type: 'client' | 'master') => {
     setSelectedUserType(type);
@@ -28,6 +40,26 @@ const Auth = () => {
   const handleSignUpClick = () => {
     setShowUserTypeSelector(true);
   };
+
+  const handleEmailVerificationShow = (email: string) => {
+    setShowEmailVerification(true);
+    setPendingEmail(email);
+  };
+
+  const handleBackFromVerification = () => {
+    setShowEmailVerification(false);
+    setPendingEmail('');
+  };
+
+  // Show email verification notice
+  if (showEmailVerification && pendingEmail) {
+    return (
+      <EmailVerificationNotice 
+        email={pendingEmail} 
+        onBack={handleBackFromVerification} 
+      />
+    );
+  }
 
   if (showUserTypeSelector) {
     return (
@@ -59,6 +91,7 @@ const Auth = () => {
             <SignUpForm 
               userType={selectedUserType} 
               onBack={() => setSelectedUserType(null)}
+              onEmailVerification={handleEmailVerificationShow}
             />
           </CardContent>
         </Card>
@@ -83,10 +116,36 @@ const Auth = () => {
             </TabsList>
             
             <TabsContent value="login" className="space-y-4">
+              <OAuthButtons />
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    O continúa con
+                  </span>
+                </div>
+              </div>
+              
               <LoginForm />
             </TabsContent>
             
             <TabsContent value="signup" className="space-y-4">
+              <OAuthButtons />
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    O registrate con email
+                  </span>
+                </div>
+              </div>
+              
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-4">
                   Para registrarte, primero elige tu tipo de cuenta
