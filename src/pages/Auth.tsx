@@ -75,29 +75,6 @@ const Auth = () => {
     );
   }
 
-  if (selectedUserType) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">
-              Registro como {selectedUserType === 'client' ? 'Cliente' : 'Profesional'}
-            </CardTitle>
-            <CardDescription>
-              Completa tus datos para crear tu cuenta
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SignUpForm 
-              userType={selectedUserType} 
-              onBack={() => setSelectedUserType(null)}
-              onEmailVerification={handleEmailVerificationShow}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
@@ -109,7 +86,7 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue={selectedUserType ? "signup" : "login"} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
               <TabsTrigger value="signup">Registrarse</TabsTrigger>
@@ -141,22 +118,30 @@ const Auth = () => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
-                    O registrate con email
+                    O continúa con
                   </span>
                 </div>
               </div>
               
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Para registrarte, primero elige tu tipo de cuenta
-                </p>
-                <button
-                  onClick={handleSignUpClick}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-colors"
-                >
-                  Elegir tipo de cuenta
-                </button>
-              </div>
+              {selectedUserType ? (
+                <SignUpForm 
+                  userType={selectedUserType} 
+                  onBack={() => setSelectedUserType(null)}
+                  onEmailVerification={handleEmailVerificationShow}
+                />
+              ) : (
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Para registrarte, primero elige tu tipo de cuenta
+                  </p>
+                  <button
+                    onClick={handleSignUpClick}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Elegir tipo de cuenta
+                  </button>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
