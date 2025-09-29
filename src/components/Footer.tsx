@@ -1,18 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Facebook, 
-  Instagram, 
-  Twitter, 
-  Linkedin,
-  Mail,
-  Phone,
-  MapPin
-} from "lucide-react";
-
+import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 export const Footer = () => {
-  return (
-    <footer className="bg-muted/50 border-t border-border">
+  return <footer className="bg-muted/50 border-t border-border">
       <div className="container py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -25,7 +15,7 @@ export const Footer = () => {
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>Buenos Aires, Argentina</span>
+                <span>Montevideo, Uruguay</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
@@ -116,11 +106,7 @@ export const Footer = () => {
             </div>
             
             <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Tu email"
-                className="px-4 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+              <input type="email" placeholder="Tu email" className="px-4 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
               <Button>Suscribirse</Button>
             </div>
           </div>
@@ -155,6 +141,5 @@ export const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
