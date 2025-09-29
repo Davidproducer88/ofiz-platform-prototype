@@ -111,11 +111,7 @@ export const SignUpForm = ({
           {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono</Label>
-          <Input id="phone" type="tel" placeholder="+57 300 123 4567" value={formData.phone} onChange={e => handleInputChange('phone', e.target.value)} disabled={loading} />
-          {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-        </div>
+        
 
         {userType === 'client' && <>
             
