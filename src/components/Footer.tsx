@@ -19,7 +19,7 @@ export const Footer = () => {
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span>+54 11 1234-5678</span>
+                <span>+598 98 817 806</span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
