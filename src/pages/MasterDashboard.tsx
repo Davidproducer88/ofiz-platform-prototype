@@ -32,6 +32,8 @@ import {
   Award,
   BarChart3
 } from 'lucide-react';
+import { ServiceRequestsList } from '@/components/ServiceRequestsList';
+import { ApplicationDialog } from '@/components/ApplicationDialog';
 import { toast } from '@/hooks/use-toast';
 
 interface Service {
@@ -96,6 +98,8 @@ const MasterDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showServiceDialog, setShowServiceDialog] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
 
   const [serviceForm, setServiceForm] = useState({
     title: '',
@@ -551,8 +555,9 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="services">Mis Servicios</TabsTrigger>
+            <TabsTrigger value="job-requests">Trabajos Disponibles</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
             <TabsTrigger value="profile">Mi Perfil</TabsTrigger>
@@ -745,6 +750,26 @@ const MasterDashboard = () => {
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Job Requests Tab */}
+          <TabsContent value="job-requests" className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle>Trabajos Disponibles</CardTitle>
+                <CardDescription>
+                  Explora solicitudes de clientes y envía tus presupuestos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ServiceRequestsList 
+                  onApply={(requestId) => {
+                    setSelectedRequestId(requestId);
+                    setApplicationDialogOpen(true);
+                  }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -1014,6 +1039,16 @@ const MasterDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <ApplicationDialog
+          open={applicationDialogOpen}
+          onOpenChange={setApplicationDialogOpen}
+          requestId={selectedRequestId || ''}
+          onSuccess={() => {
+            setApplicationDialogOpen(false);
+            setSelectedRequestId(null);
+          }}
+        />
       </div>
     </div>
   );

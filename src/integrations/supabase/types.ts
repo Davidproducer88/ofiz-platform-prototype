@@ -225,6 +225,93 @@ export type Database = {
           },
         ]
       }
+      service_applications: {
+        Row: {
+          created_at: string | null
+          id: string
+          master_id: string
+          message: string
+          proposed_price: number
+          request_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          master_id: string
+          message: string
+          proposed_price: number
+          request_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          master_id?: string
+          message?: string
+          proposed_price?: number
+          request_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_applications_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          budget_range: string | null
+          category: Database["public"]["Enums"]["service_category"]
+          client_id: string
+          created_at: string | null
+          description: string
+          id: string
+          photos: string[] | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          category: Database["public"]["Enums"]["service_category"]
+          client_id: string
+          created_at?: string | null
+          description: string
+          id?: string
+          photos?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          category?: Database["public"]["Enums"]["service_category"]
+          client_id?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          photos?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           category: Database["public"]["Enums"]["service_category"]

@@ -33,6 +33,8 @@ import { ReviewDialog } from '@/components/ReviewDialog';
 import { FiltersSheet } from '@/components/FiltersSheet';
 import { ClientProfile } from '@/components/ClientProfile';
 import { ClientNotifications } from '@/components/ClientNotifications';
+import { ServiceRequestForm } from '@/components/ServiceRequestForm';
+import { MyServiceRequests } from '@/components/MyServiceRequests';
 
 interface Service {
   id: string;
@@ -82,6 +84,7 @@ const ClientDashboard = () => {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [requestFormOpen, setRequestFormOpen] = useState(false);
   const [filters, setFilters] = useState({
     priceRange: [0, 50000] as [number, number],
     minRating: 0,
@@ -367,8 +370,9 @@ const ClientDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="services">Buscar Servicios</TabsTrigger>
+            <TabsTrigger value="requests">Mis Solicitudes</TabsTrigger>
             <TabsTrigger value="bookings">Mis Encargos</TabsTrigger>
             <TabsTrigger value="profile">Mi Perfil</TabsTrigger>
             <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
@@ -490,6 +494,29 @@ const ClientDashboard = () => {
             )}
           </TabsContent>
 
+          {/* Service Requests Tab */}
+          <TabsContent value="requests" className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Mis Solicitudes de Servicio</CardTitle>
+                    <CardDescription>
+                      Publica proyectos y recibe presupuestos de maestros calificados
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => setRequestFormOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nueva Solicitud
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <MyServiceRequests />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Bookings Tab */}
           <TabsContent value="bookings" className="space-y-6">
             <Card className="shadow-card">
@@ -604,6 +631,12 @@ const ClientDashboard = () => {
           filters={filters}
           onFiltersChange={setFilters}
           onReset={() => setFilters({ priceRange: [0, 50000], minRating: 0, verifiedOnly: false })}
+        />
+
+        <ServiceRequestForm
+          open={requestFormOpen}
+          onOpenChange={setRequestFormOpen}
+          onSuccess={fetchBookings}
         />
       </div>
     </div>
