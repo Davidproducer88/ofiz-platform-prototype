@@ -119,9 +119,7 @@ export const Footer = () => {
               <Badge className="bg-secondary/10 text-secondary border-secondary/20">
                 Beta
               </Badge>
-              <p className="text-sm text-muted-foreground">
-                © 2024 Ofiz. Todos los derechos reservados.
-              </p>
+              <p className="text-sm text-muted-foreground">© 2025 Ofiz. Todos los derechos reservados. | Orbital Studio</p>
             </div>
             
             <div className="flex items-center space-x-4">
