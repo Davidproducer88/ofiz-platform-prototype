@@ -126,13 +126,13 @@ export const Footer = () => {
               <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
                 <Facebook className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
                 <Instagram className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
                 <Twitter className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
                 <Linkedin className="h-4 w-4" />
               </Button>
             </div>
