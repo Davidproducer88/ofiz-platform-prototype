@@ -39,7 +39,12 @@ export const Header = ({ userType }: HeaderProps) => {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-4">
-          <div className="text-2xl font-bold gradient-text">Ofiz</div>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-2xl font-bold gradient-text cursor-pointer hover:opacity-80 transition-smooth"
+          >
+            Ofiz
+          </button>
           <Badge variant="secondary" className="hidden md:inline-flex">
             {getUserTypeLabel()}
           </Badge>
@@ -47,21 +52,35 @@ export const Header = ({ userType }: HeaderProps) => {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-            Servicios
-          </a>
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-            ¿Cómo funciona?
-          </a>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
+          >
+            Inicio
+          </button>
           {userType === 'master' && (
-            <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Mis Trabajos
-            </a>
+            <button 
+              onClick={() => navigate('/dashboard/master')}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
+            >
+              Mi Dashboard
+            </button>
           )}
           {userType === 'client' && (
-            <a href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Mis Encargos
-            </a>
+            <button 
+              onClick={() => navigate('/dashboard/client')}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
+            >
+              Mi Dashboard
+            </button>
+          )}
+          {userType === 'admin' && (
+            <button 
+              onClick={() => navigate('/admin/dashboard')}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
+            >
+              Panel Admin
+            </button>
           )}
         </nav>
 
@@ -96,18 +115,31 @@ export const Header = ({ userType }: HeaderProps) => {
 
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-elegant py-1 z-10">
-                    <a href="#" className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted">
+                    <button 
+                      onClick={() => {
+                        if (userType === 'client') navigate('/dashboard/client');
+                        else if (userType === 'master') navigate('/dashboard/master');
+                        else if (userType === 'admin') navigate('/admin/dashboard');
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
+                    >
                       <User className="mr-2 h-4 w-4" />
-                      Mi Perfil
-                    </a>
-                    <a href="#" className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted">
+                      Mi Dashboard
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
+                    >
                       <Settings className="mr-2 h-4 w-4" />
                       Configuración
-                    </a>
+                    </button>
                     <div className="border-t border-border my-1"></div>
                     <button 
                       onClick={handleSignOut}
-                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted text-destructive w-full text-left"
+                      className="flex items-center px-3 py-2 text-sm text-destructive hover:bg-muted w-full text-left"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Cerrar Sesión

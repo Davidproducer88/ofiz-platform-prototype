@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,9 +23,16 @@ import {
   Heart,
   User,
   CreditCard,
-  Bell
+  Bell,
+  Home,
+  MessageSquare
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { BookingDialog } from '@/components/BookingDialog';
+import { ReviewDialog } from '@/components/ReviewDialog';
+import { FiltersSheet } from '@/components/FiltersSheet';
+import { ClientProfile } from '@/components/ClientProfile';
+import { ClientNotifications } from '@/components/ClientNotifications';
 
 interface Service {
   id: string;
@@ -61,11 +69,24 @@ interface Booking {
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [services, setServices] = useState<Service[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // Dialogs and Sheets
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    priceRange: [0, 50000] as [number, number],
+    minRating: 0,
+    verifiedOnly: false,
+  });
 
   const categories = [
     { id: 'all', name: 'Todos', icon: '🏠' },
@@ -147,29 +168,43 @@ const ClientDashboard = () => {
     }
   };
 
-  const createBooking = async (serviceId: string) => {
+  const handleBookingRequest = (service: Service) => {
+    setSelectedService(service);
+    setBookingDialogOpen(true);
+  };
+
+  const handleBookingConfirm = async (bookingData: {
+    serviceId: string;
+    scheduledDate: Date;
+    address: string;
+    notes: string;
+  }) => {
     try {
-      // For demo purposes, we'll create a booking with default values
+      const service = services.find(s => s.id === bookingData.serviceId);
+      if (!service) return;
+
       const { error } = await supabase
         .from('bookings')
         .insert({
-          service_id: serviceId,
+          service_id: bookingData.serviceId,
           client_id: profile?.id,
-          master_id: services.find(s => s.id === serviceId)?.master_id,
-          scheduled_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-          total_price: services.find(s => s.id === serviceId)?.price,
-          client_address: profile?.address || 'Dirección por definir',
+          master_id: service.master_id,
+          scheduled_date: bookingData.scheduledDate.toISOString(),
+          total_price: service.price,
+          client_address: bookingData.address,
+          notes: bookingData.notes,
           status: 'pending'
         });
 
       if (error) throw error;
 
       toast({
-        title: "¡Éxito!",
-        description: "Tu solicitud ha sido enviada al profesional",
+        title: "¡Solicitud Enviada!",
+        description: "El profesional recibirá tu solicitud pronto",
       });
       
-      fetchBookings(); // Refresh bookings
+      setBookingDialogOpen(false);
+      fetchBookings();
     } catch (error) {
       console.error('Error creating booking:', error);
       toast({
@@ -180,12 +215,48 @@ const ClientDashboard = () => {
     }
   };
 
+  const handleReviewSubmit = async (bookingId: string, rating: number, comment: string) => {
+    try {
+      const booking = bookings.find(b => b.id === bookingId);
+      if (!booking) return;
+
+      const { error } = await supabase
+        .from('reviews')
+        .insert({
+          booking_id: bookingId,
+          client_id: profile?.id,
+          master_id: booking.masters ? (booking as any).master_id : null,
+          rating,
+          comment,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "¡Reseña Publicada!",
+        description: "Gracias por compartir tu experiencia",
+      });
+      
+      setReviewDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating review:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo publicar la reseña",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredServices = services.filter(service => {
     const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.masters.business_name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesPrice = service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1];
+    const matchesRating = filters.minRating === 0 || service.masters.rating >= filters.minRating;
+    
+    return matchesSearch && matchesCategory && matchesPrice && matchesRating;
   });
 
   const recentBookings = bookings.slice(0, 3);
@@ -218,11 +289,14 @@ const ClientDashboard = () => {
                 Encuentra y gestiona todos tus servicios domésticos
               </p>
             </div>
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2">
+              <Button variant="outline" size="icon" onClick={() => navigate('/')}>
+                <Home className="h-4 w-4" />
+              </Button>
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Avatar>
+              <Avatar className="cursor-pointer">
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {profile?.full_name?.charAt(0) || 'U'}
                 </AvatarFallback>
@@ -293,10 +367,11 @@ const ClientDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="services">Buscar Servicios</TabsTrigger>
             <TabsTrigger value="bookings">Mis Encargos</TabsTrigger>
             <TabsTrigger value="profile">Mi Perfil</TabsTrigger>
+            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
           </TabsList>
 
           {/* Services Tab */}
@@ -319,7 +394,11 @@ const ClientDashboard = () => {
                       className="w-full"
                     />
                   </div>
-                  <Button variant="outline" className="lg:w-auto">
+                  <Button 
+                    variant="outline" 
+                    className="lg:w-auto"
+                    onClick={() => setFiltersOpen(true)}
+                  >
                     <Filter className="h-4 w-4 mr-2" />
                     Filtros
                   </Button>
@@ -388,7 +467,7 @@ const ClientDashboard = () => {
                         </div>
                       </div>
                       <Button 
-                        onClick={() => createBooking(service.id)}
+                        onClick={() => handleBookingRequest(service)}
                         className="ml-4"
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -440,18 +519,31 @@ const ClientDashboard = () => {
                             {booking.notes && (
                               <p className="text-sm text-muted-foreground mt-2">
                                 Notas: {booking.notes}
-                              </p>
+                             </p>
                             )}
                           </div>
-                          <div className="text-right">
+                          <div className="text-right space-y-2">
                             <Badge 
                               className={statusTranslations[booking.status as keyof typeof statusTranslations]?.color}
                             >
                               {statusTranslations[booking.status as keyof typeof statusTranslations]?.label}
                             </Badge>
-                            <p className="text-lg font-bold mt-2">
+                            <p className="text-lg font-bold">
                               ${booking.total_price.toLocaleString()}
                             </p>
+                            {booking.status === 'completed' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedBooking(booking);
+                                  setReviewDialogOpen(true);
+                                }}
+                              >
+                                <Star className="h-4 w-4 mr-1" />
+                                Reseñar
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -477,64 +569,42 @@ const ClientDashboard = () => {
           </TabsContent>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle>Mi Perfil</CardTitle>
-                <CardDescription>
-                  Gestiona tu información personal y preferencias
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-6">
-                    <Avatar className="h-20 w-20">
-                      <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                        {profile?.full_name?.charAt(0) || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-xl font-semibold">{profile?.full_name}</h3>
-                      <p className="text-muted-foreground">{profile?.user_type === 'client' ? 'Cliente' : 'Usuario'}</p>
-                      <Button variant="outline" size="sm" className="mt-2">
-                        Cambiar Foto
-                      </Button>
-                    </div>
-                  </div>
+          <TabsContent value="profile">
+            <ClientProfile 
+              profile={profile as any} 
+              onProfileUpdate={fetchBookings}
+            />
+          </TabsContent>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-sm font-medium">Teléfono</label>
-                      <div className="flex items-center mt-1">
-                        <Phone className="h-4 w-4 text-muted-foreground mr-2" />
-                        <span className="text-sm">{profile?.phone || 'No especificado'}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Ciudad</label>
-                      <div className="flex items-center mt-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground mr-2" />
-                        <span className="text-sm">{profile?.city || 'No especificada'}</span>
-                      </div>
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="text-sm font-medium">Dirección</label>
-                      <div className="flex items-center mt-1">
-                        <MapPin className="h-4 w-4 text-muted-foreground mr-2" />
-                        <span className="text-sm">{profile?.address || 'No especificada'}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button>
-                    <User className="h-4 w-4 mr-2" />
-                    Editar Perfil
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <ClientNotifications />
           </TabsContent>
         </Tabs>
+
+        {/* Dialogs */}
+        <BookingDialog
+          service={selectedService}
+          open={bookingDialogOpen}
+          onOpenChange={setBookingDialogOpen}
+          onConfirm={handleBookingConfirm}
+          defaultAddress={profile?.address || ''}
+        />
+
+        <ReviewDialog
+          booking={selectedBooking as any}
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          onSubmit={handleReviewSubmit}
+        />
+
+        <FiltersSheet
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={filters}
+          onFiltersChange={setFilters}
+          onReset={() => setFilters({ priceRange: [0, 50000], minRating: 0, verifiedOnly: false })}
+        />
       </div>
     </div>
   );
