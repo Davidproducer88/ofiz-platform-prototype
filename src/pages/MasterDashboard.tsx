@@ -102,7 +102,8 @@ const MasterDashboard = () => {
     description: '',
     price: '',
     category: '',
-    duration_minutes: ''
+    duration_value: '',
+    duration_unit: 'hours'
   });
 
   const categories = [
@@ -259,6 +260,22 @@ const MasterDashboard = () => {
     }
   };
 
+  const convertToMinutes = (value: string, unit: string): number => {
+    const numValue = parseInt(value);
+    switch (unit) {
+      case 'hours':
+        return numValue * 60;
+      case 'days':
+        return numValue * 60 * 24;
+      case 'weeks':
+        return numValue * 60 * 24 * 7;
+      case 'months':
+        return numValue * 60 * 24 * 30;
+      default:
+        return numValue * 60;
+    }
+  };
+
   const handleServiceSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -268,7 +285,7 @@ const MasterDashboard = () => {
         description: serviceForm.description,
         price: parseFloat(serviceForm.price),
         category: serviceForm.category as 'appliance_repair' | 'carpentry' | 'cleaning' | 'computer_repair' | 'electricity' | 'gardening' | 'painting' | 'plumbing',
-        duration_minutes: parseInt(serviceForm.duration_minutes),
+        duration_minutes: convertToMinutes(serviceForm.duration_value, serviceForm.duration_unit),
         master_id: profile?.id,
         status: 'active' as const
       };
@@ -303,7 +320,8 @@ const MasterDashboard = () => {
         description: '',
         price: '',
         category: '',
-        duration_minutes: ''
+        duration_value: '',
+        duration_unit: 'hours'
       });
       fetchServices();
     } catch (error) {
@@ -316,14 +334,28 @@ const MasterDashboard = () => {
     }
   };
 
+  const convertFromMinutes = (minutes: number): { value: string; unit: string } => {
+    if (minutes >= 60 * 24 * 30 && minutes % (60 * 24 * 30) === 0) {
+      return { value: (minutes / (60 * 24 * 30)).toString(), unit: 'months' };
+    } else if (minutes >= 60 * 24 * 7 && minutes % (60 * 24 * 7) === 0) {
+      return { value: (minutes / (60 * 24 * 7)).toString(), unit: 'weeks' };
+    } else if (minutes >= 60 * 24 && minutes % (60 * 24) === 0) {
+      return { value: (minutes / (60 * 24)).toString(), unit: 'days' };
+    } else {
+      return { value: (minutes / 60).toString(), unit: 'hours' };
+    }
+  };
+
   const handleEditService = (service: Service) => {
     setEditingService(service);
+    const duration = convertFromMinutes(service.duration_minutes);
     setServiceForm({
       title: service.title,
       description: service.description,
       price: service.price.toString(),
       category: service.category,
-      duration_minutes: service.duration_minutes.toString()
+      duration_value: duration.value,
+      duration_unit: duration.unit
     });
     setShowServiceDialog(true);
   };
@@ -584,28 +616,47 @@ const MasterDashboard = () => {
                               required
                             />
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid gap-4">
                             <div className="grid gap-2">
-                              <Label htmlFor="price">Precio (COP)</Label>
+                              <Label htmlFor="price">Precio ($U)</Label>
                               <Input
                                 id="price"
                                 type="number"
                                 value={serviceForm.price}
                                 onChange={(e) => setServiceForm({...serviceForm, price: e.target.value})}
-                                placeholder="50000"
+                                placeholder="1500"
                                 required
                               />
+                              <p className="text-xs text-muted-foreground">Pesos uruguayos</p>
                             </div>
                             <div className="grid gap-2">
-                              <Label htmlFor="duration">Duración (min)</Label>
-                              <Input
-                                id="duration"
-                                type="number"
-                                value={serviceForm.duration_minutes}
-                                onChange={(e) => setServiceForm({...serviceForm, duration_minutes: e.target.value})}
-                                placeholder="120"
-                                required
-                              />
+                              <Label htmlFor="duration">Duración del Servicio</Label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Input
+                                  id="duration"
+                                  type="number"
+                                  min="1"
+                                  value={serviceForm.duration_value}
+                                  onChange={(e) => setServiceForm({...serviceForm, duration_value: e.target.value})}
+                                  placeholder="2"
+                                  required
+                                />
+                                <Select 
+                                  value={serviceForm.duration_unit} 
+                                  onValueChange={(value) => setServiceForm({...serviceForm, duration_unit: value})}
+                                  required
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="hours">Horas</SelectItem>
+                                    <SelectItem value="days">Días</SelectItem>
+                                    <SelectItem value="weeks">Semanas</SelectItem>
+                                    <SelectItem value="months">Meses</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
                           </div>
                         </div>
