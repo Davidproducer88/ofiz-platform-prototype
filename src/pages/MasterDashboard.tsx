@@ -346,6 +346,17 @@ const MasterDashboard = () => {
     }
   };
 
+  const formatDuration = (minutes: number): string => {
+    const duration = convertFromMinutes(minutes);
+    const unitLabels = {
+      'hours': parseInt(duration.value) === 1 ? 'hora' : 'horas',
+      'days': parseInt(duration.value) === 1 ? 'día' : 'días',
+      'weeks': parseInt(duration.value) === 1 ? 'semana' : 'semanas',
+      'months': parseInt(duration.value) === 1 ? 'mes' : 'meses'
+    };
+    return `${duration.value} ${unitLabels[duration.unit as keyof typeof unitLabels]}`;
+  };
+
   const handleEditService = (service: Service) => {
     setEditingService(service);
     const duration = convertFromMinutes(service.duration_minutes);
@@ -714,7 +725,7 @@ const MasterDashboard = () => {
                               </span>
                               <div className="flex items-center text-sm text-muted-foreground mt-1">
                                 <Clock className="h-3 w-3 mr-1" />
-                                {service.duration_minutes} min
+                                {formatDuration(service.duration_minutes)}
                               </div>
                             </div>
                           </div>
