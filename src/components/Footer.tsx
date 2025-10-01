@@ -123,7 +123,7 @@ export const Footer = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
                 <Facebook className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon">
