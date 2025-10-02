@@ -85,10 +85,12 @@ const ClientDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [requestFormOpen, setRequestFormOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('services');
   const [filters, setFilters] = useState({
-    priceRange: [0, 50000] as [number, number],
+    priceRange: [0, 500000] as [number, number],
     minRating: 0,
     verifiedOnly: false,
+    city: 'all',
   });
 
   const categories = [
@@ -258,8 +260,9 @@ const ClientDashboard = () => {
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
     const matchesPrice = service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1];
     const matchesRating = filters.minRating === 0 || service.masters.rating >= filters.minRating;
+    const matchesCity = filters.city === 'all' || filters.city === '';
     
-    return matchesSearch && matchesCategory && matchesPrice && matchesRating;
+    return matchesSearch && matchesCategory && matchesPrice && matchesRating && matchesCity;
   });
 
   const recentBookings = bookings.slice(0, 3);
@@ -278,33 +281,22 @@ const ClientDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <Header userType="client" />
+      <Header 
+        userType="client"
+        onNotificationsClick={() => setActiveTab('notifications')}
+        onProfileClick={() => setActiveTab('profile')}
+      />
       
       <div className="container py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold gradient-text">
-                ¡Hola, {profile?.full_name}! 👋
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                Encuentra y gestiona todos tus servicios domésticos
-              </p>
-            </div>
-            <div className="hidden md:flex items-center space-x-2">
-              <Button variant="outline" size="icon" onClick={() => navigate('/')}>
-                <Home className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Avatar className="cursor-pointer">
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  {profile?.full_name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold gradient-text">
+              ¡Hola, {profile?.full_name}! 👋
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Encuentra y gestiona todos tus servicios domésticos
+            </p>
           </div>
         </div>
 
@@ -369,13 +361,13 @@ const ClientDashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="services">Buscar Servicios</TabsTrigger>
             <TabsTrigger value="requests">Mis Solicitudes</TabsTrigger>
             <TabsTrigger value="bookings">Mis Encargos</TabsTrigger>
-            <TabsTrigger value="profile">Mi Perfil</TabsTrigger>
             <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
+            <TabsTrigger value="profile" className="hidden">Mi Perfil</TabsTrigger>
           </TabsList>
 
           {/* Services Tab */}
@@ -630,7 +622,7 @@ const ClientDashboard = () => {
           onOpenChange={setFiltersOpen}
           filters={filters}
           onFiltersChange={setFilters}
-          onReset={() => setFilters({ priceRange: [0, 50000], minRating: 0, verifiedOnly: false })}
+          onReset={() => setFilters({ priceRange: [0, 500000], minRating: 0, verifiedOnly: false, city: 'all' })}
         />
 
         <ServiceRequestForm

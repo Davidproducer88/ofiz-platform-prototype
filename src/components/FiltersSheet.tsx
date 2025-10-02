@@ -4,7 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Star } from 'lucide-react';
+import { URUGUAY_LOCATIONS } from '@/lib/locations';
 
 interface FiltersSheetProps {
   open: boolean;
@@ -13,11 +15,13 @@ interface FiltersSheetProps {
     priceRange: [number, number];
     minRating: number;
     verifiedOnly: boolean;
+    city: string;
   };
   onFiltersChange: (filters: {
     priceRange: [number, number];
     minRating: number;
     verifiedOnly: boolean;
+    city: string;
   }) => void;
   onReset: () => void;
 }
@@ -54,8 +58,8 @@ export function FiltersSheet({
                 onFiltersChange({ ...filters, priceRange: value as [number, number] })
               }
               min={0}
-              max={50000}
-              step={1000}
+              max={500000}
+              step={5000}
               className="w-full"
             />
           </div>
@@ -87,6 +91,31 @@ export function FiltersSheet({
             <p className="text-sm text-muted-foreground">
               {filters.minRating === 0 ? "Sin filtro" : `${filters.minRating} estrellas o más`}
             </p>
+          </div>
+
+          <Separator />
+
+          {/* City Filter */}
+          <div className="space-y-4">
+            <Label>Buscar por Zona</Label>
+            <Select
+              value={filters.city}
+              onValueChange={(value) => 
+                onFiltersChange({ ...filters, city: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona ciudad y barrio" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="all">Todas las zonas</SelectItem>
+                {URUGUAY_LOCATIONS.map((location) => (
+                  <SelectItem key={location} value={location}>
+                    {location}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Separator />

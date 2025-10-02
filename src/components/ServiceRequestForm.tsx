@@ -32,7 +32,7 @@ interface FormData {
   title: string;
   description: string;
   category: string;
-  budget_range: string;
+  payment_method: string;
 }
 
 const categories = [
@@ -58,10 +58,10 @@ export function ServiceRequestForm({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + photos.length > 5) {
+    if (files.length + photos.length > 10) {
       toast({
-        title: "Límite de fotos",
-        description: "Puedes subir máximo 5 fotos",
+        title: "Límite de archivos",
+        description: "Puedes subir máximo 10 archivos (fotos y videos)",
         variant: "destructive",
       });
       return;
@@ -106,15 +106,15 @@ export function ServiceRequestForm({
         photoUrls.push(publicUrl);
       }
 
-      // Create service request
+      // Create service request with payment method
       const { error } = await supabase
         .from("service_requests")
         .insert({
           client_id: user.id,
           title: data.title,
-          description: data.description,
+          description: `${data.description}\n\nMétodo de pago preferido: ${data.payment_method}`,
           category: data.category as any,
-          budget_range: data.budget_range,
+          budget_range: null,
           photos: photoUrls,
           status: "open",
         } as any);
@@ -199,28 +199,40 @@ export function ServiceRequestForm({
           </div>
 
           <div>
-            <Label htmlFor="budget_range">Presupuesto estimado</Label>
-            <Input
-              id="budget_range"
-              placeholder="Ej: $500 - $1000"
-              {...register("budget_range")}
-            />
+            <Label htmlFor="payment_method">Método de Pago Preferido *</Label>
+            <Select onValueChange={(value) => setValue("payment_method", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona método de pago" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Efectivo">Efectivo</SelectItem>
+                <SelectItem value="Transferencia Bancaria">Transferencia Bancaria</SelectItem>
+                <SelectItem value="Tarjeta de Crédito/Débito">Tarjeta de Crédito/Débito</SelectItem>
+                <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.payment_method && (
+              <p className="text-sm text-destructive mt-1">{errors.payment_method.message}</p>
+            )}
           </div>
 
           <div>
-            <Label>Fotos (opcional - máx. 5)</Label>
+            <Label>Fotos y Videos (opcional - máx. 10 archivos)</Label>
             <div className="mt-2">
               <label className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors">
                 <div className="flex flex-col items-center">
                   <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    Haz clic para subir fotos
+                    Haz clic para subir fotos o videos
+                  </span>
+                  <span className="text-xs text-muted-foreground mt-1">
+                    Formatos: JPG, PNG, MP4, MOV
                   </span>
                 </div>
                 <input
                   type="file"
                   multiple
-                  accept="image/*"
+                  accept="image/*,video/*"
                   className="hidden"
                   onChange={handleFileChange}
                 />

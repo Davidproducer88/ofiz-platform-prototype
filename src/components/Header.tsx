@@ -9,9 +9,11 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | null;
   userName?: string;
+  onNotificationsClick?: () => void;
+  onProfileClick?: () => void;
 }
 
-export const Header = ({ userType }: HeaderProps) => {
+export const Header = ({ userType, onNotificationsClick, onProfileClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
@@ -91,13 +93,13 @@ export const Header = ({ userType }: HeaderProps) => {
           
           {userType ? (
             <>
-              {/* Search */}
-              <Button variant="ghost" size="icon">
-                <Search className="h-4 w-4" />
-              </Button>
-              
               {/* Notifications */}
-              <Button variant="ghost" size="icon" className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={onNotificationsClick}
+              >
                 <Bell className="h-4 w-4" />
                 <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-pulse"></div>
               </Button>
@@ -117,6 +119,16 @@ export const Header = ({ userType }: HeaderProps) => {
                   <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-elegant py-1 z-10">
                     <button 
                       onClick={() => {
+                        onProfileClick?.();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Mi Perfil
+                    </button>
+                    <button 
+                      onClick={() => {
                         if (userType === 'client') navigate('/dashboard/client');
                         else if (userType === 'master') navigate('/dashboard/master');
                         else if (userType === 'admin') navigate('/admin/dashboard');
@@ -124,17 +136,8 @@ export const Header = ({ userType }: HeaderProps) => {
                       }}
                       className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
                     >
-                      <User className="mr-2 h-4 w-4" />
-                      Mi Dashboard
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
-                    >
                       <Settings className="mr-2 h-4 w-4" />
-                      Configuración
+                      Mi Dashboard
                     </button>
                     <div className="border-t border-border my-1"></div>
                     <button 
