@@ -5,21 +5,16 @@ import { ArrowRight, CheckCircle, Users, Star, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroClient from "@/assets/hero-client.jpg";
 import heroProfessionals from "@/assets/hero-professionals.jpg";
-
 export const Hero = () => {
   const navigate = useNavigate();
-
   const handleServiceClick = () => {
     navigate('/auth?type=client');
   };
-
   const handleProfessionalClick = () => {
     navigate('/auth?type=master');
   };
-
-  return (
-    <section className="relative bg-gradient-subtle">
-      <div className="container py-20 md:py-32">
+  return <section className="relative bg-gradient-subtle">
+      <div className="container md:py-32 py-[20px]">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8 animate-fade-in">
@@ -89,11 +84,7 @@ export const Hero = () => {
           <div className="relative">
             <div className="grid grid-cols-2 gap-4">
               <Card className="overflow-hidden shadow-elegant animate-float">
-                <img
-                  src={heroProfessionals}
-                  alt="Profesionales verificados"
-                  className="w-full h-48 object-cover"
-                />
+                <img src={heroProfessionals} alt="Profesionales verificados" className="w-full h-48 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold mb-2">Maestros Verificados</h3>
                   <p className="text-sm text-muted-foreground">
@@ -103,11 +94,7 @@ export const Hero = () => {
               </Card>
               
               <Card className="overflow-hidden shadow-elegant animate-float mt-8">
-                <img
-                  src={heroClient}
-                  alt="Clientes satisfechos"
-                  className="w-full h-48 object-cover"
-                />
+                <img src={heroClient} alt="Clientes satisfechos" className="w-full h-48 object-cover" />
                 <div className="p-4">
                   <h3 className="font-semibold mb-2">Clientes Satisfechos</h3>
                   <p className="text-sm text-muted-foreground">
@@ -124,6 +111,5 @@ export const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
