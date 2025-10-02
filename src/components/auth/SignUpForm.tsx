@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 const signUpSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -40,6 +40,8 @@ export const SignUpForm = ({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     signUp
   } = useAuth();
@@ -121,13 +123,31 @@ export const SignUpForm = ({
 
         <div className="space-y-2">
           <Label htmlFor="password">Contraseña</Label>
-          <Input id="password" type="password" placeholder="Mínimo 6 caracteres" value={formData.password} onChange={e => handleInputChange('password', e.target.value)} disabled={loading} />
+          <div className="relative">
+            <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mínimo 6 caracteres" value={formData.password} onChange={e => handleInputChange('password', e.target.value)} disabled={loading} className="pr-10" />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-          <Input id="confirmPassword" type="password" placeholder="Repite tu contraseña" value={formData.confirmPassword} onChange={e => handleInputChange('confirmPassword', e.target.value)} disabled={loading} />
+          <div className="relative">
+            <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Repite tu contraseña" value={formData.confirmPassword} onChange={e => handleInputChange('confirmPassword', e.target.value)} disabled={loading} className="pr-10" />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
         </div>
 
