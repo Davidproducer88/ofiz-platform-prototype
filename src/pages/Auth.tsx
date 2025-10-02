@@ -7,10 +7,13 @@ import { SignUpForm } from '@/components/auth/SignUpForm';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { EmailVerificationNotice } from '@/components/auth/EmailVerificationNotice';
 import { UserTypeSelector } from '@/components/UserTypeSelector';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const typeParam = searchParams.get('type') as 'client' | 'master' | null;
   const messageParam = searchParams.get('message');
   const emailParam = searchParams.get('email');
@@ -51,6 +54,20 @@ const Auth = () => {
     setPendingEmail('');
   };
 
+  const handleClose = () => {
+    if (selectedUserType) {
+      // Si hay un tipo de usuario seleccionado, volver al selector
+      setSelectedUserType(null);
+      setShowUserTypeSelector(true);
+    } else if (showUserTypeSelector) {
+      // Si está en el selector, volver a la página principal
+      navigate('/');
+    } else {
+      // Por defecto, volver a la página principal
+      navigate('/');
+    }
+  };
+
   // Show email verification notice
   if (showEmailVerification && pendingEmail) {
     return (
@@ -64,7 +81,15 @@ const Auth = () => {
   if (showUserTypeSelector) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-0 right-0 z-10"
+            onClick={handleClose}
+          >
+            <X className="h-5 w-5" />
+          </Button>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Únete a Ofiz</h1>
             <p className="text-muted-foreground">Elige cómo quieres usar nuestra plataforma</p>
@@ -78,7 +103,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 right-4 z-10"
+          onClick={handleClose}
+        >
+          <X className="h-5 w-5" />
+        </Button>
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Bienvenido a Ofiz</CardTitle>
           <CardDescription>
