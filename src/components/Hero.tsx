@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle, Users, Star, Wrench } from "lucide-react";
+import { ArrowRight, CheckCircle, Users, Star, Wrench, BadgeCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroClient from "@/assets/hero-client.jpg";
 import heroProfessionals from "@/assets/hero-professionals.jpg";
@@ -86,7 +86,10 @@ export const Hero = () => {
               <Card className="overflow-hidden shadow-elegant animate-float">
                 <img src={heroProfessionals} alt="Profesionales verificados" className="w-full h-48 object-cover" />
                 <div className="p-4">
-                  <h3 className="font-semibold mb-2">Maestros Verificados</h3>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                    Maestros Verificados
+                    <BadgeCheck className="h-5 w-5 text-primary" />
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Profesionales con experiencia comprobada
                   </p>
