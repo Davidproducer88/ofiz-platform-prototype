@@ -99,7 +99,10 @@ export const Hero = () => {
               <Card className="overflow-hidden shadow-elegant animate-float mt-8">
                 <img src={heroClient} alt="Clientes satisfechos" className="w-full h-48 object-cover" />
                 <div className="p-4">
-                  <h3 className="font-semibold mb-2">Clientes Satisfechos</h3>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                    Clientes Satisfechos
+                    <Star className="h-5 w-5 text-accent fill-accent" />
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Miles de trabajos completados exitosamente
                   </p>
