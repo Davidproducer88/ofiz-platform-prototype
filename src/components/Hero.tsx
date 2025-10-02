@@ -105,9 +105,7 @@ export const Hero = () => {
             </div>
 
             {/* Floating badge */}
-            <div className="absolute -top-4 -right-4 bg-accent text-accent-foreground px-4 py-2 rounded-full shadow-elegant animate-pulse">
-              ¡Nuevo!
-            </div>
+            
           </div>
         </div>
       </div>
