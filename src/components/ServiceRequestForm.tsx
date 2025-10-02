@@ -208,7 +208,7 @@ export function ServiceRequestForm({
                 <SelectItem value="Efectivo">Efectivo</SelectItem>
                 <SelectItem value="Transferencia Bancaria">Transferencia Bancaria</SelectItem>
                 <SelectItem value="Tarjeta de Crédito/Débito">Tarjeta de Crédito/Débito</SelectItem>
-                <SelectItem value="Cualquiera">Cualquiera</SelectItem>
+                <SelectItem value="Criptomonedas">Criptomonedas</SelectItem>
               </SelectContent>
             </Select>
             {errors.payment_method && (
