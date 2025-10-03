@@ -12,6 +12,51 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // Extract URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type');
+        const userTypeFromUrl = urlParams.get('user_type');
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        
+        // If we have tokens in URL (email confirmation link), set session manually
+        if (accessToken && refreshToken) {
+          const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) {
+            console.error('Session error:', sessionError);
+            toast({
+              title: "Error de autenticación",
+              description: sessionError.message,
+              variant: "destructive"
+            });
+            navigate('/auth');
+            return;
+          }
+
+          if (sessionData.session) {
+            toast({
+              title: "¡Email verificado!",
+              description: "Has iniciado sesión correctamente"
+            });
+            
+            const userType = userTypeFromUrl || sessionData.session.user.user_metadata?.user_type;
+            
+            if (userType === 'master') {
+              navigate('/master-dashboard');
+            } else if (userType === 'admin') {
+              navigate('/admin');
+            } else {
+              navigate('/client-dashboard');
+            }
+            return;
+          }
+        }
+        
+        // Otherwise check existing session
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -31,9 +76,6 @@ const AuthCallback = () => {
             description: "Has iniciado sesión correctamente"
           });
           
-          // Redirect based on user type from URL params or session metadata
-          const urlParams = new URLSearchParams(window.location.search);
-          const userTypeFromUrl = urlParams.get('user_type');
           const userType = userTypeFromUrl || data.session.user.user_metadata?.user_type;
           
           if (userType === 'master') {
@@ -44,11 +86,8 @@ const AuthCallback = () => {
             navigate('/client-dashboard');
           }
         } else {
-          // Handle email verification
-          const urlParams = new URLSearchParams(window.location.search);
-          const type = urlParams.get('type');
-          
-          if (type === 'email_verification') {
+          // No session and no tokens - just verified email
+          if (type === 'signup') {
             toast({
               title: "Email verificado",
               description: "Tu cuenta ha sido verificada. Ya puedes iniciar sesión."
