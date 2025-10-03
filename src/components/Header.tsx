@@ -5,64 +5,51 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | null;
   userName?: string;
   onNotificationsClick?: () => void;
   onProfileClick?: () => void;
 }
-
-export const Header = ({ userType, onNotificationsClick, onProfileClick }: HeaderProps) => {
+export const Header = ({
+  userType,
+  onNotificationsClick,
+  onProfileClick
+}: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { profile, signOut } = useAuth();
+  const {
+    profile,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
-
   const handleSignOut = async () => {
     await signOut();
     setIsMenuOpen(false);
   };
-
   const handleAuthAction = (action: 'login' | 'signup') => {
     navigate('/auth');
   };
-
   const getUserTypeLabel = () => {
     switch (userType) {
-      case 'master': return 'Profesional';
-      case 'client': return 'Cliente';
-      case 'admin': return 'Admin';
-      default: return 'Beta';
+      case 'master':
+        return 'Profesional';
+      case 'client':
+        return 'Cliente';
+      case 'admin':
+        return 'Admin';
+      default:
+        return 'Beta';
     }
   };
-
-  return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  return <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-4">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-2xl font-bold gradient-text cursor-pointer hover:opacity-80 transition-smooth"
-          >
+          <button onClick={() => navigate('/')} className="text-2xl font-bold gradient-text cursor-pointer hover:opacity-80 transition-smooth">
             Ofiz
           </button>
           <Badge variant="secondary" className="hidden md:inline-flex">
@@ -79,13 +66,10 @@ export const Header = ({ userType, onNotificationsClick, onProfileClick }: Heade
           </SheetTrigger>
           <SheetContent side="left" className="w-80 overflow-y-auto">
             <div className="flex flex-col space-y-4 mt-8">
-              <button 
-                onClick={() => {
-                  navigate('/');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
-              >
+              <button onClick={() => {
+              navigate('/');
+              setIsMobileMenuOpen(false);
+            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                 Inicio
               </button>
 
@@ -170,51 +154,31 @@ export const Header = ({ userType, onNotificationsClick, onProfileClick }: Heade
               </Accordion>
 
               {/* Dashboard links for logged in users */}
-              {userType === 'master' && (
-                <button 
-                  onClick={() => {
-                    navigate('/dashboard/master');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
-                >
+              {userType === 'master' && <button onClick={() => {
+              navigate('/dashboard/master');
+              setIsMobileMenuOpen(false);
+            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Mi Dashboard
-                </button>
-              )}
-              {userType === 'client' && (
-                <button 
-                  onClick={() => {
-                    navigate('/dashboard/client');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
-                >
+                </button>}
+              {userType === 'client' && <button onClick={() => {
+              navigate('/dashboard/client');
+              setIsMobileMenuOpen(false);
+            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Mi Dashboard
-                </button>
-              )}
-              {userType === 'admin' && (
-                <button 
-                  onClick={() => {
-                    navigate('/admin/dashboard');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
-                >
+                </button>}
+              {userType === 'admin' && <button onClick={() => {
+              navigate('/admin/dashboard');
+              setIsMobileMenuOpen(false);
+            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Panel Admin
-                </button>
-              )}
+                </button>}
             </div>
           </SheetContent>
         </Sheet>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
-          >
-            Inicio
-          </button>
+          
 
           {/* Para Clientes Dropdown */}
           <DropdownMenu>
@@ -292,30 +256,15 @@ export const Header = ({ userType, onNotificationsClick, onProfileClick }: Heade
           </DropdownMenu>
 
           {/* Dashboard links for logged in users */}
-          {userType === 'master' && (
-            <button 
-              onClick={() => navigate('/dashboard/master')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
-            >
+          {userType === 'master' && <button onClick={() => navigate('/dashboard/master')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Mi Dashboard
-            </button>
-          )}
-          {userType === 'client' && (
-            <button 
-              onClick={() => navigate('/dashboard/client')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
-            >
+            </button>}
+          {userType === 'client' && <button onClick={() => navigate('/dashboard/client')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Mi Dashboard
-            </button>
-          )}
-          {userType === 'admin' && (
-            <button 
-              onClick={() => navigate('/admin/dashboard')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
-            >
+            </button>}
+          {userType === 'admin' && <button onClick={() => navigate('/admin/dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Panel Admin
-            </button>
-          )}
+            </button>}
         </nav>
 
         {/* Right side */}
@@ -323,69 +272,44 @@ export const Header = ({ userType, onNotificationsClick, onProfileClick }: Heade
           {/* Theme Toggle */}
           <ThemeToggle />
           
-          {userType ? (
-            <>
+          {userType ? <>
               {/* Notifications */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative"
-                onClick={onNotificationsClick}
-              >
+              <Button variant="ghost" size="icon" className="relative" onClick={onNotificationsClick}>
                 <Bell className="h-4 w-4" />
                 <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-pulse"></div>
               </Button>
 
               {/* User menu */}
               <div className="relative">
-                <Button 
-                  variant="ghost" 
-                  className="flex items-center space-x-2"
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
+                <Button variant="ghost" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                   <User className="h-4 w-4" />
                   <span className="hidden md:inline-block">{profile?.full_name || 'Usuario'}</span>
                 </Button>
 
-                {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-elegant py-1 z-10">
-                    <button 
-                      onClick={() => {
-                        onProfileClick?.();
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
-                    >
+                {isMenuOpen && <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-elegant py-1 z-10">
+                    <button onClick={() => {
+                onProfileClick?.();
+                setIsMenuOpen(false);
+              }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <User className="mr-2 h-4 w-4" />
                       Mi Perfil
                     </button>
-                    <button 
-                      onClick={() => {
-                        if (userType === 'client') navigate('/dashboard/client');
-                        else if (userType === 'master') navigate('/dashboard/master');
-                        else if (userType === 'admin') navigate('/admin/dashboard');
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left"
-                    >
+                    <button onClick={() => {
+                if (userType === 'client') navigate('/dashboard/client');else if (userType === 'master') navigate('/dashboard/master');else if (userType === 'admin') navigate('/admin/dashboard');
+                setIsMenuOpen(false);
+              }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <Settings className="mr-2 h-4 w-4" />
                       Mi Dashboard
                     </button>
                     <div className="border-t border-border my-1"></div>
-                    <button 
-                      onClick={handleSignOut}
-                      className="flex items-center px-3 py-2 text-sm text-destructive hover:bg-muted w-full text-left"
-                    >
+                    <button onClick={handleSignOut} className="flex items-center px-3 py-2 text-sm text-destructive hover:bg-muted w-full text-left">
                       <LogOut className="mr-2 h-4 w-4" />
                       Cerrar Sesión
                     </button>
-                  </div>
-                )}
+                  </div>}
               </div>
-            </>
-          ) : null}
+            </> : null}
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
