@@ -105,21 +105,37 @@ export const SignUpForm = ({
       </Button>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        
+        <div className="space-y-2">
+          <Label htmlFor="full_name">Nombre completo</Label>
+          <Input 
+            id="full_name" 
+            type="text" 
+            placeholder="Tu nombre completo" 
+            value={formData.full_name} 
+            onChange={e => handleInputChange('full_name', e.target.value)} 
+            disabled={loading} 
+          />
+          {errors.full_name && <p className="text-sm text-destructive">{errors.full_name}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">Teléfono</Label>
+          <Input 
+            id="phone" 
+            type="tel" 
+            placeholder="Tu número de teléfono" 
+            value={formData.phone} 
+            onChange={e => handleInputChange('phone', e.target.value)} 
+            disabled={loading} 
+          />
+          {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="tu@email.com" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} disabled={loading} />
           {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
         </div>
-
-        
-
-        {userType === 'client' && <>
-            
-
-            
-          </>}
 
         <div className="space-y-2">
           <Label htmlFor="password">Contraseña</Label>
