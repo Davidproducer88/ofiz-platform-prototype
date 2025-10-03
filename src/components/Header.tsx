@@ -66,12 +66,7 @@ export const Header = ({
           </SheetTrigger>
           <SheetContent side="left" className="w-80 overflow-y-auto">
             <div className="flex flex-col space-y-4 mt-8">
-              <button onClick={() => {
-              navigate('/');
-              setIsMobileMenuOpen(false);
-            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
-                Inicio
-              </button>
+              
 
               <Accordion type="single" collapsible className="w-full">
                 {/* Clientes */}
