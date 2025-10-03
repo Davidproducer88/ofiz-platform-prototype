@@ -148,7 +148,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const userType = userData.user_type || 'client';
+      const redirectUrl = `${window.location.origin}/auth/callback?type=signup&user_type=${userType}`;
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -157,7 +158,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: userData.full_name,
-            user_type: userData.user_type,
+            user_type: userType,
             phone: userData.phone,
             address: userData.address,
             city: userData.city
@@ -251,7 +252,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`
         }
       });
 

@@ -31,8 +31,11 @@ const AuthCallback = () => {
             description: "Has iniciado sesión correctamente"
           });
           
-          // Redirect based on user type or to main page
-          const userType = data.session.user.user_metadata?.user_type;
+          // Redirect based on user type from URL params or session metadata
+          const urlParams = new URLSearchParams(window.location.search);
+          const userTypeFromUrl = urlParams.get('user_type');
+          const userType = userTypeFromUrl || data.session.user.user_metadata?.user_type;
+          
           if (userType === 'master') {
             navigate('/master-dashboard');
           } else if (userType === 'admin') {

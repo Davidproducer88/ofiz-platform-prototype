@@ -22,7 +22,7 @@ export const EmailVerificationNotice = ({ email, onBack }: EmailVerificationNoti
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`
         }
       });
 
