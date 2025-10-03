@@ -1,10 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, User, Bell, Settings, LogOut } from "lucide-react";
+import { Search, User, Bell, Settings, LogOut, Menu, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | null;
@@ -15,6 +32,7 @@ interface HeaderProps {
 
 export const Header = ({ userType, onNotificationsClick, onProfileClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -52,7 +70,144 @@ export const Header = ({ userType, onNotificationsClick, onProfileClick }: Heade
           </Badge>
         </div>
 
-        {/* Navigation */}
+        {/* Mobile Menu Button */}
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="ghost" size="icon">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-80 overflow-y-auto">
+            <div className="flex flex-col space-y-4 mt-8">
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
+              >
+                Inicio
+              </button>
+
+              <Accordion type="single" collapsible className="w-full">
+                {/* Para Clientes */}
+                <AccordionItem value="clientes">
+                  <AccordionTrigger className="text-lg font-medium">
+                    Para Clientes
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col space-y-3 pl-4">
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Publicar Encargo
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Buscar Profesionales
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Cómo Funciona
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Precios y Tarifas
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Garantías
+                      </a>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Para Profesionales */}
+                <AccordionItem value="profesionales">
+                  <AccordionTrigger className="text-lg font-medium">
+                    Para Profesionales
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col space-y-3 pl-4">
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Registrarse como Maestro
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Planes Premium
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Centro de Ayuda
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Verificación de Perfil
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Herramientas
+                      </a>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Empresa */}
+                <AccordionItem value="empresa">
+                  <AccordionTrigger className="text-lg font-medium">
+                    Empresa
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col space-y-3 pl-4">
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Sobre Ofiz
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Términos y Condiciones
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Política de Privacidad
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Contacto
+                      </a>
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Blog
+                      </a>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              {/* Dashboard links for logged in users */}
+              {userType === 'master' && (
+                <button 
+                  onClick={() => {
+                    navigate('/dashboard/master');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
+                >
+                  Mi Dashboard
+                </button>
+              )}
+              {userType === 'client' && (
+                <button 
+                  onClick={() => {
+                    navigate('/dashboard/client');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
+                >
+                  Mi Dashboard
+                </button>
+              )}
+              {userType === 'admin' && (
+                <button 
+                  onClick={() => {
+                    navigate('/admin/dashboard');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
+                >
+                  Panel Admin
+                </button>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           <button 
             onClick={() => navigate('/')}
@@ -60,6 +215,83 @@ export const Header = ({ userType, onNotificationsClick, onProfileClick }: Heade
           >
             Inicio
           </button>
+
+          {/* Para Clientes Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+              Para Clientes
+              <ChevronDown className="ml-1 h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-card border border-border z-50">
+              <DropdownMenuItem className="cursor-pointer">
+                Publicar Encargo
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Buscar Profesionales
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Cómo Funciona
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Precios y Tarifas
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Garantías
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Para Profesionales Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+              Para Profesionales
+              <ChevronDown className="ml-1 h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-card border border-border z-50">
+              <DropdownMenuItem className="cursor-pointer">
+                Registrarse como Maestro
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Planes Premium
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Centro de Ayuda
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Verificación de Perfil
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Herramientas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Empresa Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+              Empresa
+              <ChevronDown className="ml-1 h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-card border border-border z-50">
+              <DropdownMenuItem className="cursor-pointer">
+                Sobre Ofiz
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Términos y Condiciones
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Política de Privacidad
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Contacto
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Blog
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Dashboard links for logged in users */}
           {userType === 'master' && (
             <button 
               onClick={() => navigate('/dashboard/master')}
