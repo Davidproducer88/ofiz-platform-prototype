@@ -74,10 +74,10 @@ export const Header = ({
               </button>
 
               <Accordion type="single" collapsible className="w-full">
-                {/* Para Clientes */}
+                {/* Clientes */}
                 <AccordionItem value="clientes">
                   <AccordionTrigger className="text-lg font-medium">
-                    Para Clientes
+                    Clientes
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-3 pl-4">
@@ -100,10 +100,10 @@ export const Header = ({
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* Para Profesionales */}
+                {/* Profesionales */}
                 <AccordionItem value="profesionales">
                   <AccordionTrigger className="text-lg font-medium">
-                    Para Profesionales
+                    Profesionales
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-3 pl-4">
@@ -180,10 +180,10 @@ export const Header = ({
         <nav className="hidden md:flex items-center space-x-6">
           
 
-          {/* Para Clientes Dropdown */}
+          {/* Clientes Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Para Clientes
+              Clientes
               <ChevronDown className="ml-1 h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card border border-border z-50">
@@ -205,10 +205,10 @@ export const Header = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Para Profesionales Dropdown */}
+          {/* Profesionales Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Para Profesionales
+              Profesionales
               <ChevronDown className="ml-1 h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card border border-border z-50">
