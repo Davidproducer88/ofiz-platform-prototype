@@ -10,11 +10,7 @@ import { z } from 'zod';
 const signUpSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  confirmPassword: z.string(),
-  full_name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  phone: z.string().min(10, 'El teléfono debe tener al menos 10 dígitos'),
-  address: z.string().optional(),
-  city: z.string().optional()
+  confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"]
@@ -32,11 +28,7 @@ export const SignUpForm = ({
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    full_name: '',
-    phone: '',
-    address: '',
-    city: ''
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -105,32 +97,6 @@ export const SignUpForm = ({
       </Button>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="full_name">Nombre completo</Label>
-          <Input 
-            id="full_name" 
-            type="text" 
-            placeholder="Tu nombre completo" 
-            value={formData.full_name} 
-            onChange={e => handleInputChange('full_name', e.target.value)} 
-            disabled={loading} 
-          />
-          {errors.full_name && <p className="text-sm text-destructive">{errors.full_name}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono</Label>
-          <Input 
-            id="phone" 
-            type="tel" 
-            placeholder="Tu número de teléfono" 
-            value={formData.phone} 
-            onChange={e => handleInputChange('phone', e.target.value)} 
-            disabled={loading} 
-          />
-          {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="tu@email.com" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} disabled={loading} />
