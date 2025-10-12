@@ -14,6 +14,7 @@ interface SearchFilters {
   city: string;
   verifiedOnly: boolean;
   category?: string;
+  maxDistance?: number;
 }
 
 interface Master {
@@ -25,6 +26,9 @@ interface Master {
   rating: number;
   total_reviews: number;
   is_verified: boolean;
+  latitude: number | null;
+  longitude: number | null;
+  distance?: number;
   profiles: {
     full_name: string;
     avatar_url: string;
@@ -39,15 +43,22 @@ interface Master {
 interface MastersListProps {
   searchQuery: string;
   filters: SearchFilters;
+  userLocation?: { lat: number; lng: number } | null;
+  onMastersChange?: (masters: Master[]) => void;
 }
 
-export const MastersList = ({ searchQuery, filters }: MastersListProps) => {
+export const MastersList = ({ 
+  searchQuery, 
+  filters, 
+  userLocation,
+  onMastersChange 
+}: MastersListProps) => {
   const [masters, setMasters] = useState<Master[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchMasters();
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, userLocation]);
 
   const fetchMasters = async () => {
     try {
@@ -97,7 +108,49 @@ export const MastersList = ({ searchQuery, filters }: MastersListProps) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setMasters(data || []);
+      
+      let mastersWithDistance = (data || []) as Master[];
+
+      // Calcular distancias si hay ubicación del usuario
+      if (userLocation && mastersWithDistance.length > 0) {
+        mastersWithDistance = mastersWithDistance.map(master => {
+          if (master.latitude && master.longitude) {
+            // Fórmula de Haversine simplificada
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (master.latitude - userLocation.lat) * Math.PI / 180;
+            const dLon = (master.longitude - userLocation.lng) * Math.PI / 180;
+            const a = 
+              Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(userLocation.lat * Math.PI / 180) * 
+              Math.cos(master.latitude * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+            
+            return { ...master, distance };
+          }
+          return master;
+        });
+
+        // Filtrar por distancia máxima si está configurado
+        if (filters.maxDistance) {
+          mastersWithDistance = mastersWithDistance.filter(
+            master => master.distance !== undefined && master.distance <= filters.maxDistance!
+          );
+        }
+
+        // Ordenar por distancia
+        mastersWithDistance.sort((a, b) => {
+          if (a.distance === undefined) return 1;
+          if (b.distance === undefined) return -1;
+          return a.distance - b.distance;
+        });
+      }
+
+      setMasters(mastersWithDistance);
+      if (onMastersChange) {
+        onMastersChange(mastersWithDistance);
+      }
     } catch (error) {
       console.error("Error fetching masters:", error);
       toast.error("Error al cargar profesionales");
@@ -178,6 +231,11 @@ export const MastersList = ({ searchQuery, filters }: MastersListProps) => {
           <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span>{master.profiles.city}</span>
+            {master.distance !== undefined && (
+              <>
+                <span className="text-primary font-medium">• {master.distance.toFixed(1)} km</span>
+              </>
+            )}
             <Clock className="h-4 w-4 ml-2" />
             <span>{master.experience_years} años exp.</span>
           </div>

@@ -16,14 +16,17 @@ interface FiltersSheetProps {
     minRating: number;
     verifiedOnly: boolean;
     city: string;
+    maxDistance?: number;
   };
   onFiltersChange: (filters: {
     priceRange: [number, number];
     minRating: number;
     verifiedOnly: boolean;
     city: string;
+    maxDistance?: number;
   }) => void;
   onReset: () => void;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 export function FiltersSheet({ 
@@ -31,7 +34,8 @@ export function FiltersSheet({
   onOpenChange, 
   filters,
   onFiltersChange,
-  onReset 
+  onReset,
+  userLocation
 }: FiltersSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -94,6 +98,41 @@ export function FiltersSheet({
           </div>
 
           <Separator />
+
+          {/* Distance Filter (only if user location is available) */}
+          {userLocation && (
+            <>
+              <div className="space-y-4">
+                <div>
+                  <Label>Distancia Máxima</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {filters.maxDistance 
+                      ? `Hasta ${filters.maxDistance} km de tu ubicación`
+                      : "Sin límite de distancia"}
+                  </p>
+                </div>
+                <Slider
+                  value={[filters.maxDistance || 50]}
+                  onValueChange={(value) => 
+                    onFiltersChange({ ...filters, maxDistance: value[0] })
+                  }
+                  min={1}
+                  max={50}
+                  step={1}
+                  className="w-full"
+                />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => onFiltersChange({ ...filters, maxDistance: undefined })}
+                  className="w-full"
+                >
+                  Eliminar filtro de distancia
+                </Button>
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* City Filter */}
           <div className="space-y-4">

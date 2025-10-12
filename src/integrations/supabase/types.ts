@@ -164,6 +164,8 @@ export type Database = {
           hourly_rate: number | null
           id: string
           is_verified: boolean | null
+          latitude: number | null
+          longitude: number | null
           rating: number | null
           total_reviews: number | null
           updated_at: string
@@ -177,6 +179,8 @@ export type Database = {
           hourly_rate?: number | null
           id: string
           is_verified?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           rating?: number | null
           total_reviews?: number | null
           updated_at?: string
@@ -190,6 +194,8 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           is_verified?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           rating?: number | null
           total_reviews?: number | null
           updated_at?: string
@@ -301,7 +307,9 @@ export type Database = {
           email_verified: boolean | null
           full_name: string
           id: string
+          latitude: number | null
           login_provider: string | null
+          longitude: number | null
           phone: string | null
           updated_at: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -315,7 +323,9 @@ export type Database = {
           email_verified?: boolean | null
           full_name: string
           id: string
+          latitude?: number | null
           login_provider?: string | null
+          longitude?: number | null
           phone?: string | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -329,7 +339,9 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string
           id?: string
+          latitude?: number | null
           login_provider?: string | null
+          longitude?: number | null
           phone?: string | null
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -549,6 +561,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_distance: {
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

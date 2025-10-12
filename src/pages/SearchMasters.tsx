@@ -3,10 +3,13 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { FiltersSheet } from "@/components/FiltersSheet";
 import { MastersList } from "@/components/MastersList";
 import { RecommendedMasters } from "@/components/RecommendedMasters";
+import { MastersMap } from "@/components/MastersMap";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface SearchFilters {
   priceRange: [number, number];
@@ -14,6 +17,7 @@ interface SearchFilters {
   city: string;
   verifiedOnly: boolean;
   category?: string;
+  maxDistance?: number;
 }
 
 const SearchMasters = () => {
@@ -24,7 +28,10 @@ const SearchMasters = () => {
     minRating: 0,
     city: "all",
     verifiedOnly: false,
+    maxDistance: undefined,
   });
+  const [masters, setMasters] = useState<any[]>([]);
+  const { location: userLocation, loading: locationLoading, refreshLocation } = useGeolocation();
 
   const handleSearch = () => {
     // Trigger search with current query and filters
@@ -36,6 +43,7 @@ const SearchMasters = () => {
       minRating: 0,
       city: "all",
       verifiedOnly: false,
+      maxDistance: undefined,
     });
   };
 
@@ -58,6 +66,10 @@ const SearchMasters = () => {
             <Button onClick={() => setFiltersOpen(true)} variant="outline">
               Filtros
             </Button>
+            <Button onClick={refreshLocation} variant="outline" disabled={locationLoading}>
+              <MapPin className="h-4 w-4 mr-2" />
+              {locationLoading ? "Obteniendo..." : "Mi ubicación"}
+            </Button>
             <Button onClick={handleSearch}>
               <Search className="h-4 w-4 mr-2" />
               Buscar
@@ -70,11 +82,29 @@ const SearchMasters = () => {
           <RecommendedMasters />
         )}
 
-        {/* Search Results */}
-        <MastersList 
-          searchQuery={searchQuery}
-          filters={filters}
-        />
+        {/* Search Results with Map */}
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+            <TabsTrigger value="list">Lista</TabsTrigger>
+            <TabsTrigger value="map">Mapa</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="list">
+            <MastersList 
+              searchQuery={searchQuery}
+              filters={filters}
+              userLocation={userLocation}
+              onMastersChange={setMasters}
+            />
+          </TabsContent>
+          
+          <TabsContent value="map">
+            <MastersMap 
+              masters={masters}
+              userLocation={userLocation}
+            />
+          </TabsContent>
+        </Tabs>
       </main>
 
       <Footer />
@@ -86,6 +116,7 @@ const SearchMasters = () => {
         filters={filters}
         onFiltersChange={setFilters}
         onReset={handleResetFilters}
+        userLocation={userLocation}
       />
     </div>
   );
