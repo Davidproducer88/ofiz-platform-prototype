@@ -78,11 +78,17 @@ export const Header = ({
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-3 pl-4">
+                      <button 
+                        onClick={() => {
+                          navigate('/search');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+                      >
+                        Buscar Profesionales
+                      </button>
                       <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                         Publicar Encargo
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Buscar Profesionales
                       </a>
                       <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                         Cómo Funciona
@@ -175,7 +181,16 @@ export const Header = ({
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          
+          {/* Quick Search Button */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/search')}
+            className="flex items-center gap-2"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden lg:inline-block">Buscar Profesionales</span>
+          </Button>
 
           {/* Clientes Dropdown */}
           <DropdownMenu>
@@ -184,11 +199,14 @@ export const Header = ({
               <ChevronDown className="ml-1 h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card border border-border z-50">
-              <DropdownMenuItem className="cursor-pointer">
-                Publicar Encargo
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/search')}
+              >
+                Buscar Profesionales
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-                Buscar Profesionales
+                Publicar Encargo
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 Cómo Funciona

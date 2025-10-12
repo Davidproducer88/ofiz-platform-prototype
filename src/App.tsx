@@ -14,6 +14,7 @@ import AuthCallback from "./pages/AuthCallback";
 import ProfileSetup from "./pages/ProfileSetup";
 import ClientDashboard from "./pages/ClientDashboard";
 import MasterDashboard from "./pages/MasterDashboard";
+import SearchMasters from "./pages/SearchMasters";
 
 const queryClient = new QueryClient();
 
@@ -120,6 +121,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } 
       />
+      <Route path="/search" element={<SearchMasters />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
