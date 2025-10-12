@@ -1,9 +1,10 @@
-import { MessageSquare, Star, Calendar } from 'lucide-react';
+import { MessageSquare, Star, Calendar, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { ChatWindow } from '@/components/ChatWindow';
 import { useChat } from '@/hooks/useChat';
 import { toast } from '@/hooks/use-toast';
+import { PaymentButton } from '@/components/PaymentButton';
 
 interface BookingActionsProps {
   booking: {
@@ -12,6 +13,8 @@ interface BookingActionsProps {
     client_id: string;
     master_id: string;
     service_id: string;
+    total_price: number;
+    scheduled_date: string;
     services?: {
       title: string;
     };
@@ -20,6 +23,7 @@ interface BookingActionsProps {
   otherUserName?: string;
   onReview?: () => void;
   onReschedule?: () => void;
+  onUpdate?: () => void;
 }
 
 export const BookingActions = ({ 
@@ -27,7 +31,8 @@ export const BookingActions = ({
   userType, 
   otherUserName,
   onReview,
-  onReschedule 
+  onReschedule,
+  onUpdate
 }: BookingActionsProps) => {
   const [chatOpen, setChatOpen] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -49,10 +54,21 @@ export const BookingActions = ({
   const showChat = booking.status !== 'cancelled';
   const showReview = booking.status === 'completed' && userType === 'client';
   const showReschedule = ['pending', 'confirmed'].includes(booking.status);
+  const showPayment = booking.status === 'pending' && userType === 'client';
 
   return (
     <>
       <div className="flex gap-2 flex-wrap">
+        {showPayment && (
+          <PaymentButton
+            bookingId={booking.id}
+            amount={booking.total_price}
+            title={`Pago - ${booking.services?.title || 'Servicio'}`}
+            description={`Reserva para ${new Date(booking.scheduled_date).toLocaleDateString('es-AR')}`}
+            onSuccess={onUpdate}
+          />
+        )}
+        
         {showChat && (
           <Button
             variant="outline"

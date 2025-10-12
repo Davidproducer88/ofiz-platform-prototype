@@ -37,6 +37,8 @@ import { ApplicationDialog } from '@/components/ApplicationDialog';
 import { toast } from '@/hooks/use-toast';
 import { MasterPortfolio } from '@/components/MasterPortfolio';
 import { ChatTab } from '@/components/ChatTab';
+import { SubscriptionPlans } from '@/components/SubscriptionPlans';
+import { FinancialDashboard } from '@/components/FinancialDashboard';
 
 interface Service {
   id: string;
@@ -629,14 +631,16 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="services">Mis Servicios</TabsTrigger>
-            <TabsTrigger value="job-requests">Trabajos Disponibles</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-9">
+            <TabsTrigger value="services">Servicios</TabsTrigger>
+            <TabsTrigger value="job-requests">Trabajos</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="messages">Mensajes</TabsTrigger>
-            <TabsTrigger value="profile">Mi Perfil</TabsTrigger>
+            <TabsTrigger value="subscription">Suscripción</TabsTrigger>
+            <TabsTrigger value="finances">Finanzas</TabsTrigger>
+            <TabsTrigger value="profile">Perfil</TabsTrigger>
           </TabsList>
 
           {/* Services Tab */}
@@ -1236,6 +1240,36 @@ const MasterDashboard = () => {
                     </div>
                   </>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Subscription Tab */}
+          <TabsContent value="subscription" className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle>Gestión de Suscripción</CardTitle>
+                <CardDescription>
+                  Elige el plan que mejor se adapte a tus necesidades
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SubscriptionPlans />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Financial Dashboard Tab */}
+          <TabsContent value="finances" className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle>Dashboard Financiero</CardTitle>
+                <CardDescription>
+                  Gestiona tus ingresos, pagos y comisiones
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FinancialDashboard />
               </CardContent>
             </Card>
           </TabsContent>
