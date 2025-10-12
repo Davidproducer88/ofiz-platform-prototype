@@ -113,6 +113,47 @@ export type Database = {
           },
         ]
       }
+      master_portfolio: {
+        Row: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          master_id: string
+          title: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          master_id: string
+          title: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          master_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_portfolio_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       masters: {
         Row: {
           availability_schedule: Json | null

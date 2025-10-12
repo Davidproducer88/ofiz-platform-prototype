@@ -35,6 +35,8 @@ import {
 import { ServiceRequestsList } from '@/components/ServiceRequestsList';
 import { ApplicationDialog } from '@/components/ApplicationDialog';
 import { toast } from '@/hooks/use-toast';
+import { MasterPortfolio } from '@/components/MasterPortfolio';
+import { ChatTab } from '@/components/ChatTab';
 
 interface Service {
   id: string;
@@ -555,11 +557,13 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="services">Mis Servicios</TabsTrigger>
             <TabsTrigger value="job-requests">Trabajos Disponibles</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
+            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+            <TabsTrigger value="messages">Mensajes</TabsTrigger>
             <TabsTrigger value="profile">Mi Perfil</TabsTrigger>
           </TabsList>
 
@@ -973,8 +977,28 @@ const MasterDashboard = () => {
             </Card>
           </TabsContent>
 
+          {/* Portfolio Tab */}
+          <TabsContent value="portfolio" className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle>Mi Portfolio</CardTitle>
+                <CardDescription>
+                  Muestra tus mejores trabajos a los clientes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MasterPortfolio masterId={profile?.id || ''} isOwner={true} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Messages Tab */}
+          <TabsContent value="messages" className="space-y-6">
+            <ChatTab />
+          </TabsContent>
+
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
+          <TabsContent value="profile" className="space-y-6">`
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle>Mi Perfil Profesional</CardTitle>
