@@ -117,7 +117,7 @@ export function MyServiceRequests() {
             masters (
               business_name,
               rating,
-              profiles:id (
+              profiles!masters_id_fkey (
                 full_name,
                 phone
               )
