@@ -35,6 +35,8 @@ import { ClientProfile } from '@/components/ClientProfile';
 import { ClientNotifications } from '@/components/ClientNotifications';
 import { ServiceRequestForm } from '@/components/ServiceRequestForm';
 import { MyServiceRequests } from '@/components/MyServiceRequests';
+import { ChatTab } from '@/components/ChatTab';
+import { BookingActions } from '@/components/BookingActions';
 
 interface Service {
   id: string;
@@ -363,10 +365,11 @@ const ClientDashboard = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-4 min-w-max md:min-w-0">
-              <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Buscar Servicios</TabsTrigger>
-              <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Mis Solicitudes</TabsTrigger>
-              <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Mis Encargos</TabsTrigger>
+            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-5 min-w-max md:min-w-0">
+              <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Servicios</TabsTrigger>
+              <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Solicitudes</TabsTrigger>
+              <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Encargos</TabsTrigger>
+              <TabsTrigger value="chat" className="text-xs md:text-sm whitespace-nowrap">Mensajes</TabsTrigger>
               <TabsTrigger value="notifications" className="text-xs md:text-sm whitespace-nowrap">Notificaciones</TabsTrigger>
               <TabsTrigger value="profile" className="hidden">Mi Perfil</TabsTrigger>
             </TabsList>
@@ -559,20 +562,15 @@ const ClientDashboard = () => {
                                 ${booking.total_price.toLocaleString()}
                               </p>
                             </div>
-                            {booking.status === 'completed' && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setSelectedBooking(booking);
-                                  setReviewDialogOpen(true);
-                                }}
-                                className="w-full sm:w-auto"
-                              >
-                                <Star className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                                Reseñar
-                              </Button>
-                            )}
+                            <BookingActions
+                              booking={booking as any}
+                              userType="client"
+                              otherUserName={booking.masters?.business_name}
+                              onReview={() => {
+                                setSelectedBooking(booking);
+                                setReviewDialogOpen(true);
+                              }}
+                            />
                           </div>
                         </div>
                       </div>
@@ -595,6 +593,11 @@ const ClientDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Chat Tab */}
+          <TabsContent value="chat">
+            <ChatTab />
           </TabsContent>
 
           {/* Profile Tab */}

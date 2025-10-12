@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | null;
   userName?: string;
@@ -21,6 +22,7 @@ export const Header = ({
 }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const {
     profile,
     signOut
@@ -269,10 +271,10 @@ export const Header = ({
           
           {userType ? <>
               {/* Notifications */}
-              <Button variant="ghost" size="icon" className="relative" onClick={onNotificationsClick}>
-                <Bell className="h-4 w-4" />
-                <div className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-pulse"></div>
-              </Button>
+              <NotificationsPanel 
+                isOpen={notificationsOpen} 
+                onOpenChange={setNotificationsOpen}
+              />
 
               {/* User menu */}
               <div className="relative">
