@@ -78,6 +78,47 @@ export type Database = {
           },
         ]
       }
+      commissions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          master_id: string
+          payment_id: string
+          percentage: number
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          master_id: string
+          payment_id: string
+          percentage?: number
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          master_id?: string
+          payment_id?: string
+          percentage?: number
+          processed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           booking_id: string
@@ -291,6 +332,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          client_id: string
+          commission_amount: number
+          created_at: string
+          escrow_released_at: string | null
+          id: string
+          master_amount: number
+          master_id: string
+          mercadopago_payment_id: string | null
+          mercadopago_preference_id: string | null
+          metadata: Json | null
+          payment_method: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          client_id: string
+          commission_amount?: number
+          created_at?: string
+          escrow_released_at?: string | null
+          id?: string
+          master_amount: number
+          master_id: string
+          mercadopago_payment_id?: string | null
+          mercadopago_preference_id?: string | null
+          metadata?: Json | null
+          payment_method?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          client_id?: string
+          commission_amount?: number
+          created_at?: string
+          escrow_released_at?: string | null
+          id?: string
+          master_amount?: number
+          master_id?: string
+          mercadopago_payment_id?: string | null
+          mercadopago_preference_id?: string | null
+          metadata?: Json | null
+          payment_method?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
@@ -535,6 +638,54 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          applications_used: number
+          cancelled_at: string | null
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          is_featured: boolean
+          master_id: string
+          mercadopago_subscription_id: string | null
+          monthly_applications_limit: number
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          applications_used?: number
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          is_featured?: boolean
+          master_id: string
+          mercadopago_subscription_id?: string | null
+          monthly_applications_limit?: number
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          applications_used?: number
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          is_featured?: boolean
+          master_id?: string
+          mercadopago_subscription_id?: string | null
+          monthly_applications_limit?: number
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -576,6 +727,10 @@ export type Database = {
         Args: { user_id?: string }
         Returns: boolean
       }
+      reset_monthly_applications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "client" | "master" | "admin"
@@ -585,6 +740,13 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+      payment_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "in_escrow"
+        | "released"
+        | "refunded"
       service_category:
         | "plumbing"
         | "electricity"
@@ -595,6 +757,7 @@ export type Database = {
         | "appliance_repair"
         | "computer_repair"
       service_status: "draft" | "active" | "paused" | "completed"
+      subscription_plan: "free" | "premium"
       user_type: "client" | "master" | "admin"
     }
     CompositeTypes: {
@@ -731,6 +894,14 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      payment_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "in_escrow",
+        "released",
+        "refunded",
+      ],
       service_category: [
         "plumbing",
         "electricity",
@@ -742,6 +913,7 @@ export const Constants = {
         "computer_repair",
       ],
       service_status: ["draft", "active", "paused", "completed"],
+      subscription_plan: ["free", "premium"],
       user_type: ["client", "master", "admin"],
     },
   },
