@@ -112,6 +112,18 @@ const MasterDashboard = () => {
     duration_unit: 'hours'
   });
 
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    full_name: '',
+    phone: '',
+    city: '',
+    address: '',
+    business_name: '',
+    experience_years: '',
+    hourly_rate: '',
+    description: ''
+  });
+
   const categories = [
     { id: 'plumbing', name: 'Plomería', icon: '🔧' },
     { id: 'electricity', name: 'Electricidad', icon: '⚡' },
@@ -139,6 +151,21 @@ const MasterDashboard = () => {
       setLoading(false);
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (profile && masterProfile) {
+      setProfileForm({
+        full_name: profile.full_name || '',
+        phone: profile.phone || '',
+        city: profile.city || '',
+        address: profile.address || '',
+        business_name: masterProfile.business_name || '',
+        experience_years: masterProfile.experience_years?.toString() || '',
+        hourly_rate: masterProfile.hourly_rate?.toString() || '',
+        description: masterProfile.description || ''
+      });
+    }
+  }, [profile, masterProfile]);
 
   const fetchMasterData = async () => {
     try {
@@ -396,6 +423,51 @@ const MasterDashboard = () => {
       toast({
         title: "Error",
         description: "No se pudo eliminar el servicio",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      // Update profile table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: profileForm.full_name,
+          phone: profileForm.phone,
+          city: profileForm.city,
+          address: profileForm.address
+        })
+        .eq('id', profile?.id);
+
+      if (profileError) throw profileError;
+
+      // Update masters table
+      const { error: masterError } = await supabase
+        .from('masters')
+        .update({
+          business_name: profileForm.business_name,
+          experience_years: parseInt(profileForm.experience_years) || 0,
+          hourly_rate: parseFloat(profileForm.hourly_rate) || 0,
+          description: profileForm.description
+        })
+        .eq('id', profile?.id);
+
+      if (masterError) throw masterError;
+
+      toast({
+        title: "¡Éxito!",
+        description: "Perfil actualizado correctamente",
+      });
+      setIsEditingProfile(false);
+      await refreshProfile();
+      await fetchMasterProfile();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Error al actualizar el perfil",
         variant: "destructive",
       });
     }
@@ -998,7 +1070,7 @@ const MasterDashboard = () => {
           </TabsContent>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">`
+          <TabsContent value="profile" className="space-y-6">
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle>Mi Perfil Profesional</CardTitle>
@@ -1007,58 +1079,163 @@ const MasterDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                      {profile?.full_name?.charAt(0) || 'M'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-xl font-semibold">{profile?.full_name}</h3>
-                    <p className="text-muted-foreground">
-                      {masterProfile?.business_name || 'Nombre comercial no configurado'}
-                    </p>
-                    <div className="flex items-center mt-2">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
-                      <span className="text-sm">
-                        {averageRating.toFixed(1)} ({masterProfile?.total_reviews || 0} reseñas)
-                      </span>
+                {!isEditingProfile ? (
+                  <>
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-20 w-20">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                          {profile?.full_name?.charAt(0) || 'M'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="text-xl font-semibold">{profile?.full_name}</h3>
+                        <p className="text-muted-foreground">
+                          {masterProfile?.business_name || 'Nombre comercial no configurado'}
+                        </p>
+                        <div className="flex items-center mt-2">
+                          <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
+                          <span className="text-sm">
+                            {averageRating.toFixed(1)} ({masterProfile?.total_reviews || 0} reseñas)
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label>Información Personal</Label>
-                    <div className="space-y-2 mt-2">
-                      <p><strong>Email:</strong> {profile?.id}</p>
-                      <p><strong>Teléfono:</strong> {profile?.phone || 'No configurado'}</p>
-                      <p><strong>Ciudad:</strong> {profile?.city || 'No configurada'}</p>
-                      <p><strong>Dirección:</strong> {profile?.address || 'No configurada'}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label>Información Personal</Label>
+                        <div className="space-y-2 mt-2">
+                          <p><strong>Email:</strong> {profile?.id}</p>
+                          <p><strong>Teléfono:</strong> {profile?.phone || 'No configurado'}</p>
+                          <p><strong>Ciudad:</strong> {profile?.city || 'No configurada'}</p>
+                          <p><strong>Dirección:</strong> {profile?.address || 'No configurada'}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label>Información Profesional</Label>
+                        <div className="space-y-2 mt-2">
+                          <p><strong>Años de experiencia:</strong> {masterProfile?.experience_years || 'No especificado'}</p>
+                          <p><strong>Tarifa por hora:</strong> ${masterProfile?.hourly_rate?.toLocaleString() || 'No configurada'}</p>
+                          <p><strong>Estado:</strong> {masterProfile?.is_verified ? 'Verificado' : 'No verificado'}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <Label>Información Profesional</Label>
-                    <div className="space-y-2 mt-2">
-                      <p><strong>Años de experiencia:</strong> {masterProfile?.experience_years || 'No especificado'}</p>
-                      <p><strong>Tarifa por hora:</strong> ${masterProfile?.hourly_rate?.toLocaleString() || 'No configurada'}</p>
-                      <p><strong>Estado:</strong> {masterProfile?.is_verified ? 'Verificado' : 'No verificado'}</p>
+                    <div>
+                      <Label>Descripción Profesional</Label>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {masterProfile?.description || 'Agrega una descripción para atraer más clientes...'}
+                      </p>
                     </div>
-                  </div>
-                </div>
 
-                <div>
-                  <Label>Descripción Profesional</Label>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {masterProfile?.description || 'Agrega una descripción para atraer más clientes...'}
-                  </p>
-                </div>
+                    <Button className="w-full md:w-auto" onClick={() => setIsEditingProfile(true)}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Editar Perfil
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="full_name">Nombre Completo</Label>
+                          <Input
+                            id="full_name"
+                            value={profileForm.full_name}
+                            onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                            placeholder="Tu nombre completo"
+                          />
+                        </div>
 
-                <Button className="w-full md:w-auto">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Editar Perfil
-                </Button>
+                        <div>
+                          <Label htmlFor="business_name">Nombre Comercial</Label>
+                          <Input
+                            id="business_name"
+                            value={profileForm.business_name}
+                            onChange={(e) => setProfileForm({ ...profileForm, business_name: e.target.value })}
+                            placeholder="Nombre de tu negocio"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="phone">Teléfono</Label>
+                          <Input
+                            id="phone"
+                            value={profileForm.phone}
+                            onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                            placeholder="Tu número de teléfono"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="city">Ciudad</Label>
+                          <Input
+                            id="city"
+                            value={profileForm.city}
+                            onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
+                            placeholder="Tu ciudad"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="address">Dirección</Label>
+                          <Input
+                            id="address"
+                            value={profileForm.address}
+                            onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                            placeholder="Tu dirección"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="experience_years">Años de Experiencia</Label>
+                          <Input
+                            id="experience_years"
+                            type="number"
+                            value={profileForm.experience_years}
+                            onChange={(e) => setProfileForm({ ...profileForm, experience_years: e.target.value })}
+                            placeholder="0"
+                            min="0"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="hourly_rate">Tarifa por Hora ($)</Label>
+                          <Input
+                            id="hourly_rate"
+                            type="number"
+                            value={profileForm.hourly_rate}
+                            onChange={(e) => setProfileForm({ ...profileForm, hourly_rate: e.target.value })}
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="description">Descripción Profesional</Label>
+                        <Textarea
+                          id="description"
+                          value={profileForm.description}
+                          onChange={(e) => setProfileForm({ ...profileForm, description: e.target.value })}
+                          placeholder="Describe tus servicios, experiencia y especialidades..."
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveProfile}>
+                        Guardar Cambios
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
