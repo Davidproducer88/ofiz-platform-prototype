@@ -11,7 +11,10 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
-import Dashboard from "./pages/Dashboard";
+import ProfileSetup from "./pages/ProfileSetup";
+import ClientDashboard from "./pages/ClientDashboard";
+import MasterDashboard from "./pages/MasterDashboard";
+import SearchMasters from "./pages/SearchMasters";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +72,14 @@ const AppContent = () => {
         element={<AuthCallback />} 
       />
       <Route 
+        path="/profile-setup" 
+        element={
+          <ProtectedRoute>
+            <ProfileSetup />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/" 
         element={<Index userType={profile?.user_type || null} />} 
       />
@@ -76,7 +87,15 @@ const AppContent = () => {
         path="/dashboard" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <ClientDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/master-dashboard" 
+        element={
+          <ProtectedRoute>
+            <MasterDashboard />
           </ProtectedRoute>
         } 
       />
@@ -92,6 +111,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } 
       />
+      <Route path="/search" element={<SearchMasters />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
