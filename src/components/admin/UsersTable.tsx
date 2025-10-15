@@ -10,7 +10,7 @@ import { UserEditDialog } from "./UserEditDialog";
 interface User {
   id: string;
   full_name: string;
-  user_type: "client" | "master" | "admin";
+  user_type: "client" | "master" | "admin" | "business";
   phone?: string;
   city?: string;
   address?: string;

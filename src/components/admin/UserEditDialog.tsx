@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 interface User {
   id: string;
   full_name: string;
-  user_type: "client" | "master" | "admin";
+  user_type: "client" | "master" | "admin" | "business";
   phone?: string;
   city?: string;
   address?: string;
@@ -26,7 +26,7 @@ interface UserEditDialogProps {
 export const UserEditDialog = ({ user, open, onOpenChange, onSave }: UserEditDialogProps) => {
   const [formData, setFormData] = useState({
     full_name: "",
-    user_type: "client" as "client" | "master" | "admin",
+    user_type: "client" as "client" | "master" | "admin" | "business",
     phone: "",
     city: "",
     address: "",

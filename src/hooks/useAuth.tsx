@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 interface Profile {
   id: string;
   full_name: string;
-  user_type: 'client' | 'master' | 'admin';
+  user_type: 'client' | 'master' | 'admin' | 'business';
   phone?: string;
   address?: string;
   city?: string;

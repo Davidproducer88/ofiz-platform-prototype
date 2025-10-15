@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertisements: {
+        Row: {
+          ad_type: string
+          budget: number
+          business_id: string
+          category: Database["public"]["Enums"]["service_category"] | null
+          clicks_count: number
+          cost_per_impression: number
+          created_at: string
+          cta_text: string
+          cta_url: string
+          description: string
+          end_date: string
+          id: string
+          impressions_count: number
+          is_active: boolean
+          media_url: string | null
+          start_date: string
+          status: string
+          target_audience: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ad_type: string
+          budget: number
+          business_id: string
+          category?: Database["public"]["Enums"]["service_category"] | null
+          clicks_count?: number
+          cost_per_impression?: number
+          created_at?: string
+          cta_text?: string
+          cta_url: string
+          description: string
+          end_date: string
+          id?: string
+          impressions_count?: number
+          is_active?: boolean
+          media_url?: string | null
+          start_date: string
+          status?: string
+          target_audience: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ad_type?: string
+          budget?: number
+          business_id?: string
+          category?: Database["public"]["Enums"]["service_category"] | null
+          clicks_count?: number
+          cost_per_impression?: number
+          created_at?: string
+          cta_text?: string
+          cta_url?: string
+          description?: string
+          end_date?: string
+          id?: string
+          impressions_count?: number
+          is_active?: boolean
+          media_url?: string | null
+          start_date?: string
+          status?: string
+          target_audience?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           client_address: string
@@ -74,6 +151,225 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_contract_applications: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          master_id: string
+          message: string | null
+          proposed_price: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          master_id: string
+          message?: string | null
+          proposed_price: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          master_id?: string
+          message?: string | null
+          proposed_price?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_contract_applications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "business_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_contract_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_contracts: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          business_id: string
+          category: Database["public"]["Enums"]["service_category"]
+          created_at: string
+          deadline: string | null
+          description: string
+          id: string
+          location: string
+          required_masters: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          business_id: string
+          category: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          deadline?: string | null
+          description: string
+          id?: string
+          location: string
+          required_masters?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          business_id?: string
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          id?: string
+          location?: string
+          required_masters?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_contracts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_profiles: {
+        Row: {
+          billing_address: string | null
+          billing_email: string | null
+          billing_phone: string | null
+          company_name: string
+          company_size: string | null
+          company_type: string
+          created_at: string
+          id: string
+          industry: string | null
+          tax_id: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          billing_address?: string | null
+          billing_email?: string | null
+          billing_phone?: string | null
+          company_name: string
+          company_size?: string | null
+          company_type: string
+          created_at?: string
+          id: string
+          industry?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          billing_address?: string | null
+          billing_email?: string | null
+          billing_phone?: string | null
+          company_name?: string
+          company_size?: string | null
+          company_type?: string
+          created_at?: string
+          id?: string
+          industry?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_subscriptions: {
+        Row: {
+          ad_impressions_limit: number | null
+          business_id: string
+          can_post_ads: boolean
+          cancelled_at: string | null
+          contacts_used: number
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          mercadopago_subscription_id: string | null
+          monthly_contacts_limit: number
+          plan_type: string
+          price: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ad_impressions_limit?: number | null
+          business_id: string
+          can_post_ads?: boolean
+          cancelled_at?: string | null
+          contacts_used?: number
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          mercadopago_subscription_id?: string | null
+          monthly_contacts_limit?: number
+          plan_type?: string
+          price: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ad_impressions_limit?: number | null
+          business_id?: string
+          can_post_ads?: boolean
+          cancelled_at?: string | null
+          contacts_used?: number
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          mercadopago_subscription_id?: string | null
+          monthly_contacts_limit?: number
+          plan_type?: string
+          price?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -913,7 +1209,7 @@ export type Database = {
         | "computer_repair"
       service_status: "draft" | "active" | "paused" | "completed"
       subscription_plan: "free" | "premium"
-      user_type: "client" | "master" | "admin"
+      user_type: "client" | "master" | "admin" | "business"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1069,7 +1365,7 @@ export const Constants = {
       ],
       service_status: ["draft", "active", "paused", "completed"],
       subscription_plan: ["free", "premium"],
-      user_type: ["client", "master", "admin"],
+      user_type: ["client", "master", "admin", "business"],
     },
   },
 } as const

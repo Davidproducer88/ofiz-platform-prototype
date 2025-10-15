@@ -8,11 +8,13 @@ import {
   CheckCircle,
   Star,
   Shield,
-  Clock
+  Clock,
+  Building2,
+  Megaphone
 } from "lucide-react";
 
 interface UserTypeSelectorProps {
-  onSelect: (type: 'client' | 'master') => void;
+  onSelect: (type: 'client' | 'master' | 'business') => void;
 }
 
 export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
@@ -31,7 +33,7 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
         </div>
 
         {/* Options */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-3 gap-6">
           {/* Client Option */}
           <Card className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 hover:border-primary/50">
             <CardHeader className="text-center pb-4">
@@ -143,6 +145,65 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
                 onClick={() => onSelect('master')}
               >
                 Registrarme como Maestro
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Business Option */}
+          <Card className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 hover:border-accent/50">
+            <CardHeader className="text-center pb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 text-accent mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Building2 className="h-8 w-8" />
+              </div>
+              <h3 className="text-2xl font-bold">Soy Empresa</h3>
+              <p className="text-muted-foreground">
+                Quiero contratar servicios y promocionar mi marca
+              </p>
+            </CardHeader>
+            
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Megaphone className="h-5 w-5 text-accent" />
+                  <span>Publicidad dirigida</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Megaphone className="h-5 w-5 text-accent" />
+                  <span>Contratos múltiples</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Megaphone className="h-5 w-5 text-accent" />
+                  <span>Gestión centralizada</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Megaphone className="h-5 w-5 text-accent" />
+                  <span>Facturación simplificada</span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-accent" />
+                    <span className="text-sm font-medium">Ideal para</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <Badge variant="secondary">Ferreterías</Badge>
+                  <Badge variant="secondary">Constructoras</Badge>
+                  <Badge variant="secondary">Inmobiliarias</Badge>
+                  <Badge variant="secondary">Más...</Badge>
+                </div>
+              </div>
+
+              <Button 
+                size="lg" 
+                variant="accent"
+                className="w-full group"
+                onClick={() => onSelect('business')}
+              >
+                Registrarme como Empresa
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>

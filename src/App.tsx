@@ -15,6 +15,7 @@ import ProfileSetup from "./pages/ProfileSetup";
 import ClientDashboard from "./pages/ClientDashboard";
 import MasterDashboard from "./pages/MasterDashboard";
 import SearchMasters from "./pages/SearchMasters";
+import BusinessDashboard from "./pages/BusinessDashboard";
 
 const queryClient = new QueryClient();
 
@@ -112,6 +113,14 @@ const AppContent = () => {
         } 
       />
       <Route path="/search" element={<SearchMasters />} />
+      <Route 
+        path="/business-dashboard" 
+        element={
+          <ProtectedRoute>
+            <BusinessDashboard />
+          </ProtectedRoute>
+        } 
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

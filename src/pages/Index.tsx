@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Feed } from "@/components/Feed";
 
 interface IndexProps {
-  userType?: 'client' | 'master' | 'admin' | null;
+  userType?: 'client' | 'master' | 'admin' | 'business' | null;
   onShowOnboarding?: () => void;
 }
 

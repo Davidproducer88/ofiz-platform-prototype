@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 interface HeaderProps {
-  userType?: 'client' | 'master' | 'admin' | null;
+  userType?: 'client' | 'master' | 'admin' | 'business' | null;
   userName?: string;
   onNotificationsClick?: () => void;
   onProfileClick?: () => void;
