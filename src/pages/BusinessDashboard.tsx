@@ -54,10 +54,10 @@ export default function BusinessDashboard() {
         .from('business_profiles')
         .select('*')
         .eq('id', user!.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError && profileError.code !== 'PGRST116') {
-        throw profileError;
+      if (profileError) {
+        console.error('Error fetching business profile:', profileError);
       }
 
       setBusinessProfile(businessData);
@@ -67,10 +67,10 @@ export default function BusinessDashboard() {
         .from('business_subscriptions')
         .select('*')
         .eq('business_id', user!.id)
-        .single();
+        .maybeSingle();
 
-      if (subError && subError.code !== 'PGRST116') {
-        throw subError;
+      if (subError) {
+        console.error('Error fetching subscription:', subError);
       }
 
       setSubscription(subData);

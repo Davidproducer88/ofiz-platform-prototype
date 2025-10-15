@@ -30,6 +30,23 @@ export const BusinessProfile = ({ businessId, businessProfile, onUpdate }: Busin
     billing_phone: businessProfile?.billing_phone || '',
   });
 
+  // Update form when businessProfile changes
+  useEffect(() => {
+    if (businessProfile) {
+      setFormData({
+        company_name: businessProfile.company_name || '',
+        company_type: businessProfile.company_type || 'other',
+        tax_id: businessProfile.tax_id || '',
+        industry: businessProfile.industry || '',
+        website: businessProfile.website || '',
+        company_size: businessProfile.company_size || 'small',
+        billing_address: businessProfile.billing_address || '',
+        billing_email: businessProfile.billing_email || '',
+        billing_phone: businessProfile.billing_phone || '',
+      });
+    }
+  }, [businessProfile]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -59,10 +76,11 @@ export const BusinessProfile = ({ businessId, businessProfile, onUpdate }: Busin
 
       onUpdate();
     } catch (error: any) {
-      console.error('Error updating business profile:', error);
+      const errorMessage = error?.message || "No se pudo actualizar el perfil";
+      console.error('Error updating business profile:', errorMessage);
       toast({
         title: "Error",
-        description: error.message || "No se pudo actualizar el perfil",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

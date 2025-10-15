@@ -128,10 +128,11 @@ export const BusinessSubscriptionPlans = ({
 
       onUpdate();
     } catch (error: any) {
-      console.error('Error updating subscription:', error);
+      const errorMessage = error?.message || "No se pudo actualizar la suscripción";
+      console.error('Error updating subscription:', errorMessage);
       toast({
         title: "Error",
-        description: error.message || "No se pudo actualizar la suscripción",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

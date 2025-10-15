@@ -146,10 +146,11 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
       fetchContracts();
       onUpdate();
     } catch (error: any) {
-      console.error('Error creating contract:', error);
+      const errorMessage = error?.message || "No se pudo crear el contrato";
+      console.error('Error creating contract:', errorMessage);
       toast({
         title: "Error",
-        description: error.message || "No se pudo crear el contrato",
+        description: errorMessage,
         variant: "destructive",
       });
     }

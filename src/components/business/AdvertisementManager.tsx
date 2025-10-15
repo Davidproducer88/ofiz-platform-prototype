@@ -106,10 +106,11 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
       fetchAds();
       onUpdate();
     } catch (error: any) {
-      console.error('Error creating ad:', error);
+      const errorMessage = error?.message || "No se pudo crear el anuncio";
+      console.error('Error creating ad:', errorMessage);
       toast({
         title: "Error",
-        description: error.message || "No se pudo crear el anuncio",
+        description: errorMessage,
         variant: "destructive",
       });
     }
