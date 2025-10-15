@@ -83,16 +83,22 @@ export const Header = ({
                     <div className="flex flex-col space-y-3 pl-4">
                       <button 
                         onClick={() => {
-                          navigate('/search');
+                          navigate('/');
                           setIsMobileMenuOpen(false);
                         }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
                       >
-                        Buscar Profesionales
+                        Ver Profesionales
                       </button>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Publicar Encargo
-                      </a>
+                      <button 
+                        onClick={() => {
+                          navigate('/dashboard');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+                      >
+                        Publicar Solicitud
+                      </button>
                       <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                         Cómo Funciona
                       </a>
@@ -160,40 +166,46 @@ export const Header = ({
               </Accordion>
 
               {/* Dashboard links for logged in users */}
-              {userType === 'master' && <button onClick={() => {
-              navigate('/dashboard/master');
-              setIsMobileMenuOpen(false);
-            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
-                  Mi Dashboard
-                </button>}
-              {userType === 'client' && <button onClick={() => {
-              navigate('/dashboard/client');
-              setIsMobileMenuOpen(false);
-            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
-                  Mi Dashboard
-                </button>}
-              {userType === 'admin' && <button onClick={() => {
-              navigate('/admin/dashboard');
-              setIsMobileMenuOpen(false);
-            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
+              {(userType === 'master' || userType === 'client') && (
+                <button 
+                  onClick={() => {
+                    navigate('/dashboard');
+                    setIsMobileMenuOpen(false);
+                  }} 
+                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
+                >
+                  Mi Perfil
+                </button>
+              )}
+              {userType === 'admin' && (
+                <button 
+                  onClick={() => {
+                    navigate('/admin');
+                    setIsMobileMenuOpen(false);
+                  }} 
+                  className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left"
+                >
                   Panel Admin
-                </button>}
+                </button>
+              )}
             </div>
           </SheetContent>
         </Sheet>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          {/* Quick Search Button */}
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate('/search')}
-            className="flex items-center gap-2"
-          >
-            <Search className="h-4 w-4" />
-            <span className="hidden lg:inline-block">Buscar Profesionales</span>
-          </Button>
+          {/* Quick Access Button */}
+          {!userType && (
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={() => navigate('/auth')}
+              className="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              <span className="hidden lg:inline-block">Iniciar Sesión</span>
+            </Button>
+          )}
 
           {/* Clientes Dropdown */}
           <DropdownMenu>
@@ -204,9 +216,9 @@ export const Header = ({
             <DropdownMenuContent className="bg-card border border-border z-50">
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/search')}
+                onClick={() => navigate('/')}
               >
-                Buscar Profesionales
+                Ver Profesionales
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 Publicar Encargo
@@ -274,15 +286,22 @@ export const Header = ({
           </DropdownMenu>
 
           {/* Dashboard links for logged in users */}
-          {userType === 'master' && <button onClick={() => navigate('/dashboard/master')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Mi Dashboard
-            </button>}
-          {userType === 'client' && <button onClick={() => navigate('/dashboard/client')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Mi Dashboard
-            </button>}
-          {userType === 'admin' && <button onClick={() => navigate('/admin/dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+          {(userType === 'master' || userType === 'client') && (
+            <button 
+              onClick={() => navigate('/dashboard')} 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
+            >
+              Mi Perfil
+            </button>
+          )}
+          {userType === 'admin' && (
+            <button 
+              onClick={() => navigate('/admin')} 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth"
+            >
               Panel Admin
-            </button>}
+            </button>
+          )}
         </nav>
 
         {/* Right side */}
@@ -313,11 +332,12 @@ export const Header = ({
                       Mi Perfil
                     </button>
                     <button onClick={() => {
-                if (userType === 'client') navigate('/dashboard/client');else if (userType === 'master') navigate('/dashboard/master');else if (userType === 'admin') navigate('/admin/dashboard');
+                if (userType === 'client' || userType === 'master') navigate('/dashboard');
+                else if (userType === 'admin') navigate('/admin');
                 setIsMenuOpen(false);
               }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <Settings className="mr-2 h-4 w-4" />
-                      Mi Dashboard
+                      {(userType === 'client' || userType === 'master') ? 'Mi Perfil' : 'Panel Admin'}
                     </button>
                     <div className="border-t border-border my-1"></div>
                     <button onClick={handleSignOut} className="flex items-center px-3 py-2 text-sm text-destructive hover:bg-muted w-full text-left">
