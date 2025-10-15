@@ -154,6 +154,59 @@ export type Database = {
           },
         ]
       }
+      feed_posts: {
+        Row: {
+          category: Database["public"]["Enums"]["service_category"] | null
+          content: string
+          created_at: string
+          engagement_score: number | null
+          id: string
+          likes_count: number | null
+          master_id: string
+          media_urls: string[] | null
+          title: string
+          type: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["service_category"] | null
+          content: string
+          created_at?: string
+          engagement_score?: number | null
+          id?: string
+          likes_count?: number | null
+          master_id: string
+          media_urls?: string[] | null
+          title: string
+          type?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_category"] | null
+          content?: string
+          created_at?: string
+          engagement_score?: number | null
+          id?: string
+          likes_count?: number | null
+          master_id?: string
+          media_urls?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_posts_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       master_portfolio: {
         Row: {
           category: Database["public"]["Enums"]["service_category"]
@@ -638,6 +691,71 @@ export type Database = {
           },
         ]
       }
+      sponsored_content: {
+        Row: {
+          budget: number | null
+          category: Database["public"]["Enums"]["service_category"] | null
+          clicks_count: number | null
+          created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          description: string | null
+          end_date: string
+          id: string
+          impressions_count: number | null
+          is_active: boolean | null
+          master_id: string | null
+          media_url: string | null
+          start_date: string
+          title: string
+          type: string
+        }
+        Insert: {
+          budget?: number | null
+          category?: Database["public"]["Enums"]["service_category"] | null
+          clicks_count?: number | null
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          impressions_count?: number | null
+          is_active?: boolean | null
+          master_id?: string | null
+          media_url?: string | null
+          start_date: string
+          title: string
+          type?: string
+        }
+        Update: {
+          budget?: number | null
+          category?: Database["public"]["Enums"]["service_category"] | null
+          clicks_count?: number | null
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          impressions_count?: number | null
+          is_active?: boolean | null
+          master_id?: string | null
+          media_url?: string | null
+          start_date?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsored_content_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           applications_used: number
@@ -683,6 +801,39 @@ export type Database = {
           plan?: Database["public"]["Enums"]["subscription_plan"]
           price?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_interactions: {
+        Row: {
+          category: Database["public"]["Enums"]["service_category"] | null
+          created_at: string
+          id: string
+          interaction_type: string
+          target_id: string
+          target_type: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["service_category"] | null
+          created_at?: string
+          id?: string
+          interaction_type: string
+          target_id: string
+          target_type: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_category"] | null
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          target_id?: string
+          target_type?: string
+          user_id?: string
+          weight?: number | null
         }
         Relationships: []
       }
