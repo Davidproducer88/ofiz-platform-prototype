@@ -47,14 +47,17 @@ export const Header = ({
         return 'Beta';
     }
   };
-  return <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  return <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-4">
-          <button onClick={() => navigate('/')} className="text-2xl font-bold gradient-text cursor-pointer hover:opacity-80 transition-smooth">
+          <button 
+            onClick={() => navigate('/')} 
+            className="text-2xl font-bold gradient-text cursor-pointer hover:scale-105 transition-all duration-300 hover:drop-shadow-lg"
+          >
             Ofiz
           </button>
-          <Badge variant="secondary" className="hidden md:inline-flex">
+          <Badge variant="secondary" className="hidden md:inline-flex shadow-soft">
             {getUserTypeLabel()}
           </Badge>
         </div>

@@ -2,13 +2,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 export const Footer = () => {
-  return <footer className="bg-muted/50 border-t border-border">
-      <div className="container py-16">
+  return <footer className="relative bg-gradient-to-b from-muted/30 to-muted/50 border-t border-border/50 overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      
+      <div className="container relative z-10 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold gradient-text">Ofiz</div>
-            <p className="text-muted-foreground">
+            <div className="text-3xl font-bold gradient-text hover:scale-105 transition-transform cursor-pointer inline-block">
+              Ofiz
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
               Servicios profesionales para tu hogar & oficina. 
               Descubrí el oficio que necesitás.
             </p>
@@ -96,44 +101,69 @@ export const Footer = () => {
         </div>
 
         {/* Newsletter */}
-        <div className="border-t border-border pt-8 mt-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="text-center md:text-left">
-              <h4 className="font-semibold mb-2">Mantenete informado</h4>
+        <div className="border-t border-border/50 pt-12 mt-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-8 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border/50">
+            <div className="text-center md:text-left space-y-2">
+              <h4 className="font-semibold text-xl flex items-center gap-2 justify-center md:justify-start">
+                <Mail className="h-5 w-5 text-primary" />
+                Mantenete informado
+              </h4>
               <p className="text-sm text-muted-foreground">
-                Recibí las últimas noticias y ofertas especiales
+                Recibí las últimas noticias, ofertas especiales y consejos para tu hogar
               </p>
             </div>
             
-            <div className="flex gap-2">
-              <input type="email" placeholder="Tu email" className="px-4 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-              <Button>Suscribirse</Button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+              <input 
+                type="email" 
+                placeholder="Tu email" 
+                className="px-4 py-2.5 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all min-w-[250px]" 
+              />
+              <Button className="shadow-soft">Suscribirse</Button>
             </div>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-border pt-8 mt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-4">
-              <Badge className="bg-secondary/10 text-secondary border-secondary/20">
+        <div className="border-t border-border/50 pt-8 mt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <Badge className="bg-gradient-hero text-white border-0 shadow-soft">
                 Beta
               </Badge>
-              <p className="text-sm text-muted-foreground">© 2025 Ofiz. Todos los derechos reservados. | Orbital Studio</p>
+              <p className="text-sm text-muted-foreground text-center md:text-left">
+                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Studio</span>
+              </p>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
-                <Facebook className="h-4 w-4" />
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
+              >
+                <Facebook className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
-                <Instagram className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
+              >
+                <Instagram className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
-                <Twitter className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
+              >
+                <Twitter className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-secondary hover:text-secondary-hover hover:bg-secondary/10">
-                <Linkedin className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
+              >
+                <Linkedin className="h-5 w-5" />
               </Button>
             </div>
           </div>
