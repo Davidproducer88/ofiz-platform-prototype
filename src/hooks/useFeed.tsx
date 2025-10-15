@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { seedFeedData } from '@/lib/seedFeedData';
 
 export interface FeedItem {
   id: string;
@@ -82,6 +83,7 @@ export const useFeed = () => {
 
   const loadFeed = async (pageNum: number = 0) => {
     try {
+      console.log('🔄 Loading feed, page:', pageNum);
       setLoading(true);
       const pageSize = 10;
       const offset = pageNum * pageSize;
@@ -92,7 +94,7 @@ export const useFeed = () => {
         : {};
 
       // Cargar posts del feed
-      const { data: posts } = await supabase
+      const { data: posts, error: postsError } = await supabase
         .from('feed_posts')
         .select(`
           *,
@@ -107,9 +109,11 @@ export const useFeed = () => {
         `)
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1);
+      
+      console.log('📄 Posts loaded:', posts?.length || 0, postsError);
 
       // Cargar servicios destacados (cada 5 items)
-      const { data: services } = await supabase
+      const { data: services, error: servicesError } = await supabase
         .from('services')
         .select(`
           *,
@@ -125,6 +129,8 @@ export const useFeed = () => {
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(3);
+      
+      console.log('🛠️ Services loaded:', services?.length || 0, servicesError);
 
       // Cargar contenido patrocinado
       const { data: sponsored } = await supabase
@@ -137,7 +143,7 @@ export const useFeed = () => {
         .limit(2);
 
       // Cargar masters recomendados
-      const { data: masters } = await supabase
+      const { data: masters, error: mastersError } = await supabase
         .from('masters')
         .select(`
           *,
@@ -146,6 +152,8 @@ export const useFeed = () => {
         .eq('is_verified', true)
         .order('rating', { ascending: false })
         .limit(2);
+      
+      console.log('👨‍🔧 Masters loaded:', masters?.length || 0, mastersError);
 
       // Convertir a FeedItems con scoring
       const postItems: FeedItem[] = (posts || []).map(post => ({
@@ -197,6 +205,8 @@ export const useFeed = () => {
         }
       });
 
+      console.log('✅ Final feed items:', finalFeed.length);
+      
       if (pageNum === 0) {
         setFeedItems(finalFeed);
       } else {
@@ -205,7 +215,7 @@ export const useFeed = () => {
 
       setHasMore(finalFeed.length === pageSize);
     } catch (error) {
-      console.error('Error loading feed:', error);
+      console.error('❌ Error loading feed:', error);
     } finally {
       setLoading(false);
     }
@@ -284,7 +294,24 @@ export const useFeed = () => {
   };
 
   useEffect(() => {
-    loadFeed(0);
+    const initFeed = async () => {
+      // Intentar cargar feed
+      await loadFeed(0);
+      
+      // Si no hay items, crear datos de prueba
+      const { data: existingPosts } = await supabase
+        .from('feed_posts')
+        .select('id')
+        .limit(1);
+      
+      if (!existingPosts || existingPosts.length === 0) {
+        console.log('📝 No feed data found, seeding...');
+        await seedFeedData();
+        await loadFeed(0);
+      }
+    };
+    
+    initFeed();
   }, [user?.id]);
 
   return {
