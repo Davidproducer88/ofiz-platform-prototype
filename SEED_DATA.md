@@ -244,3 +244,55 @@ Imágenes disponibles en `/src/assets/services/`:
 - ⚠️ NUNCA uses el service_role_key en el frontend
 - Solo crear usuarios de prueba en entornos de desarrollo
 - Eliminar datos de prueba antes de producción
+
+## Configuración de MercadoPago
+
+### Suscripciones Empresariales
+
+El sistema de suscripciones empresariales está integrado con MercadoPago para pagos recurrentes.
+
+#### Configuración Requerida:
+
+1. **Secret de MercadoPago**: Ya configurado como `MERCADO_PAGO_ACCESS_TOKEN`
+
+2. **Webhooks de MercadoPago**:
+   - URL del webhook: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`
+   - Eventos a escuchar:
+     - `subscription_preapproval` - Cuando se crea/actualiza una suscripción
+     - `subscription_authorized_payment` - Cuando se autoriza un pago de suscripción
+     - `payment` - Para pagos de servicios/bookings
+
+3. **Configurar en MercadoPago**:
+   - Ve a tu cuenta de MercadoPago → Developers → Webhooks
+   - Crea un nuevo webhook con la URL de arriba
+   - Selecciona los eventos mencionados
+   - Guarda la configuración
+
+#### Flujo de Suscripción:
+
+1. El usuario selecciona un plan en el Business Dashboard
+2. Se llama a la edge function `create-business-subscription`
+3. Se crea una preferencia de suscripción en MercadoPago
+4. El usuario es redirigido a MercadoPago para completar el pago
+5. MercadoPago procesa el pago y envía un webhook
+6. La edge function `mercadopago-webhook` actualiza el estado de la suscripción
+7. El usuario es redirigido de vuelta al dashboard con confirmación
+
+#### Estados de Suscripción:
+
+- `pending`: Suscripción creada pero pago no completado
+- `active`: Suscripción activa y pagos al día
+- `cancelled`: Suscripción cancelada por el usuario
+
+#### Planes Disponibles:
+
+- **Basic**: $2,500/mes - 50 contactos, 5 anuncios, 10K impresiones
+- **Professional**: $5,000/mes - 150 contactos, 15 anuncios, 50K impresiones
+- **Enterprise**: $12,000/mes - Ilimitado
+
+#### Testing:
+
+Para probar en modo sandbox de MercadoPago:
+1. Usa el access token de prueba en lugar del de producción
+2. Usa las tarjetas de prueba de MercadoPago
+3. Los webhooks funcionarán igual en ambos entornos

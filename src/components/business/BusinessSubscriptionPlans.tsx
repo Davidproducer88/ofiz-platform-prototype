@@ -88,54 +88,51 @@ export const BusinessSubscriptionPlans = ({
     setLoading(planId);
     const plan = plans.find(p => p.id === planId);
     
-    try {
-      if (currentSubscription) {
-        // Update existing subscription
-        const { error } = await supabase
-          .from('business_subscriptions')
-          .update({
-            plan_type: planId,
-            price: plan!.price,
-            monthly_contacts_limit: plan!.contacts,
-            can_post_ads: plan!.canPostAds,
-            ad_impressions_limit: plan!.adImpressions,
-            status: 'active'
-          })
-          .eq('id', currentSubscription.id);
-
-        if (error) throw error;
-      } else {
-        // Create new subscription
-        const { error } = await supabase
-          .from('business_subscriptions')
-          .insert({
-            business_id: businessId,
-            plan_type: planId,
-            price: plan!.price,
-            monthly_contacts_limit: plan!.contacts,
-            can_post_ads: plan!.canPostAds,
-            ad_impressions_limit: plan!.adImpressions,
-            status: 'active'
-          });
-
-        if (error) throw error;
-      }
-
+    if (!plan) {
       toast({
-        title: "¡Suscripción activada!",
-        description: `Has activado el plan ${plan!.name} correctamente`,
+        title: "Error",
+        description: "Plan no encontrado",
+        variant: "destructive",
+      });
+      setLoading(null);
+      return;
+    }
+    
+    try {
+      // Call edge function to create MercadoPago subscription
+      const { data, error } = await supabase.functions.invoke('create-business-subscription', {
+        body: {
+          planId: plan.id,
+          planName: plan.name,
+          price: plan.price,
+          contacts: plan.contacts,
+          canPostAds: plan.canPostAds,
+          adImpressions: plan.adImpressions,
+        }
       });
 
-      onUpdate();
+      if (error) throw error;
+
+      if (data.initPoint) {
+        toast({
+          title: "Redirigiendo a pago",
+          description: "Serás redirigido a MercadoPago para completar el pago...",
+        });
+        
+        // Redirect to MercadoPago checkout
+        window.location.href = data.initPoint;
+      } else {
+        throw new Error('No se recibió URL de pago');
+      }
+
     } catch (error: any) {
-      const errorMessage = error?.message || "No se pudo actualizar la suscripción";
-      console.error('Error updating subscription:', errorMessage);
+      const errorMessage = error?.message || "No se pudo procesar la suscripción";
+      console.error('Error creating subscription:', errorMessage);
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
       setLoading(null);
     }
   };
@@ -211,7 +208,7 @@ export const BusinessSubscriptionPlans = ({
           <CardHeader>
             <CardTitle>Información de tu Suscripción</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-4">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Estado:</span>
               <Badge variant={currentSubscription.status === 'active' ? 'default' : 'secondary'}>
@@ -230,6 +227,20 @@ export const BusinessSubscriptionPlans = ({
                 {new Date(currentSubscription.current_period_end).toLocaleDateString()}
               </span>
             </div>
+            {currentSubscription.mercadopago_subscription_id && (
+              <div className="pt-4 border-t">
+                <p className="text-xs text-muted-foreground mb-2">
+                  Para gestionar o cancelar tu suscripción, visita tu cuenta de MercadoPago
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open('https://www.mercadopago.com.ar/subscriptions', '_blank')}
+                >
+                  Ir a MercadoPago
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

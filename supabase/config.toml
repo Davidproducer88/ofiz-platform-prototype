@@ -23,6 +23,9 @@ verify_jwt = false
 [functions.create-payment-preference]
 verify_jwt = true
 
+[functions.create-business-subscription]
+verify_jwt = true
+
 [functions.mercadopago-webhook]
 verify_jwt = false
 

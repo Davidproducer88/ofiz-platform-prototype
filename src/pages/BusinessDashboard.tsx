@@ -43,6 +43,25 @@ export default function BusinessDashboard() {
     if (user) {
       fetchBusinessData();
     }
+    
+    // Check for subscription payment status in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const subscriptionStatus = urlParams.get('subscription');
+    
+    if (subscriptionStatus === 'success') {
+      toast({
+        title: "¡Suscripción activada!",
+        description: "Tu suscripción ha sido procesada correctamente. Puede tomar unos minutos en aparecer.",
+      });
+      
+      // Clean URL
+      window.history.replaceState({}, '', '/business-dashboard');
+      
+      // Refresh data after a short delay to allow webhook to process
+      setTimeout(() => {
+        if (user) fetchBusinessData();
+      }, 2000);
+    }
   }, [user]);
 
   const fetchBusinessData = async () => {
