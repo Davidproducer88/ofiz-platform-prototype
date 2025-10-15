@@ -81,17 +81,7 @@ const AppContent = () => {
       />
       <Route 
         path="/" 
-        element={
-          user && profile?.user_type === 'client' ? 
-            <Navigate to="/dashboard" replace /> : 
-            user && profile?.user_type === 'master' ?
-              <Navigate to="/master-dashboard" replace /> :
-            user && profile?.user_type === 'admin' ?
-              <Navigate to="/admin" replace /> :
-            <Index 
-              userType={profile?.user_type || null}
-            />
-        } 
+        element={<Index userType={profile?.user_type || null} />} 
       />
       <Route 
         path="/dashboard" 

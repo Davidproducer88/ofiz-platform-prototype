@@ -882,6 +882,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      seed_initial_feed_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "client" | "master" | "admin"
