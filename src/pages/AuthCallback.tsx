@@ -49,6 +49,8 @@ const AuthCallback = () => {
               navigate('/master-dashboard');
             } else if (userType === 'admin') {
               navigate('/admin');
+            } else if (userType === 'business') {
+              navigate('/business-dashboard');
             } else {
               navigate('/client-dashboard');
             }
@@ -82,6 +84,8 @@ const AuthCallback = () => {
             navigate('/master-dashboard');
           } else if (userType === 'admin') {
             navigate('/admin');
+          } else if (userType === 'business') {
+            navigate('/business-dashboard');
           } else {
             navigate('/client-dashboard');
           }

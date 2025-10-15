@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -43,7 +44,19 @@ export const LoginForm = () => {
     try {
       const { error } = await signIn(email, password);
       if (!error) {
-        navigate('/');
+        // Let useAuth handle the redirect based on user type
+        const { data } = await supabase.auth.getSession();
+        const userType = data.session?.user.user_metadata?.user_type;
+        
+        if (userType === 'master') {
+          navigate('/master-dashboard');
+        } else if (userType === 'admin') {
+          navigate('/admin');
+        } else if (userType === 'business') {
+          navigate('/business-dashboard');
+        } else {
+          navigate('/client-dashboard');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

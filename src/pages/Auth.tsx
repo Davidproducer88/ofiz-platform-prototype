@@ -19,7 +19,7 @@ const Auth = () => {
   const emailParam = searchParams.get('email');
   
   const [showUserTypeSelector, setShowUserTypeSelector] = useState(!typeParam);
-  const [selectedUserType, setSelectedUserType] = useState<'client' | 'master' | null>(typeParam);
+  const [selectedUserType, setSelectedUserType] = useState<'client' | 'master' | 'business' | null>(typeParam as 'client' | 'master' | 'business' | null);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState(emailParam || '');
 
@@ -35,7 +35,7 @@ const Auth = () => {
     }
   }, [typeParam, messageParam, emailParam]);
 
-  const handleUserTypeSelect = (type: 'client' | 'master') => {
+  const handleUserTypeSelect = (type: 'client' | 'master' | 'business') => {
     setSelectedUserType(type);
     setShowUserTypeSelector(false);
   };

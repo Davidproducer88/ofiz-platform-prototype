@@ -16,7 +16,7 @@ const signUpSchema = z.object({
   path: ["confirmPassword"]
 });
 interface SignUpFormProps {
-  userType: 'client' | 'master';
+  userType: 'client' | 'master' | 'business';
   onBack: () => void;
   onEmailVerification?: (email: string) => void;
 }
