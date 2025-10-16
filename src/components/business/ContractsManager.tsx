@@ -92,7 +92,7 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!subscription) {
+    if (!subscription || subscription.status !== 'active') {
       toast({
         title: "Función no disponible",
         description: "Necesitas una suscripción activa para crear contratos",
@@ -104,7 +104,7 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
     if (subscription.contacts_used >= subscription.monthly_contacts_limit) {
       toast({
         title: "Límite alcanzado",
-        description: "Has alcanzado el límite de contactos de tu plan",
+        description: `Has usado ${subscription.contacts_used} de ${subscription.monthly_contacts_limit} contactos. Actualiza tu plan para continuar.`,
         variant: "destructive",
       });
       return;
@@ -207,7 +207,7 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button disabled={!subscription}>
+            <Button disabled={!subscription || subscription.status !== 'active'}>
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Contrato
             </Button>

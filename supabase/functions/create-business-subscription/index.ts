@@ -40,17 +40,6 @@ serve(async (req) => {
 
     console.log('Creating business subscription for user:', user.id, 'plan:', planId);
 
-    // Get user profile for email
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('email, full_name')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError || !profile) {
-      throw new Error('Perfil no encontrado');
-    }
-
     // Get business profile
     const { data: businessProfile } = await supabaseClient
       .from('business_profiles')
@@ -58,7 +47,7 @@ serve(async (req) => {
       .eq('id', user.id)
       .maybeSingle();
 
-    const displayName = businessProfile?.company_name || profile.full_name;
+    const displayName = businessProfile?.company_name || user.email?.split('@')[0] || 'Usuario';
 
     // Create subscription preference with Mercado Pago
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');

@@ -99,6 +99,11 @@ export const BusinessSubscriptionPlans = ({
     }
     
     try {
+      toast({
+        title: "Procesando...",
+        description: "Preparando tu suscripción...",
+      });
+
       // Call edge function to create MercadoPago subscription
       const { data, error } = await supabase.functions.invoke('create-business-subscription', {
         body: {
@@ -111,7 +116,18 @@ export const BusinessSubscriptionPlans = ({
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Subscription error:', error);
+        throw new Error(error.message || 'Error al crear la suscripción');
+      }
+
+      if (!data) {
+        throw new Error('No se recibió respuesta del servidor');
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       if (data.initPoint) {
         toast({
@@ -119,17 +135,19 @@ export const BusinessSubscriptionPlans = ({
           description: "Serás redirigido a MercadoPago para completar el pago...",
         });
         
-        // Redirect to MercadoPago checkout
-        window.location.href = data.initPoint;
+        // Small delay to show the toast
+        setTimeout(() => {
+          window.location.href = data.initPoint;
+        }, 500);
       } else {
-        throw new Error('No se recibió URL de pago');
+        throw new Error('No se recibió URL de pago de MercadoPago');
       }
 
     } catch (error: any) {
-      const errorMessage = error?.message || "No se pudo procesar la suscripción";
-      console.error('Error creating subscription:', errorMessage);
+      const errorMessage = error?.message || "No se pudo procesar la suscripción. Por favor, intenta nuevamente.";
+      console.error('Error creating subscription:', error);
       toast({
-        title: "Error",
+        title: "Error al crear suscripción",
         description: errorMessage,
         variant: "destructive",
       });

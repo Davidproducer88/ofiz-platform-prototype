@@ -86,9 +86,10 @@ export default function BusinessDashboard() {
         .from('business_subscriptions')
         .select('*')
         .eq('business_id', user!.id)
+        .eq('status', 'active')
         .maybeSingle();
 
-      if (subError) {
+      if (subError && subError.code !== 'PGRST116') {
         console.error('Error fetching subscription:', subError);
       }
 
@@ -215,19 +216,44 @@ export default function BusinessDashboard() {
 
         {/* Subscription Alert */}
         {!subscription && (
-          <Card className="mb-8 border-accent">
+          <Card className="mb-8 border-primary bg-primary/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-primary">
                 <DollarSign className="h-5 w-5" />
                 Activa tu plan empresarial
               </CardTitle>
               <CardDescription>
-                Necesitas una suscripción activa para publicar anuncios y contratar profesionales
+                Para comenzar a publicar anuncios y contratar profesionales, necesitas activar un plan empresarial.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>✓ Acceso a publicidad dirigida</p>
+                <p>✓ Gestión de contratos múltiples</p>
+                <p>✓ Analíticas en tiempo real</p>
+                <p>✓ Facturación centralizada</p>
+              </div>
+              <Button onClick={() => document.getElementById('subscription-tab')?.click()} size="lg">
+                Ver planes disponibles
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+        
+        {subscription && subscription.status !== 'active' && (
+          <Card className="mb-8 border-yellow-500 bg-yellow-500/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+                <Calendar className="h-5 w-5" />
+                Suscripción pendiente
+              </CardTitle>
+              <CardDescription>
+                Tu suscripción está siendo procesada. Esto puede tomar algunos minutos.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => document.getElementById('subscription-tab')?.click()}>
-                Ver planes disponibles
+              <Button variant="outline" onClick={fetchBusinessData}>
+                Actualizar estado
               </Button>
             </CardContent>
           </Card>

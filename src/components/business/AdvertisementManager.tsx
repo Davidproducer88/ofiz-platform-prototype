@@ -64,10 +64,10 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
   const handleCreateAd = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!subscription?.can_post_ads) {
+    if (!subscription || subscription.status !== 'active' || !subscription.can_post_ads) {
       toast({
         title: "Función no disponible",
-        description: "Necesitas una suscripción activa para crear anuncios",
+        description: "Necesitas una suscripción activa con publicidad habilitada para crear anuncios",
         variant: "destructive",
       });
       return;
@@ -182,7 +182,7 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button disabled={!subscription?.can_post_ads}>
+            <Button disabled={!subscription || subscription.status !== 'active' || !subscription.can_post_ads}>
               <Plus className="h-4 w-4 mr-2" />
               Crear Anuncio
             </Button>
