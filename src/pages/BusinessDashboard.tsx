@@ -23,6 +23,10 @@ import { BusinessProfile } from "@/components/business/BusinessProfile";
 import { BusinessSubscriptionPlans } from "@/components/business/BusinessSubscriptionPlans";
 import { AdvertisementManager } from "@/components/business/AdvertisementManager";
 import { ContractsManager } from "@/components/business/ContractsManager";
+import { AnalyticsDashboard } from "@/components/business/AnalyticsDashboard";
+import { BillingCenter } from "@/components/business/BillingCenter";
+import { BusinessNotifications } from "@/components/business/BusinessNotifications";
+import { MasterSearch } from "@/components/business/MasterSearch";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
@@ -261,10 +265,14 @@ export default function BusinessDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-9 overflow-x-auto">
             <TabsTrigger value="overview">Resumen</TabsTrigger>
+            <TabsTrigger value="analytics">Analíticas</TabsTrigger>
             <TabsTrigger value="ads">Publicidad</TabsTrigger>
             <TabsTrigger value="contracts">Contratos</TabsTrigger>
+            <TabsTrigger value="search">Buscar Maestros</TabsTrigger>
+            <TabsTrigger value="billing">Facturación</TabsTrigger>
+            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
             <TabsTrigger value="subscription" id="subscription-tab">Suscripción</TabsTrigger>
             <TabsTrigger value="profile">Perfil</TabsTrigger>
           </TabsList>
@@ -329,6 +337,13 @@ export default function BusinessDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="analytics">
+            <AnalyticsDashboard
+              businessId={user!.id}
+              subscription={subscription}
+            />
+          </TabsContent>
+
           <TabsContent value="ads">
             <AdvertisementManager 
               businessId={user!.id}
@@ -342,6 +357,25 @@ export default function BusinessDashboard() {
               businessId={user!.id}
               subscription={subscription}
               onUpdate={fetchBusinessData}
+            />
+          </TabsContent>
+
+          <TabsContent value="search">
+            <MasterSearch
+              businessId={user!.id}
+            />
+          </TabsContent>
+
+          <TabsContent value="billing">
+            <BillingCenter
+              businessId={user!.id}
+              subscription={subscription}
+            />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <BusinessNotifications
+              businessId={user!.id}
             />
           </TabsContent>
 
