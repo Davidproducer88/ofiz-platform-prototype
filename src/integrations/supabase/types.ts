@@ -801,6 +801,108 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_credits: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          referral_id: string | null
+          type: string
+          used: boolean
+          used_in_booking_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          referral_id?: string | null
+          type: string
+          used?: boolean
+          used_in_booking_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          referral_id?: string | null
+          type?: string
+          used?: boolean
+          used_in_booking_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_credits_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_credits_used_in_booking_id_fkey"
+            columns: ["used_in_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           booking_id: string
@@ -1162,6 +1264,10 @@ export type Database = {
       calculate_distance: {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
+      }
+      generate_referral_code: {
+        Args: { user_id_param: string }
+        Returns: string
       }
       has_role: {
         Args: {

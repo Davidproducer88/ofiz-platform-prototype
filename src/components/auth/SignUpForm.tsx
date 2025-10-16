@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { ArrowLeft, Eye, EyeOff, Gift } from 'lucide-react';
 import { z } from 'zod';
 const signUpSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -25,19 +27,46 @@ export const SignUpForm = ({
   onBack,
   onEmailVerification
 }: SignUpFormProps) => {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    referralCode: searchParams.get('ref') || ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [referralValid, setReferralValid] = useState<boolean | null>(null);
   const {
     signUp
   } = useAuth();
   const navigate = useNavigate();
+
+  // Validar código de referido cuando cambia
+  useEffect(() => {
+    if (formData.referralCode.length >= 6 && userType === 'client') {
+      validateReferralCode(formData.referralCode);
+    } else {
+      setReferralValid(null);
+    }
+  }, [formData.referralCode, userType]);
+
+  const validateReferralCode = async (code: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('referral_codes')
+        .select('code')
+        .eq('code', code.toUpperCase())
+        .eq('is_active', true)
+        .maybeSingle();
+
+      setReferralValid(!!data && !error);
+    } catch (error) {
+      setReferralValid(false);
+    }
+  };
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -73,9 +102,16 @@ export const SignUpForm = ({
         error
       } = await signUp(formData.email, formData.password, {
         ...formData,
-        user_type: userType
+        user_type: userType,
+        referral_code: formData.referralCode || undefined
       });
+      
       if (!error) {
+        // Si hay código de referido, crear el referral y los créditos
+        if (formData.referralCode && userType === 'client') {
+          await processReferral(formData.referralCode);
+        }
+        
         // Show email verification notice if callback provided
         if (onEmailVerification) {
           onEmailVerification(formData.email);
@@ -88,6 +124,63 @@ export const SignUpForm = ({
       console.error('SignUp error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const processReferral = async (code: string) => {
+    try {
+      // Obtener el ID del referrer
+      const { data: referrerData } = await supabase
+        .from('referral_codes')
+        .select('user_id')
+        .eq('code', code.toUpperCase())
+        .single();
+
+      if (!referrerData) return;
+
+      // Obtener el ID del nuevo usuario
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Crear el registro de referral
+      const { data: referral, error: refError } = await supabase
+        .from('referrals')
+        .insert({
+          referrer_id: referrerData.user_id,
+          referred_id: user.id,
+          referral_code: code.toUpperCase(),
+          status: 'completed'
+        })
+        .select()
+        .single();
+
+      if (refError) {
+        console.error('Error creating referral:', refError);
+        return;
+      }
+
+      // Crear créditos para ambos usuarios
+      await supabase.from('referral_credits').insert([
+        {
+          user_id: referrerData.user_id,
+          amount: 500,
+          type: 'referrer_bonus',
+          referral_id: referral.id
+        },
+        {
+          user_id: user.id,
+          amount: 500,
+          type: 'welcome_bonus',
+          referral_id: referral.id
+        }
+      ]);
+
+      toast({
+        title: "¡Bienvenido!",
+        description: "Recibiste $U 500 de crédito de bienvenida 🎉",
+      });
+    } catch (error) {
+      console.error('Error processing referral:', error);
     }
   };
   return <div className="space-y-6">
@@ -132,6 +225,34 @@ export const SignUpForm = ({
           </div>
           {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
         </div>
+
+        {userType === 'client' && (
+          <div className="space-y-2">
+            <Label htmlFor="referralCode" className="flex items-center gap-2">
+              <Gift className="h-4 w-4 text-primary" />
+              Código de referido (opcional)
+            </Label>
+            <Input 
+              id="referralCode" 
+              type="text" 
+              placeholder="Ingresa el código de tu amigo" 
+              value={formData.referralCode} 
+              onChange={e => handleInputChange('referralCode', e.target.value.toUpperCase())} 
+              disabled={loading}
+              className={referralValid === true ? 'border-green-500' : referralValid === false ? 'border-red-500' : ''}
+            />
+            {referralValid === true && (
+              <p className="text-sm text-green-600 flex items-center gap-1">
+                ✓ ¡Código válido! Recibirás $U 500 de bienvenida
+              </p>
+            )}
+            {referralValid === false && formData.referralCode && (
+              <p className="text-sm text-destructive">
+                Código inválido
+              </p>
+            )}
+          </div>
+        )}
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? 'Creando cuenta...' : 'Crear cuenta'}

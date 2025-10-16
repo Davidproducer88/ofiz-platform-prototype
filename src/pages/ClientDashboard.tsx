@@ -37,6 +37,7 @@ import { ServiceRequestForm } from '@/components/ServiceRequestForm';
 import { MyServiceRequests } from '@/components/MyServiceRequests';
 import { ChatTab } from '@/components/ChatTab';
 import { BookingActions } from '@/components/BookingActions';
+import { ReferralProgram } from '@/components/ReferralProgram';
 
 interface Service {
   id: string;
@@ -365,10 +366,11 @@ const ClientDashboard = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-5 min-w-max md:min-w-0">
+            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-6 min-w-max md:min-w-0">
               <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Servicios</TabsTrigger>
               <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Solicitudes</TabsTrigger>
               <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Encargos</TabsTrigger>
+              <TabsTrigger value="referrals" className="text-xs md:text-sm whitespace-nowrap">Referidos</TabsTrigger>
               <TabsTrigger value="chat" className="text-xs md:text-sm whitespace-nowrap">Mensajes</TabsTrigger>
               <TabsTrigger value="notifications" className="text-xs md:text-sm whitespace-nowrap">Notificaciones</TabsTrigger>
               <TabsTrigger value="profile" className="hidden">Mi Perfil</TabsTrigger>
@@ -598,6 +600,11 @@ const ClientDashboard = () => {
           {/* Chat Tab */}
           <TabsContent value="chat">
             <ChatTab />
+          </TabsContent>
+
+          {/* Referrals Tab */}
+          <TabsContent value="referrals">
+            <ReferralProgram userId={profile?.id || ''} />
           </TabsContent>
 
           {/* Profile Tab */}
