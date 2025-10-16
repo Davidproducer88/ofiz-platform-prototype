@@ -111,7 +111,8 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
     }
 
     try {
-      const { error } = await supabase
+      // Crear el contrato
+      const { error: contractError } = await supabase
         .from('business_contracts')
         .insert([{
           business_id: businessId,
@@ -125,7 +126,17 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
           deadline: formData.deadline || null
         }]);
 
-      if (error) throw error;
+      if (contractError) throw contractError;
+
+      // Incrementar el contador de contactos usados
+      const { error: updateError } = await supabase
+        .from('business_subscriptions')
+        .update({ 
+          contacts_used: subscription.contacts_used + 1 
+        })
+        .eq('id', subscription.id);
+
+      if (updateError) throw updateError;
 
       toast({
         title: "Contrato creado",
