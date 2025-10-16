@@ -1,9 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useFeed } from '@/hooks/useFeed';
 import { FeedCard } from './FeedCard';
+import { FeedHeader } from './FeedHeader';
+import { StoriesCarousel } from './StoriesCarousel';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, TrendingUp } from 'lucide-react';
+import { RefreshCw, Home, Compass, PlusCircle, Video, User } from 'lucide-react';
 export const Feed = () => {
   const {
     feedItems,
@@ -58,53 +60,84 @@ export const Feed = () => {
       observers.forEach(obs => obs.disconnect());
     };
   }, [feedItems, trackInteraction]);
-  return <div className="w-full max-w-2xl mx-auto py-8 px-4">
-      {/* Header del Feed */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-primary" />
-          <h2 className="text-2xl font-bold text-foreground">Open Feed</h2>
-        </div>
-        <Button variant="outline" size="sm" onClick={refresh} disabled={loading} className="gap-2">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Actualizar
-        </Button>
-      </div>
+  return <div className="w-full min-h-screen bg-background pb-20">
+      {/* Header */}
+      <FeedHeader />
+      
+      {/* Stories Carousel */}
+      <StoriesCarousel />
 
-      {/* Lista del Feed */}
-      <div className="space-y-6">
-        {feedItems.map((item, index) => <div key={`${item.type}-${item.id}-${index}`} id={`feed-item-${index}`} className="animate-fade-in" style={{
-        animationDelay: `${index * 50}ms`
-      }}>
-            <FeedCard item={item} onInteraction={trackInteraction} />
-          </div>)}
-
-        {/* Loading skeletons */}
-        {loading && <>
-            {[1, 2, 3].map(i => <div key={`skeleton-${i}`} className="space-y-3">
-                <Skeleton className="h-64 w-full rounded-lg" />
-              </div>)}
-          </>}
-
-        {/* Infinite scroll trigger */}
-        <div ref={observerTarget} className="h-20 flex items-center justify-center">
-          {!loading && hasMore && <p className="text-sm text-muted-foreground">Cargando más contenido...</p>}
-          {!loading && !hasMore && feedItems.length > 0 && <p className="text-sm text-muted-foreground">
-              ¡Has visto todo el contenido disponible! 🎉
-            </p>}
+      {/* Feed Content */}
+      <div className="w-full max-w-2xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Para ti</h2>
+          <Button variant="ghost" size="sm" onClick={refresh} disabled={loading} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
 
-        {/* Empty state */}
-        {!loading && feedItems.length === 0 && <div className="text-center py-12">
-            <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              No hay contenido disponible
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Vuelve más tarde para ver nuevas publicaciones y servicios
-            </p>
-            <Button onClick={refresh}>Intentar de nuevo</Button>
-          </div>}
+        {/* Lista del Feed */}
+        <div className="space-y-4">
+          {feedItems.map((item, index) => <div key={`${item.type}-${item.id}-${index}`} id={`feed-item-${index}`} className="animate-fade-in" style={{
+          animationDelay: `${index * 50}ms`
+        }}>
+              <FeedCard item={item} onInteraction={trackInteraction} />
+            </div>)}
+
+          {/* Loading skeletons */}
+          {loading && <>
+              {[1, 2].map(i => <div key={`skeleton-${i}`} className="space-y-3">
+                  <Skeleton className="h-80 w-full rounded-xl" />
+                </div>)}
+            </>}
+
+          {/* Infinite scroll trigger */}
+          <div ref={observerTarget} className="h-20 flex items-center justify-center">
+            {!loading && hasMore && <p className="text-sm text-muted-foreground">Cargando más contenido...</p>}
+            {!loading && !hasMore && feedItems.length > 0 && <p className="text-sm text-muted-foreground">
+                ¡Has visto todo el contenido disponible! 🎉
+              </p>}
+          </div>
+
+          {/* Empty state */}
+          {!loading && feedItems.length === 0 && <div className="text-center py-12">
+              <Compass className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                No hay contenido disponible
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Vuelve más tarde para ver nuevas publicaciones y servicios
+              </p>
+              <Button onClick={refresh}>Intentar de nuevo</Button>
+            </div>}
+        </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 md:hidden">
+        <div className="flex items-center justify-around h-16 max-w-2xl mx-auto px-4">
+          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
+            <Home className="h-5 w-5" />
+            <span className="text-xs">Inicio</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
+            <Compass className="h-5 w-5" />
+            <span className="text-xs">Descubrir</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2 -mt-8">
+            <div className="bg-primary text-primary-foreground rounded-full p-3 shadow-lg">
+              <PlusCircle className="h-6 w-6" />
+            </div>
+          </Button>
+          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
+            <Video className="h-5 w-5" />
+            <span className="text-xs">Live</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
+            <User className="h-5 w-5" />
+            <span className="text-xs">Perfil</span>
+          </Button>
+        </div>
+      </nav>
     </div>;
 };

@@ -32,9 +32,12 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleLike = () => {
     setLiked(!liked);
+    setIsAnimating(true);
+    setTimeout(() => setIsAnimating(false), 600);
     onInteraction(item.id, item.type, 'like', item.data.category);
     toast.success(liked ? 'Me gusta eliminado' : '¡Te gusta esta publicación!');
   };
@@ -141,7 +144,7 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
               onClick={handleLike}
               className="flex-1"
             >
-              <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
+              <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''} ${isAnimating ? 'animate-heart' : ''}`} />
               Me gusta
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate(`/search-masters`)}>
