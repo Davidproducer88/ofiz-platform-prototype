@@ -4,9 +4,15 @@ import { FeedCard } from './FeedCard';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RefreshCw, TrendingUp } from 'lucide-react';
-
 export const Feed = () => {
-  const { feedItems, loading, hasMore, loadMore, refresh, trackInteraction } = useFeed();
+  const {
+    feedItems,
+    loading,
+    hasMore,
+    loadMore,
+    refresh,
+    trackInteraction
+  } = useFeed();
   const observerTarget = useRef<HTMLDivElement>(null);
 
   // Infinite scroll con Intersection Observer
@@ -16,18 +22,14 @@ export const Feed = () => {
       loadMore();
     }
   }, [hasMore, loading, loadMore]);
-
   useEffect(() => {
     const element = observerTarget.current;
     if (!element) return;
-
     const observer = new IntersectionObserver(handleObserver, {
       threshold: 0.5,
       rootMargin: '200px'
     });
-
     observer.observe(element);
-
     return () => {
       if (element) observer.unobserve(element);
     };
@@ -36,47 +38,34 @@ export const Feed = () => {
   // Track view cuando un item entra en viewport
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
-
     feedItems.forEach((item, index) => {
       const element = document.getElementById(`feed-item-${index}`);
       if (!element) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-              trackInteraction(item.id, item.type, 'view', item.data.category);
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.5 }
-      );
-
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            trackInteraction(item.id, item.type, 'view', item.data.category);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.5
+      });
       observer.observe(element);
       observers.push(observer);
     });
-
     return () => {
       observers.forEach(obs => obs.disconnect());
     };
   }, [feedItems, trackInteraction]);
-
-  return (
-    <div className="w-full max-w-2xl mx-auto py-8 px-4">
+  return <div className="w-full max-w-2xl mx-auto py-8 px-4">
       {/* Header del Feed */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-6 w-6 text-primary" />
-          <h2 className="text-2xl font-bold text-foreground">Tu Feed Personalizado</h2>
+          <h2 className="text-2xl font-bold text-foreground">Open Feed</h2>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={refresh}
-          disabled={loading}
-          className="gap-2"
-        >
+        <Button variant="outline" size="sm" onClick={refresh} disabled={loading} className="gap-2">
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           Actualizar
         </Button>
@@ -84,46 +73,29 @@ export const Feed = () => {
 
       {/* Lista del Feed */}
       <div className="space-y-6">
-        {feedItems.map((item, index) => (
-          <div
-            key={`${item.type}-${item.id}-${index}`}
-            id={`feed-item-${index}`}
-            className="animate-fade-in"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <FeedCard
-              item={item}
-              onInteraction={trackInteraction}
-            />
-          </div>
-        ))}
+        {feedItems.map((item, index) => <div key={`${item.type}-${item.id}-${index}`} id={`feed-item-${index}`} className="animate-fade-in" style={{
+        animationDelay: `${index * 50}ms`
+      }}>
+            <FeedCard item={item} onInteraction={trackInteraction} />
+          </div>)}
 
         {/* Loading skeletons */}
-        {loading && (
-          <>
-            {[1, 2, 3].map((i) => (
-              <div key={`skeleton-${i}`} className="space-y-3">
+        {loading && <>
+            {[1, 2, 3].map(i => <div key={`skeleton-${i}`} className="space-y-3">
                 <Skeleton className="h-64 w-full rounded-lg" />
-              </div>
-            ))}
-          </>
-        )}
+              </div>)}
+          </>}
 
         {/* Infinite scroll trigger */}
         <div ref={observerTarget} className="h-20 flex items-center justify-center">
-          {!loading && hasMore && (
-            <p className="text-sm text-muted-foreground">Cargando más contenido...</p>
-          )}
-          {!loading && !hasMore && feedItems.length > 0 && (
-            <p className="text-sm text-muted-foreground">
+          {!loading && hasMore && <p className="text-sm text-muted-foreground">Cargando más contenido...</p>}
+          {!loading && !hasMore && feedItems.length > 0 && <p className="text-sm text-muted-foreground">
               ¡Has visto todo el contenido disponible! 🎉
-            </p>
-          )}
+            </p>}
         </div>
 
         {/* Empty state */}
-        {!loading && feedItems.length === 0 && (
-          <div className="text-center py-12">
+        {!loading && feedItems.length === 0 && <div className="text-center py-12">
             <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               No hay contenido disponible
@@ -132,9 +104,7 @@ export const Feed = () => {
               Vuelve más tarde para ver nuevas publicaciones y servicios
             </p>
             <Button onClick={refresh}>Intentar de nuevo</Button>
-          </div>
-        )}
+          </div>}
       </div>
-    </div>
-  );
+    </div>;
 };
