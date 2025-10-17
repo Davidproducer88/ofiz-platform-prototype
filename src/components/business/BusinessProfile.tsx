@@ -49,6 +49,17 @@ export const BusinessProfile = ({ businessId, businessProfile, onUpdate }: Busin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.company_name.trim()) {
+      toast({
+        title: "Campo requerido",
+        description: "El nombre de la empresa es obligatorio",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {

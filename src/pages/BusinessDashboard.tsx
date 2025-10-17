@@ -148,11 +148,33 @@ export default function BusinessDashboard() {
     );
   }
 
+  // Show profile setup if no business profile exists
+  const showProfileSetup = !loading && !businessProfile;
+
   return (
     <div className="min-h-screen bg-background">
       <Header userType="business" />
       
       <main className="container mx-auto px-4 py-8">
+        {/* First-time setup prompt */}
+        {showProfileSetup && (
+          <Card className="mb-8 border-primary bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Building2 className="h-5 w-5" />
+                Configura tu Perfil Empresarial
+              </CardTitle>
+              <CardDescription>
+                Completa tu información empresarial para comenzar a usar todas las funcionalidades
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Para comenzar, ve a la pestaña "Perfil" y completa tus datos empresariales.
+              </p>
+            </CardContent>
+          </Card>
+        )}
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -394,6 +416,15 @@ export default function BusinessDashboard() {
           </TabsContent>
 
           <TabsContent value="profile">
+            {showProfileSetup && (
+              <Card className="mb-4 border-primary bg-primary/5">
+                <CardContent className="pt-6">
+                  <p className="text-sm">
+                    👋 <strong>¡Bienvenido!</strong> Completa tu perfil empresarial para comenzar.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
             <BusinessProfile
               businessId={user!.id}
               businessProfile={businessProfile}
