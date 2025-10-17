@@ -621,10 +621,7 @@ const ClientDashboard = () => {
                     <p className="text-muted-foreground mb-4">
                       ¡Solicita tu primer servicio y comienza a disfrutar de Ofiz!
                     </p>
-                    <Button onClick={() => {
-                      const servicesTab = document.querySelector('[value="services"]') as HTMLElement;
-                      servicesTab?.click();
-                    }}>
+                    <Button onClick={() => setActiveTab('services')}>
                       Buscar Servicios
                     </Button>
                   </div>
