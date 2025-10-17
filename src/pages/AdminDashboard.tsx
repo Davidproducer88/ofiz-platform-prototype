@@ -7,9 +7,9 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Users, UserCheck, Calendar, Star } from "lucide-react";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
-import { MastersTable } from "@/components/admin/MastersTable";
-import { BookingsTable } from "@/components/admin/BookingsTable";
-import { ReviewsTable } from "@/components/admin/ReviewsTable";
+import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
+import { BookingsTableEnhanced } from "@/components/admin/BookingsTableEnhanced";
+import { ReviewsTableEnhanced } from "@/components/admin/ReviewsTableEnhanced";
 import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab";
 
 const AdminDashboard = () => {
@@ -178,7 +178,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <MastersTable onStatsUpdate={loadStats} />
+                <MastersTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -192,7 +192,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <BookingsTable onStatsUpdate={loadStats} />
+                <BookingsTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ReviewsTable onStatsUpdate={loadStats} />
+                <ReviewsTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
           </TabsContent>
