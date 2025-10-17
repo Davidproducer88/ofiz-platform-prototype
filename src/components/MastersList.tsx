@@ -196,9 +196,9 @@ export const MastersList = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {masters.map((master) => (
-        <Card key={master.id} className="p-6 hover:shadow-lg transition-shadow">
+        <Card key={master.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
           <div className="flex items-start gap-4 mb-4">
             <Avatar className="h-16 w-16">
               <AvatarImage src={master.profiles.avatar_url} />

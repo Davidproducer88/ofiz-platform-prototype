@@ -37,21 +37,21 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Para Clientes</h4>
             <div className="space-y-2">
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => window.location.href = '/dashboard/client'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Publicar Encargo
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/search'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Buscar Profesionales
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Cómo Funciona
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Precios y Tarifas
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Garantías
-              </a>
+              </button>
             </div>
           </div>
 
@@ -59,21 +59,21 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Para Profesionales</h4>
             <div className="space-y-2">
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => window.location.href = '/auth?type=master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Registrarse como Maestro
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Planes Premium
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Centro de Ayuda
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Verificación de Perfil
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Herramientas
-              </a>
+              </button>
             </div>
           </div>
 
@@ -81,21 +81,21 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Empresa</h4>
             <div className="space-y-2">
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Sobre Ofiz
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Términos y Condiciones
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Política de Privacidad
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Contacto
-              </a>
-              <a href="#" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              </button>
+              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Blog
-              </a>
+              </button>
             </div>
           </div>
         </div>

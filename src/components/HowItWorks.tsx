@@ -130,15 +130,15 @@ export const HowItWorks = () => {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxIDAgNiAyLjY5IDYgNnMtMi42OSA2LTYgNi02LTIuNjktNi02IDIuNjktNiA2LTZ6TTI0IDQ4YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTYgMi42OS02IDYtNnoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ii8+PC9nPjwvc3ZnPg==')] opacity-20" />
           
           <div className="relative z-10 p-12 md:p-16 text-center text-white space-y-8">
-            <div className="inline-block p-4 rounded-full bg-white/10 backdrop-blur-sm mb-4">
-              <Star className="h-12 w-12 fill-white animate-float" />
+          <div className="inline-block p-3 sm:p-4 rounded-full bg-white/10 backdrop-blur-sm mb-4">
+              <Star className="h-8 w-8 sm:h-12 sm:w-12 fill-white animate-float" />
             </div>
             
-            <h3 className="text-3xl md:text-4xl font-bold drop-shadow-lg">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-lg px-4">
               ¿Listo para encontrar tu profesional ideal?
             </h3>
             
-            <p className="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl md:text-2xl opacity-90 max-w-2xl mx-auto px-4">
               Únete a <span className="font-bold">miles de clientes</span> que ya confían en Ofiz para sus proyectos
             </p>
             

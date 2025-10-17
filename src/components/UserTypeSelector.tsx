@@ -214,9 +214,12 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
             ¿Ya tenés cuenta?{" "}
-            <a href="#" className="text-primary hover:underline font-medium">
+            <button 
+              onClick={() => window.location.href = '/auth'} 
+              className="text-primary hover:underline font-medium"
+            >
               Iniciar sesión
-            </a>
+            </button>
           </p>
         </div>
       </div>

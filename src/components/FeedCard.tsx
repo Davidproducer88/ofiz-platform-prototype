@@ -10,7 +10,6 @@ import {
   Bookmark,
   Eye,
   Star,
-  MapPin,
   Clock,
   TrendingUp,
   Sparkles,
@@ -66,7 +65,7 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
     return (
       <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
         {/* Header con info del master */}
-        <div className="p-4 flex items-center gap-3">
+        <div className="p-3 sm:p-4 flex items-center gap-3">
           <Avatar className="h-12 w-12 ring-2 ring-primary/20">
             <AvatarImage src={master?.profiles?.avatar_url} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/50 text-primary-foreground">
@@ -94,9 +93,9 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
         </div>
 
         {/* Contenido del post */}
-        <div className="px-4 pb-3">
-          <h4 className="font-bold text-lg mb-2 text-foreground">{post.title}</h4>
-          <p className="text-muted-foreground line-clamp-3">{post.content}</p>
+        <div className="px-3 sm:px-4 pb-3">
+          <h4 className="font-bold text-base sm:text-lg mb-2 text-foreground">{post.title}</h4>
+          <p className="text-sm sm:text-base text-muted-foreground line-clamp-3">{post.content}</p>
           {post.category && (
             <Badge variant="secondary" className="mt-3 capitalize">
               {post.category}
@@ -106,14 +105,14 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
 
         {/* Media (si existe) */}
         {post.media_urls && post.media_urls.length > 0 && (
-          <div className="px-4 pb-4">
+          <div className="px-3 sm:px-4 pb-4">
             <div className="grid grid-cols-2 gap-2">
               {post.media_urls.slice(0, 4).map((url: string, idx: number) => (
                 <img
                   key={idx}
                   src={url}
                   alt={`Post media ${idx + 1}`}
-                  className="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                  className="w-full h-32 sm:h-48 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
                   onClick={handleClick}
                 />
               ))}
@@ -122,7 +121,7 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
         )}
 
         {/* Stats y acciones */}
-        <div className="px-4 py-3 border-t border-border/50 bg-muted/20">
+        <div className="px-3 sm:px-4 py-3 border-t border-border/50 bg-muted/20">
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
             <span className="flex items-center gap-1">
               <Eye className="h-4 w-4" />

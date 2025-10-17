@@ -113,31 +113,5 @@ export const Feed = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 md:hidden">
-        <div className="flex items-center justify-around h-16 max-w-2xl mx-auto px-4">
-          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
-            <Home className="h-5 w-5" />
-            <span className="text-xs">Inicio</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
-            <Compass className="h-5 w-5" />
-            <span className="text-xs">Descubrir</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2 -mt-8">
-            <div className="bg-primary text-primary-foreground rounded-full p-3 shadow-lg">
-              <PlusCircle className="h-6 w-6" />
-            </div>
-          </Button>
-          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
-            <Video className="h-5 w-5" />
-            <span className="text-xs">Live</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="flex-col gap-1 h-auto py-2">
-            <User className="h-5 w-5" />
-            <span className="text-xs">Perfil</span>
-          </Button>
-        </div>
-      </nav>
     </div>;
 };

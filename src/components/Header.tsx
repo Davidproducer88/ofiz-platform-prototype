@@ -90,18 +90,42 @@ export const Header = ({
                       >
                         Buscar Profesionales
                       </button>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Publicar Encargo
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Cómo Funciona
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Precios y Tarifas
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Garantías
-                      </a>
+              <button 
+                onClick={() => {
+                  navigate('/dashboard/client');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Publicar Encargo
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Cómo Funciona
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Precios y Tarifas
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Garantías
+              </button>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -113,21 +137,51 @@ export const Header = ({
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-3 pl-4">
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Registrarse como Maestro
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Planes Premium
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Centro de Ayuda
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Verificación de Perfil
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Herramientas
-                      </a>
+              <button 
+                onClick={() => {
+                  navigate('/auth?type=master');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Registrarse como Maestro
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/dashboard/master');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Planes Premium
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Centro de Ayuda
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/dashboard/master');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Verificación de Perfil
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/dashboard/master');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Herramientas
+              </button>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -139,21 +193,51 @@ export const Header = ({
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-3 pl-4">
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Sobre Ofiz
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Términos y Condiciones
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Política de Privacidad
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Contacto
-                      </a>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        Blog
-                      </a>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Sobre Ofiz
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Términos y Condiciones
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Política de Privacidad
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Contacto
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Blog
+              </button>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -208,16 +292,28 @@ export const Header = ({
               >
                 Buscar Profesionales
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/dashboard/client')}
+              >
                 Publicar Encargo
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Cómo Funciona
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Precios y Tarifas
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Garantías
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -230,19 +326,34 @@ export const Header = ({
               <ChevronDown className="ml-1 h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card border border-border z-50">
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/auth?type=master')}
+              >
                 Registrarse como Maestro
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/dashboard/master')}
+              >
                 Planes Premium
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Centro de Ayuda
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/dashboard/master')}
+              >
                 Verificación de Perfil
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/dashboard/master')}
+              >
                 Herramientas
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -255,19 +366,34 @@ export const Header = ({
               <ChevronDown className="ml-1 h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card border border-border z-50">
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Sobre Ofiz
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Términos y Condiciones
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Política de Privacidad
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Contacto
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/')}
+              >
                 Blog
               </DropdownMenuItem>
             </DropdownMenuContent>

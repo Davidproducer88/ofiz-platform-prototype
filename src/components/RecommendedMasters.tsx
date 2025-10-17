@@ -123,7 +123,7 @@ export const RecommendedMasters = () => {
         </h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {masters.map((master) => (
           <Card key={master.id} className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur">
             <div className="flex items-start gap-4 mb-4">

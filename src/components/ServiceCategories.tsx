@@ -93,8 +93,8 @@ export const ServiceCategories = () => {
           </p>
         </div>
 
-        {/* Categories Grid - Enhanced */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-16">
+        {/* Categories Grid - Enhanced - Better responsive */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-16">
           {categories.map((category, index) => {
             const Icon = category.icon;
             return (
@@ -106,14 +106,14 @@ export const ServiceCategories = () => {
                 {/* Hover gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
-                <CardContent className="relative p-6 text-center">
-                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-background to-muted shadow-soft mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ${category.color}`}>
-                    <Icon className="h-7 w-7" />
+                <CardContent className="relative p-3 sm:p-4 md:p-6 text-center">
+                  <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-background to-muted shadow-soft mb-3 md:mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ${category.color}`}>
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
                   </div>
-                  <h3 className="font-semibold text-base mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-primary transition-colors">
                     {category.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 line-clamp-2 hidden sm:block">
                     {category.description}
                   </p>
                   <Badge variant="secondary" className="text-xs font-medium shadow-soft">
