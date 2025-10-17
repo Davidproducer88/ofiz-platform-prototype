@@ -374,6 +374,56 @@ export type Database = {
           },
         ]
       }
+      client_addresses: {
+        Row: {
+          address: string
+          city: string | null
+          client_id: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          label: string
+          latitude: number | null
+          longitude: number | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          label: string
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          label?: string
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_addresses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commissions: {
         Row: {
           amount: number
@@ -446,6 +496,42 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: true
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorite_masters: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          master_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          master_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          master_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_masters_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_masters_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
             referencedColumns: ["id"]
           },
         ]

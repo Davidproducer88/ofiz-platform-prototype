@@ -38,6 +38,12 @@ import { MyServiceRequests } from '@/components/MyServiceRequests';
 import { ChatTab } from '@/components/ChatTab';
 import { BookingActions } from '@/components/BookingActions';
 import { ReferralProgram } from '@/components/ReferralProgram';
+import { FavoriteMasters } from '@/components/client/FavoriteMasters';
+import { PaymentHistory } from '@/components/client/PaymentHistory';
+import { ClientCalendar } from '@/components/client/ClientCalendar';
+import { MyReviews } from '@/components/client/MyReviews';
+import { AddressBook } from '@/components/client/AddressBook';
+import { useFavorites } from '@/hooks/useFavorites';
 
 interface Service {
   id: string;
@@ -75,6 +81,7 @@ interface Booking {
 const ClientDashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites(profile?.id);
   const [services, setServices] = useState<Service[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -341,7 +348,7 @@ const ClientDashboard = () => {
                 </div>
                 <div className="md:ml-4">
                   <p className="text-xs md:text-sm text-muted-foreground">Favoritos</p>
-                  <p className="text-xl md:text-2xl font-bold">0</p>
+                  <p className="text-xl md:text-2xl font-bold">{favorites.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -366,10 +373,15 @@ const ClientDashboard = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-6 min-w-max md:min-w-0">
+            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-12 min-w-max md:min-w-0">
               <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Servicios</TabsTrigger>
               <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Solicitudes</TabsTrigger>
               <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Encargos</TabsTrigger>
+              <TabsTrigger value="favorites" className="text-xs md:text-sm whitespace-nowrap">Favoritos</TabsTrigger>
+              <TabsTrigger value="calendar" className="text-xs md:text-sm whitespace-nowrap">Calendario</TabsTrigger>
+              <TabsTrigger value="payments" className="text-xs md:text-sm whitespace-nowrap">Pagos</TabsTrigger>
+              <TabsTrigger value="reviews" className="text-xs md:text-sm whitespace-nowrap">Reseñas</TabsTrigger>
+              <TabsTrigger value="addresses" className="text-xs md:text-sm whitespace-nowrap">Direcciones</TabsTrigger>
               <TabsTrigger value="referrals" className="text-xs md:text-sm whitespace-nowrap">Referidos</TabsTrigger>
               <TabsTrigger value="chat" className="text-xs md:text-sm whitespace-nowrap">Mensajes</TabsTrigger>
               <TabsTrigger value="notifications" className="text-xs md:text-sm whitespace-nowrap">Notificaciones</TabsTrigger>
@@ -437,8 +449,16 @@ const ClientDashboard = () => {
                           {service.masters.business_name}
                         </CardDescription>
                       </div>
-                      <Button variant="ghost" size="icon" className="shrink-0">
-                        <Heart className="h-4 w-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(service.master_id);
+                        }}
+                      >
+                        <Heart className={`h-4 w-4 ${isFavorite(service.master_id) ? 'fill-red-500 text-red-500' : ''}`} />
                       </Button>
                     </div>
                   </CardHeader>
@@ -595,6 +615,31 @@ const ClientDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Favorites Tab */}
+          <TabsContent value="favorites">
+            <FavoriteMasters />
+          </TabsContent>
+
+          {/* Calendar Tab */}
+          <TabsContent value="calendar">
+            <ClientCalendar />
+          </TabsContent>
+
+          {/* Payments Tab */}
+          <TabsContent value="payments">
+            <PaymentHistory />
+          </TabsContent>
+
+          {/* Reviews Tab */}
+          <TabsContent value="reviews">
+            <MyReviews />
+          </TabsContent>
+
+          {/* Addresses Tab */}
+          <TabsContent value="addresses">
+            <AddressBook />
           </TabsContent>
 
           {/* Chat Tab */}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,10 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Service {
   id: string;
@@ -42,10 +45,53 @@ export function BookingDialog({
   onConfirm,
   defaultAddress = ''
 }: BookingDialogProps) {
+  const { profile } = useAuth();
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState('09:00');
   const [address, setAddress] = useState(defaultAddress);
   const [notes, setNotes] = useState('');
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('manual');
+
+  useEffect(() => {
+    if (profile?.id && open) {
+      fetchSavedAddresses();
+    }
+  }, [profile?.id, open]);
+
+  const fetchSavedAddresses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('client_addresses')
+        .select('*')
+        .eq('client_id', profile?.id)
+        .order('is_default', { ascending: false });
+
+      if (error) throw error;
+      setSavedAddresses(data || []);
+
+      // Auto-select default address if exists
+      const defaultAddr = data?.find(a => a.is_default);
+      if (defaultAddr && !address) {
+        setAddress(defaultAddr.address);
+        setSelectedAddressId(defaultAddr.id);
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+    }
+  };
+
+  const handleAddressSelect = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    if (addressId === 'manual') {
+      setAddress(defaultAddress);
+    } else {
+      const selectedAddr = savedAddresses.find(a => a.id === addressId);
+      if (selectedAddr) {
+        setAddress(selectedAddr.address);
+      }
+    }
+  };
 
   const handleConfirm = () => {
     if (!service || !date) return;
@@ -139,17 +185,45 @@ export function BookingDialog({
 
           {/* Address */}
           <div className="space-y-2">
-            <Label htmlFor="address">Dirección del Servicio</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="address"
-                placeholder="Ingresa la dirección completa"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <Label>Dirección del Servicio</Label>
+            {savedAddresses.length > 0 ? (
+              <>
+                <Select value={selectedAddressId} onValueChange={handleAddressSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una dirección" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {savedAddresses.map((addr) => (
+                      <SelectItem key={addr.id} value={addr.id}>
+                        {addr.label} - {addr.address.substring(0, 50)}...
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="manual">Ingresar dirección manualmente</SelectItem>
+                  </SelectContent>
+                </Select>
+                {selectedAddressId === 'manual' && (
+                  <div className="relative mt-2">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Ingresa la dirección completa"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Ingresa la dirección completa"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            )}
           </div>
 
           {/* Notes */}
