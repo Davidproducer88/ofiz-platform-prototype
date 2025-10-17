@@ -54,7 +54,7 @@ const AdminLogin = () => {
         description: "Has iniciado sesión como administrador",
       });
       
-      navigate("/admin");
+      navigate("/admin-dashboard");
     } catch (error) {
       toast({
         variant: "destructive",

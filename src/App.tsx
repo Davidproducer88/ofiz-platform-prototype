@@ -105,7 +105,7 @@ const AppContent = () => {
         element={<AdminLogin />} 
       />
       <Route 
-        path="/admin" 
+        path="/admin-dashboard" 
         element={
           <ProtectedRoute>
             <AdminDashboard />
