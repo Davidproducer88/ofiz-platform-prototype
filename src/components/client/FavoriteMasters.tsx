@@ -39,7 +39,7 @@ export const FavoriteMasters = () => {
             <p className="text-muted-foreground mb-4">
               Comienza a agregar profesionales a favoritos para acceder rápidamente a ellos
             </p>
-            <Button onClick={() => navigate('/search')}>
+            <Button onClick={() => navigate('/search-masters')}>
               Buscar Profesionales
             </Button>
           </CardContent>
@@ -82,7 +82,7 @@ export const FavoriteMasters = () => {
                   <Button
                     className="flex-1"
                     size="sm"
-                    onClick={() => navigate(`/search?master=${favorite.master_id}`)}
+                    onClick={() => navigate(`/search-masters?master=${favorite.master_id}`)}
                   >
                     Ver Perfil
                   </Button>
@@ -90,9 +90,9 @@ export const FavoriteMasters = () => {
                     variant="outline"
                     size="sm"
                     className="flex-1"
-                    onClick={() => navigate(`/search?master=${favorite.master_id}#book`)}
+                    onClick={() => navigate(`/search-masters?master=${favorite.master_id}`)}
                   >
-                    Solicitar Servicio
+                    Solicitar
                   </Button>
                 </div>
               </CardContent>

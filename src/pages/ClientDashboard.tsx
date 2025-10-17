@@ -401,10 +401,19 @@ const ClientDashboard = () => {
             {/* Search and Filters */}
             <Card className="shadow-card">
               <CardHeader className="p-4 md:p-6">
-                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <Search className="h-4 w-4 md:h-5 md:w-5" />
-                  Encuentra el servicio perfecto
-                </CardTitle>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <Search className="h-4 w-4 md:h-5 md:w-5" />
+                    Encuentra el servicio perfecto
+                  </CardTitle>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/search-masters')}
+                  >
+                    Ver Todos los Profesionales
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4 p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row gap-3">

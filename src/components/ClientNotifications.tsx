@@ -1,81 +1,173 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bell, CheckCircle, Clock, Calendar, AlertCircle, Trash2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Bell, CheckCircle, MessageSquare, Calendar, DollarSign, Star, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface Notification {
   id: string;
-  type: 'success' | 'info' | 'warning';
+  type: string;
   title: string;
   message: string;
-  timestamp: Date;
+  created_at: string;
   read: boolean;
+  booking_id?: string | null;
+  conversation_id?: string | null;
+  metadata?: any;
 }
 
-// Mock data - In real app, this would come from database
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'success',
-    title: 'Servicio Confirmado',
-    message: 'Tu solicitud de plomería ha sido aceptada por el profesional',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'info',
-    title: 'Recordatorio',
-    message: 'Tu servicio de limpieza está programado para mañana a las 10:00',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'success',
-    title: 'Pago Procesado',
-    message: 'Se procesó exitosamente el pago de $35.000',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    read: true,
-  },
-];
-
 export function ClientNotifications() {
-  const unreadCount = mockNotifications.filter(n => !n.read).length;
+  const { profile } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const getIcon = (type: Notification['type']) => {
+  useEffect(() => {
+    fetchNotifications();
+    
+    // Real-time subscription
+    const channel = supabase
+      .channel('client-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${profile?.id}`
+        },
+        () => fetchNotifications()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id]);
+
+  const fetchNotifications = async () => {
+    if (!profile?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setNotifications(data || []);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar las notificaciones",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!profile?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', profile.id)
+        .eq('read', false);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Notificaciones marcadas",
+        description: "Todas las notificaciones fueron marcadas como leídas",
+      });
+      
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron marcar las notificaciones",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const getIcon = (type: string) => {
     switch (type) {
+      case 'booking':
+      case 'booking_confirmed':
+      case 'booking_completed':
+        return <Calendar className="h-4 w-4 text-primary" />;
+      case 'message':
+      case 'new_message':
+        return <MessageSquare className="h-4 w-4 text-blue-500" />;
+      case 'payment':
+      case 'payment_completed':
+        return <DollarSign className="h-4 w-4 text-green-500" />;
+      case 'review':
+        return <Star className="h-4 w-4 text-yellow-500" />;
       case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'warning':
-        return <AlertCircle className="h-5 w-5 text-yellow-600" />;
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       default:
-        return <Bell className="h-5 w-5 text-blue-600" />;
+        return <Bell className="h-4 w-4 text-primary" />;
     }
   };
 
-  const formatTimestamp = (date: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffInMinutes < 60) {
-      return `Hace ${diffInMinutes} minutos`;
-    } else if (diffInMinutes < 1440) {
-      const hours = Math.floor(diffInMinutes / 60);
-      return `Hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
-    } else {
-      const days = Math.floor(diffInMinutes / 1440);
-      return `Hace ${days} ${days === 1 ? 'día' : 'días'}`;
-    }
+  const formatTimestamp = (timestamp: string) => {
+    return formatDistanceToNow(new Date(timestamp), { 
+      addSuffix: true,
+      locale: es 
+    });
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-12 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Cargando notificaciones...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold gradient-text">Centro de Notificaciones</h2>
+          <h2 className="text-2xl font-bold">Centro de Notificaciones</h2>
           <p className="text-muted-foreground">
             Mantente al día con tus servicios y actividades
           </p>
@@ -87,93 +179,115 @@ export function ClientNotifications() {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm">
-          Marcar todas como leídas
-        </Button>
-        <Button variant="outline" size="sm">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Limpiar leídas
-        </Button>
-      </div>
-
       {/* Notifications List */}
       <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle>Notificaciones Recientes</CardTitle>
-          <CardDescription>
-            Todas tus actualizaciones y alertas importantes
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[500px] pr-4">
-            <div className="space-y-4">
-              {mockNotifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`flex gap-4 p-4 rounded-lg border transition-smooth hover:shadow-card ${
-                    !notification.read ? 'bg-primary/5 border-primary/20' : 'bg-background'
-                  }`}
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    {getIcon(notification.type)}
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-start justify-between">
-                      <h4 className="font-semibold text-sm">{notification.title}</h4>
-                      {!notification.read && (
-                        <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1" />
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{notification.message}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {formatTimestamp(notification.timestamp)}
-                    </div>
-                  </div>
-                </div>
-              ))}
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base md:text-lg">Notificaciones Recientes</CardTitle>
+              <CardDescription className="text-xs md:text-sm">
+                Todas tus actualizaciones y alertas importantes
+              </CardDescription>
             </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1 sm:flex-none"
+              onClick={markAllAsRead}
+              disabled={unreadCount === 0}
+            >
+              Marcar todas como leídas
+            </Button>
+          </div>
+
+          <ScrollArea className="h-[400px] pr-4">
+            {notifications.length === 0 ? (
+              <div className="text-center py-12">
+                <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No tienes notificaciones</h3>
+                <p className="text-muted-foreground">
+                  Te notificaremos cuando haya novedades
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-3 md:p-4 border rounded-lg transition-colors hover:bg-muted/50 cursor-pointer ${
+                      !notification.read ? 'bg-primary/5 border-primary/20' : 'bg-background'
+                    }`}
+                    onClick={() => !notification.read && markAsRead(notification.id)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2 rounded-full shrink-0 ${
+                        !notification.read ? 'bg-primary/10' : 'bg-muted'
+                      }`}>
+                        {getIcon(notification.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="text-sm font-medium truncate">{notification.title}</h4>
+                          {!notification.read && (
+                            <Badge variant="default" className="shrink-0 text-xs">Nueva</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-2">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatTimestamp(notification.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
 
       {/* Notification Preferences */}
       <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle>Preferencias de Notificación</CardTitle>
-          <CardDescription>
-            Controla qué notificaciones deseas recibir
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-base md:text-lg">Preferencias de Notificaciones</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
+            Personaliza qué notificaciones quieres recibir
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-4 md:p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Confirmaciones de Servicio</p>
-              <p className="text-sm text-muted-foreground">
-                Cuando un profesional acepta tu solicitud
-              </p>
+            <div className="flex-1">
+              <Label htmlFor="messages" className="text-sm font-medium">Nuevos Mensajes</Label>
+              <p className="text-xs md:text-sm text-muted-foreground">Recibe alertas de mensajes nuevos</p>
             </div>
-            <input type="checkbox" defaultChecked className="h-4 w-4" />
+            <Switch id="messages" defaultChecked />
           </div>
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Recordatorios</p>
-              <p className="text-sm text-muted-foreground">
-                Avisos de próximos servicios programados
-              </p>
+            <div className="flex-1">
+              <Label htmlFor="bookings" className="text-sm font-medium">Estado de Encargos</Label>
+              <p className="text-xs md:text-sm text-muted-foreground">Actualizaciones del estado de tus servicios</p>
             </div>
-            <input type="checkbox" defaultChecked className="h-4 w-4" />
+            <Switch id="bookings" defaultChecked />
           </div>
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Actualizaciones de Pago</p>
-              <p className="text-sm text-muted-foreground">
-                Confirmaciones y recibos de pagos
-              </p>
+            <div className="flex-1">
+              <Label htmlFor="payments" className="text-sm font-medium">Pagos y Facturas</Label>
+              <p className="text-xs md:text-sm text-muted-foreground">Notificaciones sobre pagos realizados</p>
             </div>
-            <input type="checkbox" defaultChecked className="h-4 w-4" />
+            <Switch id="payments" defaultChecked />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <Label htmlFor="promotions" className="text-sm font-medium">Ofertas y Promociones</Label>
+              <p className="text-xs md:text-sm text-muted-foreground">Recibe ofertas especiales y promociones</p>
+            </div>
+            <Switch id="promotions" />
           </div>
         </CardContent>
       </Card>
