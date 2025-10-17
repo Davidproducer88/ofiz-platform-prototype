@@ -39,6 +39,11 @@ import { MasterPortfolio } from '@/components/MasterPortfolio';
 import { ChatTab } from '@/components/ChatTab';
 import { SubscriptionPlans } from '@/components/SubscriptionPlans';
 import { FinancialDashboard } from '@/components/FinancialDashboard';
+import { MasterAnalytics } from '@/components/master/MasterAnalytics';
+import { MyApplications } from '@/components/master/MyApplications';
+import { WorkCalendar } from '@/components/master/WorkCalendar';
+import { MasterNotifications } from '@/components/master/MasterNotifications';
+import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 
 interface Service {
   id: string;
@@ -631,7 +636,7 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-14">
             <TabsTrigger value="services">Servicios</TabsTrigger>
             <TabsTrigger value="job-requests">Trabajos</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
@@ -640,6 +645,11 @@ const MasterDashboard = () => {
             <TabsTrigger value="messages">Mensajes</TabsTrigger>
             <TabsTrigger value="subscription">Suscripción</TabsTrigger>
             <TabsTrigger value="finances">Finanzas</TabsTrigger>
+            <TabsTrigger value="analytics">Analíticas</TabsTrigger>
+            <TabsTrigger value="applications">Propuestas</TabsTrigger>
+            <TabsTrigger value="calendar">Calendario</TabsTrigger>
+            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
+            <TabsTrigger value="withdrawals">Retiros</TabsTrigger>
             <TabsTrigger value="profile">Perfil</TabsTrigger>
           </TabsList>
 
@@ -1272,6 +1282,31 @@ const MasterDashboard = () => {
                 <FinancialDashboard />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <MasterAnalytics />
+          </TabsContent>
+
+          {/* My Applications Tab */}
+          <TabsContent value="applications" className="space-y-6">
+            <MyApplications />
+          </TabsContent>
+
+          {/* Calendar Tab */}
+          <TabsContent value="calendar" className="space-y-6">
+            <WorkCalendar />
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications" className="space-y-6">
+            <MasterNotifications />
+          </TabsContent>
+
+          {/* Withdrawals Tab */}
+          <TabsContent value="withdrawals" className="space-y-6">
+            <PaymentsWithdrawal />
           </TabsContent>
         </Tabs>
 
