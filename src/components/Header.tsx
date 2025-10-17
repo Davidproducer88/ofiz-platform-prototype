@@ -92,7 +92,7 @@ export const Header = ({
                       </button>
               <button 
                 onClick={() => {
-                  navigate('/dashboard/client');
+                  navigate('/client-dashboard');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -148,7 +148,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/dashboard/master');
+                  navigate('/master-dashboard');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -166,7 +166,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/dashboard/master');
+                  navigate('/master-dashboard');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -175,7 +175,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/dashboard/master');
+                  navigate('/master-dashboard');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -245,19 +245,19 @@ export const Header = ({
 
               {/* Dashboard links for logged in users */}
               {userType === 'master' && <button onClick={() => {
-              navigate('/dashboard/master');
+              navigate('/master-dashboard');
               setIsMobileMenuOpen(false);
             }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Mi Dashboard
                 </button>}
               {userType === 'client' && <button onClick={() => {
-              navigate('/dashboard/client');
+              navigate('/client-dashboard');
               setIsMobileMenuOpen(false);
             }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Mi Dashboard
                 </button>}
               {userType === 'admin' && <button onClick={() => {
-              navigate('/admin/dashboard');
+              navigate('/admin-dashboard');
               setIsMobileMenuOpen(false);
             }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Panel Admin
@@ -294,7 +294,7 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/dashboard/client')}
+                onClick={() => navigate('/client-dashboard')}
               >
                 Publicar Encargo
               </DropdownMenuItem>
@@ -334,7 +334,7 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/dashboard/master')}
+                onClick={() => navigate('/master-dashboard')}
               >
                 Planes Premium
               </DropdownMenuItem>
@@ -346,13 +346,13 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/dashboard/master')}
+                onClick={() => navigate('/master-dashboard')}
               >
                 Verificación de Perfil
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/dashboard/master')}
+                onClick={() => navigate('/master-dashboard')}
               >
                 Herramientas
               </DropdownMenuItem>
@@ -400,13 +400,13 @@ export const Header = ({
           </DropdownMenu>
 
           {/* Dashboard links for logged in users */}
-          {userType === 'master' && <button onClick={() => navigate('/dashboard/master')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+          {userType === 'master' && <button onClick={() => navigate('/master-dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Mi Dashboard
             </button>}
-          {userType === 'client' && <button onClick={() => navigate('/dashboard/client')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+          {userType === 'client' && <button onClick={() => navigate('/client-dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Mi Dashboard
             </button>}
-          {userType === 'admin' && <button onClick={() => navigate('/admin/dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+          {userType === 'admin' && <button onClick={() => navigate('/admin-dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Panel Admin
             </button>}
         </nav>
@@ -439,7 +439,7 @@ export const Header = ({
                       Mi Perfil
                     </button>
                     <button onClick={() => {
-                if (userType === 'client') navigate('/dashboard/client');else if (userType === 'master') navigate('/dashboard/master');else if (userType === 'admin') navigate('/admin/dashboard');
+                if (userType === 'client') navigate('/client-dashboard');else if (userType === 'master') navigate('/master-dashboard');else if (userType === 'admin') navigate('/admin-dashboard');
                 setIsMenuOpen(false);
               }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <Settings className="mr-2 h-4 w-4" />

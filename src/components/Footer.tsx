@@ -37,7 +37,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Para Clientes</h4>
             <div className="space-y-2">
-              <button onClick={() => window.location.href = '/dashboard/client'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/client-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Publicar Encargo
               </button>
               <button onClick={() => window.location.href = '/search'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
@@ -62,16 +62,16 @@ export const Footer = () => {
               <button onClick={() => window.location.href = '/auth?type=master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Registrarse como Maestro
               </button>
-              <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/master-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Planes Premium
               </button>
               <button onClick={() => window.location.href = '/help-center'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Centro de Ayuda
               </button>
-              <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/master-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Verificación de Perfil
               </button>
-              <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/master-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Herramientas
               </button>
             </div>
