@@ -101,7 +101,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/how-it-works');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -110,7 +110,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/pricing');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -119,7 +119,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/guarantees');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -157,7 +157,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/help-center');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -195,7 +195,7 @@ export const Header = ({
                     <div className="flex flex-col space-y-3 pl-4">
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/about');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -204,7 +204,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/terms');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -213,7 +213,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/privacy');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -222,7 +222,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/contact');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -231,7 +231,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/');
+                  navigate('/blog');
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -300,19 +300,19 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/how-it-works')}
               >
                 Cómo Funciona
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/pricing')}
               >
                 Precios y Tarifas
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/guarantees')}
               >
                 Garantías
               </DropdownMenuItem>
@@ -340,7 +340,7 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/help-center')}
               >
                 Centro de Ayuda
               </DropdownMenuItem>
@@ -368,31 +368,31 @@ export const Header = ({
             <DropdownMenuContent className="bg-card border border-border z-50">
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/about')}
               >
                 Sobre Ofiz
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/terms')}
               >
                 Términos y Condiciones
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/privacy')}
               >
                 Política de Privacidad
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/contact')}
               >
                 Contacto
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/blog')}
               >
                 Blog
               </DropdownMenuItem>

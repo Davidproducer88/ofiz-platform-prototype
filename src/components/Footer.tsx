@@ -43,13 +43,13 @@ export const Footer = () => {
               <button onClick={() => window.location.href = '/search'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Buscar Profesionales
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/how-it-works'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Cómo Funciona
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/pricing'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Precios y Tarifas
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/guarantees'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Garantías
               </button>
             </div>
@@ -65,7 +65,7 @@ export const Footer = () => {
               <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Planes Premium
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/help-center'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Centro de Ayuda
               </button>
               <button onClick={() => window.location.href = '/dashboard/master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
@@ -81,19 +81,19 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Empresa</h4>
             <div className="space-y-2">
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/about'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Sobre Ofiz
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/terms'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Términos y Condiciones
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/privacy'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Política de Privacidad
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/contact'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Contacto
               </button>
-              <button onClick={() => window.location.href = '/'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/blog'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Blog
               </button>
             </div>

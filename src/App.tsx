@@ -16,6 +16,15 @@ import ClientDashboard from "./pages/ClientDashboard";
 import MasterDashboard from "./pages/MasterDashboard";
 import SearchMasters from "./pages/SearchMasters";
 import BusinessDashboard from "./pages/BusinessDashboard";
+import HowItWorks from "./pages/HowItWorks";
+import Pricing from "./pages/Pricing";
+import Guarantees from "./pages/Guarantees";
+import HelpCenter from "./pages/HelpCenter";
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
+import Blog from "./pages/Blog";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +130,15 @@ const AppContent = () => {
           </ProtectedRoute>
         } 
       />
+      <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/guarantees" element={<Guarantees />} />
+      <Route path="/help-center" element={<HelpCenter />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/blog" element={<Blog />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
