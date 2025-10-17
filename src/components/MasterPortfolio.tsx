@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PortfolioItem {
   id: string;
@@ -35,7 +36,25 @@ export function MasterPortfolio({ masterId, isOwner = false }: MasterPortfolioPr
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadForm, setUploadForm] = useState({
+    title: '',
+    description: '',
+    category: '',
+    file: null as File | null
+  });
   const { toast } = useToast();
+
+  const categories = [
+    { id: 'plumbing', name: 'Plomería' },
+    { id: 'electricity', name: 'Electricidad' },
+    { id: 'cleaning', name: 'Limpieza' },
+    { id: 'computer_repair', name: 'Reparación PC' },
+    { id: 'gardening', name: 'Jardinería' },
+    { id: 'painting', name: 'Pintura' },
+    { id: 'carpentry', name: 'Carpintería' },
+    { id: 'appliance_repair', name: 'Reparaciones' },
+  ];
 
   useEffect(() => {
     loadPortfolio();
@@ -90,6 +109,70 @@ export function MasterPortfolio({ masterId, isOwner = false }: MasterPortfolioPr
     }
   };
 
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!uploadForm.title || !uploadForm.category || !uploadForm.file) {
+      toast({
+        title: "Error",
+        description: "Por favor completa todos los campos requeridos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Upload image to storage
+      const fileExt = uploadForm.file.name.split('.').pop();
+      const fileName = `${masterId}-${Date.now()}.${fileExt}`;
+      const filePath = `portfolio/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, uploadForm.file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('master_portfolio')
+        .insert({
+          master_id: masterId,
+          title: uploadForm.title,
+          description: uploadForm.description || null,
+          image_url: publicUrl,
+          category: uploadForm.category as any,
+          display_order: portfolio.length
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "¡Éxito!",
+        description: "Imagen agregada al portfolio",
+      });
+
+      setUploadForm({ title: '', description: '', category: '', file: null });
+      setUploadDialogOpen(false);
+      loadPortfolio();
+    } catch (error: any) {
+      console.error("Error uploading to portfolio:", error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo subir la imagen",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -126,24 +209,57 @@ export function MasterPortfolio({ masterId, isOwner = false }: MasterPortfolioPr
                   Sube imágenes de tus trabajos completados
                 </DialogDescription>
               </DialogHeader>
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-4" onSubmit={handleUpload}>
                 <div>
-                  <Label htmlFor="title">Título</Label>
-                  <Input id="title" placeholder="Ej: Renovación de cocina" />
+                  <Label htmlFor="title">Título *</Label>
+                  <Input 
+                    id="title" 
+                    placeholder="Ej: Renovación de cocina"
+                    value={uploadForm.title}
+                    onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Categoría *</Label>
+                  <Select 
+                    value={uploadForm.category} 
+                    onValueChange={(value) => setUploadForm({ ...uploadForm, category: value })}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona una categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="description">Descripción</Label>
                   <Textarea
                     id="description"
                     placeholder="Describe el trabajo realizado..."
+                    value={uploadForm.description}
+                    onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="image">Imagen</Label>
-                  <Input id="image" type="file" accept="image/*" />
+                  <Label htmlFor="image">Imagen *</Label>
+                  <Input 
+                    id="image" 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files?.[0] || null })}
+                    required
+                  />
                 </div>
-                <Button type="submit" className="w-full">
-                  Subir
+                <Button type="submit" className="w-full" disabled={uploading}>
+                  {uploading ? "Subiendo..." : "Subir"}
                 </Button>
               </form>
             </DialogContent>

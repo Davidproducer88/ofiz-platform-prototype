@@ -121,7 +121,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } 
       />
-      <Route path="/search" element={<SearchMasters />} />
+      <Route path="/search-masters" element={<SearchMasters />} />
       <Route 
         path="/business-dashboard" 
         element={
