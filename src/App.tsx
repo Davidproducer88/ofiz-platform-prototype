@@ -85,7 +85,7 @@ const AppContent = () => {
         element={<Index userType={profile?.user_type || null} />} 
       />
       <Route 
-        path="/dashboard" 
+        path="/client-dashboard" 
         element={
           <ProtectedRoute>
             <ClientDashboard />
