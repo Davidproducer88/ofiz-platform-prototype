@@ -23,7 +23,7 @@ interface Booking {
   profiles: {
     full_name: string;
     phone: string;
-  };
+  } | null;
 }
 
 export const WorkCalendar = () => {
@@ -191,7 +191,7 @@ export const WorkCalendar = () => {
                   </div>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <User className="h-3 w-3" />
-                    {booking.profiles.full_name}
+                    {booking.profiles?.full_name || 'Cliente no disponible'}
                   </div>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <MapPin className="h-3 w-3" />
@@ -236,7 +236,7 @@ export const WorkCalendar = () => {
                         </p>
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <User className="h-3 w-3" />
-                          {booking.profiles.full_name} - {booking.profiles.phone}
+                          {booking.profiles?.full_name || 'Cliente no disponible'} {booking.profiles?.phone ? `- ${booking.profiles.phone}` : ''}
                         </p>
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
@@ -286,8 +286,10 @@ export const WorkCalendar = () => {
               </div>
               <div>
                 <p className="text-sm font-medium">Cliente</p>
-                <p className="text-sm text-muted-foreground">{selectedBooking.profiles.full_name}</p>
-                <p className="text-sm text-muted-foreground">{selectedBooking.profiles.phone}</p>
+                <p className="text-sm text-muted-foreground">{selectedBooking.profiles?.full_name || 'Cliente no disponible'}</p>
+                {selectedBooking.profiles?.phone && (
+                  <p className="text-sm text-muted-foreground">{selectedBooking.profiles.phone}</p>
+                )}
               </div>
               <div>
                 <p className="text-sm font-medium">Dirección</p>
