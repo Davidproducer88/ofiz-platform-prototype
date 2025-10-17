@@ -637,22 +637,22 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-15">
-            <TabsTrigger value="feed">Feed</TabsTrigger>
-            <TabsTrigger value="services">Servicios</TabsTrigger>
-            <TabsTrigger value="job-requests">Trabajos</TabsTrigger>
-            <TabsTrigger value="bookings">Reservas</TabsTrigger>
-            <TabsTrigger value="reviews">Reseñas</TabsTrigger>
-            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-            <TabsTrigger value="messages">Mensajes</TabsTrigger>
-            <TabsTrigger value="subscription">Suscripción</TabsTrigger>
-            <TabsTrigger value="finances">Finanzas</TabsTrigger>
-            <TabsTrigger value="analytics">Analíticas</TabsTrigger>
-            <TabsTrigger value="applications">Propuestas</TabsTrigger>
-            <TabsTrigger value="calendar">Calendario</TabsTrigger>
-            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
-            <TabsTrigger value="withdrawals">Retiros</TabsTrigger>
-            <TabsTrigger value="profile">Perfil</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-15 gap-1 h-auto p-1">
+            <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
+            <TabsTrigger value="services" className="text-xs sm:text-sm">Servicios</TabsTrigger>
+            <TabsTrigger value="job-requests" className="text-xs sm:text-sm">Trabajos</TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs sm:text-sm">Reservas</TabsTrigger>
+            <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reseñas</TabsTrigger>
+            <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs sm:text-sm">Mensajes</TabsTrigger>
+            <TabsTrigger value="subscription" className="text-xs sm:text-sm">Plan</TabsTrigger>
+            <TabsTrigger value="finances" className="text-xs sm:text-sm">Finanzas</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Análisis</TabsTrigger>
+            <TabsTrigger value="applications" className="text-xs sm:text-sm">Propuestas</TabsTrigger>
+            <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendario</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-xs sm:text-sm">Alertas</TabsTrigger>
+            <TabsTrigger value="withdrawals" className="text-xs sm:text-sm">Retiros</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">Perfil</TabsTrigger>
           </TabsList>
 
           {/* Feed Tab */}

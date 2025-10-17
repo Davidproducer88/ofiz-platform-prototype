@@ -106,7 +106,7 @@ export const useMasterNotifications = () => {
     // Real-time subscription
     const setupRealtimeSubscription = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) return null;
 
       const channel = supabase
         .channel('master-notifications')
@@ -151,12 +151,16 @@ export const useMasterNotifications = () => {
         )
         .subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
+      return channel;
     };
 
-    setupRealtimeSubscription();
+    const subscription = setupRealtimeSubscription();
+
+    return () => {
+      subscription.then(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
+    };
   }, []);
 
   return {

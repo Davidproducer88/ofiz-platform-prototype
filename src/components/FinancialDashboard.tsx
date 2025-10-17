@@ -57,7 +57,7 @@ export const FinancialDashboard = () => {
         .from('payments')
         .select(`
           *,
-          bookings!inner(
+          bookings(
             service_id,
             services(title)
           )
