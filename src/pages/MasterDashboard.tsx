@@ -71,7 +71,7 @@ interface Booking {
   profiles: {
     full_name: string;
     phone?: string;
-  };
+  } | null;
 }
 
 interface Review {
@@ -81,7 +81,7 @@ interface Review {
   created_at: string;
   profiles: {
     full_name: string;
-  };
+  } | null;
   services: {
     title: string;
   };
@@ -920,7 +920,7 @@ const MasterDashboard = () => {
                           <div className="flex-1">
                             <h3 className="font-medium">{booking.services.title}</h3>
                             <p className="text-sm text-muted-foreground">
-                              Cliente: {booking.profiles.full_name}
+                              Cliente: {booking.profiles?.full_name || 'No disponible'}
                             </p>
                             <div className="flex items-center mt-2 text-sm text-muted-foreground">
                               <Calendar className="h-4 w-4 mr-1" />
@@ -928,7 +928,7 @@ const MasterDashboard = () => {
                               <MapPin className="h-4 w-4 ml-4 mr-1" />
                               {booking.client_address}
                             </div>
-                            {booking.profiles.phone && (
+                            {booking.profiles?.phone && (
                               <div className="flex items-center mt-1 text-sm text-muted-foreground">
                                 <Phone className="h-4 w-4 mr-1" />
                                 {booking.profiles.phone}
@@ -1037,7 +1037,7 @@ const MasterDashboard = () => {
                             </div>
                             <h3 className="font-medium">{review.services.title}</h3>
                             <p className="text-sm text-muted-foreground mb-2">
-                              Por: {review.profiles.full_name}
+                              Por: {review.profiles?.full_name || 'Usuario anónimo'}
                             </p>
                             {review.comment && (
                               <p className="text-sm">{review.comment}</p>
