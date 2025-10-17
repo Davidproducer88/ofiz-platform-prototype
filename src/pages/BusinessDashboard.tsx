@@ -266,17 +266,17 @@ export default function BusinessDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10 overflow-x-auto">
-            <TabsTrigger value="feed">Feed</TabsTrigger>
-            <TabsTrigger value="overview">Resumen</TabsTrigger>
-            <TabsTrigger value="analytics">Analíticas</TabsTrigger>
-            <TabsTrigger value="ads">Publicidad</TabsTrigger>
-            <TabsTrigger value="contracts">Contratos</TabsTrigger>
-            <TabsTrigger value="search">Buscar Maestros</TabsTrigger>
-            <TabsTrigger value="billing">Facturación</TabsTrigger>
-            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
-            <TabsTrigger value="subscription" id="subscription-tab">Suscripción</TabsTrigger>
-            <TabsTrigger value="profile">Perfil</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto p-1">
+            <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Resumen</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analíticas</TabsTrigger>
+            <TabsTrigger value="ads" className="text-xs sm:text-sm">Publicidad</TabsTrigger>
+            <TabsTrigger value="contracts" className="text-xs sm:text-sm">Contratos</TabsTrigger>
+            <TabsTrigger value="search" className="text-xs sm:text-sm">Buscar</TabsTrigger>
+            <TabsTrigger value="billing" className="text-xs sm:text-sm">Facturación</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-xs sm:text-sm">Alertas</TabsTrigger>
+            <TabsTrigger value="subscription" id="subscription-tab" className="text-xs sm:text-sm">Plan</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">Perfil</TabsTrigger>
           </TabsList>
 
           <TabsContent value="feed">

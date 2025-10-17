@@ -43,10 +43,6 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
         `)
         .gte('rating', filters.minRating);
 
-      if (filters.category !== 'all') {
-        query = query.contains('services.category', [filters.category]);
-      }
-
       if (filters.verified) {
         query = query.eq('is_verified', true);
       }
@@ -59,8 +55,17 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
 
       if (error) throw error;
 
-      // Filter by search query if present
+      // Filter by search query and category
       let filteredData = data || [];
+      
+      // Filter by category
+      if (filters.category !== 'all') {
+        filteredData = filteredData.filter(master => 
+          master.services?.some((service: any) => service.category === filters.category)
+        );
+      }
+      
+      // Filter by search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         filteredData = filteredData.filter(master =>

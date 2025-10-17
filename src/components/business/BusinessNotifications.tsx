@@ -29,33 +29,44 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
     fetchNotifications();
     
     // Subscribe to real-time notifications
-    const channel = supabase
-      .channel('business-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${businessId}`
-        },
-        (payload) => {
-          console.log('New notification:', payload);
-          setNotifications(prev => [payload.new, ...prev]);
-          
-          // Show toast for new notification
-          if (payload.new) {
-            toast({
-              title: payload.new.title,
-              description: payload.new.message,
-            });
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const channel = supabase
+        .channel('business-notifications')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${businessId}`
+          },
+          (payload) => {
+            console.log('New notification:', payload);
+            setNotifications(prev => [payload.new, ...prev]);
+            
+            // Show toast for new notification
+            if (payload.new) {
+              toast({
+                title: payload.new.title,
+                description: payload.new.message,
+              });
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+
+      return channel;
+    };
+
+    const subscription = setupRealtimeSubscription();
 
     return () => {
-      supabase.removeChannel(channel);
+      subscription.then(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
     };
   }, [businessId]);
 
