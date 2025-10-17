@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Users, UserCheck, Calendar, Star } from "lucide-react";
-import { UsersTable } from "@/components/admin/UsersTable";
+import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTable } from "@/components/admin/MastersTable";
 import { BookingsTable } from "@/components/admin/BookingsTable";
 import { ReviewsTable } from "@/components/admin/ReviewsTable";
+import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -146,11 +147,12 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
+            <TabsTrigger value="financial">Financiero</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -162,7 +164,7 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <UsersTable onStatsUpdate={loadStats} />
+                <UsersTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -205,6 +207,20 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <ReviewsTable onStatsUpdate={loadStats} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="financial">
+            <Card>
+              <CardHeader>
+                <CardTitle>Dashboard Financiero</CardTitle>
+                <CardDescription>
+                  Gestiona las finanzas y comisiones de la plataforma
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FinancialDashboardTab />
               </CardContent>
             </Card>
           </TabsContent>
