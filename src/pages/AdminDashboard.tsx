@@ -11,6 +11,7 @@ import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
 import { BookingsTableEnhanced } from "@/components/admin/BookingsTableEnhanced";
 import { ReviewsTableEnhanced } from "@/components/admin/ReviewsTableEnhanced";
 import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab";
+import { Feed } from "@/components/Feed";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -147,13 +148,18 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
             <TabsTrigger value="financial">Financiero</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="feed">
+            <Feed />
+          </TabsContent>
 
           <TabsContent value="users">
             <Card>

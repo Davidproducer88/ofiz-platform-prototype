@@ -27,6 +27,7 @@ import { AnalyticsDashboard } from "@/components/business/AnalyticsDashboard";
 import { BillingCenter } from "@/components/business/BillingCenter";
 import { BusinessNotifications } from "@/components/business/BusinessNotifications";
 import { MasterSearch } from "@/components/business/MasterSearch";
+import { Feed } from "@/components/Feed";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
@@ -265,7 +266,8 @@ export default function BusinessDashboard() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-9 overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10 overflow-x-auto">
+            <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="overview">Resumen</TabsTrigger>
             <TabsTrigger value="analytics">Analíticas</TabsTrigger>
             <TabsTrigger value="ads">Publicidad</TabsTrigger>
@@ -276,6 +278,10 @@ export default function BusinessDashboard() {
             <TabsTrigger value="subscription" id="subscription-tab">Suscripción</TabsTrigger>
             <TabsTrigger value="profile">Perfil</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="feed">
+            <Feed />
+          </TabsContent>
 
           <TabsContent value="overview">
             <div className="grid gap-4">

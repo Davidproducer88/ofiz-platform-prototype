@@ -44,6 +44,7 @@ import { ClientCalendar } from '@/components/client/ClientCalendar';
 import { MyReviews } from '@/components/client/MyReviews';
 import { AddressBook } from '@/components/client/AddressBook';
 import { useFavorites } from '@/hooks/useFavorites';
+import { Feed } from '@/components/Feed';
 
 interface Service {
   id: string;
@@ -374,6 +375,7 @@ const ClientDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-12 min-w-max md:min-w-0">
+              <TabsTrigger value="feed" className="text-xs md:text-sm whitespace-nowrap">Feed</TabsTrigger>
               <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Servicios</TabsTrigger>
               <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Solicitudes</TabsTrigger>
               <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Encargos</TabsTrigger>
@@ -388,6 +390,11 @@ const ClientDashboard = () => {
               <TabsTrigger value="profile" className="hidden">Mi Perfil</TabsTrigger>
             </TabsList>
           </div>
+
+          {/* Feed Tab */}
+          <TabsContent value="feed">
+            <Feed />
+          </TabsContent>
 
           {/* Services Tab */}
           <TabsContent value="services" className="space-y-6">

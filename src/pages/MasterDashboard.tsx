@@ -44,6 +44,7 @@ import { MyApplications } from '@/components/master/MyApplications';
 import { WorkCalendar } from '@/components/master/WorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
+import { Feed } from '@/components/Feed';
 
 interface Service {
   id: string;
@@ -636,7 +637,8 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-14">
+          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-15">
+            <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="services">Servicios</TabsTrigger>
             <TabsTrigger value="job-requests">Trabajos</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
@@ -652,6 +654,11 @@ const MasterDashboard = () => {
             <TabsTrigger value="withdrawals">Retiros</TabsTrigger>
             <TabsTrigger value="profile">Perfil</TabsTrigger>
           </TabsList>
+
+          {/* Feed Tab */}
+          <TabsContent value="feed">
+            <Feed />
+          </TabsContent>
 
           {/* Services Tab */}
           <TabsContent value="services" className="space-y-6">
