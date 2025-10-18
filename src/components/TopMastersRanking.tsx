@@ -25,6 +25,26 @@ export function TopMastersRanking() {
     );
   }
 
+  if (!rankings || rankings.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5" />
+            Top Profesionales
+          </CardTitle>
+          <CardDescription>Ranking actualizado en tiempo real</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-muted-foreground">
+            <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm">El ranking se actualizará cuando los profesionales completen trabajos y reciban reseñas</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const getMedalColor = (position: number) => {
     if (position === 1) return 'text-yellow-500';
     if (position === 2) return 'text-gray-400';

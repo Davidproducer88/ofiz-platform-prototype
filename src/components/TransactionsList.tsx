@@ -42,6 +42,11 @@ export function TransactionsList() {
 
   const fetchTransactions = async () => {
     try {
+      if (!profile?.id) {
+        setLoading(false);
+        return;
+      }
+
       const isMaster = profile?.user_type === 'master';
       const { data, error } = await supabase
         .from('payments')
@@ -54,7 +59,12 @@ export function TransactionsList() {
         .eq(isMaster ? 'master_id' : 'client_id', profile?.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        setTransactions([]);
+        setLoading(false);
+        return;
+      }
 
       setTransactions(data || []);
 
@@ -67,6 +77,7 @@ export function TransactionsList() {
       setStats({ total, pending, approved, inEscrow });
     } catch (error) {
       console.error('Error fetching transactions:', error);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }

@@ -1417,6 +1417,10 @@ export type Database = {
         Args: { user_id?: string }
         Returns: boolean
       }
+      recalculate_all_rankings: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       reset_monthly_applications: {
         Args: Record<PropertyKey, never>
         Returns: undefined

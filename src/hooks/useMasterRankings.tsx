@@ -66,10 +66,16 @@ export const useMasterRankings = (limit?: number) => {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching rankings:', error);
+        setRankings([]);
+        return;
+      }
+      
       setRankings(data || []);
     } catch (error) {
       console.error('Error fetching rankings:', error);
+      setRankings([]);
     } finally {
       setLoading(false);
     }
