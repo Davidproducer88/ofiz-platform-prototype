@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import { 
   User, 
   Briefcase, 
@@ -18,6 +19,8 @@ interface UserTypeSelectorProps {
 }
 
 export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
       <div className="container max-w-4xl">
@@ -215,7 +218,7 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
           <p className="text-muted-foreground">
             ¿Ya tenés cuenta?{" "}
             <button 
-              onClick={() => window.location.href = '/auth'} 
+              onClick={() => navigate('/auth')} 
               className="text-primary hover:underline font-medium"
             >
               Iniciar sesión

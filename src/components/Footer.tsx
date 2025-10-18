@@ -1,7 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 export const Footer = () => {
+  const navigate = useNavigate();
+  
   return <footer className="relative bg-gradient-to-b from-muted/30 to-muted/50 border-t border-border/50 overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -37,19 +41,19 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Para Clientes</h4>
             <div className="space-y-2">
-              <button onClick={() => window.location.href = '/client-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/client-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Publicar Encargo
               </button>
-              <button onClick={() => window.location.href = '/search-masters'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/search-masters')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Buscar Profesionales
               </button>
-              <button onClick={() => window.location.href = '/how-it-works'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/how-it-works')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Cómo Funciona
               </button>
-              <button onClick={() => window.location.href = '/pricing'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/pricing')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Precios y Tarifas
               </button>
-              <button onClick={() => window.location.href = '/guarantees'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/guarantees')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Garantías
               </button>
             </div>
@@ -59,19 +63,19 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Para Profesionales</h4>
             <div className="space-y-2">
-              <button onClick={() => window.location.href = '/auth?type=master'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Registrarse como Maestro
               </button>
-              <button onClick={() => window.location.href = '/master-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/master-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Planes Premium
               </button>
-              <button onClick={() => window.location.href = '/help-center'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/help-center')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Centro de Ayuda
               </button>
-              <button onClick={() => window.location.href = '/master-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/master-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Verificación de Perfil
               </button>
-              <button onClick={() => window.location.href = '/master-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/master-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Herramientas
               </button>
             </div>
@@ -81,19 +85,19 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Empresa</h4>
             <div className="space-y-2">
-              <button onClick={() => window.location.href = '/about'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/about')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Sobre Ofiz
               </button>
-              <button onClick={() => window.location.href = '/terms'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/terms')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Términos y Condiciones
               </button>
-              <button onClick={() => window.location.href = '/privacy'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/privacy')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Política de Privacidad
               </button>
-              <button onClick={() => window.location.href = '/contact'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/contact')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Contacto
               </button>
-              <button onClick={() => window.location.href = '/blog'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/blog')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Blog
               </button>
             </div>
