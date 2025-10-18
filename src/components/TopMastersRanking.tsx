@@ -1,11 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, TrendingUp, Award, DollarSign } from 'lucide-react';
+import { Star, TrendingUp, Award, DollarSign, AlertCircle } from 'lucide-react';
 import { useMasterRankings } from '@/hooks/useMasterRankings';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function TopMastersRanking() {
-  const { rankings, loading } = useMasterRankings(10);
+  const { rankings, loading, refetch } = useMasterRankings(10);
 
   if (loading) {
     return (
@@ -104,10 +105,13 @@ export function TopMastersRanking() {
             </div>
           ))}
 
-          {rankings.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No hay profesionales rankeados aún
-            </div>
+          {rankings.length === 0 && !loading && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Aún no hay profesionales con rankings. Los rankings se generan automáticamente basados en calificaciones, trabajos completados y desempeño.
+              </AlertDescription>
+            </Alert>
           )}
         </div>
       </CardContent>

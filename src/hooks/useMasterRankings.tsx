@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface MasterRanking {
   id: string;
@@ -68,6 +69,11 @@ export const useMasterRankings = (limit?: number) => {
 
       if (error) {
         console.error('Error fetching rankings:', error);
+        toast({
+          title: "Error al cargar rankings",
+          description: "No se pudieron cargar los rankings de profesionales",
+          variant: "destructive",
+        });
         setRankings([]);
         return;
       }

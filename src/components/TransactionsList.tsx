@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DollarSign, TrendingUp, Clock } from 'lucide-react';
+import { DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Transaction {
   id: string;
@@ -61,6 +64,11 @@ export function TransactionsList() {
 
       if (error) {
         console.error('Error fetching transactions:', error);
+        toast({
+          title: "Error al cargar transacciones",
+          description: "No se pudieron cargar las transacciones",
+          variant: "destructive",
+        });
         setTransactions([]);
         setLoading(false);
         return;
@@ -100,7 +108,27 @@ export function TransactionsList() {
   };
 
   if (loading) {
-    return <div>Cargando transacciones...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-32" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <Skeleton className="h-64 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -216,9 +244,12 @@ export function TransactionsList() {
           </Table>
 
           {transactions.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No hay transacciones aún
-            </div>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No tienes transacciones todavía. Las transacciones se crearán automáticamente cuando se procesen pagos por servicios.
+              </AlertDescription>
+            </Alert>
           )}
         </CardContent>
       </Card>
