@@ -1,27 +1,86 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Clock, MessageSquare, Send } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Mail, Phone, MapPin, Clock, Send, MessageSquare } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { z } from 'zod';
+
+const contactSchema = z.object({
+  name: z.string().trim().min(2, 'El nombre debe tener al menos 2 caracteres').max(100),
+  email: z.string().trim().email('Email inválido').max(255),
+  phone: z.string().trim().max(20),
+  subject: z.string().min(1, 'Selecciona un asunto'),
+  message: z.string().trim().min(10, 'El mensaje debe tener al menos 10 caracteres').max(1000)
+});
 
 export default function Contact() {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: ""
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Mensaje enviado. Te responderemos pronto.");
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    setErrors({});
+
+    // Validate form
+    const validation = contactSchema.safeParse(formData);
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.errors.forEach((error) => {
+        if (error.path[0]) {
+          fieldErrors[error.path[0] as string] = error.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Simulate sending message
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      toast({
+        title: "Mensaje enviado",
+        description: "Te responderemos pronto"
+      });
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      toast({
+        title: "Error al enviar",
+        description: "Intenta nuevamente",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactInfo = [
@@ -137,9 +196,13 @@ export default function Contact() {
                             id="name"
                             placeholder="Tu nombre"
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={(e) => handleInputChange('name', e.target.value)}
+                            disabled={loading}
                             required
                           />
+                          {errors.name && (
+                            <p className="text-sm text-destructive">{errors.name}</p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
@@ -148,9 +211,13 @@ export default function Contact() {
                             type="email"
                             placeholder="tu@email.com"
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            disabled={loading}
                             required
                           />
+                          {errors.email && (
+                            <p className="text-sm text-destructive">{errors.email}</p>
+                          )}
                         </div>
                       </div>
 
@@ -161,19 +228,36 @@ export default function Contact() {
                             id="phone"
                             placeholder="+598..."
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            disabled={loading}
                           />
+                          {errors.phone && (
+                            <p className="text-sm text-destructive">{errors.phone}</p>
+                          )}
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="subject">Asunto</Label>
-                          <Input
-                            id="subject"
-                            placeholder="¿Sobre qué querés consultar?"
-                            value={formData.subject}
-                            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            required
-                          />
-                        </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="subject">Asunto</Label>
+                            <Select
+                              value={formData.subject}
+                              onValueChange={(value) => handleInputChange('subject', value)}
+                              disabled={loading}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un asunto" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="general">Soporte General</SelectItem>
+                                <SelectItem value="technical">Problemas Técnicos</SelectItem>
+                                <SelectItem value="billing">Facturación</SelectItem>
+                                <SelectItem value="partnership">Alianzas</SelectItem>
+                                <SelectItem value="press">Prensa</SelectItem>
+                                <SelectItem value="other">Otro</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {errors.subject && (
+                              <p className="text-sm text-destructive">{errors.subject}</p>
+                            )}
+                          </div>
                       </div>
 
                       <div className="space-y-2">
@@ -183,14 +267,18 @@ export default function Contact() {
                           placeholder="Contanos en qué podemos ayudarte..."
                           rows={6}
                           value={formData.message}
-                          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                          onChange={(e) => handleInputChange('message', e.target.value)}
+                          disabled={loading}
                           required
                         />
+                        {errors.message && (
+                          <p className="text-sm text-destructive">{errors.message}</p>
+                        )}
                       </div>
 
-                      <Button type="submit" size="lg" className="w-full shadow-elegant">
+                      <Button type="submit" size="lg" className="w-full shadow-elegant" disabled={loading}>
                         <Send className="mr-2 h-4 w-4" />
-                        Enviar Mensaje
+                        {loading ? 'Enviando...' : 'Enviar Mensaje'}
                       </Button>
                     </form>
                   </div>
@@ -222,7 +310,7 @@ export default function Contact() {
                     <p className="text-sm text-muted-foreground">
                       Visitá nuestro Centro de Ayuda para encontrar respuestas rápidas
                     </p>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={() => window.location.href = '/help-center'}>
                       Ir al Centro de Ayuda
                     </Button>
                   </CardContent>

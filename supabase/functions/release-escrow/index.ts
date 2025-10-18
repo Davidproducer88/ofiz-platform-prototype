@@ -56,11 +56,10 @@ serve(async (req) => {
     const { error: paymentError } = await supabaseClient
       .from('payments')
       .update({
-        status: 'released',
         escrow_released_at: new Date().toISOString(),
       })
       .eq('booking_id', bookingId)
-      .eq('status', 'in_escrow');
+      .is('escrow_released_at', null);
 
     if (paymentError) {
       console.error('Error releasing escrow:', paymentError);

@@ -11,6 +11,8 @@ import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
 import { BookingsTableEnhanced } from "@/components/admin/BookingsTableEnhanced";
 import { ReviewsTableEnhanced } from "@/components/admin/ReviewsTableEnhanced";
 import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab";
+import { TransactionsTable } from "@/components/admin/TransactionsTable";
+import { RankingsTable } from "@/components/admin/RankingsTable";
 import { Feed } from "@/components/Feed";
 
 const AdminDashboard = () => {
@@ -159,12 +161,14 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
+            <TabsTrigger value="transactions">Transacciones</TabsTrigger>
+            <TabsTrigger value="rankings">Rankings</TabsTrigger>
             <TabsTrigger value="financial">Financiero</TabsTrigger>
           </TabsList>
 
@@ -226,6 +230,14 @@ const AdminDashboard = () => {
                 <ReviewsTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="transactions">
+            <TransactionsTable />
+          </TabsContent>
+
+          <TabsContent value="rankings">
+            <RankingsTable />
           </TabsContent>
 
           <TabsContent value="financial">
