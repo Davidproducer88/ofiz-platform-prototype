@@ -32,14 +32,10 @@ const AdminLogin = () => {
         return;
       }
 
-      // Verificar si el usuario es administrador
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("user_type")
-        .eq("id", data.user.id)
-        .single();
+      // Verificar si el usuario es administrador usando la función de seguridad
+      const { data: isAdmin, error: adminError } = await supabase.rpc('is_admin');
 
-      if (profileError || profile?.user_type !== "admin") {
+      if (adminError || !isAdmin) {
         await supabase.auth.signOut();
         toast({
           variant: "destructive",

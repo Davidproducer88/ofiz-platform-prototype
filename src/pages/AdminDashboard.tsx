@@ -36,14 +36,10 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Verificar si es admin
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("user_type, full_name")
-      .eq("id", user.id)
-      .single();
+    // Verificar si es admin usando la función de seguridad
+    const { data: isAdmin, error } = await supabase.rpc('is_admin');
 
-    if (profile?.user_type !== "admin") {
+    if (error || !isAdmin) {
       toast({
         variant: "destructive",
         title: "Acceso denegado",
@@ -52,6 +48,13 @@ const AdminDashboard = () => {
       navigate("/");
       return;
     }
+
+    // Obtener información del perfil
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
 
     setUser({ ...user, profile });
   };
@@ -148,7 +151,7 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
