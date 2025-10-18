@@ -25,9 +25,10 @@ interface FeedCardProps {
     data: any;
   };
   onInteraction: (targetId: string, targetType: string, interactionType: string, category?: string) => void;
+  compact?: boolean;
 }
 
-export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
+export const FeedCard = ({ item, onInteraction, compact = false }: FeedCardProps) => {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -63,39 +64,41 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
     const master = post.master;
 
     return (
-      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
+      <Card className={`group hover:shadow-xl transition-all duration-300 overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm ${compact ? 'text-sm' : ''}`}>
         {/* Header con info del master */}
-        <div className="p-3 sm:p-4 flex items-center gap-3">
-          <Avatar className="h-12 w-12 ring-2 ring-primary/20">
+        <div className={`${compact ? 'p-2' : 'p-3 sm:p-4'} flex items-center gap-${compact ? '2' : '3'}`}>
+          <Avatar className={`${compact ? 'h-8 w-8' : 'h-12 w-12'} ring-2 ring-primary/20`}>
             <AvatarImage src={master?.profiles?.avatar_url} />
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/50 text-primary-foreground">
               {master?.profiles?.full_name?.[0] || master?.business_name?.[0]}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-foreground">{master?.business_name}</h3>
-              {master?.is_verified && (
+              <h3 className={`font-semibold text-foreground truncate ${compact ? 'text-sm' : ''}`}>{master?.business_name}</h3>
+              {master?.is_verified && !compact && (
                 <Badge variant="secondary" className="gap-1">
                   <Sparkles className="h-3 w-3" />
                   Verificado
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className={`flex items-center gap-2 ${compact ? 'text-xs' : 'text-xs'} text-muted-foreground`}>
               <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-              {master?.rating?.toFixed(1)} ({master?.total_reviews} reseñas)
+              {master?.rating?.toFixed(1)} ({master?.total_reviews})
             </div>
           </div>
-          <Badge variant="outline" className="capitalize">
-            {post.type}
-          </Badge>
+          {!compact && (
+            <Badge variant="outline" className="capitalize">
+              {post.type}
+            </Badge>
+          )}
         </div>
 
         {/* Contenido del post */}
-        <div className="px-3 sm:px-4 pb-3">
-          <h4 className="font-bold text-base sm:text-lg mb-2 text-foreground">{post.title}</h4>
-          <p className="text-sm sm:text-base text-muted-foreground line-clamp-3">{post.content}</p>
+        <div className={`${compact ? 'px-2 pb-2' : 'px-3 sm:px-4 pb-3'}`}>
+          <h4 className={`font-bold ${compact ? 'text-sm mb-1' : 'text-base sm:text-lg mb-2'} text-foreground truncate`}>{post.title}</h4>
+          <p className={`${compact ? 'text-xs line-clamp-2' : 'text-sm sm:text-base line-clamp-3'} text-muted-foreground`}>{post.content}</p>
           {post.category && (
             <Badge variant="secondary" className="mt-3 capitalize">
               {post.category}
@@ -105,14 +108,14 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
 
         {/* Media (si existe) */}
         {post.media_urls && post.media_urls.length > 0 && (
-          <div className="px-3 sm:px-4 pb-4">
-            <div className="grid grid-cols-2 gap-2">
-              {post.media_urls.slice(0, 4).map((url: string, idx: number) => (
+          <div className={compact ? 'px-2 pb-2' : 'px-3 sm:px-4 pb-4'}>
+            <div className={`grid ${compact ? 'grid-cols-2 gap-1' : 'grid-cols-2 gap-2'}`}>
+              {post.media_urls.slice(0, compact ? 2 : 4).map((url: string, idx: number) => (
                 <img
                   key={idx}
                   src={url}
                   alt={`Post media ${idx + 1}`}
-                  className="w-full h-32 sm:h-48 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                  className={`w-full ${compact ? 'h-24' : 'h-32 sm:h-48'} object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer`}
                   onClick={handleClick}
                 />
               ))}
@@ -121,43 +124,46 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
         )}
 
         {/* Stats y acciones */}
-        <div className="px-3 sm:px-4 py-3 border-t border-border/50 bg-muted/20">
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+        <div className={`${compact ? 'px-2 py-2' : 'px-3 sm:px-4 py-3'} border-t border-border/50 bg-muted/20`}>
+          <div className={`flex items-center gap-${compact ? '2' : '4'} ${compact ? 'text-xs' : 'text-sm'} text-muted-foreground ${compact ? 'mb-2' : 'mb-3'}`}>
             <span className="flex items-center gap-1">
-              <Eye className="h-4 w-4" />
+              <Eye className={`${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
               {post.views_count || 0}
             </span>
             <span className="flex items-center gap-1">
-              <Heart className="h-4 w-4" />
+              <Heart className={`${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
               {post.likes_count || 0}
             </span>
-            <span className="flex items-center gap-1 ml-auto">
-              <TrendingUp className="h-4 w-4" />
-              {post.engagement_score?.toFixed(1) || 0}
-            </span>
+            {!compact && (
+              <span className="flex items-center gap-1 ml-auto">
+                <TrendingUp className="h-4 w-4" />
+                {post.engagement_score?.toFixed(1) || 0}
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className={`flex items-center ${compact ? 'gap-1' : 'gap-2'}`}>
             <Button
               variant={liked ? "default" : "ghost"}
-              size="sm"
+              size={compact ? "icon" : "sm"}
               onClick={handleLike}
-              className="flex-1"
+              className={compact ? 'h-7 w-7' : 'flex-1'}
             >
-              <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''} ${isAnimating ? 'animate-heart' : ''}`} />
-              Me gusta
+              <Heart className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} ${liked ? 'fill-current' : ''} ${isAnimating ? 'animate-heart' : ''}`} />
+              {!compact && 'Me gusta'}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/search-masters`)}>
-              <MessageCircle className="h-4 w-4" />
+            <Button variant="ghost" size={compact ? "icon" : "sm"} onClick={() => navigate(`/search-masters`)} className={compact ? 'h-7 w-7' : ''}>
+              <MessageCircle className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
+            <Button variant="ghost" size={compact ? "icon" : "sm"} onClick={handleShare} className={compact ? 'h-7 w-7' : ''}>
+              <Share2 className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
             </Button>
             <Button
               variant={saved ? "default" : "ghost"}
-              size="sm"
+              size={compact ? "icon" : "sm"}
               onClick={handleSave}
+              className={compact ? 'h-7 w-7' : ''}
             >
-              <Bookmark className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
+              <Bookmark className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} ${saved ? 'fill-current' : ''}`} />
             </Button>
           </div>
         </div>
@@ -171,56 +177,61 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
     const master = service.masters;
 
     return (
-      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-primary/20 bg-gradient-to-br from-card to-primary/5">
-        <div className="p-4">
-          <div className="flex items-center gap-3 mb-4">
-            <Avatar className="h-10 w-10 ring-2 ring-primary/30">
+      <Card className={`group hover:shadow-xl transition-all duration-300 overflow-hidden border-primary/20 bg-gradient-to-br from-card to-primary/5 ${compact ? 'text-sm' : ''}`}>
+        <div className={compact ? 'p-2' : 'p-4'}>
+          <div className={`flex items-center ${compact ? 'gap-2 mb-2' : 'gap-3 mb-4'}`}>
+            <Avatar className={`${compact ? 'h-8 w-8' : 'h-10 w-10'} ring-2 ring-primary/30`}>
               <AvatarImage src={master?.profiles?.avatar_url} />
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {master?.business_name?.[0]}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <h4 className="font-semibold text-sm text-foreground">{master?.business_name}</h4>
+            <div className="flex-1 min-w-0">
+              <h4 className={`font-semibold ${compact ? 'text-xs' : 'text-sm'} text-foreground truncate`}>{master?.business_name}</h4>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
                 {master?.rating?.toFixed(1)}
               </div>
             </div>
-            <Badge className="bg-primary/20 text-primary border-primary/30">
-              Servicio
-            </Badge>
+            {!compact && (
+              <Badge className="bg-primary/20 text-primary border-primary/30">
+                Servicio
+              </Badge>
+            )}
           </div>
 
-          <h3 className="font-bold text-xl mb-2 text-foreground">{service.title}</h3>
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{service.description}</p>
+          <h3 className={`font-bold ${compact ? 'text-sm mb-1' : 'text-xl mb-2'} text-foreground line-clamp-1`}>{service.title}</h3>
+          <p className={`text-muted-foreground ${compact ? 'text-xs mb-2 line-clamp-1' : 'text-sm mb-4 line-clamp-2'}`}>{service.description}</p>
 
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className={`flex items-center justify-between ${compact ? 'mb-2' : 'mb-4'}`}>
+            <div className={`flex items-center ${compact ? 'gap-2' : 'gap-4'} ${compact ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
               {service.duration_minutes && (
                 <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
+                  <Clock className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
                   {service.duration_minutes} min
                 </span>
               )}
-              <Badge variant="secondary" className="capitalize">
-                {service.category}
-              </Badge>
+              {!compact && (
+                <Badge variant="secondary" className="capitalize">
+                  {service.category}
+                </Badge>
+              )}
             </div>
-            <span className="text-2xl font-bold text-primary">
+            <span className={`${compact ? 'text-lg' : 'text-2xl'} font-bold text-primary`}>
               ${service.price}
             </span>
           </div>
 
           <Button 
             className="w-full" 
+            size={compact ? 'sm' : 'default'}
             onClick={() => {
               handleClick();
               navigate('/search-masters');
             }}
           >
-            Ver servicio
-            <ExternalLink className="ml-2 h-4 w-4" />
+            {compact ? 'Ver' : 'Ver servicio'}
+            <ExternalLink className={`ml-2 ${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
           </Button>
         </div>
       </Card>
@@ -232,11 +243,11 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
     const sponsored = item.data;
 
     return (
-      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-accent/50 bg-gradient-to-br from-accent/10 to-accent/5">
-        <div className="px-4 py-2 bg-accent/20 border-b border-accent/30">
-          <span className="text-xs font-medium text-accent-foreground flex items-center gap-1">
+      <Card className={`group hover:shadow-xl transition-all duration-300 overflow-hidden border-accent/50 bg-gradient-to-br from-accent/10 to-accent/5 ${compact ? 'text-sm' : ''}`}>
+        <div className={`${compact ? 'px-2 py-1' : 'px-4 py-2'} bg-accent/20 border-b border-accent/30`}>
+          <span className={`${compact ? 'text-xs' : 'text-xs'} font-medium text-accent-foreground flex items-center gap-1`}>
             <Sparkles className="h-3 w-3" />
-            Contenido patrocinado
+            {compact ? 'Patrocinado' : 'Contenido patrocinado'}
           </span>
         </div>
 
@@ -244,32 +255,31 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
           <img
             src={sponsored.media_url}
             alt={sponsored.title}
-            className="w-full h-48 object-cover"
+            className={`w-full ${compact ? 'h-32' : 'h-48'} object-cover cursor-pointer hover:opacity-90 transition-opacity`}
+            onClick={handleClick}
           />
         )}
 
-        <div className="p-4">
-          <h3 className="font-bold text-xl mb-2 text-foreground">{sponsored.title}</h3>
-          <p className="text-muted-foreground text-sm mb-4">{sponsored.description}</p>
-
-          {sponsored.category && (
-            <Badge variant="secondary" className="mb-4 capitalize">
-              {sponsored.category}
-            </Badge>
+        <div className={compact ? 'p-2' : 'p-4'}>
+          <h3 className={`font-bold ${compact ? 'text-sm mb-1' : 'text-lg mb-2'} text-foreground line-clamp-1`}>{sponsored.title}</h3>
+          {sponsored.description && (
+            <p className={`text-muted-foreground ${compact ? 'text-xs mb-2 line-clamp-2' : 'text-sm mb-3 line-clamp-2'}`}>{sponsored.description}</p>
           )}
 
-          {sponsored.cta_url && (
-            <Button 
-              className="w-full bg-accent hover:bg-accent-hover"
-              onClick={() => {
-                handleClick();
+          <Button 
+            className="w-full" 
+            variant="secondary"
+            size={compact ? 'sm' : 'default'}
+            onClick={() => {
+              handleClick();
+              if (sponsored.cta_url) {
                 window.open(sponsored.cta_url, '_blank');
-              }}
-            >
-              {sponsored.cta_text || 'Más información'}
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </Button>
-          )}
+              }
+            }}
+          >
+            {sponsored.cta_text || (compact ? 'Ver más' : 'Más información')}
+            <ExternalLink className={`ml-2 ${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
+          </Button>
         </div>
       </Card>
     );
@@ -280,42 +290,44 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
     const master = item.data;
 
     return (
-      <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-secondary/30 bg-gradient-to-br from-card to-secondary/10">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-4 w-4 text-secondary" />
-            <span className="text-sm font-medium text-secondary">Recomendado para ti</span>
+      <Card className={`group hover:shadow-xl transition-all duration-300 overflow-hidden border-secondary/30 bg-gradient-to-br from-card to-secondary/10 ${compact ? 'text-sm' : ''}`}>
+        <div className={compact ? 'p-2' : 'p-4'}>
+          <div className={`flex items-center ${compact ? 'gap-1 mb-2' : 'gap-2 mb-4'}`}>
+            <Sparkles className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} text-secondary`} />
+            <span className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-secondary`}>
+              {compact ? 'Recomendado' : 'Recomendado para ti'}
+            </span>
           </div>
 
-          <div className="flex items-start gap-4">
-            <Avatar className="h-16 w-16 ring-4 ring-secondary/30">
+          <div className={`flex items-start ${compact ? 'gap-2' : 'gap-4'}`}>
+            <Avatar className={`${compact ? 'h-12 w-12 ring-2' : 'h-16 w-16 ring-4'} ring-secondary/30`}>
               <AvatarImage src={master?.profiles?.avatar_url} />
-              <AvatarFallback className="bg-secondary text-secondary-foreground text-xl">
+              <AvatarFallback className={`bg-secondary text-secondary-foreground ${compact ? 'text-base' : 'text-xl'}`}>
                 {master?.business_name?.[0]}
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-lg text-foreground">{master.business_name}</h3>
-                {master.is_verified && (
+            <div className="flex-1 min-w-0">
+              <div className={`flex items-center gap-2 ${compact ? 'mb-1' : 'mb-1'}`}>
+                <h3 className={`font-bold ${compact ? 'text-sm' : 'text-lg'} text-foreground truncate`}>{master.business_name}</h3>
+                {master.is_verified && !compact && (
                   <Badge variant="secondary" className="gap-1">
                     <Sparkles className="h-3 w-3" />
                   </Badge>
                 )}
               </div>
 
-              <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
+              <div className={`flex items-center ${compact ? 'gap-2' : 'gap-3'} ${compact ? 'text-xs' : 'text-sm'} text-muted-foreground ${compact ? 'mb-1' : 'mb-2'}`}>
                 <span className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                  <Star className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} fill-yellow-500 text-yellow-500`} />
                   {master.rating?.toFixed(1)} ({master.total_reviews})
                 </span>
-                {master.experience_years > 0 && (
+                {master.experience_years > 0 && !compact && (
                   <span>{master.experience_years} años exp.</span>
                 )}
               </div>
 
-              {master.description && (
+              {master.description && !compact && (
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                   {master.description}
                 </p>
@@ -324,6 +336,7 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
               <Button 
                 variant="secondary"
                 className="w-full"
+                size={compact ? 'sm' : 'default'}
                 onClick={() => {
                   handleClick();
                   navigate('/search-masters');

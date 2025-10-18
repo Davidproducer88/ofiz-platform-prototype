@@ -1,3 +1,4 @@
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/Header';
@@ -541,8 +542,9 @@ const MasterDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <Header userType="master" />
+    <DashboardLayout userType="master">
+      <div className="min-h-screen bg-gradient-subtle">
+        <Header userType="master" />
       
       <div className="container py-8">
         {/* Welcome Section */}
@@ -1333,8 +1335,9 @@ const MasterDashboard = () => {
             setSelectedRequestId(null);
           }}
         />
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

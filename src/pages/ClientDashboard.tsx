@@ -1,3 +1,4 @@
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -292,12 +293,13 @@ const ClientDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <Header 
-        userType="client"
-        onNotificationsClick={() => setActiveTab('notifications')}
-        onProfileClick={() => setActiveTab('profile')}
-      />
+    <DashboardLayout userType="client">
+      <div className="min-h-screen bg-gradient-subtle">
+        <Header 
+          userType="client"
+          onNotificationsClick={() => setActiveTab('notifications')}
+          onProfileClick={() => setActiveTab('profile')}
+        />
       
       <div className="container px-4 md:px-6 py-4 md:py-8">
         {/* Welcome Section */}
@@ -709,8 +711,9 @@ const ClientDashboard = () => {
           onOpenChange={setRequestFormOpen}
           onSuccess={fetchBookings}
         />
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
