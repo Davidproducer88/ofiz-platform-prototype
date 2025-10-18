@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle } from 'lucide-react';
+import { getDashboardRoute } from '@/utils/dashboardRedirect';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -43,17 +44,9 @@ const AuthCallback = () => {
               description: "Has iniciado sesión correctamente"
             });
             
-            const userType = userTypeFromUrl || sessionData.session.user.user_metadata?.user_type;
-            
-            if (userType === 'master') {
-              navigate('/master-dashboard');
-            } else if (userType === 'admin') {
-              navigate('/admin');
-            } else if (userType === 'business') {
-              navigate('/business-dashboard');
-            } else {
-              navigate('/client-dashboard');
-            }
+            const userType = userTypeFromUrl || sessionData.session.user.user_metadata?.user_type || 'client';
+            const dashboardRoute = getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business');
+            navigate(dashboardRoute);
             return;
           }
         }
@@ -78,17 +71,9 @@ const AuthCallback = () => {
             description: "Has iniciado sesión correctamente"
           });
           
-          const userType = userTypeFromUrl || data.session.user.user_metadata?.user_type;
-          
-          if (userType === 'master') {
-            navigate('/master-dashboard');
-          } else if (userType === 'admin') {
-            navigate('/admin');
-          } else if (userType === 'business') {
-            navigate('/business-dashboard');
-          } else {
-            navigate('/client-dashboard');
-          }
+          const userType = userTypeFromUrl || data.session.user.user_metadata?.user_type || 'client';
+          const dashboardRoute = getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business');
+          navigate(dashboardRoute);
         } else {
           // No session and no tokens - just verified email
           if (type === 'signup') {

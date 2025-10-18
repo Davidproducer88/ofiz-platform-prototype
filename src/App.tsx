@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { RoleProtectedRoute } from "@/components/RoleProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
@@ -96,17 +97,17 @@ const AppContent = () => {
       <Route 
         path="/client-dashboard" 
         element={
-          <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={['client']}>
             <ClientDashboard />
-          </ProtectedRoute>
+          </RoleProtectedRoute>
         } 
       />
       <Route 
         path="/master-dashboard" 
         element={
-          <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={['master']}>
             <MasterDashboard />
-          </ProtectedRoute>
+          </RoleProtectedRoute>
         } 
       />
       <Route 
@@ -116,18 +117,18 @@ const AppContent = () => {
       <Route 
         path="/admin-dashboard" 
         element={
-          <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
-          </ProtectedRoute>
+          </RoleProtectedRoute>
         } 
       />
       <Route path="/search-masters" element={<SearchMasters />} />
       <Route 
         path="/business-dashboard" 
         element={
-          <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={['business']}>
             <BusinessDashboard />
-          </ProtectedRoute>
+          </RoleProtectedRoute>
         } 
       />
       <Route path="/how-it-works" element={<HowItWorks />} />

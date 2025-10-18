@@ -256,6 +256,12 @@ export const Header = ({
             }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Mi Dashboard
                 </button>}
+              {userType === 'business' && <button onClick={() => {
+              navigate('/business-dashboard');
+              setIsMobileMenuOpen(false);
+            }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
+                  Dashboard Empresarial
+                </button>}
               {userType === 'admin' && <button onClick={() => {
               navigate('/admin-dashboard');
               setIsMobileMenuOpen(false);
@@ -405,6 +411,9 @@ export const Header = ({
             </button>}
           {userType === 'client' && <button onClick={() => navigate('/client-dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Mi Dashboard
+            </button>}
+          {userType === 'business' && <button onClick={() => navigate('/business-dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+              Dashboard Empresarial
             </button>}
           {userType === 'admin' && <button onClick={() => navigate('/admin-dashboard')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
               Panel Admin
