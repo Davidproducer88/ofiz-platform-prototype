@@ -6,11 +6,7 @@ import { StoriesCarousel } from './StoriesCarousel';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RefreshCw, Home, Compass, PlusCircle, Video, User } from 'lucide-react';
-interface FeedProps {
-  compact?: boolean;
-}
-
-export const Feed = ({ compact = false }: FeedProps) => {
+export const Feed = () => {
   const {
     feedItems,
     loading,
@@ -64,43 +60,34 @@ export const Feed = ({ compact = false }: FeedProps) => {
       observers.forEach(obs => obs.disconnect());
     };
   }, [feedItems, trackInteraction]);
-  return <div className={`w-full ${compact ? 'h-full' : 'min-h-screen'} bg-background ${compact ? '' : 'pb-20'}`}>
-      {/* Stories Carousel - Compact version for sidebar */}
-      {compact && (
-        <div className="px-3 py-3 border-b">
-          <StoriesCarousel />
-        </div>
-      )}
+  return <div className="w-full min-h-screen bg-background pb-20">
+      {/* Header */}
+      <FeedHeader />
       
-      {/* Header - Only for full page */}
-      {!compact && <FeedHeader />}
-      
-      {/* Stories Carousel - Full version */}
-      {!compact && <StoriesCarousel />}
+      {/* Stories Carousel */}
+      <StoriesCarousel />
 
       {/* Feed Content */}
-      <div className={`w-full ${compact ? 'px-2 py-2' : 'max-w-2xl mx-auto px-4 py-6'}`}>
-        {!compact && (
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Para ti</h2>
-            <Button variant="ghost" size="sm" onClick={refresh} disabled={loading} className="gap-2">
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        )}
+      <div className="w-full max-w-2xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Para ti</h2>
+          <Button variant="ghost" size="sm" onClick={refresh} disabled={loading} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
 
         {/* Lista del Feed */}
-        <div className={compact ? 'space-y-2' : 'space-y-4'}>
+        <div className="space-y-4">
           {feedItems.map((item, index) => <div key={`${item.type}-${item.id}-${index}`} id={`feed-item-${index}`} className="animate-fade-in" style={{
           animationDelay: `${index * 50}ms`
         }}>
-              <FeedCard item={item} onInteraction={trackInteraction} compact={compact} />
+              <FeedCard item={item} onInteraction={trackInteraction} />
             </div>)}
 
           {/* Loading skeletons */}
           {loading && <>
               {[1, 2].map(i => <div key={`skeleton-${i}`} className="space-y-3">
-                  <Skeleton className={compact ? 'h-48 w-full rounded-lg' : 'h-80 w-full rounded-xl'} />
+                  <Skeleton className="h-80 w-full rounded-xl" />
                 </div>)}
             </>}
 

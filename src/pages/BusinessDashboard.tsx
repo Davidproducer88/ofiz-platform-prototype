@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/DashboardLayout';
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Header } from "@/components/Header";
@@ -153,9 +152,8 @@ export default function BusinessDashboard() {
   const showProfileSetup = !loading && !businessProfile;
 
   return (
-    <DashboardLayout userType="business">
-      <div className="min-h-screen bg-background">
-        <Header userType="business" />
+    <div className="min-h-screen bg-background">
+      <Header userType="business" />
       
       <main className="container mx-auto px-4 py-8">
         {/* First-time setup prompt */}
@@ -437,7 +435,6 @@ export default function BusinessDashboard() {
       </main>
 
       <Footer />
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }
