@@ -56,9 +56,9 @@ export function RankingsTable() {
                   <div className="flex items-center justify-center">
                     {ranking.rank_position && ranking.rank_position <= 3 ? (
                       <Award className={`h-5 w-5 ${
-                        ranking.rank_position === 1 ? 'text-yellow-500' :
-                        ranking.rank_position === 2 ? 'text-gray-400' :
-                        'text-amber-600'
+                        ranking.rank_position === 1 ? 'text-accent' :
+                        ranking.rank_position === 2 ? 'text-muted-foreground' :
+                        'text-accent/70'
                       }`} />
                     ) : (
                       <span className="font-semibold">#{ranking.rank_position}</span>
@@ -75,7 +75,7 @@ export function RankingsTable() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                    <Star className="h-4 w-4 fill-accent text-accent" />
                     <span className="font-medium">{ranking.average_rating.toFixed(1)}</span>
                     <span className="text-sm text-muted-foreground">
                       ({ranking.masters?.total_reviews || 0})
@@ -96,7 +96,7 @@ export function RankingsTable() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1 text-green-600 font-medium">
+                  <div className="flex items-center gap-1 text-primary font-medium">
                     <DollarSign className="h-4 w-4" />
                     <span>${ranking.total_earnings.toFixed(0)}</span>
                   </div>

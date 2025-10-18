@@ -131,7 +131,7 @@ export const BookingActions = ({
             size="sm"
             onClick={handleReleaseEscrow}
             disabled={releasing}
-            className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
+            className="flex-1 sm:flex-none"
           >
             <CheckCircle className="h-4 w-4 mr-2" />
             {releasing ? 'Liberando...' : 'Liberar Pago'}
