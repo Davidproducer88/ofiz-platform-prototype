@@ -201,17 +201,17 @@ export const ReviewsTableEnhanced = ({ onStatsUpdate }: ReviewsTableEnhancedProp
         />
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Servicio</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Maestro</TableHead>
-              <TableHead>Calificación</TableHead>
-              <TableHead>Comentario</TableHead>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Acciones</TableHead>
+              <TableHead className="min-w-[150px]">Servicio</TableHead>
+              <TableHead className="min-w-[120px]">Cliente</TableHead>
+              <TableHead className="min-w-[120px]">Maestro</TableHead>
+              <TableHead className="min-w-[150px]">Calificación</TableHead>
+              <TableHead className="min-w-[200px]">Comentario</TableHead>
+              <TableHead className="min-w-[100px]">Fecha</TableHead>
+              <TableHead className="min-w-[100px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

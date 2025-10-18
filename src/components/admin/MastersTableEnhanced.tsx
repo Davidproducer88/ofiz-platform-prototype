@@ -179,17 +179,17 @@ export const MastersTableEnhanced = ({ onStatsUpdate }: MastersTableEnhancedProp
         />
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre del Negocio</TableHead>
-              <TableHead>Propietario</TableHead>
-              <TableHead>Tarifa por Hora</TableHead>
-              <TableHead>Calificación</TableHead>
-              <TableHead>Experiencia</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Acciones</TableHead>
+              <TableHead className="min-w-[150px]">Nombre del Negocio</TableHead>
+              <TableHead className="min-w-[150px]">Propietario</TableHead>
+              <TableHead className="min-w-[120px]">Tarifa por Hora</TableHead>
+              <TableHead className="min-w-[130px]">Calificación</TableHead>
+              <TableHead className="min-w-[120px]">Experiencia</TableHead>
+              <TableHead className="min-w-[120px]">Estado</TableHead>
+              <TableHead className="min-w-[200px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

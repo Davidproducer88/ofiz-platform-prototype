@@ -157,16 +157,16 @@ export const UsersTableEnhanced = ({ onStatsUpdate }: UsersTableEnhancedProps) =
         </div>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Teléfono</TableHead>
-              <TableHead>Ciudad</TableHead>
-              <TableHead>Fecha de Registro</TableHead>
-              <TableHead>Acciones</TableHead>
+              <TableHead className="min-w-[150px]">Nombre</TableHead>
+              <TableHead className="min-w-[120px]">Tipo</TableHead>
+              <TableHead className="min-w-[120px]">Teléfono</TableHead>
+              <TableHead className="min-w-[120px]">Ciudad</TableHead>
+              <TableHead className="min-w-[150px]">Fecha de Registro</TableHead>
+              <TableHead className="min-w-[150px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

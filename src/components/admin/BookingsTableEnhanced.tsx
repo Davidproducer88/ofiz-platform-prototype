@@ -226,17 +226,17 @@ export const BookingsTableEnhanced = ({ onStatsUpdate }: BookingsTableEnhancedPr
         />
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Servicio</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Maestro</TableHead>
-              <TableHead>Fecha Programada</TableHead>
-              <TableHead>Precio Total</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Acciones</TableHead>
+              <TableHead className="min-w-[150px]">Servicio</TableHead>
+              <TableHead className="min-w-[120px]">Cliente</TableHead>
+              <TableHead className="min-w-[120px]">Maestro</TableHead>
+              <TableHead className="min-w-[150px]">Fecha Programada</TableHead>
+              <TableHead className="min-w-[100px]">Precio Total</TableHead>
+              <TableHead className="min-w-[200px]">Estado</TableHead>
+              <TableHead className="min-w-[100px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

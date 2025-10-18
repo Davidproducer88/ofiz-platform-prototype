@@ -172,16 +172,16 @@ export const FinancialDashboardTab = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Monto Total</TableHead>
-                  <TableHead>Comisión</TableHead>
-                  <TableHead>Monto Maestro</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Fecha Liberación</TableHead>
+                  <TableHead className="min-w-[100px]">Fecha</TableHead>
+                  <TableHead className="min-w-[120px]">Monto Total</TableHead>
+                  <TableHead className="min-w-[100px]">Comisión</TableHead>
+                  <TableHead className="min-w-[130px]">Monto Maestro</TableHead>
+                  <TableHead className="min-w-[120px]">Estado</TableHead>
+                  <TableHead className="min-w-[130px]">Fecha Liberación</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

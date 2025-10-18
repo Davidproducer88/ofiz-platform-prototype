@@ -204,7 +204,7 @@ export const UserEditDialog = ({ user, open, onOpenChange, onSave }: UserEditDia
               </Label>
               <Select
                 value={formData.user_type}
-                onValueChange={(value: "client" | "master" | "admin") => 
+                onValueChange={(value: "client" | "master" | "admin" | "business") => 
                   setFormData({ ...formData, user_type: value })}
               >
                 <SelectTrigger className="col-span-3">
@@ -213,6 +213,7 @@ export const UserEditDialog = ({ user, open, onOpenChange, onSave }: UserEditDia
                 <SelectContent>
                   <SelectItem value="client">Cliente</SelectItem>
                   <SelectItem value="master">Maestro</SelectItem>
+                  <SelectItem value="business">Empresa</SelectItem>
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
