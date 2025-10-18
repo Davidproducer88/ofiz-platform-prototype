@@ -45,6 +45,7 @@ import { MyReviews } from '@/components/client/MyReviews';
 import { AddressBook } from '@/components/client/AddressBook';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Feed } from '@/components/Feed';
+import { TransactionsList } from '@/components/TransactionsList';
 
 interface Service {
   id: string;
@@ -642,7 +643,7 @@ const ClientDashboard = () => {
 
           {/* Payments Tab */}
           <TabsContent value="payments">
-            <PaymentHistory />
+            <TransactionsList />
           </TabsContent>
 
           {/* Reviews Tab */}

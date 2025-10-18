@@ -630,6 +630,53 @@ export type Database = {
           },
         ]
       }
+      master_rankings: {
+        Row: {
+          average_rating: number
+          completion_rate: number
+          id: string
+          last_updated: string
+          master_id: string
+          rank_position: number | null
+          ranking_score: number
+          response_time_hours: number | null
+          total_completed_jobs: number
+          total_earnings: number
+        }
+        Insert: {
+          average_rating?: number
+          completion_rate?: number
+          id?: string
+          last_updated?: string
+          master_id: string
+          rank_position?: number | null
+          ranking_score?: number
+          response_time_hours?: number | null
+          total_completed_jobs?: number
+          total_earnings?: number
+        }
+        Update: {
+          average_rating?: number
+          completion_rate?: number
+          id?: string
+          last_updated?: string
+          master_id?: string
+          rank_position?: number | null
+          ranking_score?: number
+          response_time_hours?: number | null
+          total_completed_jobs?: number
+          total_earnings?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_rankings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: true
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       masters: {
         Row: {
           availability_schedule: Json | null
@@ -1350,6 +1397,10 @@ export type Database = {
       calculate_distance: {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
+      }
+      calculate_master_ranking: {
+        Args: { master_id_param: string }
+        Returns: undefined
       }
       generate_referral_code: {
         Args: { user_id_param: string }

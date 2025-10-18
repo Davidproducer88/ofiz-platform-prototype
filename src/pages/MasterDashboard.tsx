@@ -45,6 +45,7 @@ import { WorkCalendar } from '@/components/master/WorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 import { Feed } from '@/components/Feed';
+import { TransactionsList } from '@/components/TransactionsList';
 
 interface Service {
   id: string;
@@ -637,7 +638,7 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-15 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-16 gap-1 h-auto p-1">
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
             <TabsTrigger value="services" className="text-xs sm:text-sm">Servicios</TabsTrigger>
             <TabsTrigger value="job-requests" className="text-xs sm:text-sm">Trabajos</TabsTrigger>
@@ -651,6 +652,7 @@ const MasterDashboard = () => {
             <TabsTrigger value="applications" className="text-xs sm:text-sm">Propuestas</TabsTrigger>
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendario</TabsTrigger>
             <TabsTrigger value="notifications" className="text-xs sm:text-sm">Alertas</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs sm:text-sm">Transacciones</TabsTrigger>
             <TabsTrigger value="withdrawals" className="text-xs sm:text-sm">Retiros</TabsTrigger>
             <TabsTrigger value="profile" className="text-xs sm:text-sm">Perfil</TabsTrigger>
           </TabsList>
@@ -1309,6 +1311,11 @@ const MasterDashboard = () => {
           {/* Notifications Tab */}
           <TabsContent value="notifications" className="space-y-6">
             <MasterNotifications />
+          </TabsContent>
+
+          {/* Payments/Transactions Tab */}
+          <TabsContent value="payments" className="space-y-6">
+            <TransactionsList />
           </TabsContent>
 
           {/* Withdrawals Tab */}
