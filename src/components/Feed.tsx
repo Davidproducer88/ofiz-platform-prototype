@@ -65,10 +65,17 @@ export const Feed = ({ compact = false }: FeedProps) => {
     };
   }, [feedItems, trackInteraction]);
   return <div className={`w-full ${compact ? 'h-full' : 'min-h-screen'} bg-background ${compact ? '' : 'pb-20'}`}>
-      {/* Header */}
+      {/* Stories Carousel - Compact version for sidebar */}
+      {compact && (
+        <div className="px-3 py-3 border-b">
+          <StoriesCarousel />
+        </div>
+      )}
+      
+      {/* Header - Only for full page */}
       {!compact && <FeedHeader />}
       
-      {/* Stories Carousel */}
+      {/* Stories Carousel - Full version */}
       {!compact && <StoriesCarousel />}
 
       {/* Feed Content */}

@@ -12,13 +12,16 @@ interface DashboardLayoutProps {
 export const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-background">
         <FeedSidebar />
-        <main className="flex-1 overflow-auto">
-          <div className="sticky top-0 z-50 bg-background border-b px-4 py-2 flex items-center gap-2">
+        <main className="flex-1 overflow-auto transition-all duration-300">
+          <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b px-4 py-3 flex items-center gap-2">
             <SidebarTrigger />
+            <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
           </div>
-          {children}
+          <div className="w-full">
+            {children}
+          </div>
         </main>
       </div>
     </SidebarProvider>
@@ -30,18 +33,21 @@ const FeedSidebar = () => {
   
   return (
     <Sidebar
-      className={`border-r bg-background ${open ? 'w-[380px]' : 'w-0'}`}
+      className={`border-r bg-background transition-all duration-300 ${open ? 'w-[380px]' : 'w-0'}`}
       collapsible="offcanvas"
     >
-      <SidebarHeader className="border-b p-4">
+      <SidebarHeader className="border-b p-4 bg-background/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Open Feed</h2>
-          <SidebarTrigger />
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📱</span>
+            <h2 className="text-lg font-semibold text-foreground">Open Feed</h2>
+          </div>
+          <SidebarTrigger className="hover:bg-muted" />
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="p-0">
-        <div className="h-full overflow-y-auto">
+      <SidebarContent className="p-0 overflow-hidden">
+        <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           <Feed compact />
         </div>
       </SidebarContent>
