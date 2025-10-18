@@ -40,7 +40,7 @@ export const Footer = () => {
               <button onClick={() => window.location.href = '/client-dashboard'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Publicar Encargo
               </button>
-              <button onClick={() => window.location.href = '/search'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => window.location.href = '/search-masters'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Buscar Profesionales
               </button>
               <button onClick={() => window.location.href = '/how-it-works'} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">

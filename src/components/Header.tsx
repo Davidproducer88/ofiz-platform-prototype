@@ -83,7 +83,7 @@ export const Header = ({
                     <div className="flex flex-col space-y-3 pl-4">
                       <button 
                         onClick={() => {
-                          navigate('/search');
+                          navigate('/search-masters');
                           setIsMobileMenuOpen(false);
                         }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -272,7 +272,7 @@ export const Header = ({
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => navigate('/search')}
+            onClick={() => navigate('/search-masters')}
             className="flex items-center gap-2"
           >
             <Search className="h-4 w-4" />
@@ -288,7 +288,7 @@ export const Header = ({
             <DropdownMenuContent className="bg-card border border-border z-50">
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/search')}
+                onClick={() => navigate('/search-masters')}
               >
                 Buscar Profesionales
               </DropdownMenuItem>

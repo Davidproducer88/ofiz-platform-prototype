@@ -92,11 +92,19 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Panel de Administración</h1>
-            <p className="text-muted-foreground">
-              Bienvenido, {user.profile?.full_name || user.email}
-            </p>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate('/')} 
+              className="text-2xl font-bold gradient-text cursor-pointer hover:scale-105 transition-all duration-300"
+            >
+              Ofiz
+            </button>
+            <div>
+              <h1 className="text-xl font-bold">Panel de Administración</h1>
+              <p className="text-sm text-muted-foreground">
+                Bienvenido, {user.profile?.full_name || user.email}
+              </p>
+            </div>
           </div>
           <Button onClick={handleLogout} variant="outline">
             <LogOut className="w-4 h-4 mr-2" />
