@@ -124,7 +124,7 @@ export const Hero = () => {
 
           {/* Right Content - Enhanced Images - Now visible on tablets too */}
           <div className="relative hidden md:block">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-6 -mt-16">
               <Card className="overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-500 hover:-translate-y-2 animate-fade-in border-border/50">
                 <div className="relative group">
                   <img 
