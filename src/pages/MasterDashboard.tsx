@@ -111,6 +111,7 @@ const MasterDashboard = () => {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   const [serviceForm, setServiceForm] = useState({
     title: '',
@@ -151,6 +152,14 @@ const MasterDashboard = () => {
     'completed': { label: 'Completado', color: 'bg-green-100 text-green-800' },
     'cancelled': { label: 'Cancelado', color: 'bg-red-100 text-red-800' },
   };
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserEmail(user?.email || '');
+    };
+    fetchUserEmail();
+  }, []);
 
   useEffect(() => {
     if (profile?.id) {
@@ -562,19 +571,25 @@ const MasterDashboard = () => {
                 </div>
               )}
             </div>
-            <div className="hidden md:flex items-center space-x-4">
-              <Button variant="outline" size="icon">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Settings className="h-4 w-4" />
-              </Button>
+            <Tabs value={undefined} className="hidden md:flex items-center space-x-4">
+              <TabsList className="bg-transparent border-0">
+                <TabsTrigger value="notifications" className="data-[state=active]:bg-primary/10">
+                  <Button variant="outline" size="icon">
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                </TabsTrigger>
+                <TabsTrigger value="profile" className="data-[state=active]:bg-primary/10">
+                  <Button variant="outline" size="icon">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </TabsTrigger>
+              </TabsList>
               <Avatar>
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {profile?.full_name?.charAt(0) || 'M'}
                 </AvatarFallback>
               </Avatar>
-            </div>
+            </Tabs>
           </div>
         </div>
 
@@ -1105,11 +1120,71 @@ const MasterDashboard = () => {
                 {!isEditingProfile ? (
                   <>
                     <div className="flex items-center space-x-4">
-                      <Avatar className="h-20 w-20">
-                        <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                          {profile?.full_name?.charAt(0) || 'M'}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="relative">
+                        <Avatar className="h-20 w-20">
+                          <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                            {profile?.full_name?.charAt(0) || 'M'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <input
+                          type="file"
+                          id="avatar-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            
+                            const fileExt = file.name.split('.').pop();
+                            const filePath = `${profile?.id}.${fileExt}`;
+                            
+                            const { error: uploadError } = await supabase.storage
+                              .from('avatars')
+                              .upload(filePath, file, { upsert: true });
+                            
+                            if (uploadError) {
+                              toast({
+                                title: "Error",
+                                description: "No se pudo subir la imagen",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            const { data: { publicUrl } } = supabase.storage
+                              .from('avatars')
+                              .getPublicUrl(filePath);
+                            
+                            const { error: updateError } = await supabase
+                              .from('profiles')
+                              .update({ avatar_url: publicUrl })
+                              .eq('id', profile?.id);
+                            
+                            if (updateError) {
+                              toast({
+                                title: "Error",
+                                description: "No se pudo actualizar el perfil",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            toast({
+                              title: "¡Éxito!",
+                              description: "Avatar actualizado correctamente"
+                            });
+                            refreshProfile();
+                          }}
+                        />
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute bottom-0 right-0 h-8 w-8 rounded-full"
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
                       <div>
                         <h3 className="text-xl font-semibold">{profile?.full_name}</h3>
                         <p className="text-muted-foreground">
@@ -1128,10 +1203,10 @@ const MasterDashboard = () => {
                       <div>
                         <Label>Información Personal</Label>
                         <div className="space-y-2 mt-2">
-                          <p><strong>Email:</strong> {profile?.id}</p>
-                          <p><strong>Teléfono:</strong> {profile?.phone || 'No configurado'}</p>
-                          <p><strong>Ciudad:</strong> {profile?.city || 'No configurada'}</p>
-                          <p><strong>Dirección:</strong> {profile?.address || 'No configurada'}</p>
+                          <p className="text-sm"><strong>Email:</strong> {userEmail || 'No disponible'}</p>
+                          <p className="text-sm"><strong>Teléfono:</strong> {profile?.phone || 'No configurado'}</p>
+                          <p className="text-sm"><strong>Ciudad:</strong> {profile?.city || 'No configurada'}</p>
+                          <p className="text-sm"><strong>Dirección:</strong> {profile?.address || 'No configurada'}</p>
                         </div>
                       </div>
 
