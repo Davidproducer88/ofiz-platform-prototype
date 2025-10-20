@@ -44,6 +44,14 @@ const AuthCallback = () => {
               description: "Has iniciado sesión correctamente"
             });
             
+            // Check if user is admin first
+            const { data: isAdmin } = await supabase.rpc('is_admin');
+            
+            if (isAdmin) {
+              navigate('/admin-dashboard');
+              return;
+            }
+            
             const userType = userTypeFromUrl || sessionData.session.user.user_metadata?.user_type || 'client';
             const dashboardRoute = getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business');
             navigate(dashboardRoute);
@@ -70,6 +78,14 @@ const AuthCallback = () => {
             title: "¡Bienvenido!",
             description: "Has iniciado sesión correctamente"
           });
+          
+          // Check if user is admin first
+          const { data: isAdmin } = await supabase.rpc('is_admin');
+          
+          if (isAdmin) {
+            navigate('/admin-dashboard');
+            return;
+          }
           
           const userType = userTypeFromUrl || data.session.user.user_metadata?.user_type || 'client';
           const dashboardRoute = getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business');

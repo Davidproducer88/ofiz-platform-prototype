@@ -36,6 +36,37 @@ export function TransactionsTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  const exportToCSV = () => {
+    const csvContent = [
+      ['Fecha', 'Servicio', 'Cliente', 'Master', 'Monto', 'Comisión', 'Método', 'Estado'],
+      ...filteredPayments.map(payment => [
+        format(new Date(payment.created_at), 'dd/MM/yyyy HH:mm', { locale: es }),
+        payment.bookings?.services?.title || 'N/A',
+        (payment as any).client_name || 'N/A',
+        (payment as any).master_name || 'N/A',
+        payment.amount,
+        payment.commission_amount,
+        payment.payment_method || 'N/A',
+        payment.status
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `transacciones_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Exportación exitosa",
+      description: "Las transacciones se han exportado correctamente"
+    });
+  };
+
   useEffect(() => {
     loadPayments();
   }, []);
@@ -151,7 +182,11 @@ export function TransactionsTable() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={exportToCSV}
+            >
               <Download className="h-4 w-4 mr-2" />
               Exportar
             </Button>

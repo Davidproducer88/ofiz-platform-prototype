@@ -44,14 +44,20 @@ export const LoginForm = () => {
     try {
       const { error } = await signIn(email, password);
       if (!error) {
-        // Let useAuth handle the redirect based on user type
+        // Check if user is admin first
+        const { data: isAdmin } = await supabase.rpc('is_admin');
+        
+        if (isAdmin) {
+          navigate('/admin-dashboard');
+          return;
+        }
+        
+        // Otherwise redirect based on user type
         const { data } = await supabase.auth.getSession();
         const userType = data.session?.user.user_metadata?.user_type;
         
         if (userType === 'master') {
           navigate('/master-dashboard');
-        } else if (userType === 'admin') {
-          navigate('/admin');
         } else if (userType === 'business') {
           navigate('/business-dashboard');
         } else {

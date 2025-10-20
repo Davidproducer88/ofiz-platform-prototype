@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Componente para redirigir automáticamente a los usuarios
@@ -11,19 +12,31 @@ export const DashboardRedirect = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && profile) {
-      const dashboardRoutes = {
-        client: '/client-dashboard',
-        master: '/master-dashboard',
-        business: '/business-dashboard',
-        admin: '/admin-dashboard'
-      };
+    const checkAndRedirect = async () => {
+      if (!loading && profile) {
+        // Check if user is admin first
+        const { data: isAdmin } = await supabase.rpc('is_admin');
+        
+        if (isAdmin) {
+          navigate('/admin-dashboard', { replace: true });
+          return;
+        }
+        
+        const dashboardRoutes = {
+          client: '/client-dashboard',
+          master: '/master-dashboard',
+          business: '/business-dashboard',
+          admin: '/admin-dashboard'
+        };
 
-      const targetDashboard = dashboardRoutes[profile.user_type];
-      if (targetDashboard) {
-        navigate(targetDashboard, { replace: true });
+        const targetDashboard = dashboardRoutes[profile.user_type];
+        if (targetDashboard) {
+          navigate(targetDashboard, { replace: true });
+        }
       }
-    }
+    };
+    
+    checkAndRedirect();
   }, [profile, loading, navigate]);
 
   if (loading) {
