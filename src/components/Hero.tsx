@@ -1,13 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle, Users, Star, Wrench, Shield, Sparkles, TrendingUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowRight, CheckCircle, Users, Star, Wrench, Shield, Sparkles, TrendingUp, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 import heroClient from "@/assets/hero-client.jpg";
 import heroProfessionals from "@/assets/hero-professionals.jpg";
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { stats, loading } = usePlatformStats();
   
   const handleServiceClick = () => {
     navigate('/auth?type=client');
@@ -15,6 +20,11 @@ export const Hero = () => {
   
   const handleProfessionalClick = () => {
     navigate('/auth?type=master');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate(`/search-masters?q=${encodeURIComponent(searchQuery)}`);
   };
 
   return (
@@ -68,6 +78,29 @@ export const Hero = () => {
               ))}
             </div>
 
+            {/* Quick Search Bar */}
+            <form onSubmit={handleSearch} className="relative max-w-2xl">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar electricista, plomero, pintor..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-12 text-base shadow-soft border-border/50 focus:border-primary"
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  size="lg"
+                  className="h-12 px-6 shadow-soft"
+                >
+                  Buscar
+                </Button>
+              </div>
+            </form>
+
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
@@ -97,7 +130,9 @@ export const Hero = () => {
                   <Users className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold gradient-text">5,000+</div>
+                  <div className="text-2xl font-bold gradient-text">
+                    {loading ? "..." : `${stats.total_masters.toLocaleString()}+`}
+                  </div>
                   <div className="text-sm text-muted-foreground">Profesionales</div>
                 </div>
               </div>
@@ -106,7 +141,9 @@ export const Hero = () => {
                   <Star className="h-6 w-6 text-white fill-white" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold gradient-text">4.8/5</div>
+                  <div className="text-2xl font-bold gradient-text">
+                    {loading ? "..." : `${stats.average_rating.toFixed(1)}/5`}
+                  </div>
                   <div className="text-sm text-muted-foreground">Valoración</div>
                 </div>
               </div>
@@ -115,7 +152,9 @@ export const Hero = () => {
                   <TrendingUp className="h-6 w-6 text-accent-foreground" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold gradient-text">98%</div>
+                  <div className="text-2xl font-bold gradient-text">
+                    {loading ? "..." : `${stats.satisfaction_rate.toFixed(0)}%`}
+                  </div>
                   <div className="text-sm text-muted-foreground">Satisfacción</div>
                 </div>
               </div>

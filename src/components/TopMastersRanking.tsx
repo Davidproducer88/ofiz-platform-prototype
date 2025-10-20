@@ -1,12 +1,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, TrendingUp, Award, DollarSign, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Star, TrendingUp, Award, DollarSign, AlertCircle, ExternalLink } from 'lucide-react';
 import { useMasterRankings } from '@/hooks/useMasterRankings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
 
 export function TopMastersRanking() {
   const { rankings, loading, refetch } = useMasterRankings(10);
+  const navigate = useNavigate();
+
+  const handleViewProfile = (masterId: string) => {
+    navigate(`/search-masters?master=${masterId}`);
+  };
 
   if (loading) {
     return (
@@ -67,7 +74,8 @@ export function TopMastersRanking() {
           {rankings.map((ranking) => (
             <div
               key={ranking.id}
-              className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all hover:shadow-md cursor-pointer group"
+              onClick={() => handleViewProfile(ranking.master_id)}
             >
               <div className="flex items-center gap-4 flex-1">
                 <div className={`text-2xl font-bold ${getMedalColor(ranking.rank_position || 0)}`}>
@@ -101,6 +109,18 @@ export function TopMastersRanking() {
                 <span className="text-xs text-muted-foreground">
                   {ranking.completion_rate.toFixed(0)}% completado
                 </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity mt-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewProfile(ranking.master_id);
+                  }}
+                >
+                  Ver Perfil
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
               </div>
             </div>
           ))}

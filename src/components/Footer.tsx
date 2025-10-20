@@ -4,13 +4,14 @@ import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "luc
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Footer = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       toast({
@@ -20,12 +21,41 @@ export const Footer = () => {
       });
       return;
     }
-    
-    toast({
-      title: "¡Gracias por suscribirte!",
-      description: "Pronto recibirás noticias y ofertas especiales",
-    });
-    setEmail("");
+
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert({ 
+          email,
+          user_id: (await supabase.auth.getUser()).data.user?.id 
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Ya estás suscrito",
+            description: "Este email ya está registrado en nuestra newsletter",
+            variant: "destructive"
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
+      
+      toast({
+        title: "¡Gracias por suscribirte!",
+        description: "Pronto recibirás noticias y ofertas especiales",
+      });
+      setEmail("");
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      toast({
+        title: "Error",
+        description: "No pudimos completar la suscripción. Intenta nuevamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSocialClick = (platform: string) => {

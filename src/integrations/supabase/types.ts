@@ -774,6 +774,36 @@ export type Database = {
           },
         ]
       }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          subscribed_at: string
+          unsubscribed_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           booking_id: string | null
@@ -1409,6 +1439,10 @@ export type Database = {
       generate_referral_code: {
         Args: { user_id_param: string }
         Returns: string
+      }
+      get_platform_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       has_role: {
         Args: {

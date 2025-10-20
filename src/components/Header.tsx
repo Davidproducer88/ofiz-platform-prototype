@@ -3,12 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { Search, User, Bell, Settings, LogOut, Menu, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { smoothScrollTo, scrollToTop } from "@/utils/smoothScroll";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | 'business' | null;
   userName?: string;
@@ -28,6 +29,15 @@ export const Header = ({
     signOut
   } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogoClick = () => {
+    if (location.pathname === '/') {
+      scrollToTop();
+    } else {
+      navigate('/');
+    }
+  };
 
   // Safe navigation functions
   const navigateToClientDashboard = () => {
@@ -72,7 +82,7 @@ export const Header = ({
         {/* Logo */}
         <div className="flex items-center space-x-4">
           <button 
-            onClick={() => navigate('/')} 
+            onClick={handleLogoClick} 
             className="text-2xl font-bold gradient-text cursor-pointer hover:scale-105 transition-all duration-300 hover:drop-shadow-lg"
           >
             Ofiz
