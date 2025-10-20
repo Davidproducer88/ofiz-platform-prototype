@@ -36,6 +36,15 @@ serve(async (req) => {
 
     const { bookingId, amount, title, description }: PaymentRequest = await req.json();
 
+    // Validar datos de entrada
+    if (!bookingId || !amount || !title) {
+      throw new Error('Faltan datos requeridos: bookingId, amount, title');
+    }
+
+    if (amount <= 0) {
+      throw new Error('El monto debe ser mayor a 0');
+    }
+
     console.log('Creating payment preference for booking:', bookingId);
 
     // Get booking details
@@ -70,12 +79,12 @@ serve(async (req) => {
         email: booking.profiles.email,
       },
       back_urls: {
-        success: `${Deno.env.get('SUPABASE_URL')}/client-dashboard?payment=success`,
-        failure: `${Deno.env.get('SUPABASE_URL')}/client-dashboard?payment=failure`,
-        pending: `${Deno.env.get('SUPABASE_URL')}/client-dashboard?payment=pending`,
+        success: `https://dexrrbbpeidcxoynkyrt.supabase.co/client-dashboard?payment=success`,
+        failure: `https://dexrrbbpeidcxoynkyrt.supabase.co/client-dashboard?payment=failure`,
+        pending: `https://dexrrbbpeidcxoynkyrt.supabase.co/client-dashboard?payment=pending`,
       },
       auto_return: 'approved',
-      notification_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mercadopago-webhook`,
+      notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
       external_reference: bookingId,
       statement_descriptor: 'PLATAFORMA SERVICIOS',
       metadata: {

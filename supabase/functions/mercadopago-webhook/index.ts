@@ -20,6 +20,20 @@ serve(async (req) => {
     const body = await req.json();
     console.log('Received webhook notification:', JSON.stringify(body));
 
+    // Verificar que la notificación venga de MercadoPago
+    const xSignature = req.headers.get('x-signature');
+    const xRequestId = req.headers.get('x-request-id');
+    
+    if (!xSignature || !xRequestId) {
+      console.warn('Missing MercadoPago headers');
+      // No rechazamos para compatibilidad, pero logueamos
+    }
+
+    // Validar que body contenga los campos necesarios
+    if (!body || !body.type || !body.data || !body.data.id) {
+      throw new Error('Invalid webhook payload');
+    }
+
     // Mercado Pago sends notifications for different events
     
     // Handle subscription events
@@ -107,13 +121,16 @@ serve(async (req) => {
       let paymentStatus: string;
       switch (status) {
         case 'approved':
-          paymentStatus = 'in_escrow'; // Funds held in escrow until service completion
+          paymentStatus = 'approved'; // Cambiar a approved, el escrow se maneja por separado
           break;
         case 'pending':
+        case 'in_process':
           paymentStatus = 'pending';
           break;
         case 'rejected':
         case 'cancelled':
+        case 'refunded':
+        case 'charged_back':
           paymentStatus = 'rejected';
           break;
         default:

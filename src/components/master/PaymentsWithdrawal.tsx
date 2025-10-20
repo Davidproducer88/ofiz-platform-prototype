@@ -39,7 +39,7 @@ export const PaymentsWithdrawal = () => {
 
       const { data: payments, error } = await supabase
         .from('payments')
-        .select('amount, master_amount, status')
+        .select('amount, master_amount, status, escrow_released_at')
         .eq('master_id', user.id);
 
       if (error) throw error;
@@ -49,7 +49,7 @@ export const PaymentsWithdrawal = () => {
         .reduce((sum, p) => sum + Number(p.master_amount), 0) || 0;
 
       const pendingBalance = payments
-        ?.filter(p => p.status === 'in_escrow')
+        ?.filter(p => p.status === 'approved' && !p.escrow_released_at)
         .reduce((sum, p) => sum + Number(p.master_amount), 0) || 0;
 
       const totalEarnings = payments

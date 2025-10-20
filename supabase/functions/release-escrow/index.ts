@@ -52,10 +52,26 @@ serve(async (req) => {
       throw new Error('Solo el cliente puede liberar los fondos');
     }
 
+    // Verificar que el pago esté aprobado
+    const { data: existingPayment, error: checkError } = await supabaseClient
+      .from('payments')
+      .select('id, status')
+      .eq('booking_id', bookingId)
+      .single();
+
+    if (checkError || !existingPayment) {
+      throw new Error('No se encontró el pago para esta reserva');
+    }
+
+    if (existingPayment.status !== 'approved') {
+      throw new Error('El pago debe estar aprobado antes de liberar fondos');
+    }
+
     // Update payment status to released
     const { error: paymentError } = await supabaseClient
       .from('payments')
       .update({
+        status: 'released',
         escrow_released_at: new Date().toISOString(),
       })
       .eq('booking_id', bookingId)
