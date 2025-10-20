@@ -10,66 +10,171 @@ import {
   Car,
   Monitor,
   Home,
-  Camera
+  Camera,
+  Construction,
+  Wind,
+  Droplets,
+  Shirt,
+  Package,
+  Scissors,
+  Shield,
+  Ship,
+  Cpu,
+  FlaskConical,
+  Waves,
+  Cog,
+  Lightbulb,
+  Plug
 } from "lucide-react";
 import servicesGrid from "@/assets/services-grid.jpg";
 
 const categories = [
   {
-    icon: Zap,
-    title: "Electricidad",
-    description: "Instalaciones, reparaciones, cableado",
-    count: "850+ maestros",
-    color: "text-yellow-500"
-  },
-  {
-    icon: Wrench,
-    title: "Plomería", 
-    description: "Reparaciones, instalaciones, destapes",
-    count: "720+ maestros",
-    color: "text-blue-500"
-  },
-  {
-    icon: Paintbrush,
-    title: "Pintura",
-    description: "Interiores, exteriores, decorativa",
-    count: "650+ maestros", 
-    color: "text-purple-500"
-  },
-  {
-    icon: Hammer,
-    title: "Construcción",
-    description: "Reformas, albañilería, mampostería",
+    icon: Construction,
+    title: "Construcción y Edificación",
+    description: "Albañilería, obra, yesería, techado",
     count: "900+ maestros",
     color: "text-orange-500"
   },
   {
-    icon: Sparkles,
-    title: "Limpieza",
-    description: "Doméstica, comercial, especializada",
-    count: "580+ maestros",
-    color: "text-green-500"
+    icon: Zap,
+    title: "Electricidad",
+    description: "Instalaciones, domótica, energía solar",
+    count: "850+ maestros",
+    color: "text-yellow-500"
   },
   {
-    icon: Leaf,
-    title: "Jardinería",
-    description: "Paisajismo, mantenimiento, diseño",
+    icon: Droplets,
+    title: "Plomería y Gasfitería", 
+    description: "Sanitaria, gas, agua caliente, riego",
+    count: "720+ maestros",
+    color: "text-blue-500"
+  },
+  {
+    icon: Wind,
+    title: "Climatización",
+    description: "Aire acondicionado, calefacción, ventilación",
+    count: "480+ maestros",
+    color: "text-cyan-500"
+  },
+  {
+    icon: Hammer,
+    title: "Carpintería y Muebles",
+    description: "Madera, muebles a medida, restauración",
+    count: "650+ maestros", 
+    color: "text-amber-500"
+  },
+  {
+    icon: Wrench,
+    title: "Herrería y Metales",
+    description: "Cerrajería, rejas, aluminio y vidrio",
     count: "420+ maestros",
-    color: "text-emerald-500"
+    color: "text-slate-500"
   },
   {
     icon: Car,
-    title: "Automotor",
-    description: "Mecánica, electricidad, chapa y pintura",
-    count: "380+ maestros",
+    title: "Mecánica Automotor",
+    description: "Autos, motos, electricidad, chapa y pintura",
+    count: "580+ maestros",
     color: "text-red-500"
   },
   {
+    icon: Cog,
+    title: "Mecánica Industrial",
+    description: "Maquinaria agrícola, compresores, mantenimiento",
+    count: "320+ maestros",
+    color: "text-gray-500"
+  },
+  {
     icon: Monitor,
-    title: "Tecnología",
-    description: "Reparación, instalación, soporte",
-    count: "290+ maestros",
+    title: "Electrodomésticos",
+    description: "Línea blanca, heladeras, lavarropas",
+    count: "450+ maestros",
     color: "text-indigo-500"
+  },
+  {
+    icon: Cpu,
+    title: "Electrónica e Informática",
+    description: "Computadoras, celulares, audio/video",
+    count: "380+ maestros",
+    color: "text-purple-500"
+  },
+  {
+    icon: Shirt,
+    title: "Textiles y Confección",
+    description: "Sastrería, tapicería, cortinas, calzado",
+    count: "290+ maestros",
+    color: "text-pink-500"
+  },
+  {
+    icon: Leaf,
+    title: "Jardinería y Paisajismo",
+    description: "Espacios verdes, podación, diseño, piscinas",
+    count: "520+ maestros",
+    color: "text-emerald-500"
+  },
+  {
+    icon: Home,
+    title: "Vidriería y Cristalería",
+    description: "Vidrios, espejos, mamparas, vitral",
+    count: "240+ maestros",
+    color: "text-sky-500"
+  },
+  {
+    icon: Package,
+    title: "Mudanzas y Montaje",
+    description: "Mudanzas, armado de muebles, instalaciones",
+    count: "350+ maestros",
+    color: "text-orange-400"
+  },
+  {
+    icon: Paintbrush,
+    title: "Pintura y Acabados",
+    description: "Interiores, exteriores, empapelado, texturas",
+    count: "680+ maestros",
+    color: "text-violet-500"
+  },
+  {
+    icon: Scissors,
+    title: "Artesanías",
+    description: "Cerámica, joyería, restauración, serigrafía",
+    count: "180+ maestros",
+    color: "text-rose-500"
+  },
+  {
+    icon: Sparkles,
+    title: "Limpieza y Mantenimiento",
+    description: "Residencial, comercial, industrial, plagas",
+    count: "620+ maestros",
+    color: "text-green-500"
+  },
+  {
+    icon: Shield,
+    title: "Seguridad y Accesibilidad",
+    description: "Cerrajería, alarmas, rejas, accesibilidad",
+    count: "310+ maestros",
+    color: "text-yellow-600"
+  },
+  {
+    icon: Lightbulb,
+    title: "Energías Alternativas",
+    description: "Paneles solares, eólica, sustentable",
+    count: "220+ maestros",
+    color: "text-lime-500"
+  },
+  {
+    icon: Ship,
+    title: "Oficios Marítimos",
+    description: "Embarcaciones, mecánica naval, velero",
+    count: "85+ maestros",
+    color: "text-teal-500"
+  },
+  {
+    icon: FlaskConical,
+    title: "Oficios Emergentes",
+    description: "Impresión 3D, drones, automatización, vehículos eléctricos",
+    count: "150+ maestros",
+    color: "text-fuchsia-500"
   }
 ];
 
@@ -93,8 +198,8 @@ export const ServiceCategories = () => {
           </p>
         </div>
 
-        {/* Categories Grid - Enhanced - Better responsive */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-16">
+        {/* Categories Grid - Expanded with 21+ categories */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-16">
           {categories.map((category, index) => {
             const Icon = category.icon;
             return (
