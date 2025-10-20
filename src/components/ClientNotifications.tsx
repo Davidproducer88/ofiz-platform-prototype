@@ -28,9 +28,17 @@ export function ClientNotifications() {
   const { profile } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [preferences, setPreferences] = useState({
+    messages: true,
+    bookings: true,
+    payments: true,
+    promotions: false,
+  });
+  const [savingPreferences, setSavingPreferences] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
+    fetchPreferences();
     
     // Real-time subscription
     const channel = supabase
@@ -51,6 +59,55 @@ export function ClientNotifications() {
       supabase.removeChannel(channel);
     };
   }, [profile?.id]);
+
+  const fetchPreferences = async () => {
+    if (!profile?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', profile.id)
+        .single();
+
+      if (error) throw error;
+
+      // Por ahora usar localStorage hasta implementar campo en DB
+      const saved = localStorage.getItem(`notif_prefs_${profile.id}`);
+      if (saved) {
+        setPreferences(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+    }
+  };
+
+  const updatePreference = async (key: keyof typeof preferences, value: boolean) => {
+    if (!profile?.id) return;
+
+    const newPrefs = { ...preferences, [key]: value };
+    setPreferences(newPrefs);
+
+    setSavingPreferences(true);
+    try {
+      // Guardar en localStorage (temporal hasta implementar en DB)
+      localStorage.setItem(`notif_prefs_${profile.id}`, JSON.stringify(newPrefs));
+
+      toast({
+        title: "Preferencias guardadas",
+        description: "Tus preferencias de notificación han sido actualizadas",
+      });
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar las preferencias",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingPreferences(false);
+    }
+  };
 
   const fetchNotifications = async () => {
     if (!profile?.id) return;
@@ -266,28 +323,48 @@ export function ClientNotifications() {
               <Label htmlFor="messages" className="text-sm font-medium">Nuevos Mensajes</Label>
               <p className="text-xs md:text-sm text-muted-foreground">Recibe alertas de mensajes nuevos</p>
             </div>
-            <Switch id="messages" defaultChecked />
+            <Switch 
+              id="messages" 
+              checked={preferences.messages}
+              onCheckedChange={(value) => updatePreference('messages', value)}
+              disabled={savingPreferences}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label htmlFor="bookings" className="text-sm font-medium">Estado de Encargos</Label>
               <p className="text-xs md:text-sm text-muted-foreground">Actualizaciones del estado de tus servicios</p>
             </div>
-            <Switch id="bookings" defaultChecked />
+            <Switch 
+              id="bookings" 
+              checked={preferences.bookings}
+              onCheckedChange={(value) => updatePreference('bookings', value)}
+              disabled={savingPreferences}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label htmlFor="payments" className="text-sm font-medium">Pagos y Facturas</Label>
               <p className="text-xs md:text-sm text-muted-foreground">Notificaciones sobre pagos realizados</p>
             </div>
-            <Switch id="payments" defaultChecked />
+            <Switch 
+              id="payments" 
+              checked={preferences.payments}
+              onCheckedChange={(value) => updatePreference('payments', value)}
+              disabled={savingPreferences}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label htmlFor="promotions" className="text-sm font-medium">Ofertas y Promociones</Label>
               <p className="text-xs md:text-sm text-muted-foreground">Recibe ofertas especiales y promociones</p>
             </div>
-            <Switch id="promotions" />
+            <Switch 
+              id="promotions" 
+              checked={preferences.promotions}
+              onCheckedChange={(value) => updatePreference('promotions', value)}
+              disabled={savingPreferences}
+            />
           </div>
         </CardContent>
       </Card>

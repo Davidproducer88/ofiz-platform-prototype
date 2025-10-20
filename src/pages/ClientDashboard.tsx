@@ -8,6 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Search, 
@@ -95,6 +98,8 @@ const ClientDashboard = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
+  const [bookingToReschedule, setBookingToReschedule] = useState<Booking | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [requestFormOpen, setRequestFormOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('services');
@@ -260,6 +265,45 @@ const ClientDashboard = () => {
       toast({
         title: "Error",
         description: "No se pudo publicar la reseña",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReschedule = (booking: Booking) => {
+    setBookingToReschedule(booking);
+    setRescheduleDialogOpen(true);
+  };
+
+  const handleRescheduleConfirm = async (rescheduleData: {
+    scheduledDate: Date;
+    notes: string;
+  }) => {
+    if (!bookingToReschedule) return;
+
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          scheduled_date: rescheduleData.scheduledDate.toISOString(),
+          notes: rescheduleData.notes,
+        })
+        .eq('id', bookingToReschedule.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Servicio reprogramado",
+        description: "La fecha del servicio ha sido actualizada",
+      });
+
+      setRescheduleDialogOpen(false);
+      fetchBookings();
+    } catch (error) {
+      console.error('Error rescheduling booking:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo reprogramar el servicio",
         variant: "destructive",
       });
     }
@@ -609,6 +653,8 @@ const ClientDashboard = () => {
                                 setSelectedBooking(booking);
                                 setReviewDialogOpen(true);
                               }}
+                              onReschedule={() => handleReschedule(booking)}
+                              onUpdate={fetchBookings}
                             />
                           </div>
                         </div>
@@ -709,6 +755,69 @@ const ClientDashboard = () => {
           onOpenChange={setRequestFormOpen}
           onSuccess={fetchBookings}
         />
+
+        {/* Reschedule Dialog */}
+        <Dialog open={rescheduleDialogOpen} onOpenChange={setRescheduleDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Reprogramar Servicio</DialogTitle>
+              <DialogDescription>
+                Selecciona una nueva fecha y hora para tu servicio
+              </DialogDescription>
+            </DialogHeader>
+            {bookingToReschedule && (
+              <div className="space-y-4 py-4">
+                <div className="bg-muted p-4 rounded-lg">
+                  <h4 className="font-semibold">{bookingToReschedule.services.title}</h4>
+                  <p className="text-sm text-muted-foreground">{bookingToReschedule.masters.business_name}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Nueva Fecha y Hora</Label>
+                  <Input
+                    type="datetime-local"
+                    min={new Date().toISOString().slice(0, 16)}
+                    onChange={(e) => {
+                      const date = new Date(e.target.value);
+                      setBookingToReschedule({
+                        ...bookingToReschedule,
+                        scheduled_date: date.toISOString(),
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Notas (opcional)</Label>
+                  <Textarea
+                    placeholder="Agrega notas sobre la reprogramación..."
+                    onChange={(e) => {
+                      setBookingToReschedule({
+                        ...bookingToReschedule,
+                        notes: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setRescheduleDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => {
+                  if (bookingToReschedule) {
+                    handleRescheduleConfirm({
+                      scheduledDate: new Date(bookingToReschedule.scheduled_date),
+                      notes: bookingToReschedule.notes || '',
+                    });
+                  }
+                }}
+              >
+                Confirmar Reprogramación
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
