@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ interface SearchFilters {
 }
 
 const SearchMasters = () => {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
@@ -28,8 +30,17 @@ const SearchMasters = () => {
     minRating: 0,
     city: "all",
     verifiedOnly: false,
+    category: undefined,
     maxDistance: undefined,
   });
+
+  // Load category from URL params
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setFilters(prev => ({ ...prev, category: categoryParam }));
+    }
+  }, [searchParams]);
   const [masters, setMasters] = useState<any[]>([]);
   const { location: userLocation, loading: locationLoading, refreshLocation } = useGeolocation();
 
@@ -43,6 +54,7 @@ const SearchMasters = () => {
       minRating: 0,
       city: "all",
       verifiedOnly: false,
+      category: undefined,
       maxDistance: undefined,
     });
   };

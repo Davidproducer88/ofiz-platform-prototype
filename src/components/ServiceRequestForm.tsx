@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
+import { SERVICE_CATEGORIES, getCategoryLabel } from "@/lib/categories";
 
 interface ServiceRequestFormProps {
   open: boolean;
@@ -35,15 +36,6 @@ interface FormData {
   payment_method: string;
 }
 
-const categories = [
-  { value: "plumbing", label: "Plomería" },
-  { value: "electricity", label: "Electricidad" },
-  { value: "cleaning", label: "Limpieza" },
-  { value: "carpentry", label: "Carpintería" },
-  { value: "painting", label: "Pintura" },
-  { value: "gardening", label: "Jardinería" },
-  { value: "other", label: "Otro" },
-];
 
 export function ServiceRequestForm({
   open,
@@ -172,12 +164,18 @@ export function ServiceRequestForm({
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona una categoría" />
               </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
+              <SelectContent className="max-h-[300px]">
+                {SERVICE_CATEGORIES.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className={`h-4 w-4 ${cat.color}`} />
+                        <span>{cat.label}</span>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {errors.category && (

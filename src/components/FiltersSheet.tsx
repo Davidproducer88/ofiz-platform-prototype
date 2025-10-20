@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Star } from 'lucide-react';
 import { URUGUAY_LOCATIONS } from '@/lib/locations';
+import { SERVICE_CATEGORIES } from '@/lib/categories';
 
 interface FiltersSheetProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface FiltersSheetProps {
     minRating: number;
     verifiedOnly: boolean;
     city: string;
+    category?: string;
     maxDistance?: number;
   };
   onFiltersChange: (filters: {
@@ -23,6 +25,7 @@ interface FiltersSheetProps {
     minRating: number;
     verifiedOnly: boolean;
     city: string;
+    category?: string;
     maxDistance?: number;
   }) => void;
   onReset: () => void;
@@ -95,6 +98,37 @@ export function FiltersSheet({
             <p className="text-sm text-muted-foreground">
               {filters.minRating === 0 ? "Sin filtro" : `${filters.minRating} estrellas o más`}
             </p>
+          </div>
+
+          <Separator />
+
+          {/* Category Filter */}
+          <div className="space-y-4">
+            <Label>Categoría de Servicio</Label>
+            <Select
+              value={filters.category || "all"}
+              onValueChange={(value) => 
+                onFiltersChange({ ...filters, category: value === "all" ? undefined : value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todas las categorías" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="all">Todas las categorías</SelectItem>
+                {SERVICE_CATEGORIES.map((category) => {
+                  const Icon = category.icon;
+                  return (
+                    <SelectItem key={category.value} value={category.value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className={`h-4 w-4 ${category.color}`} />
+                        <span>{category.label}</span>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
 
           <Separator />
