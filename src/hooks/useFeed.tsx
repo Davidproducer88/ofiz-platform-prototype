@@ -5,7 +5,7 @@ import { seedFeedData } from '@/lib/seedFeedData';
 
 export interface FeedItem {
   id: string;
-  type: 'post' | 'service' | 'sponsored' | 'master_recommendation';
+  type: 'service_request' | 'available_master' | 'service' | 'sponsored';
   score: number;
   created_at: string;
   data: any;
@@ -93,24 +93,22 @@ export const useFeed = () => {
         ? await getUserPreferences(user.id)
         : {};
 
-      // Cargar posts del feed
-      const { data: posts, error: postsError } = await supabase
-        .from('feed_posts')
+      // Cargar solicitudes de servicio abiertas
+      const { data: serviceRequests, error: requestsError } = await supabase
+        .from('service_requests')
         .select(`
           *,
-          master:masters(
-            id,
-            business_name,
-            rating,
-            total_reviews,
-            is_verified,
-            profiles(avatar_url, full_name)
+          profiles(
+            full_name,
+            avatar_url,
+            city
           )
         `)
+        .eq('status', 'open')
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1);
       
-      console.log('📄 Posts loaded:', posts?.length || 0, postsError);
+      console.log('📋 Service requests loaded:', serviceRequests?.length || 0, requestsError);
 
       // Cargar servicios destacados (cada 5 items)
       const { data: services, error: servicesError } = await supabase
@@ -142,26 +140,26 @@ export const useFeed = () => {
         .order('created_at', { ascending: false })
         .limit(2);
 
-      // Cargar masters recomendados
-      const { data: masters, error: mastersError } = await supabase
+      // Cargar maestros disponibles y verificados
+      const { data: availableMasters, error: mastersError } = await supabase
         .from('masters')
         .select(`
           *,
-          profiles(avatar_url, full_name)
+          profiles(avatar_url, full_name, city)
         `)
         .eq('is_verified', true)
         .order('rating', { ascending: false })
-        .limit(2);
+        .limit(3);
       
-      console.log('👨‍🔧 Masters loaded:', masters?.length || 0, mastersError);
+      console.log('👨‍🔧 Available masters loaded:', availableMasters?.length || 0, mastersError);
 
       // Convertir a FeedItems con scoring
-      const postItems: FeedItem[] = (posts || []).map(post => ({
-        id: post.id,
-        type: 'post' as const,
-        score: calculateRelevanceScore(post, preferences, 'post'),
-        created_at: post.created_at,
-        data: post
+      const requestItems: FeedItem[] = (serviceRequests || []).map(request => ({
+        id: request.id,
+        type: 'service_request' as const,
+        score: calculateRelevanceScore(request, preferences, 'request'),
+        created_at: request.created_at,
+        data: request
       }));
 
       const serviceItems: FeedItem[] = (services || []).map(service => ({
@@ -180,16 +178,16 @@ export const useFeed = () => {
         data: sp
       }));
 
-      const masterItems: FeedItem[] = (masters || []).map(master => ({
+      const masterItems: FeedItem[] = (availableMasters || []).map(master => ({
         id: master.id,
-        type: 'master_recommendation' as const,
+        type: 'available_master' as const,
         score: calculateRelevanceScore(master, preferences, 'master'),
         created_at: master.created_at,
         data: master
       }));
 
       // Combinar y ordenar por score
-      const allItems = [...postItems, ...serviceItems, ...sponsoredItems, ...masterItems];
+      const allItems = [...requestItems, ...serviceItems, ...sponsoredItems, ...masterItems];
       const sortedItems = allItems.sort((a, b) => b.score - a.score);
 
       // Insertar contenido patrocinado estratégicamente (cada 5 items)
