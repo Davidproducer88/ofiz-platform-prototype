@@ -151,17 +151,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userType = userData.user_type || 'client';
       const redirectUrl = `${window.location.origin}/auth/callback?type=signup&user_type=${userType}`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            full_name: userData.full_name,
+            full_name: userData.full_name || email.split('@')[0],
             user_type: userType,
-            phone: userData.phone,
-            address: userData.address,
-            city: userData.city
+            phone: userData.phone || null,
+            address: userData.address || null,
+            city: userData.city || null
           }
         }
       });
@@ -172,14 +172,63 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           description: error.message,
           variant: "destructive"
         });
-      } else {
-        toast({
-          title: "Registro exitoso",
-          description: "Por favor verifica tu email para activar tu cuenta"
-        });
+        return { error };
       }
 
-      return { error };
+      // Process referral after successful signup if provided
+      if (userData.referral_code && userType === 'client' && data.user) {
+        try {
+          // Get referrer ID
+          const { data: referrerData } = await supabase
+            .from('referral_codes')
+            .select('user_id')
+            .eq('code', userData.referral_code.toUpperCase())
+            .eq('is_active', true)
+            .maybeSingle();
+
+          if (referrerData) {
+            // Create referral record
+            const { data: referral, error: refError } = await supabase
+              .from('referrals')
+              .insert({
+                referrer_id: referrerData.user_id,
+                referred_id: data.user.id,
+                referral_code: userData.referral_code.toUpperCase(),
+                status: 'pending'
+              })
+              .select()
+              .maybeSingle();
+
+            if (!refError && referral) {
+              // Create credits for both users
+              await supabase.from('referral_credits').insert([
+                {
+                  user_id: referrerData.user_id,
+                  amount: 500,
+                  type: 'referrer_bonus',
+                  referral_id: referral.id
+                },
+                {
+                  user_id: data.user.id,
+                  amount: 500,
+                  type: 'welcome_bonus',
+                  referral_id: referral.id
+                }
+              ]);
+            }
+          }
+        } catch (refError) {
+          console.error('Error processing referral:', refError);
+          // Don't fail the signup if referral fails
+        }
+      }
+
+      toast({
+        title: "Registro exitoso",
+        description: "Por favor verifica tu email para activar tu cuenta"
+      });
+
+      return { error: null };
     } catch (error: any) {
       toast({
         title: "Error en el registro",

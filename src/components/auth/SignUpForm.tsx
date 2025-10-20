@@ -101,17 +101,12 @@ export const SignUpForm = ({
       const {
         error
       } = await signUp(formData.email, formData.password, {
-        ...formData,
         user_type: userType,
+        full_name: formData.email.split('@')[0],
         referral_code: formData.referralCode || undefined
       });
       
       if (!error) {
-        // Si hay código de referido, crear el referral y los créditos
-        if (formData.referralCode && userType === 'client') {
-          await processReferral(formData.referralCode);
-        }
-        
         // Show email verification notice if callback provided
         if (onEmailVerification) {
           onEmailVerification(formData.email);
@@ -122,67 +117,16 @@ export const SignUpForm = ({
       }
     } catch (error) {
       console.error('SignUp error:', error);
+      toast({
+        title: "Error en el registro",
+        description: "Ocurrió un error inesperado. Por favor intenta de nuevo.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const processReferral = async (code: string) => {
-    try {
-      // Obtener el ID del referrer
-      const { data: referrerData } = await supabase
-        .from('referral_codes')
-        .select('user_id')
-        .eq('code', code.toUpperCase())
-        .single();
-
-      if (!referrerData) return;
-
-      // Obtener el ID del nuevo usuario
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Crear el registro de referral
-      const { data: referral, error: refError } = await supabase
-        .from('referrals')
-        .insert({
-          referrer_id: referrerData.user_id,
-          referred_id: user.id,
-          referral_code: code.toUpperCase(),
-          status: 'completed'
-        })
-        .select()
-        .single();
-
-      if (refError) {
-        console.error('Error creating referral:', refError);
-        return;
-      }
-
-      // Crear créditos para ambos usuarios
-      await supabase.from('referral_credits').insert([
-        {
-          user_id: referrerData.user_id,
-          amount: 500,
-          type: 'referrer_bonus',
-          referral_id: referral.id
-        },
-        {
-          user_id: user.id,
-          amount: 500,
-          type: 'welcome_bonus',
-          referral_id: referral.id
-        }
-      ]);
-
-      toast({
-        title: "¡Bienvenido!",
-        description: "Recibiste $U 500 de crédito de bienvenida 🎉",
-      });
-    } catch (error) {
-      console.error('Error processing referral:', error);
-    }
-  };
   return <div className="space-y-6">
       <Button type="button" variant="ghost" onClick={onBack} className="p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
         <ArrowLeft className="w-4 h-4 mr-2" />

@@ -44,24 +44,31 @@ export const LoginForm = () => {
     try {
       const { error } = await signIn(email, password);
       if (!error) {
-        // Check if user is admin first
-        const { data: isAdmin } = await supabase.rpc('is_admin');
+        // Wait a bit for session to be established
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        if (isAdmin) {
-          navigate('/admin-dashboard');
-          return;
+        // Check if user is admin first
+        try {
+          const { data: isAdmin } = await supabase.rpc('is_admin');
+          
+          if (isAdmin) {
+            navigate('/admin-dashboard', { replace: true });
+            return;
+          }
+        } catch (err) {
+          console.error('Error checking admin status:', err);
         }
         
         // Otherwise redirect based on user type
         const { data } = await supabase.auth.getSession();
-        const userType = data.session?.user.user_metadata?.user_type;
+        const userType = data.session?.user.user_metadata?.user_type || 'client';
         
         if (userType === 'master') {
-          navigate('/master-dashboard');
+          navigate('/master-dashboard', { replace: true });
         } else if (userType === 'business') {
-          navigate('/business-dashboard');
+          navigate('/business-dashboard', { replace: true });
         } else {
-          navigate('/client-dashboard');
+          navigate('/client-dashboard', { replace: true });
         }
       }
     } catch (error) {

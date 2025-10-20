@@ -39,22 +39,29 @@ const AuthCallback = () => {
           }
 
           if (sessionData.session) {
+            // Wait a bit for profile to be created/fetched
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             toast({
               title: "¡Email verificado!",
               description: "Has iniciado sesión correctamente"
             });
             
             // Check if user is admin first
-            const { data: isAdmin } = await supabase.rpc('is_admin');
-            
-            if (isAdmin) {
-              navigate('/admin-dashboard');
-              return;
+            try {
+              const { data: isAdmin } = await supabase.rpc('is_admin');
+              
+              if (isAdmin) {
+                navigate('/admin-dashboard', { replace: true });
+                return;
+              }
+            } catch (err) {
+              console.error('Error checking admin status:', err);
             }
             
             const userType = userTypeFromUrl || sessionData.session.user.user_metadata?.user_type || 'client';
             const dashboardRoute = getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business');
-            navigate(dashboardRoute);
+            navigate(dashboardRoute, { replace: true });
             return;
           }
         }
@@ -74,22 +81,29 @@ const AuthCallback = () => {
         }
 
         if (data.session) {
+          // Wait a bit for profile to be created/fetched
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
           toast({
             title: "¡Bienvenido!",
             description: "Has iniciado sesión correctamente"
           });
           
           // Check if user is admin first
-          const { data: isAdmin } = await supabase.rpc('is_admin');
-          
-          if (isAdmin) {
-            navigate('/admin-dashboard');
-            return;
+          try {
+            const { data: isAdmin } = await supabase.rpc('is_admin');
+            
+            if (isAdmin) {
+              navigate('/admin-dashboard', { replace: true });
+              return;
+            }
+          } catch (err) {
+            console.error('Error checking admin status:', err);
           }
           
           const userType = userTypeFromUrl || data.session.user.user_metadata?.user_type || 'client';
           const dashboardRoute = getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business');
-          navigate(dashboardRoute);
+          navigate(dashboardRoute, { replace: true });
         } else {
           // No session and no tokens - just verified email
           if (type === 'signup') {
