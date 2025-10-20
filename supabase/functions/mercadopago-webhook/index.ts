@@ -57,10 +57,11 @@ serve(async (req) => {
       const subscriptionData = await mpResponse.json();
       console.log('Subscription data from Mercado Pago:', JSON.stringify(subscriptionData));
 
-      const businessId = subscriptionData.external_reference;
+      const userId = subscriptionData.external_reference;
       const status = subscriptionData.status;
+      const metadata = subscriptionData.metadata || {};
 
-      // Update subscription status
+      // Determine subscription status
       let subscriptionStatus: string;
       switch (status) {
         case 'authorized':
@@ -77,20 +78,46 @@ serve(async (req) => {
           subscriptionStatus = 'pending';
       }
 
-      const { error: updateError } = await supabaseClient
+      // Check if it's a business or master subscription based on metadata or by checking both tables
+      const { data: businessSub } = await supabaseClient
         .from('business_subscriptions')
-        .update({
-          status: subscriptionStatus,
-        })
-        .eq('business_id', businessId)
-        .eq('mercadopago_subscription_id', preapprovalId);
+        .select('id')
+        .eq('business_id', userId)
+        .eq('mercadopago_subscription_id', preapprovalId)
+        .maybeSingle();
 
-      if (updateError) {
-        console.error('Error updating subscription:', updateError);
-        throw updateError;
+      if (businessSub) {
+        // Update business subscription
+        const { error: updateError } = await supabaseClient
+          .from('business_subscriptions')
+          .update({
+            status: subscriptionStatus,
+          })
+          .eq('id', businessSub.id);
+
+        if (updateError) {
+          console.error('Error updating business subscription:', updateError);
+          throw updateError;
+        }
+
+        console.log('Business subscription updated:', userId, subscriptionStatus);
+      } else {
+        // Update master subscription
+        const { error: updateError } = await supabaseClient
+          .from('subscriptions')
+          .update({
+            plan: metadata.plan_id || 'premium',
+          })
+          .eq('master_id', userId)
+          .eq('mercadopago_subscription_id', preapprovalId);
+
+        if (updateError) {
+          console.error('Error updating master subscription:', updateError);
+          throw updateError;
+        }
+
+        console.log('Master subscription updated:', userId, subscriptionStatus);
       }
-
-      console.log('Subscription updated:', businessId, subscriptionStatus);
     }
     
     // Handle regular payment events (bookings)

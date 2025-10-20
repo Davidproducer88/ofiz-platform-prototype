@@ -49,44 +49,77 @@ export const SubscriptionPlans = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
-      const subscriptionData = {
-        master_id: user.id,
-        plan: plan,
-        monthly_applications_limit: plan === 'free' ? 5 : 50,
-        applications_used: 0,
-        is_featured: plan === 'premium',
-        price: plan === 'free' ? 0 : 9900,
+      const planConfig = {
+        free: {
+          price: 0,
+          applicationsLimit: 5,
+          isFeatured: false,
+        },
+        premium: {
+          price: 9900,
+          applicationsLimit: 50,
+          isFeatured: true,
+        },
       };
 
-      if (currentPlan) {
-        // Update existing subscription
-        const { error } = await supabase
-          .from('subscriptions')
-          .update(subscriptionData)
-          .eq('id', currentPlan.id);
-
-        if (error) throw error;
-      } else {
-        // Create new subscription
-        const { error } = await supabase
-          .from('subscriptions')
-          .insert(subscriptionData);
-
-        if (error) throw error;
-      }
+      const config = planConfig[plan];
 
       toast({
-        title: "Plan actualizado",
-        description: `Ahora estás en el plan ${plan === 'free' ? 'Gratuito' : 'Premium'}`,
+        title: "Procesando...",
+        description: "Preparando tu suscripción...",
       });
 
-      fetchSubscription();
+      // Call edge function to create subscription with MercadoPago
+      const { data, error } = await supabase.functions.invoke('create-master-subscription', {
+        body: {
+          planId: plan,
+          planName: plan === 'free' ? 'Gratuito' : 'Premium',
+          price: config.price,
+          applicationsLimit: config.applicationsLimit,
+          isFeatured: config.isFeatured,
+        }
+      });
+
+      if (error) {
+        console.error('Subscription error:', error);
+        throw new Error(error.message || 'Error al crear la suscripción');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      // For free plan, just reload
+      if (plan === 'free') {
+        toast({
+          title: "Plan actualizado",
+          description: "Ahora estás en el plan Gratuito",
+        });
+        fetchSubscription();
+        return;
+      }
+
+      // For premium plan, redirect to MercadoPago
+      if (data?.initPoint) {
+        toast({
+          title: "Redirigiendo a pago",
+          description: "Serás redirigido a MercadoPago para completar el pago...",
+        });
+        
+        setTimeout(() => {
+          window.location.href = data.initPoint;
+        }, 500);
+      } else {
+        throw new Error('No se recibió URL de pago de MercadoPago');
+      }
+
     } catch (error: any) {
+      const errorMessage = error?.message || "No se pudo procesar la suscripción";
       console.error('Error updating subscription:', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message,
+        title: "Error al crear suscripción",
+        description: errorMessage,
       });
     }
   };
