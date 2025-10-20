@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RefreshCw, Briefcase, Search, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Feed = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const {
     feedItems,
     loading,
@@ -81,36 +83,44 @@ export const Feed = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="w-full border-b bg-muted/50">
-        <div className="container py-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <Button 
-              variant="outline" 
-              className="justify-start gap-2"
-              onClick={() => navigate('/search-masters')}
-            >
-              <Search className="h-4 w-4" />
-              Buscar Profesionales
-            </Button>
-            <Button 
-              variant="outline" 
-              className="justify-start gap-2"
-              onClick={() => navigate('/client-dashboard?tab=requests')}
-            >
-              <Plus className="h-4 w-4" />
-              Crear Solicitud
-            </Button>
-            <Button 
-              variant="outline" 
-              className="justify-start gap-2"
-              onClick={() => navigate('/client-dashboard')}
-            >
-              <Briefcase className="h-4 w-4" />
-              Mis Servicios
-            </Button>
+      {user && (
+        <div className="w-full border-b bg-muted/50">
+          <div className="container py-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2"
+                onClick={() => navigate('/search-masters')}
+              >
+                <Search className="h-4 w-4" />
+                Buscar Profesionales
+              </Button>
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2"
+                onClick={() => {
+                  if (user) {
+                    navigate('/client-dashboard?tab=requests');
+                  } else {
+                    navigate('/auth');
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Crear Solicitud
+              </Button>
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2"
+                onClick={() => navigate('/client-dashboard')}
+              >
+                <Briefcase className="h-4 w-4" />
+                Mis Servicios
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Feed Content */}
       <div className="container py-6">
@@ -146,9 +156,22 @@ export const Feed = () => {
           {!loading && feedItems.length === 0 && (
             <div className="text-center py-12">
               <Briefcase className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No hay servicios disponibles</h3>
-              <p className="text-muted-foreground mb-4">Sé el primero en publicar un servicio</p>
-              <Button onClick={() => navigate('/search-masters')}>Explorar Profesionales</Button>
+              <h3 className="text-xl font-semibold mb-2">No hay contenido disponible</h3>
+              <p className="text-muted-foreground mb-4">
+                {user ? 'Empieza creando una solicitud de servicio o busca profesionales' : 'Inicia sesión para ver servicios y solicitudes'}
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={() => navigate('/search-masters')}>
+                  <Search className="mr-2 h-4 w-4" />
+                  Buscar Profesionales
+                </Button>
+                {user && (
+                  <Button variant="outline" onClick={() => navigate('/client-dashboard?tab=requests')}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Crear Solicitud
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </div>

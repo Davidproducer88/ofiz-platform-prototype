@@ -53,18 +53,20 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              <span>{profile?.city || 'Montevideo'}</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-sm text-muted-foreground">
+            {profile?.city && (
+              <div className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                <span>{profile.city}</span>
+              </div>
+            )}
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
               <span>Hace {Math.floor((Date.now() - new Date(request.created_at).getTime()) / (1000 * 60 * 60))}h</span>
             </div>
             {request.budget_range && (
-              <div className="flex items-center gap-1">
-                <span className="font-medium text-foreground">{request.budget_range}</span>
+              <div className="flex items-center gap-1 font-medium text-primary">
+                <span>💰 {request.budget_range}</span>
               </div>
             )}
           </div>
@@ -86,8 +88,12 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
             className="w-full" 
             onClick={() => {
               handleAction('apply');
-              navigate('/master-dashboard?tab=applications');
-              toast.success('Ir a enviar presupuesto');
+              if (window.location.pathname === '/master-dashboard') {
+                navigate('/master-dashboard?tab=applications');
+              } else {
+                navigate('/auth?redirect=/master-dashboard?tab=applications');
+              }
+              toast.success('Redirigiendo...');
             }}
           >
             <Briefcase className="mr-2 h-4 w-4" />

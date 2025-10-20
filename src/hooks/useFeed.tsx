@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { seedFeedData } from '@/lib/seedFeedData';
 
 export interface FeedItem {
   id: string;
@@ -28,11 +27,11 @@ export const useFeed = () => {
       .limit(100);
 
     const categoryScores: Record<string, number> = {};
-    const recencyWeight = 0.7; // Dar más peso a interacciones recientes
+    const recencyWeight = 0.7;
 
     interactions?.forEach((interaction, index) => {
       const category = interaction.category || 'other';
-      const recencyFactor = Math.pow(recencyWeight, index / 10); // Decay exponencial
+      const recencyFactor = Math.pow(recencyWeight, index / 10);
       const score = (interaction.weight || 1) * recencyFactor;
       
       categoryScores[category] = (categoryScores[category] || 0) + score;
@@ -53,30 +52,22 @@ export const useFeed = () => {
     const categoryScore = preferences[item.category || 'other'] || 0;
     score += categoryScore * 0.4;
 
-    // Factor de engagement (30% del score)
-    if (itemType === 'post') {
-      const engagementScore = 
-        (item.views_count || 0) * 0.01 +
-        (item.likes_count || 0) * 0.5 +
-        (item.engagement_score || 0);
-      score += Math.min(engagementScore, 50) * 0.3;
-    }
+    // Factor de recencia (30% del score)
+    const hoursSinceCreation = 
+      (Date.now() - new Date(item.created_at).getTime()) / (1000 * 60 * 60);
+    const recencyScore = Math.max(0, 48 - hoursSinceCreation); // Priorizar últimas 48h
+    score += recencyScore * 0.3;
 
-    // Factor de calidad del master (20% del score)
-    if (item.master || item.masters) {
-      const master = item.master || item.masters;
+    // Factor de calidad del master (30% del score)
+    if (itemType === 'master' || itemType === 'service') {
+      const master = item.masters || item;
       const qualityScore = 
         (master.rating || 0) * 5 +
         (master.total_reviews || 0) * 0.1 +
-        (master.is_verified ? 10 : 0);
-      score += Math.min(qualityScore, 30) * 0.2;
+        (master.is_verified ? 10 : 0) +
+        (master.experience_years || 0) * 0.5;
+      score += Math.min(qualityScore, 30) * 0.3;
     }
-
-    // Factor de recencia (10% del score)
-    const hoursSinceCreation = 
-      (Date.now() - new Date(item.created_at).getTime()) / (1000 * 60 * 60);
-    const recencyScore = Math.max(0, 24 - hoursSinceCreation);
-    score += recencyScore * 0.1;
 
     return score;
   };
@@ -101,16 +92,17 @@ export const useFeed = () => {
           profiles(
             full_name,
             avatar_url,
-            city
+            city,
+            address
           )
         `)
         .eq('status', 'open')
         .order('created_at', { ascending: false })
-        .range(offset, offset + pageSize - 1);
+        .range(offset, offset + Math.floor(pageSize / 2) - 1);
       
       console.log('📋 Service requests loaded:', serviceRequests?.length || 0, requestsError);
 
-      // Cargar servicios destacados (cada 5 items)
+      // Cargar servicios destacados
       const { data: services, error: servicesError } = await supabase
         .from('services')
         .select(`
@@ -121,12 +113,14 @@ export const useFeed = () => {
             rating,
             total_reviews,
             is_verified,
-            profiles(avatar_url, full_name)
+            hourly_rate,
+            experience_years,
+            profiles(avatar_url, full_name, city)
           )
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(3);
+        .limit(2);
       
       console.log('🛠️ Services loaded:', services?.length || 0, servicesError);
 
@@ -138,14 +132,14 @@ export const useFeed = () => {
         .lte('start_date', new Date().toISOString())
         .gte('end_date', new Date().toISOString())
         .order('created_at', { ascending: false })
-        .limit(2);
+        .limit(1);
 
       // Cargar maestros disponibles y verificados
       const { data: availableMasters, error: mastersError } = await supabase
         .from('masters')
         .select(`
           *,
-          profiles(avatar_url, full_name, city)
+          profiles(avatar_url, full_name, city, phone)
         `)
         .eq('is_verified', true)
         .order('rating', { ascending: false })
@@ -157,7 +151,7 @@ export const useFeed = () => {
       const requestItems: FeedItem[] = (serviceRequests || []).map(request => ({
         id: request.id,
         type: 'service_request' as const,
-        score: calculateRelevanceScore(request, preferences, 'request'),
+        score: calculateRelevanceScore(request, preferences, 'request') + 10, // Prioridad alta
         created_at: request.created_at,
         data: request
       }));
@@ -192,16 +186,22 @@ export const useFeed = () => {
 
       // Insertar contenido patrocinado estratégicamente (cada 5 items)
       const finalFeed: FeedItem[] = [];
-      sortedItems.forEach((item, index) => {
+      let organicCount = 0;
+      
+      sortedItems.forEach((item) => {
         if (item.type !== 'sponsored') {
           finalFeed.push(item);
+          organicCount++;
           // Insertar patrocinado cada 5 items orgánicos
-          if ((index + 1) % 5 === 0 && sponsoredItems.length > 0) {
+          if (organicCount % 5 === 0 && sponsoredItems.length > 0) {
             const sponsoredItem = sponsoredItems.shift();
             if (sponsoredItem) finalFeed.push(sponsoredItem);
           }
         }
       });
+
+      // Agregar patrocinados restantes al final
+      finalFeed.push(...sponsoredItems);
 
       console.log('✅ Final feed items:', finalFeed.length);
       
@@ -211,7 +211,7 @@ export const useFeed = () => {
         setFeedItems(prev => [...prev, ...finalFeed]);
       }
 
-      setHasMore(finalFeed.length === pageSize);
+      setHasMore(finalFeed.length >= pageSize);
     } catch (error) {
       console.error('❌ Error loading feed:', error);
     } finally {
@@ -229,52 +229,56 @@ export const useFeed = () => {
 
     const weights: Record<string, number> = {
       view: 0.1,
-      like: 1.0,
-      save: 2.0,
-      share: 3.0,
-      click: 0.5,
-      booking: 5.0,
-      message: 2.5
+      apply: 5.0,
+      contact: 4.0,
+      book: 5.0,
+      view_profile: 1.0,
+      click: 0.5
     };
 
-    await supabase.from('user_interactions').insert([{
-      user_id: user.id,
-      target_id: targetId,
-      target_type: targetType,
-      interaction_type: interactionType,
-      category: category as any,
-      weight: weights[interactionType] || 1.0
-    }]);
+    try {
+      // Insertar interacción
+      await supabase.from('user_interactions').insert([{
+        user_id: user.id,
+        target_id: targetId,
+        target_type: targetType,
+        interaction_type: interactionType,
+        category: category as any,
+        weight: weights[interactionType] || 1.0
+      }]);
 
-    // Actualizar contadores manualmente
-    if (targetType === 'post') {
-      if (interactionType === 'view') {
-        const { data: post } = await supabase
-          .from('feed_posts')
-          .select('views_count')
-          .eq('id', targetId)
-          .single();
-        
-        if (post) {
-          await supabase
-            .from('feed_posts')
-            .update({ views_count: (post.views_count || 0) + 1 })
-            .eq('id', targetId);
-        }
-      } else if (interactionType === 'like') {
-        const { data: post } = await supabase
-          .from('feed_posts')
-          .select('likes_count')
-          .eq('id', targetId)
-          .single();
-        
-        if (post) {
-          await supabase
-            .from('feed_posts')
-            .update({ likes_count: (post.likes_count || 0) + 1 })
-            .eq('id', targetId);
+      // Actualizar contadores según el tipo de contenido
+      if (targetType === 'sponsored') {
+        if (interactionType === 'view') {
+          const { data: content } = await supabase
+            .from('sponsored_content')
+            .select('impressions_count')
+            .eq('id', targetId)
+            .single();
+          
+          if (content) {
+            await supabase
+              .from('sponsored_content')
+              .update({ impressions_count: (content.impressions_count || 0) + 1 })
+              .eq('id', targetId);
+          }
+        } else if (interactionType === 'click') {
+          const { data: content } = await supabase
+            .from('sponsored_content')
+            .select('clicks_count')
+            .eq('id', targetId)
+            .single();
+          
+          if (content) {
+            await supabase
+              .from('sponsored_content')
+              .update({ clicks_count: (content.clicks_count || 0) + 1 })
+              .eq('id', targetId);
+          }
         }
       }
+    } catch (error) {
+      console.error('❌ Error tracking interaction:', error);
     }
   };
 
@@ -288,28 +292,12 @@ export const useFeed = () => {
 
   const refresh = () => {
     setPage(0);
+    setFeedItems([]);
     loadFeed(0);
   };
 
   useEffect(() => {
-    const initFeed = async () => {
-      // Intentar cargar feed
-      await loadFeed(0);
-      
-      // Si no hay items, crear datos de prueba
-      const { data: existingPosts } = await supabase
-        .from('feed_posts')
-        .select('id')
-        .limit(1);
-      
-      if (!existingPosts || existingPosts.length === 0) {
-        console.log('📝 No feed data found, seeding...');
-        await seedFeedData();
-        await loadFeed(0);
-      }
-    };
-    
-    initFeed();
+    loadFeed(0);
   }, [user?.id]);
 
   return {
