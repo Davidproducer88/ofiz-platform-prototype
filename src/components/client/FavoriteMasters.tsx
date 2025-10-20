@@ -78,23 +78,13 @@ export const FavoriteMasters = () => {
                     <span className="font-medium">${favorite.masters.hourly_rate}/hora</span>
                   </div>
                 )}
-                <div className="flex gap-2">
-                  <Button
-                    className="flex-1"
-                    size="sm"
-                    onClick={() => navigate(`/search-masters?master=${favorite.master_id}`)}
-                  >
-                    Ver Perfil
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => navigate(`/search-masters?master=${favorite.master_id}`)}
-                  >
-                    Solicitar
-                  </Button>
-                </div>
+                <Button
+                  className="w-full"
+                  size="sm"
+                  onClick={() => navigate(`/search-masters?master=${favorite.master_id}`)}
+                >
+                  Ver Perfil y Solicitar
+                </Button>
               </CardContent>
             </Card>
           ))}

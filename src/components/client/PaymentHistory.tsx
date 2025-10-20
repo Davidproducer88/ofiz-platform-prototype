@@ -225,7 +225,41 @@ export const PaymentHistory = () => {
                     <p className="text-2xl font-bold text-primary">
                       ${Number(payment.amount).toLocaleString()}
                     </p>
-                    <Button variant="ghost" size="sm" className="mt-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={() => {
+                        // Generar factura básica
+                        const invoiceData = `
+FACTURA DE PAGO
+=====================================
+Fecha: ${format(new Date(payment.created_at), "d 'de' MMM, yyyy", { locale: es })}
+Servicio: ${payment.bookings?.services?.title || 'N/A'}
+Profesional: ${payment.bookings?.masters?.business_name || 'N/A'}
+Monto: $${Number(payment.amount).toLocaleString()}
+Estado: ${payment.status}
+Método de pago: ${payment.payment_method || 'N/A'}
+=====================================
+                        `.trim();
+
+                        // Crear blob y descargar
+                        const blob = new Blob([invoiceData], { type: 'text/plain' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `factura-${payment.id.slice(0, 8)}.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+
+                        toast({
+                          title: "Factura descargada",
+                          description: "Se descargó el comprobante de pago",
+                        });
+                      }}
+                    >
                       <Download className="h-4 w-4 mr-1" />
                       Descargar
                     </Button>
