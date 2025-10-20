@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, CheckCircle, Users, Star, Wrench, Shield, Sparkles, TrendingUp, Search } from "lucide-react";
+import { ArrowRight, CheckCircle, Users, Star, Wrench, Shield, Sparkles, TrendingUp, Search, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
@@ -20,6 +20,10 @@ export const Hero = () => {
   
   const handleProfessionalClick = () => {
     navigate('/auth?type=master');
+  };
+
+  const handleBusinessClick = () => {
+    navigate('/auth?type=business');
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -102,7 +106,7 @@ export const Hero = () => {
             </form>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button 
                 size="xl" 
                 variant="hero" 
@@ -120,6 +124,15 @@ export const Hero = () => {
               >
                 Soy Profesional
                 <Wrench className="ml-2 h-5 w-5 transition-transform group-hover:rotate-12" />
+              </Button>
+              <Button 
+                size="xl" 
+                variant="outline" 
+                className="group border-2 hover:bg-secondary/10"
+                onClick={handleBusinessClick}
+              >
+                Soy Empresa
+                <Building2 className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
               </Button>
             </div>
 

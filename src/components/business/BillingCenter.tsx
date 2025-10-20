@@ -281,9 +281,36 @@ export const BillingCenter = ({ businessId, subscription }: BillingCenterProps) 
                         variant="ghost"
                         size="sm"
                         onClick={() => {
+                          // Generate simple receipt
+                          const receiptText = `
+COMPROBANTE DE TRANSACCIÓN - OFIZ BUSINESS
+==========================================
+
+Fecha: ${new Date(transaction.date).toLocaleDateString()}
+Descripción: ${transaction.description}
+Tipo: ${transaction.type === 'subscription' ? 'Suscripción' : 'Publicidad'}
+Estado: ${transaction.status}
+Monto: $${transaction.amount.toLocaleString()}
+
+${transaction.type === 'advertisement' && transaction.impressions > 0 ? `Impresiones: ${transaction.impressions.toLocaleString()}\n` : ''}
+${transaction.recurring ? 'Pago recurrente\n' : ''}
+==========================================
+Generado el ${new Date().toLocaleString()}
+                          `.trim();
+
+                          const blob = new Blob([receiptText], { type: 'text/plain' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `comprobante-${transaction.id}.txt`;
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
+
                           toast({
-                            title: "Comprobante",
-                            description: "La función de descarga de comprobantes estará disponible próximamente",
+                            title: "Comprobante descargado",
+                            description: "El comprobante ha sido descargado exitosamente",
                           });
                         }}
                       >

@@ -26,6 +26,11 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
   });
 
   useEffect(() => {
+    // Load preferences from localStorage
+    const savedPrefs = localStorage.getItem('business_notification_prefs');
+    if (savedPrefs) {
+      setPreferences(JSON.parse(savedPrefs));
+    }
     fetchNotifications();
     
     // Subscribe to real-time notifications
@@ -224,9 +229,15 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
             </div>
             <Switch
               checked={preferences.newApplications}
-              onCheckedChange={(checked) =>
-                setPreferences(prev => ({ ...prev, newApplications: checked }))
-              }
+              onCheckedChange={(checked) => {
+                const newPrefs = { ...preferences, newApplications: checked };
+                setPreferences(newPrefs);
+                localStorage.setItem('business_notification_prefs', JSON.stringify(newPrefs));
+                toast({
+                  title: "Preferencia guardada",
+                  description: "Tus preferencias de notificación han sido actualizadas",
+                });
+              }}
             />
           </div>
 
@@ -239,9 +250,15 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
             </div>
             <Switch
               checked={preferences.contractUpdates}
-              onCheckedChange={(checked) =>
-                setPreferences(prev => ({ ...prev, contractUpdates: checked }))
-              }
+              onCheckedChange={(checked) => {
+                const newPrefs = { ...preferences, contractUpdates: checked };
+                setPreferences(newPrefs);
+                localStorage.setItem('business_notification_prefs', JSON.stringify(newPrefs));
+                toast({
+                  title: "Preferencia guardada",
+                  description: "Tus preferencias de notificación han sido actualizadas",
+                });
+              }}
             />
           </div>
 
@@ -254,9 +271,15 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
             </div>
             <Switch
               checked={preferences.adPerformance}
-              onCheckedChange={(checked) =>
-                setPreferences(prev => ({ ...prev, adPerformance: checked }))
-              }
+              onCheckedChange={(checked) => {
+                const newPrefs = { ...preferences, adPerformance: checked };
+                setPreferences(newPrefs);
+                localStorage.setItem('business_notification_prefs', JSON.stringify(newPrefs));
+                toast({
+                  title: "Preferencia guardada",
+                  description: "Tus preferencias de notificación han sido actualizadas",
+                });
+              }}
             />
           </div>
 
@@ -269,9 +292,15 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
             </div>
             <Switch
               checked={preferences.subscriptionAlerts}
-              onCheckedChange={(checked) =>
-                setPreferences(prev => ({ ...prev, subscriptionAlerts: checked }))
-              }
+              onCheckedChange={(checked) => {
+                const newPrefs = { ...preferences, subscriptionAlerts: checked };
+                setPreferences(newPrefs);
+                localStorage.setItem('business_notification_prefs', JSON.stringify(newPrefs));
+                toast({
+                  title: "Preferencia guardada",
+                  description: "Tus preferencias de notificación han sido actualizadas",
+                });
+              }}
             />
           </div>
 
@@ -284,9 +313,15 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
             </div>
             <Switch
               checked={preferences.emailNotifications}
-              onCheckedChange={(checked) =>
-                setPreferences(prev => ({ ...prev, emailNotifications: checked }))
-              }
+              onCheckedChange={(checked) => {
+                const newPrefs = { ...preferences, emailNotifications: checked };
+                setPreferences(newPrefs);
+                localStorage.setItem('business_notification_prefs', JSON.stringify(newPrefs));
+                toast({
+                  title: "Preferencia guardada",
+                  description: "Tus preferencias de notificación han sido actualizadas",
+                });
+              }}
             />
           </div>
         </CardContent>
