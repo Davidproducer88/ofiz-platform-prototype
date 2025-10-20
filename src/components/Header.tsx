@@ -28,13 +28,33 @@ export const Header = ({
     signOut
   } = useAuth();
   const navigate = useNavigate();
+
+  // Safe navigation functions
+  const navigateToClientDashboard = () => {
+    if (profile?.user_type === 'client') {
+      navigate('/client-dashboard');
+    } else {
+      navigate('/auth?type=client');
+    }
+  };
+
+  const navigateToMasterDashboard = () => {
+    if (profile?.user_type === 'master') {
+      navigate('/master-dashboard');
+    } else {
+      navigate('/auth?type=master');
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     setIsMenuOpen(false);
   };
+
   const handleAuthAction = (action: 'login' | 'signup') => {
     navigate('/auth');
   };
+
   const getUserTypeLabel = () => {
     switch (userType) {
       case 'master':
@@ -92,7 +112,7 @@ export const Header = ({
                       </button>
               <button 
                 onClick={() => {
-                  navigate('/client-dashboard');
+                  navigateToClientDashboard();
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -148,7 +168,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/master-dashboard');
+                  navigateToMasterDashboard();
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -166,7 +186,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/master-dashboard');
+                  navigateToMasterDashboard();
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -175,7 +195,7 @@ export const Header = ({
               </button>
               <button 
                 onClick={() => {
-                  navigate('/master-dashboard');
+                  navigateToMasterDashboard();
                   setIsMobileMenuOpen(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -300,7 +320,7 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/client-dashboard')}
+                onClick={navigateToClientDashboard}
               >
                 Publicar Encargo
               </DropdownMenuItem>
@@ -340,7 +360,7 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/master-dashboard')}
+                onClick={navigateToMasterDashboard}
               >
                 Planes Premium
               </DropdownMenuItem>
@@ -352,13 +372,13 @@ export const Header = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/master-dashboard')}
+                onClick={navigateToMasterDashboard}
               >
                 Verificación de Perfil
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/master-dashboard')}
+                onClick={navigateToMasterDashboard}
               >
                 Herramientas
               </DropdownMenuItem>

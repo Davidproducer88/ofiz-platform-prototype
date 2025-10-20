@@ -10,6 +10,8 @@ import {
   ArrowRight,
   CheckCircle2
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const steps = [
   {
@@ -45,6 +47,21 @@ const steps = [
 ];
 
 export const HowItWorks = () => {
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+
+  const handlePublishClick = () => {
+    if (profile) {
+      navigate('/client-dashboard');
+    } else {
+      navigate('/auth?type=client');
+    }
+  };
+
+  const handleViewProfessionalsClick = () => {
+    navigate('/search-masters');
+  };
+
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background decoration */}
@@ -143,11 +160,20 @@ export const HowItWorks = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button size="xl" className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group">
+              <Button 
+                size="xl" 
+                onClick={handlePublishClick}
+                className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group"
+              >
                 Publicar Encargo Gratis
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button size="xl" variant="outline" className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm font-semibold">
+              <Button 
+                size="xl" 
+                variant="outline" 
+                onClick={handleViewProfessionalsClick}
+                className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm font-semibold"
+              >
                 Ver Profesionales
               </Button>
             </div>

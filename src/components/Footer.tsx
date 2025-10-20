@@ -2,9 +2,38 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export const Footer = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa tu email",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    toast({
+      title: "¡Gracias por suscribirte!",
+      description: "Pronto recibirás noticias y ofertas especiales",
+    });
+    setEmail("");
+  };
+
+  const handleSocialClick = (platform: string) => {
+    toast({
+      title: "Próximamente",
+      description: `Síguenos en ${platform} - Enlaces disponibles pronto`,
+    });
+  };
   
   return <footer className="relative bg-gradient-to-b from-muted/30 to-muted/50 border-t border-border/50 overflow-hidden">
       {/* Background decoration */}
@@ -40,8 +69,8 @@ export const Footer = () => {
           {/* Para Clientes */}
           <div className="space-y-4">
             <h4 className="font-semibold">Para Clientes</h4>
-            <div className="space-y-2">
-              <button onClick={() => navigate('/client-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+          <div className="space-y-2">
+              <button onClick={() => navigate('/auth?type=client')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Publicar Encargo
               </button>
               <button onClick={() => navigate('/search-masters')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
@@ -66,16 +95,16 @@ export const Footer = () => {
               <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Registrarse como Maestro
               </button>
-              <button onClick={() => navigate('/master-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Planes Premium
               </button>
               <button onClick={() => navigate('/help-center')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Centro de Ayuda
               </button>
-              <button onClick={() => navigate('/master-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Verificación de Perfil
               </button>
-              <button onClick={() => navigate('/master-dashboard')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Herramientas
               </button>
             </div>
@@ -117,14 +146,16 @@ export const Footer = () => {
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
               <input 
                 type="email" 
-                placeholder="Tu email" 
+                placeholder="Tu email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="px-4 py-2.5 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all min-w-[250px]" 
               />
-              <Button className="shadow-soft">Suscribirse</Button>
-            </div>
+              <Button type="submit" className="shadow-soft">Suscribirse</Button>
+            </form>
           </div>
         </div>
 
@@ -143,28 +174,32 @@ export const Footer = () => {
             <div className="flex items-center gap-2">
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="icon"
+                onClick={() => handleSocialClick("Facebook")}
                 className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
               >
                 <Facebook className="h-5 w-5" />
               </Button>
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="icon"
+                onClick={() => handleSocialClick("Instagram")}
                 className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
               >
                 <Instagram className="h-5 w-5" />
               </Button>
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="icon"
+                onClick={() => handleSocialClick("Twitter")}
                 className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
               >
                 <Twitter className="h-5 w-5" />
               </Button>
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="icon"
+                onClick={() => handleSocialClick("LinkedIn")}
                 className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
               >
                 <Linkedin className="h-5 w-5" />
