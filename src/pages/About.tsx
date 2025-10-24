@@ -128,10 +128,12 @@ export default function About() {
             <Card className="border-border/50">
               <CardContent className="p-8 space-y-6">
                 <p className="text-muted-foreground leading-relaxed">
-                  Ofiz nació en 2023 de la visión de un grupo de emprendedores que identificaron 
+                  Ofiz nació en 2024 de la visión de un grupo de emprendedores que identificaron 
                   un problema común: la dificultad para encontrar profesionales confiables y la 
-                  falta de herramientas para que los trabajadores independientes puedan crecer 
-                  sus negocios.
+                  falta de herramientas para que los trabajadores independientes puedan desarrollar 
+                  sus negocios. Durante su etapa de desarrollo hasta 2025, la plataforma alcanzó 
+                  la madurez necesaria para convertirse en una solución profesional y confiable para 
+                  conectar a clientes con especialistas verificados.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Comenzamos con un pequeño equipo en Montevideo, Uruguay, con el objetivo de 
