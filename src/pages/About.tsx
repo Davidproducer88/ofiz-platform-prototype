@@ -142,9 +142,11 @@ export default function About() {
                   clientes, y múltiples iteraciones, lanzamos Ofiz.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Hoy, miles de personas confían en nosotros para sus proyectos diarios. Hemos 
-                  facilitado decenas de miles de trabajos exitosos y ayudamos a profesionales 
-                  independientes a construir sus carreras. Pero esto es solo el comienzo.
+                  Nuestra misión y visión es ganarnos la confianza de miles de personas para sus 
+                  proyectos, estableciendo un estándar de excelencia en la conexión entre clientes 
+                  y profesionales. Aspiramos a ser el puente confiable que facilite trabajos exitosos 
+                  y contribuya al crecimiento profesional de los especialistas independientes, 
+                  construyendo relaciones duraderas basadas en la calidad y transparencia.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Seguimos trabajando cada día para mejorar nuestra plataforma, añadir nuevas 
