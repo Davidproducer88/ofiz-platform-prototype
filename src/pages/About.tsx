@@ -40,7 +40,7 @@ export default function About() {
 
   const team = [
     {
-      name: "Juan Pérez",
+      name: "David Moreno Rivera",
       role: "CEO & Fundador",
       bio: "Emprendedor con 10+ años de experiencia en tecnología y servicios"
     },
