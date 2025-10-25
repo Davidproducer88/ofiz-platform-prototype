@@ -45,7 +45,7 @@ export default function About() {
       bio: "Emprendedor con 10+ años de experiencia en tecnología y servicios"
     },
     {
-      name: "María González",
+      name: "Pedro Estrada",
       role: "CTO",
       bio: "Experta en desarrollo de plataformas y arquitectura de sistemas"
     },
