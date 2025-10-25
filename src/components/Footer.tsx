@@ -137,7 +137,7 @@ export const Footer = () => {
 
           {/* Empresa */}
           <div className="space-y-4">
-            <h4 className="font-semibold">Empresa</h4>
+            <h4 className="font-semibold">Sobre nosotros</h4>
             <div className="space-y-2">
               <button onClick={() => navigate('/about')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Sobre Ofiz
