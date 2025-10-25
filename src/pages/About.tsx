@@ -46,7 +46,7 @@ export default function About() {
     },
     {
       name: "Pedro Estrada",
-      role: "CTO",
+      role: "CTO & Cofundador",
       bio: "Experta en desarrollo de plataformas y arquitectura de sistemas"
     },
     {
