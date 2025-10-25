@@ -47,7 +47,7 @@ export default function About() {
     {
       name: "Pedro Estrada",
       role: "CTO & Cofundador",
-      bio: "Experta en desarrollo de plataformas y arquitectura de sistemas"
+      bio: "Experto en desarrollo de plataformas y arquitectura de sistemas"
     },
     {
       name: "Matías Alderete",
