@@ -139,7 +139,7 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: "$99",
+      price: "$990",
       period: "/mes",
       features: [
         "50 propuestas por mes",
