@@ -57,7 +57,7 @@ export default function About() {
     {
       name: "Martín Techera",
       role: "Head of Design",
-      bio: "Diseñadora UX/UI apasionada por crear experiencias intuitivas"
+      bio: "Diseñador UX/UI apasionado por crear experiencias intuitivas"
     }
   ];
 
