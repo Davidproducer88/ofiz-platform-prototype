@@ -216,10 +216,10 @@ export const Header = ({
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* Empresa */}
+                {/* Sobre nosotros */}
                 <AccordionItem value="empresa">
                   <AccordionTrigger className="text-lg font-medium">
-                    Empresa
+                    Sobre nosotros
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="flex flex-col space-y-3 pl-4">
@@ -395,10 +395,10 @@ export const Header = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Empresa Dropdown */}
+          {/* Sobre nosotros Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
-              Empresa
+              Sobre nosotros
               <ChevronDown className="ml-1 h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-card border border-border z-50">
