@@ -51,7 +51,7 @@ export default function About() {
     },
     {
       name: "Matías Alderete",
-      role: "COO",
+      role: "CDO & Cofundador",
       bio: "Especialista en operaciones y crecimiento de negocios digitales"
     },
     {
