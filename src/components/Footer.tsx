@@ -5,12 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
 export const Footer = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [email, setEmail] = useState("");
-
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -21,15 +21,13 @@ export const Footer = () => {
       });
       return;
     }
-
     try {
-      const { error } = await supabase
-        .from('newsletter_subscriptions')
-        .insert({ 
-          email,
-          user_id: (await supabase.auth.getUser()).data.user?.id 
-        });
-
+      const {
+        error
+      } = await supabase.from('newsletter_subscriptions').insert({
+        email,
+        user_id: (await supabase.auth.getUser()).data.user?.id
+      });
       if (error) {
         if (error.code === '23505') {
           toast({
@@ -42,10 +40,9 @@ export const Footer = () => {
         }
         return;
       }
-      
       toast({
         title: "¡Gracias por suscribirte!",
-        description: "Pronto recibirás noticias y ofertas especiales",
+        description: "Pronto recibirás noticias y ofertas especiales"
       });
       setEmail("");
     } catch (error) {
@@ -57,14 +54,12 @@ export const Footer = () => {
       });
     }
   };
-
   const handleSocialClick = (platform: string) => {
     toast({
       title: "Próximamente",
-      description: `Síguenos en ${platform} - Enlaces disponibles pronto`,
+      description: `Síguenos en ${platform} - Enlaces disponibles pronto`
     });
   };
-  
   return <footer className="relative bg-gradient-to-b from-muted/30 to-muted/50 border-t border-border/50 overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -91,7 +86,7 @@ export const Footer = () => {
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>hola@ofiz.com</span>
+                <span>hola@ofiz.com.uy</span>
               </div>
             </div>
           </div>
@@ -177,13 +172,7 @@ export const Footer = () => {
             </div>
             
             <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-              <input 
-                type="email" 
-                placeholder="Tu email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-2.5 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all min-w-[250px]" 
-              />
+              <input type="email" placeholder="Tu email" value={email} onChange={e => setEmail(e.target.value)} className="px-4 py-2.5 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all min-w-[250px]" />
               <Button type="submit" className="shadow-soft">Suscribirse</Button>
             </form>
           </div>
@@ -202,36 +191,16 @@ export const Footer = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleSocialClick("Facebook")}
-                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
-              >
+              <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Facebook")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Facebook className="h-5 w-5" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleSocialClick("Instagram")}
-                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
-              >
+              <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Instagram")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Instagram className="h-5 w-5" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleSocialClick("Twitter")}
-                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
-              >
+              <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Twitter")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Twitter className="h-5 w-5" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => handleSocialClick("LinkedIn")}
-                className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full"
-              >
+              <Button variant="ghost" size="icon" onClick={() => handleSocialClick("LinkedIn")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Linkedin className="h-5 w-5" />
               </Button>
             </div>
