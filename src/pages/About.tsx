@@ -41,7 +41,7 @@ export default function About() {
   const team = [
     {
       name: "David Moreno Rivera",
-      role: "CEO & cofundador",
+      role: "CEO & Cofundador",
       bio: "Emprendedor con 10+ años de experiencia en tecnología y servicios"
     },
     {
