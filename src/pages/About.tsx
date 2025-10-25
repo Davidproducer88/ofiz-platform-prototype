@@ -50,7 +50,7 @@ export default function About() {
       bio: "Experta en desarrollo de plataformas y arquitectura de sistemas"
     },
     {
-      name: "Carlos Rodríguez",
+      name: "Matías Alderete",
       role: "COO",
       bio: "Especialista en operaciones y crecimiento de negocios digitales"
     },
