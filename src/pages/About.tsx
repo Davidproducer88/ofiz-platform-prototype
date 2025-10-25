@@ -55,7 +55,7 @@ export default function About() {
       bio: "Especialista en operaciones y crecimiento de negocios digitales"
     },
     {
-      name: "Ana Martínez",
+      name: "Martín Techera",
       role: "Head of Design",
       bio: "Diseñadora UX/UI apasionada por crear experiencias intuitivas"
     }
