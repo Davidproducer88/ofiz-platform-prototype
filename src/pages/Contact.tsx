@@ -87,7 +87,7 @@ export default function Contact() {
     {
       icon: <Mail className="h-6 w-6" />,
       title: "Email",
-      info: "hola@ofiz.com",
+      info: "hola@ofiz.com.uy",
       description: "Respuesta en 24 horas"
     },
     {
