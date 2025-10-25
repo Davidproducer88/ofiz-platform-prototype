@@ -116,7 +116,7 @@ export default function Privacy() {
                       <li><strong>Portabilidad</strong> de tus datos a otra plataforma</li>
                       <li><strong>Retirar el consentimiento</strong> para comunicaciones de marketing</li>
                     </ul>
-                    <p className="mt-2">Para ejercer estos derechos, contactanos en privacidad@ofiz.com</p>
+                    <p className="mt-2">Para ejercer estos derechos, contactanos en legal@ofiz.com.uy</p>
                   </div>
                 </section>
 
@@ -169,7 +169,7 @@ export default function Privacy() {
                   <div className="text-muted-foreground leading-relaxed space-y-2">
                     <p>Si tenés preguntas o inquietudes sobre esta Política de Privacidad, contactanos en:</p>
                     <ul className="list-none space-y-1">
-                      <li>Email: privacidad@ofiz.com</li>
+                      <li>Email: legal@ofiz.com.uy</li>
                       <li>Teléfono: +598 98 817 806</li>
                       <li>Dirección: Montevideo, Uruguay</li>
                     </ul>
