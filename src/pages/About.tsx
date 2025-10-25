@@ -56,7 +56,7 @@ export default function About() {
     },
     {
       name: "Martín Techera",
-      role: "Head of Design",
+      role: "CDO & Cofundador",
       bio: "Diseñador UX/UI apasionado por crear experiencias intuitivas"
     }
   ];
