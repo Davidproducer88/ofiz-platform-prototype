@@ -113,9 +113,9 @@ serve(async (req) => {
         email: user.email,
       },
       back_urls: {
-        success: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?marketplace_payment=success&order_id=${orderId}`,
-        failure: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?marketplace_payment=failure&order_id=${orderId}`,
-        pending: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?marketplace_payment=pending&order_id=${orderId}`,
+        success: `https://ofiz.com.uy/client-dashboard?marketplace_payment=success&order_id=${orderId}`,
+        failure: `https://ofiz.com.uy/client-dashboard?marketplace_payment=failure&order_id=${orderId}`,
+        pending: `https://ofiz.com.uy/client-dashboard?marketplace_payment=pending&order_id=${orderId}`,
       },
       auto_return: 'approved',
       notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
