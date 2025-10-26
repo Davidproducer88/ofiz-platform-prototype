@@ -113,7 +113,7 @@ serve(async (req) => {
         transaction_amount: price,
         currency_id: 'UYU',
       },
-      back_url: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/master-dashboard?subscription=success`,
+      back_url: `https://ofiz.com.uy/master-dashboard?subscription=success`,
       reason: `Suscripción ${planName} - ${displayName}`,
       external_reference: user.id,
       payer_email: user.email,

@@ -79,9 +79,9 @@ serve(async (req) => {
         email: booking.profiles.email,
       },
       back_urls: {
-        success: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?payment=success`,
-        failure: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?payment=failure`,
-        pending: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?payment=pending`,
+        success: `https://ofiz.com.uy/client-dashboard?payment=success`,
+        failure: `https://ofiz.com.uy/client-dashboard?payment=failure`,
+        pending: `https://ofiz.com.uy/client-dashboard?payment=pending`,
       },
       auto_return: 'approved',
       notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
