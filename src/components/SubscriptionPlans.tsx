@@ -44,7 +44,7 @@ export const SubscriptionPlans = () => {
     }
   };
 
-  const createSubscription = async (plan: 'free' | 'premium') => {
+  const createSubscription = async (plan: 'free' | 'basic_plus' | 'premium') => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
@@ -54,11 +54,19 @@ export const SubscriptionPlans = () => {
           price: 0,
           applicationsLimit: 5,
           isFeatured: false,
+          name: 'Gratuito',
+        },
+        basic_plus: {
+          price: 29900,
+          applicationsLimit: 20,
+          isFeatured: false,
+          name: 'Basic Plus',
         },
         premium: {
-          price: 9900,
+          price: 59900,
           applicationsLimit: 50,
           isFeatured: true,
+          name: 'Premium',
         },
       };
 
@@ -73,7 +81,7 @@ export const SubscriptionPlans = () => {
       const { data, error } = await supabase.functions.invoke('create-master-subscription', {
         body: {
           planId: plan,
-          planName: plan === 'free' ? 'Gratuito' : 'Premium',
+          planName: config.name,
           price: config.price,
           applicationsLimit: config.applicationsLimit,
           isFeatured: config.isFeatured,
@@ -137,9 +145,24 @@ export const SubscriptionPlans = () => {
       icon: Check,
     },
     {
+      name: "Basic Plus",
+      value: "basic_plus" as const,
+      price: "$2,990",
+      period: "/mes",
+      features: [
+        "20 propuestas por mes",
+        "Perfil mejorado",
+        "Visibilidad aumentada",
+        "Notificaciones en tiempo real",
+        "Soporte estándar",
+      ],
+      icon: Zap,
+      popular: false,
+    },
+    {
       name: "Premium",
       value: "premium" as const,
-      price: "$990",
+      price: "$5,990",
       period: "/mes",
       features: [
         "50 propuestas por mes",
@@ -147,6 +170,8 @@ export const SubscriptionPlans = () => {
         "Aparece primero en búsquedas",
         "Notificaciones prioritarias",
         "Soporte prioritario",
+        "Badge verificado",
+        "Analíticas avanzadas",
       ],
       icon: Star,
       popular: true,
@@ -194,7 +219,7 @@ export const SubscriptionPlans = () => {
         </Card>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-3 gap-6">
         {plans.map((plan) => {
           const Icon = plan.icon;
           const isCurrentPlan = currentPlan?.plan === plan.value;

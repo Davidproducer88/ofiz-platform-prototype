@@ -16,7 +16,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 2500,
+    price: 45000,
     icon: Building,
     description: 'Ideal para pequeñas empresas',
     features: [
@@ -25,7 +25,8 @@ const plans = [
       '10,000 impresiones publicitarias/mes',
       'Gestión de contratos básica',
       'Soporte por email',
-      'Panel de analíticas básico'
+      'Panel de analíticas básico',
+      'Búsqueda avanzada de profesionales'
     ],
     contacts: 50,
     canPostAds: true,
@@ -34,7 +35,7 @@ const plans = [
   {
     id: 'professional',
     name: 'Professional',
-    price: 5000,
+    price: 85000,
     icon: Zap,
     popular: true,
     description: 'Para empresas en crecimiento',
@@ -46,7 +47,8 @@ const plans = [
       'Facturación automatizada',
       'Soporte prioritario',
       'Analíticas avanzadas con reportes',
-      'API para integraciones'
+      'API para integraciones',
+      'Filtros de búsqueda premium'
     ],
     contacts: 150,
     canPostAds: true,
@@ -55,7 +57,7 @@ const plans = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 12000,
+    price: 150000,
     icon: Crown,
     description: 'Para grandes organizaciones',
     features: [
@@ -68,7 +70,8 @@ const plans = [
       'Analíticas empresariales completas',
       'API completa y webhooks',
       'Posicionamiento prioritario',
-      'Personalización de marca'
+      'Personalización de marca',
+      'Reportes personalizados'
     ],
     contacts: 999999,
     canPostAds: true,
