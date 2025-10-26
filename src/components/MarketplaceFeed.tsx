@@ -49,9 +49,23 @@ export function MarketplaceFeed() {
   const [showProductDialog, setShowProductDialog] = useState(false);
 
   const handlePurchase = async (quantity: number, address: any, deliveryMethod: string, shippingType?: string) => {
-    if (!selectedProduct || !profile?.id) return;
+    if (!selectedProduct || !profile?.id) {
+      toast({
+        title: 'Error',
+        description: 'Debes iniciar sesión para realizar una compra',
+        variant: 'destructive'
+      });
+      return;
+    }
 
     try {
+      console.log('Starting purchase process:', {
+        productId: selectedProduct.id,
+        quantity,
+        userId: profile.id,
+        deliveryMethod
+      });
+
       // Calculate shipping cost
       const shippingInfo = selectedProduct.shipping_info as any || {};
       const subtotal = selectedProduct.price * quantity;
@@ -68,16 +82,28 @@ export function MarketplaceFeed() {
         }
       }
 
+      // Ensure address has required fields
+      const shippingAddress = {
+        street: address.street || address.address || '',
+        city: address.city || 'Montevideo',
+        state: address.state || 'Montevideo',
+        country: address.country || 'Uruguay',
+        postal_code: address.postal_code || '',
+        notes: address.notes || ''
+      };
+
       const orderData = {
         product_id: selectedProduct.id,
         seller_id: selectedProduct.business_id,
         quantity,
         unit_price: selectedProduct.price,
-        shipping_address: address,
+        shipping_address: shippingAddress,
         shipping_cost: shippingCost,
         delivery_method: deliveryMethod,
-        notes: address.notes || ''
+        notes: shippingAddress.notes
       };
+
+      console.log('Creating order with data:', orderData);
 
       const newOrder = await createOrder(orderData);
       
@@ -85,35 +111,47 @@ export function MarketplaceFeed() {
         throw new Error('No se pudo crear la orden');
       }
 
-      // Calculate total with shipping
-      const totalAmount = (selectedProduct.price * quantity) + shippingCost;
+      console.log('Order created successfully:', newOrder.id);
+
+      // Use the total_amount calculated by the database trigger
+      const totalAmount = newOrder.total_amount;
+
+      toast({
+        title: 'Procesando pago...',
+        description: 'Redirigiendo a MercadoPago',
+      });
 
       // Create MercadoPago payment preference
+      console.log('Creating payment preference for order:', newOrder.id);
+      
       const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
         body: {
           orderId: newOrder.id,
           amount: totalAmount,
           title: `${selectedProduct.title} (x${quantity})`,
-          description: `Compra en Ofiz Marketplace - ${selectedProduct.business_profiles?.company_name}`
+          description: `Compra en Ofiz Marketplace - Orden #${newOrder.order_number}`
         }
       });
 
       if (error) {
-        console.error('Error creating payment:', error);
-        throw error;
+        console.error('Error creating payment preference:', error);
+        throw new Error(error.message || 'Error al crear preferencia de pago');
       }
+
+      console.log('Payment preference created:', data);
 
       if (data?.initPoint) {
         // Redirect to MercadoPago checkout
+        console.log('Redirecting to MercadoPago:', data.initPoint);
         window.location.href = data.initPoint;
       } else {
-        throw new Error('No se recibió el link de pago');
+        throw new Error('No se recibió el link de pago de MercadoPago');
       }
     } catch (error: any) {
-      console.error('Error creating order:', error);
+      console.error('Error in purchase process:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'No se pudo procesar la compra',
+        title: 'Error al procesar compra',
+        description: error.message || 'No se pudo procesar la compra. Por favor intenta de nuevo.',
         variant: 'destructive'
       });
     }

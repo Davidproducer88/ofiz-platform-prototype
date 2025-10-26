@@ -30,11 +30,13 @@ serve(async (req) => {
     );
 
     const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
+    if (!user || !user.email) {
       throw new Error('No autenticado');
     }
 
     const { orderId, amount, title, description }: MarketplacePaymentRequest = await req.json();
+    
+    console.log('Request received:', { orderId, amount, title, userId: user.id });
 
     // Validar datos de entrada
     if (!orderId || !amount || !title) {
@@ -61,26 +63,17 @@ serve(async (req) => {
 
     // Verify buyer
     if (order.buyer_id !== user.id) {
+      console.error('Unauthorized access attempt:', { orderId, userId: user.id, buyerId: order.buyer_id });
       throw new Error('No autorizado para esta orden');
-    }
-
-    // Get buyer email
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('email')
-      .eq('id', order.buyer_id)
-      .single();
-
-    if (profileError || !profile) {
-      console.error('Profile fetch error:', profileError);
-      throw new Error('Perfil del comprador no encontrado');
     }
 
     console.log('Order details:', {
       orderId: order.id,
       buyer: order.buyer_id,
       seller: order.seller_id,
-      amount: order.total_amount
+      totalAmount: order.total_amount,
+      status: order.status,
+      paymentStatus: order.payment_status
     });
 
     // Create payment preference with Mercado Pago
@@ -101,7 +94,7 @@ serve(async (req) => {
         }
       ],
       payer: {
-        email: profile.email || user.email,
+        email: user.email,
       },
       back_urls: {
         success: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?marketplace_payment=success&order_id=${orderId}`,

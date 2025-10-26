@@ -410,24 +410,50 @@ export function useMarketplace(userId?: string) {
     unit_price: number;
     shipping_address: any;
     shipping_cost?: number;
+    delivery_method?: string;
+    notes?: string;
   }) => {
-    if (!userId) return null;
+    if (!userId) {
+      console.error('Cannot create order: no userId');
+      return null;
+    }
 
     try {
+      console.log('Creating order for user:', userId);
+      
       // Get product and seller info
       const { data: product, error: productError } = await supabase
         .from('marketplace_products')
-        .select('business_id, price')
+        .select('business_id, price, title, stock_quantity')
         .eq('id', orderData.product_id)
         .single();
 
-      if (productError) throw productError;
+      if (productError) {
+        console.error('Error fetching product:', productError);
+        throw new Error('Producto no encontrado');
+      }
+
+      if (!product) {
+        throw new Error('Producto no encontrado');
+      }
+
+      // Check stock
+      if (product.stock_quantity < orderData.quantity) {
+        throw new Error('Stock insuficiente');
+      }
+
+      console.log('Product found:', product);
 
       // Generate order number
       const { data: orderNumber, error: orderNumError } = await supabase
         .rpc('generate_order_number');
 
-      if (orderNumError) throw orderNumError;
+      if (orderNumError) {
+        console.error('Error generating order number:', orderNumError);
+        throw new Error('Error al generar número de orden');
+      }
+
+      console.log('Order number generated:', orderNumber);
 
       // Create order (amounts will be calculated by trigger)
       const { data: order, error: orderError } = await supabase
@@ -441,6 +467,9 @@ export function useMarketplace(userId?: string) {
           unit_price: orderData.unit_price,
           shipping_cost: orderData.shipping_cost || 0,
           shipping_address: orderData.shipping_address,
+          notes: orderData.notes,
+          status: 'pending',
+          payment_status: 'pending',
           subtotal: 0, // Will be calculated by trigger
           platform_fee: 0, // Will be calculated by trigger
           seller_amount: 0, // Will be calculated by trigger
@@ -449,19 +478,31 @@ export function useMarketplace(userId?: string) {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Error creating order:', orderError);
+        throw new Error(orderError.message || 'Error al crear la orden');
+      }
+
+      if (!order) {
+        throw new Error('No se recibió la orden creada');
+      }
+
+      console.log('Order created successfully:', order);
 
       toast({
-        title: '🎉 Orden creada',
-        description: `Orden #${orderNumber} creada. Total: $${order.total_amount.toLocaleString()}`,
+        title: '✅ Orden creada',
+        description: `Orden #${orderNumber} - Total: $${order.total_amount.toLocaleString()}`,
       });
 
-      fetchOrders();
+      // Refresh orders
+      await fetchOrders();
+      
       return order;
     } catch (error: any) {
+      console.error('Error in createOrder:', error);
       toast({
-        title: 'Error',
-        description: error.message,
+        title: 'Error al crear orden',
+        description: error.message || 'No se pudo crear la orden',
         variant: 'destructive',
       });
       return null;
