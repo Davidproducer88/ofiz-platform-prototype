@@ -119,7 +119,7 @@ export function MarketplaceFeed() {
     }
   };
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = (products || []).filter(product => {
     const matchesSearch = 
       product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -128,13 +128,13 @@ export function MarketplaceFeed() {
     return matchesSearch && matchesCategory;
   });
 
-  const featuredProducts = products.filter(p => p.featured).slice(0, 3);
+  const featuredProducts = (products || []).filter(p => p.featured).slice(0, 3);
 
   const stats = {
-    totalProducts: products.length,
-    totalOrders: orders.length,
-    activeListings: products.filter(p => p.status === 'active').length,
-    totalSales: orders.filter(o => o.status === 'delivered').length,
+    totalProducts: products?.length || 0,
+    totalOrders: orders?.length || 0,
+    activeListings: products?.filter(p => p.status === 'active').length || 0,
+    totalSales: orders?.filter(o => o.status === 'delivered').length || 0,
   };
 
   if (loading) {
@@ -200,7 +200,7 @@ export function MarketplaceFeed() {
                 <Users className="h-5 w-5 text-accent" />
                 <span className="text-sm text-muted-foreground">Favoritos</span>
               </div>
-              <p className="text-2xl font-bold">{favorites.length}</p>
+              <p className="text-2xl font-bold">{favorites?.length || 0}</p>
               <p className="text-xs text-muted-foreground">productos guardados</p>
             </div>
 
@@ -209,8 +209,8 @@ export function MarketplaceFeed() {
                 <DollarSign className="h-5 w-5 text-green-600" />
                 <span className="text-sm text-muted-foreground">Ganancias</span>
               </div>
-              <p className="text-2xl font-bold">${balance.total_earnings.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">${balance.available.toLocaleString()} disponible</p>
+              <p className="text-2xl font-bold">${(balance?.total_earnings || 0).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">${(balance?.available || 0).toLocaleString()} disponible</p>
             </div>
           </div>
 
@@ -340,8 +340,8 @@ export function MarketplaceFeed() {
         <TabsContent value="seller">
           <SellerDashboard
             balance={balance}
-            products={products.filter(p => p.business_id === profile?.id)}
-            orders={orders.filter(o => o.seller_id === profile?.id)}
+            products={products.filter(p => p.business_id === profile?.id) || []}
+            orders={orders.filter(o => o.seller_id === profile?.id) || []}
           />
         </TabsContent>
       </Tabs>

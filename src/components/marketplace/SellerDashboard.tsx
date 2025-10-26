@@ -28,13 +28,13 @@ import { useMarketplace } from '@/hooks/useMarketplace';
 import { useAuth } from '@/hooks/useAuth';
 
 interface SellerDashboardProps {
-  balance: {
+  balance?: {
     available: number;
     pending: number;
     total_earnings: number;
   };
-  products: MarketplaceProduct[];
-  orders: MarketplaceOrder[];
+  products?: MarketplaceProduct[];
+  orders?: MarketplaceOrder[];
 }
 
 export function SellerDashboard({ balance, products, orders }: SellerDashboardProps) {
@@ -45,13 +45,13 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
   const [stockEditId, setStockEditId] = useState<string | null>(null);
   const [newStock, setNewStock] = useState<number>(0);
 
-  const totalSales = orders.filter(o => o.status === 'delivered').length;
+  const totalSales = orders?.filter(o => o.status === 'delivered').length || 0;
   const totalRevenue = orders
-    .filter(o => o.status === 'delivered')
-    .reduce((sum, o) => sum + o.seller_amount, 0);
-  const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
+    ?.filter(o => o.status === 'delivered')
+    .reduce((sum, o) => sum + (o.seller_amount || 0), 0) || 0;
+  const pendingOrders = orders?.filter(o => o.status === 'pending' || o.status === 'confirmed').length || 0;
   const averageOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
-  const lowStockProducts = products.filter(p => p.stock_quantity > 0 && p.stock_quantity <= 5);
+  const lowStockProducts = products?.filter(p => (p.stock_quantity || 0) > 0 && (p.stock_quantity || 0) <= 5) || [];
 
   const handleSaveProduct = async (productData: any) => {
     if (editingProduct) {
@@ -90,10 +90,10 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              ${balance.available.toLocaleString()}
+              ${(balance?.available || 0).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              ${balance.pending.toLocaleString()} pendiente
+              ${(balance?.pending || 0).toLocaleString()} pendiente
             </p>
             <Button size="sm" className="w-full mt-3" variant="outline">
               Retirar Fondos
@@ -108,7 +108,7 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${balance.total_earnings.toLocaleString()}
+              ${(balance?.total_earnings || 0).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               desde el inicio
@@ -122,9 +122,9 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
             <Package className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{products.length}</div>
+            <div className="text-2xl font-bold">{products?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {products.filter(p => p.stock_quantity > 0).length} con stock
+              {products?.filter(p => (p.stock_quantity || 0) > 0).length || 0} con stock
             </p>
           </CardContent>
         </Card>
@@ -241,7 +241,7 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
           </div>
         </CardHeader>
         <CardContent>
-          {products.length === 0 ? (
+          {!products || products.length === 0 ? (
             <div className="text-center py-12">
               <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-lg font-medium text-muted-foreground mb-2">
@@ -266,7 +266,7 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((product) => (
+                  {products?.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
