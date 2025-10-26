@@ -200,13 +200,13 @@ serve(async (req) => {
           .single();
 
         if (payment) {
-          await supabaseClient
+        await supabaseClient
             .from('commissions')
             .insert({
               payment_id: payment.id,
               master_id: payment.master_id,
               amount: payment.commission_amount,
-              percentage: 5.00,
+              percentage: 12.00,
               status: 'pending',
             });
         }

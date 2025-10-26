@@ -58,8 +58,8 @@ serve(async (req) => {
       throw new Error('Reserva no encontrada');
     }
 
-    // Calculate commission (5%)
-    const commissionAmount = Math.round(amount * 0.05 * 100) / 100;
+    // Calculate commission (12%)
+    const commissionAmount = Math.round(amount * 0.12 * 100) / 100;
     const masterAmount = amount - commissionAmount;
 
     // Create payment preference with Mercado Pago
@@ -72,16 +72,16 @@ serve(async (req) => {
           description: description,
           quantity: 1,
           unit_price: amount,
-          currency_id: 'ARS',
+          currency_id: 'UYU',
         }
       ],
       payer: {
         email: booking.profiles.email,
       },
       back_urls: {
-        success: `https://dexrrbbpeidcxoynkyrt.supabase.co/client-dashboard?payment=success`,
-        failure: `https://dexrrbbpeidcxoynkyrt.supabase.co/client-dashboard?payment=failure`,
-        pending: `https://dexrrbbpeidcxoynkyrt.supabase.co/client-dashboard?payment=pending`,
+        success: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?payment=success`,
+        failure: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?payment=failure`,
+        pending: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?payment=pending`,
       },
       auto_return: 'approved',
       notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
