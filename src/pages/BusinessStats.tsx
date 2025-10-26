@@ -37,7 +37,7 @@ import {
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
 export default function BusinessStats() {
-  const { stats: platformStats, loading: platformLoading } = usePlatformStats();
+  const { stats: platformStats, loading: platformLoading, error: platformError } = usePlatformStats();
   const [realTimeData, setRealTimeData] = useState({
     activeBookings: 0,
     todayRevenue: 0,
@@ -50,11 +50,12 @@ export default function BusinessStats() {
   const [categoryStats, setCategoryStats] = useState<any[]>([]);
   const [revenueByMonth, setRevenueByMonth] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetchRealTimeStats();
     
-    // Set up real-time subscription
+    // Set up real-time subscription with visual feedback
     const channel = supabase
       .channel('business-stats-changes')
       .on(
@@ -64,7 +65,11 @@ export default function BusinessStats() {
           schema: 'public',
           table: 'bookings'
         },
-        () => fetchRealTimeStats()
+        () => {
+          setIsUpdating(true);
+          fetchRealTimeStats();
+          setTimeout(() => setIsUpdating(false), 2000);
+        }
       )
       .on(
         'postgres_changes',
@@ -73,7 +78,11 @@ export default function BusinessStats() {
           schema: 'public',
           table: 'business_contracts'
         },
-        () => fetchRealTimeStats()
+        () => {
+          setIsUpdating(true);
+          fetchRealTimeStats();
+          setTimeout(() => setIsUpdating(false), 2000);
+        }
       )
       .on(
         'postgres_changes',
@@ -82,12 +91,20 @@ export default function BusinessStats() {
           schema: 'public',
           table: 'payments'
         },
-        () => fetchRealTimeStats()
+        () => {
+          setIsUpdating(true);
+          fetchRealTimeStats();
+          setTimeout(() => setIsUpdating(false), 2000);
+        }
       )
       .subscribe();
 
     // Refresh every 30 seconds
-    const interval = setInterval(fetchRealTimeStats, 30000);
+    const interval = setInterval(() => {
+      setIsUpdating(true);
+      fetchRealTimeStats();
+      setTimeout(() => setIsUpdating(false), 2000);
+    }, 30000);
 
     return () => {
       supabase.removeChannel(channel);
@@ -97,103 +114,137 @@ export default function BusinessStats() {
 
   const fetchRealTimeStats = async () => {
     try {
-      setLoading(true);
+      // Don't show loading on subsequent fetches (real-time updates)
+      if (realTimeData.activeBookings === 0 && !loading) {
+        setLoading(true);
+      }
 
-      // Active bookings
-      const { count: activeBookingsCount } = await supabase
-        .from('bookings')
-        .select('*', { count: 'exact', head: true })
-        .in('status', ['pending', 'confirmed', 'in_progress']);
+      // Parallel queries for better performance
+      const [
+        activeBookingsResult,
+        activeContractsResult,
+        pendingAppsResult,
+        adsResult,
+        todayPaymentsResult,
+        recentTransactionsResult,
+        servicesWithBookingsResult,
+        last6MonthsPaymentsResult
+      ] = await Promise.all([
+        // Active bookings count
+        supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .in('status', ['pending', 'confirmed', 'in_progress']),
+        
+        // Active contracts count
+        supabase
+          .from('business_contracts')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'open'),
+        
+        // Pending applications count
+        supabase
+          .from('business_contract_applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending'),
+        
+        // Active ads with impressions
+        supabase
+          .from('advertisements')
+          .select('impressions_count')
+          .eq('is_active', true)
+          .lte('start_date', new Date().toISOString())
+          .gte('end_date', new Date().toISOString()),
+        
+        // Today's payments
+        supabase
+          .from('payments')
+          .select('amount')
+          .eq('status', 'released')
+          .gte('created_at', new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
+        
+        // Recent transactions
+        supabase
+          .from('payments')
+          .select('id, amount, status, created_at')
+          .order('created_at', { ascending: false })
+          .limit(5),
+        
+        // Services with category from bookings (optimized join)
+        supabase
+          .from('services')
+          .select('category, bookings!inner(id)'),
+        
+        // Last 6 months payments
+        supabase
+          .from('payments')
+          .select('amount, created_at')
+          .eq('status', 'released')
+          .gte('created_at', new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString())
+      ]);
 
-      // Active contracts
-      const { count: activeContractsCount } = await supabase
-        .from('business_contracts')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'open');
-
-      // Pending applications
-      const { count: pendingAppsCount } = await supabase
-        .from('business_contract_applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
-
-      // Active ads
-      const { data: adsData } = await supabase
-        .from('advertisements')
-        .select('impressions_count')
-        .eq('is_active', true)
-        .lte('start_date', new Date().toISOString())
-        .gte('end_date', new Date().toISOString());
-
-      const totalImpressions = adsData?.reduce((sum, ad) => sum + (ad.impressions_count || 0), 0) || 0;
-
-      // Today's revenue
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Process results with error handling
+      const activeBookingsCount = activeBookingsResult.count || 0;
+      const activeContractsCount = activeContractsResult.count || 0;
+      const pendingAppsCount = pendingAppsResult.count || 0;
       
-      const { data: paymentsData } = await supabase
-        .from('payments')
-        .select('amount')
-        .eq('status', 'released')
-        .gte('created_at', today.toISOString());
+      const adsData = adsResult.data || [];
+      const totalImpressions = adsData.reduce((sum, ad) => sum + (ad.impressions_count || 0), 0);
+      
+      const todayPayments = todayPaymentsResult.data || [];
+      const todayRevenue = todayPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      
+      const recentTransactions = recentTransactionsResult.data || [];
 
-      const todayRevenue = paymentsData?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-
-      // Recent transactions
-      const { data: recentTransactions } = await supabase
-        .from('payments')
-        .select('id, amount, status, created_at')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      // Category statistics
-      const { data: categoryData } = await supabase
-        .from('bookings')
-        .select('service_id, services(category)')
-        .not('services', 'is', null);
-
+      // Process category statistics (optimized)
       const categoryCounts: { [key: string]: number } = {};
-      categoryData?.forEach((booking: any) => {
-        const category = booking.services?.category;
-        if (category) {
-          categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      const servicesData = servicesWithBookingsResult.data || [];
+      
+      servicesData.forEach((service: any) => {
+        const category = service.category;
+        if (category && service.bookings?.length > 0) {
+          categoryCounts[category] = (categoryCounts[category] || 0) + service.bookings.length;
         }
       });
 
-      const categoryStatsArray = Object.entries(categoryCounts).map(([name, value]) => ({
-        name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
-        value
-      }));
+      const categoryStatsArray = Object.entries(categoryCounts)
+        .map(([name, value]) => ({
+          name: name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, ' '),
+          value
+        }))
+        .sort((a, b) => b.value - a.value);
 
-      // Revenue by month (last 6 months)
-      const monthsAgo = new Date();
-      monthsAgo.setMonth(monthsAgo.getMonth() - 6);
-
-      const { data: revenueData } = await supabase
-        .from('payments')
-        .select('amount, created_at')
-        .eq('status', 'released')
-        .gte('created_at', monthsAgo.toISOString());
-
+      // Process revenue by month
       const monthlyRevenue: { [key: string]: number } = {};
-      revenueData?.forEach((payment) => {
-        const month = new Date(payment.created_at).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-        monthlyRevenue[month] = (monthlyRevenue[month] || 0) + Number(payment.amount);
+      const revenueData = last6MonthsPaymentsResult.data || [];
+      
+      revenueData.forEach((payment) => {
+        const date = new Date(payment.created_at);
+        const month = date.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+        monthlyRevenue[month] = (monthlyRevenue[month] || 0) + Number(payment.amount || 0);
       });
 
-      const revenueByMonthArray = Object.entries(monthlyRevenue).map(([month, revenue]) => ({
-        month,
-        revenue: Math.round(revenue)
-      }));
+      // Sort months chronologically
+      const revenueByMonthArray = Object.entries(monthlyRevenue)
+        .map(([month, revenue]) => ({
+          month,
+          revenue: Math.round(revenue)
+        }))
+        .sort((a, b) => {
+          const dateA = new Date(a.month);
+          const dateB = new Date(b.month);
+          return dateA.getTime() - dateB.getTime();
+        });
 
+      // Update state
       setRealTimeData({
-        activeBookings: activeBookingsCount || 0,
-        todayRevenue,
-        activeContracts: activeContractsCount || 0,
-        pendingApplications: pendingAppsCount || 0,
-        activeAds: adsData?.length || 0,
+        activeBookings: activeBookingsCount,
+        todayRevenue: Math.round(todayRevenue),
+        activeContracts: activeContractsCount,
+        pendingApplications: pendingAppsCount,
+        activeAds: adsData.length,
         totalImpressions,
-        recentTransactions: recentTransactions || []
+        recentTransactions
       });
 
       setCategoryStats(categoryStatsArray);
@@ -201,6 +252,18 @@ export default function BusinessStats() {
 
     } catch (error) {
       console.error('Error fetching real-time stats:', error);
+      // Show user-friendly error message
+      if (realTimeData.activeBookings === 0) {
+        setRealTimeData({
+          activeBookings: 0,
+          todayRevenue: 0,
+          activeContracts: 0,
+          pendingApplications: 0,
+          activeAds: 0,
+          totalImpressions: 0,
+          recentTransactions: []
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -208,11 +271,33 @@ export default function BusinessStats() {
 
   if (loading || platformLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Cargando estadísticas en tiempo real...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-lg font-medium">Cargando estadísticas en tiempo real...</p>
+          <p className="text-sm text-muted-foreground">Conectando con la base de datos</p>
         </div>
+      </div>
+    );
+  }
+
+  if (platformError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Error al cargar estadísticas</CardTitle>
+            <CardDescription>{platformError}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition"
+            >
+              Reintentar
+            </button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -233,8 +318,8 @@ export default function BusinessStats() {
               </div>
             </div>
             <Badge variant="secondary" className="flex items-center gap-2 animate-pulse">
-              <Zap className="h-3 w-3" />
-              Actualización en vivo
+              <Zap className={`h-3 w-3 ${isUpdating ? 'text-green-500' : ''}`} />
+              {isUpdating ? 'Actualizando...' : 'Actualización en vivo'}
             </Badge>
           </div>
         </div>
@@ -314,8 +399,11 @@ export default function BusinessStats() {
                           </p>
                         </div>
                       </div>
-                      <Badge variant={transaction.status === 'completed' ? 'default' : 'secondary'}>
-                        {transaction.status}
+                  <Badge variant={transaction.status === 'released' ? 'default' : 'secondary'}>
+                        {transaction.status === 'released' ? 'Completado' : 
+                         transaction.status === 'in_escrow' ? 'En custodia' : 
+                         transaction.status === 'pending' ? 'Pendiente' :
+                         transaction.status === 'approved' ? 'Aprobado' : transaction.status}
                       </Badge>
                     </div>
                   ))}
