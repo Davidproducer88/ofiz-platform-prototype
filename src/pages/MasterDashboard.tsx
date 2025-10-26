@@ -46,6 +46,7 @@ import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
+import { MarketplaceFeed } from '@/components/MarketplaceFeed';
 
 interface Service {
   id: string;
@@ -653,8 +654,9 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-16 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-17 gap-1 h-auto p-1">
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
+            <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
             <TabsTrigger value="services" className="text-xs sm:text-sm">Servicios</TabsTrigger>
             <TabsTrigger value="job-requests" className="text-xs sm:text-sm">Trabajos</TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs sm:text-sm">Reservas</TabsTrigger>
@@ -675,6 +677,11 @@ const MasterDashboard = () => {
           {/* Feed Tab */}
           <TabsContent value="feed">
             <Feed />
+          </TabsContent>
+
+          {/* Marketplace Tab */}
+          <TabsContent value="marketplace">
+            <MarketplaceFeed />
           </TabsContent>
 
           {/* Services Tab */}

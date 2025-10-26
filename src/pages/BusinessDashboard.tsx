@@ -28,6 +28,7 @@ import { BillingCenter } from "@/components/business/BillingCenter";
 import { BusinessNotifications } from "@/components/business/BusinessNotifications";
 import { MasterSearch } from "@/components/business/MasterSearch";
 import { Feed } from "@/components/Feed";
+import { MarketplaceFeed } from "@/components/MarketplaceFeed";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
@@ -290,6 +291,7 @@ export default function BusinessDashboard() {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto p-1">
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
+            <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Resumen</TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analíticas</TabsTrigger>
             <TabsTrigger value="ads" className="text-xs sm:text-sm">Publicidad</TabsTrigger>
@@ -303,6 +305,10 @@ export default function BusinessDashboard() {
 
           <TabsContent value="feed">
             <Feed />
+          </TabsContent>
+
+          <TabsContent value="marketplace">
+            <MarketplaceFeed />
           </TabsContent>
 
           <TabsContent value="overview">

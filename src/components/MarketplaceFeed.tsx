@@ -26,6 +26,8 @@ import { ProductCard } from './marketplace/ProductCard';
 import { ProductDialog } from './marketplace/ProductDialog';
 import { OrdersTable } from './marketplace/OrdersTable';
 import { SellerDashboard } from './marketplace/SellerDashboard';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export function MarketplaceFeed() {
   const { profile } = useAuth();
@@ -45,6 +47,77 @@ export function MarketplaceFeed() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showProductDialog, setShowProductDialog] = useState(false);
+
+  const handlePurchase = async (quantity: number, address: any, deliveryMethod: string, shippingType?: string) => {
+    if (!selectedProduct || !profile?.id) return;
+
+    try {
+      // Calculate shipping cost
+      const shippingInfo = selectedProduct.shipping_info as any || {};
+      const subtotal = selectedProduct.price * quantity;
+      let shippingCost = 0;
+      
+      if (deliveryMethod === 'shipping') {
+        const standardShipping = shippingInfo.standard || { cost: 200 };
+        const expressShipping = shippingInfo.express || { cost: 400 };
+        
+        if (shippingInfo.free_over && subtotal >= shippingInfo.free_over) {
+          shippingCost = 0;
+        } else {
+          shippingCost = shippingType === 'standard' ? standardShipping.cost : expressShipping.cost;
+        }
+      }
+
+      const orderData = {
+        product_id: selectedProduct.id,
+        seller_id: selectedProduct.business_id,
+        quantity,
+        unit_price: selectedProduct.price,
+        shipping_address: address,
+        shipping_cost: shippingCost,
+        delivery_method: deliveryMethod,
+        notes: address.notes || ''
+      };
+
+      const newOrder = await createOrder(orderData);
+      
+      if (!newOrder) {
+        throw new Error('No se pudo crear la orden');
+      }
+
+      // Calculate total with shipping
+      const totalAmount = (selectedProduct.price * quantity) + shippingCost;
+
+      // Create MercadoPago payment preference
+      const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
+        body: {
+          orderId: newOrder.id,
+          amount: totalAmount,
+          title: `${selectedProduct.title} (x${quantity})`,
+          description: `Compra en Ofiz Marketplace - ${selectedProduct.business_profiles?.company_name}`
+        }
+      });
+
+      if (error) {
+        console.error('Error creating payment:', error);
+        throw error;
+      }
+
+      if (data?.initPoint) {
+        // Redirect to MercadoPago checkout
+        window.location.href = data.initPoint;
+      } else {
+        throw new Error('No se recibió el link de pago');
+      }
+    } catch (error: any) {
+      console.error('Error creating order:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo procesar la compra',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = 
@@ -279,20 +352,7 @@ export function MarketplaceFeed() {
           product={selectedProduct}
           open={showProductDialog}
           onOpenChange={setShowProductDialog}
-          onPurchase={(quantity, address, deliveryMethod, shippingType) => {
-            const shippingCost = deliveryMethod === 'shipping' 
-              ? (shippingType === 'express' ? 400 : 200)
-              : 0;
-            
-            createOrder({
-              product_id: selectedProduct.id,
-              quantity,
-              unit_price: selectedProduct.price,
-              shipping_address: address,
-              shipping_cost: shippingCost,
-            });
-            setShowProductDialog(false);
-          }}
+          onPurchase={handlePurchase}
           onUpdateOrderStatus={updateOrderStatus}
         />
       )}

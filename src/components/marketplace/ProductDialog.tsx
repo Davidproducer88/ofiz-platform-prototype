@@ -54,7 +54,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase }: Produ
   
   const total = subtotal + shippingCost;
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     const shippingAddress = deliveryMethod === 'pickup' 
       ? {
           pickup: true,
@@ -70,7 +70,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase }: Produ
           notes,
         };
     
-    onPurchase(quantity, shippingAddress, deliveryMethod, shippingType);
+    await onPurchase(quantity, shippingAddress, deliveryMethod, shippingType);
   };
 
   return (
