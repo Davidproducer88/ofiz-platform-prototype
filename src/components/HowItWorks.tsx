@@ -74,10 +74,10 @@ export const HowItWorks = () => {
             Proceso Simplificado
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold">
-            ¿Cómo <span className="gradient-text">funciona</span> Ofiz?
+            Conseguí tu <span className="gradient-text">maestro ideal</span> en 5 pasos simples
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Proceso simple, seguro y transparente para conectarte con los mejores profesionales
+            <span className="text-primary font-semibold">Miles de clientes satisfechos</span> ya confiaron en Ofiz. Sistema 100% seguro, rápido y transparente.
           </p>
         </div>
 
@@ -152,20 +152,20 @@ export const HowItWorks = () => {
             </div>
             
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-lg px-4">
-              ¿Listo para encontrar tu profesional ideal?
+              🚀 Comenzá tu proyecto HOY mismo
             </h3>
             
             <p className="text-lg sm:text-xl md:text-2xl opacity-90 max-w-2xl mx-auto px-4">
-              Únete a <span className="font-bold">miles de clientes</span> que ya confían en Ofiz para sus proyectos
+              Más de <span className="font-bold">10,000 clientes satisfechos</span> encontraron a su maestro ideal en Ofiz. <span className="font-bold">¡Es tu turno!</span>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button 
                 size="xl" 
                 onClick={handlePublishClick}
-                className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group"
+                className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group text-base px-8"
               >
-                Publicar Encargo Gratis
+                📝 Publicar Encargo GRATIS
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button 

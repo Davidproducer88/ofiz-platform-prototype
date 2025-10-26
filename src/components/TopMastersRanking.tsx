@@ -61,25 +61,35 @@ export function TopMastersRanking() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Award className="h-5 w-5" />
-          Top Profesionales
-        </CardTitle>
-        <CardDescription>Ranking actualizado en tiempo real basado en calificaciones y desempeño</CardDescription>
+    <Card className="shadow-elegant border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+      <CardHeader className="space-y-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-2xl">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <Award className="h-6 w-6 text-white" />
+            </div>
+            🏆 Top 10 Maestros Destacados
+          </CardTitle>
+          <Badge className="bg-gradient-hero text-white border-0 shadow-soft">
+            Actualizado en vivo
+          </Badge>
+        </div>
+        <CardDescription className="text-base">
+          Los profesionales mejor valorados por la comunidad Ofiz • Ranking basado en calidad, puntualidad y satisfacción del cliente
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {rankings.map((ranking) => (
+        <div className="space-y-3">
+          {rankings.map((ranking, index) => (
             <div
               key={ranking.id}
-              className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all hover:shadow-md cursor-pointer group"
+              className="flex items-center justify-between p-5 rounded-xl border-2 border-border/50 bg-gradient-to-br from-card to-card/30 hover:border-primary/30 hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 cursor-pointer group animate-fade-in"
               onClick={() => handleViewProfile(ranking.master_id)}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="flex items-center gap-4 flex-1">
-                <div className={`text-2xl font-bold ${getMedalColor(ranking.rank_position || 0)}`}>
-                  #{ranking.rank_position}
+                <div className={`flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-background to-muted shadow-soft ${getMedalColor(ranking.rank_position || 0)}`}>
+                  <span className="text-xl font-bold">#{ranking.rank_position}</span>
                 </div>
                 
                 <div className="flex-1">

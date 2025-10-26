@@ -8,7 +8,8 @@ import {
   Heart, 
   Share2, 
   TrendingUp,
-  ArrowRight
+  ArrowRight,
+  Target
 } from 'lucide-react';
 
 export const FeedBanner = () => {
@@ -51,55 +52,54 @@ export const FeedBanner = () => {
         <div className="max-w-6xl mx-auto">
           {/* Main Content */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6 animate-fade-in">
-              <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-              <span className="text-sm font-semibold text-primary">Nuevo: Ofiz Open Feed</span>
+            <div className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-hero text-white rounded-full mb-6 animate-fade-in shadow-elegant">
+              <Sparkles className="h-5 w-5 animate-pulse" />
+              <span className="text-sm font-semibold">✨ Nuevo: Ofiz Open Feed</span>
             </div>
             
             <h2 className="text-3xl md:text-5xl font-bold gradient-text mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              Descubre una Nueva Forma de Conectar
+              📱 Tu Central de Oportunidades en Tiempo Real
             </h2>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              Únete a nuestra comunidad social donde maestros y clientes comparten experiencias, 
-              descubren servicios y construyen confianza en tiempo real.
+              Descubrí <span className="text-primary font-semibold">solicitudes de trabajo activas</span>, maestros disponibles y contenido profesional personalizado. <span className="text-accent font-semibold">¡Todo en un solo lugar!</span>
             </p>
           </div>
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <Card className="border-2 hover:border-primary/50 transition-smooth hover:shadow-elegant animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <Card className="border-2 hover:border-primary/50 transition-smooth hover:shadow-elegant animate-fade-in bg-gradient-to-br from-card to-card/50 backdrop-blur-sm group" style={{ animationDelay: '0.3s' }}>
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-6 w-6 text-primary" />
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-hover rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-soft group-hover:scale-110 transition-transform">
+                  <Users className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Comunidad Activa</h3>
+                <h3 className="font-semibold text-lg mb-2">🤝 +10,000 Miembros Activos</h3>
                 <p className="text-sm text-muted-foreground">
-                  Conéctate con profesionales verificados y clientes reales de toda tu ciudad
+                  Conectate con profesionales certificados y clientes reales verificados en tu zona
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-primary/50 transition-smooth hover:shadow-elegant animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <Card className="border-2 hover:border-primary/50 transition-smooth hover:shadow-elegant animate-fade-in bg-gradient-to-br from-card to-card/50 backdrop-blur-sm group" style={{ animationDelay: '0.4s' }}>
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart className="h-6 w-6 text-secondary" />
+                <div className="w-14 h-14 bg-gradient-to-br from-secondary to-secondary-hover rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-soft group-hover:scale-110 transition-transform">
+                  <Heart className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Contenido Personalizado</h3>
+                <h3 className="font-semibold text-lg mb-2">🎯 100% Personalizado</h3>
                 <p className="text-sm text-muted-foreground">
-                  Descubre servicios, proyectos y maestros según tus intereses y necesidades
+                  Contenido y oportunidades adaptadas según tus intereses y ubicación
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-primary/50 transition-smooth hover:shadow-elegant animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <Card className="border-2 hover:border-primary/50 transition-smooth hover:shadow-elegant animate-fade-in bg-gradient-to-br from-card to-card/50 backdrop-blur-sm group" style={{ animationDelay: '0.5s' }}>
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-6 w-6 text-accent" />
+                <div className="w-14 h-14 bg-gradient-to-br from-accent to-accent-hover rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-soft group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-7 w-7 text-accent-foreground" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Tendencias en Vivo</h3>
+                <h3 className="font-semibold text-lg mb-2">📈 Actualizaciones en Vivo</h3>
                 <p className="text-sm text-muted-foreground">
-                  Mantente al día con los servicios más populares y las mejores ofertas
+                  Las mejores ofertas, maestros destacados y trabajos disponibles ahora mismo
                 </p>
               </CardContent>
             </Card>
@@ -109,29 +109,29 @@ export const FeedBanner = () => {
           <div className="text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
               <Button 
-                size="lg" 
+                size="xl" 
                 onClick={handleExploreClick}
-                className="gap-2 shadow-elegant hover:shadow-glow transition-smooth group"
+                className="gap-2 shadow-elegant hover:shadow-soft transition-smooth group text-base px-8"
               >
                 <Share2 className="h-5 w-5 group-hover:rotate-12 transition-transform" />
-                Explorar Open Feed
+                🔥 Explorar Open Feed Ahora
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
               {!profile && (
                 <Button 
                   variant="outline" 
-                  size="lg"
+                  size="xl"
                   onClick={() => navigate('/auth')}
-                  className="gap-2"
+                  className="gap-2 text-base px-8 border-2"
                 >
-                  Crear Cuenta Gratis
+                  ⚡ Registrarme GRATIS
                 </Button>
               )}
             </div>
             
             <p className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              ✨ Únete a más de 1,000 profesionales y clientes activos
+              ✨ Más de <span className="text-primary font-semibold">10,000 profesionales y clientes</span> ya están conectados
             </p>
           </div>
         </div>

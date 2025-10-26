@@ -31,10 +31,10 @@ export const ServiceCategories = () => {
             Categorías Populares
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold">
-            Encuentra el <span className="gradient-text">profesional</span> perfecto
+            Todos los oficios que <span className="gradient-text">necesitás</span> en un solo lugar
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Más de <span className="text-primary font-semibold">5,000 profesionales verificados</span> listos para ayudarte en múltiples categorías
+            <span className="text-primary font-semibold">+5,000 profesionales certificados</span> esperando tu solicitud. Respuesta garantizada en <span className="text-accent font-semibold">menos de 24hs</span>.
           </p>
         </div>
 
@@ -105,10 +105,10 @@ export const ServiceCategories = () => {
                 <Sparkles className="h-12 w-12 mb-4 animate-float" />
               </div>
               <h3 className="text-3xl md:text-4xl font-bold drop-shadow-lg">
-                ¿No encontrás tu categoría?
+                ¿Necesitás otro tipo de servicio?
               </h3>
               <p className="text-lg md:text-xl opacity-90 max-w-xl mx-auto">
-                Publicá tu encargo y los profesionales ideales se contactarán contigo
+                Publicá tu solicitud GRATIS y recibí hasta <span className="font-bold">5 presupuestos</span> de profesionales especializados
               </p>
               <div className="flex flex-wrap gap-3 justify-center pt-2">
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">

@@ -51,23 +51,22 @@ export const Hero = () => {
               </Badge>
               
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
-                Descubrí el{" "}
-                <span className="gradient-text animate-float">oficio</span>
+                Tu <span className="gradient-text animate-float">maestro ideal</span>
                 <br />
-                que necesitás
+                a un click de distancia
               </h1>
               
               <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl">
-                Conectamos clientes con <span className="text-primary font-semibold">profesionales verificados</span> de oficios manuales y técnicos. Confianza, calidad y pagos seguros.
+                La plataforma más confiable de Uruguay. Conectamos clientes con <span className="text-primary font-semibold">+5,000 profesionales certificados</span>. Garantía total en cada trabajo.
               </p>
             </div>
 
             {/* Enhanced Features */}
             <div className="grid gap-4">
               {[
-                { icon: Shield, text: "Profesionales verificados con antecedentes", color: "text-primary" },
-                { icon: CheckCircle, text: "Pagos seguros con garantía de satisfacción", color: "text-secondary" },
-                { icon: Star, text: "Sistema de valoraciones 100% confiable", color: "text-accent" }
+                { icon: Shield, text: "✓ Verificación completa de identidad y antecedentes", color: "text-primary" },
+                { icon: CheckCircle, text: "✓ Pagos 100% seguros - Tu dinero protegido", color: "text-secondary" },
+                { icon: Star, text: "✓ +50,000 trabajos completados exitosamente", color: "text-accent" }
               ].map((feature, i) => (
                 <div 
                   key={i}
@@ -110,28 +109,28 @@ export const Hero = () => {
               <Button 
                 size="xl" 
                 variant="hero" 
-                className="group shadow-elegant hover:shadow-soft transform hover:scale-105"
+                className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-base"
                 onClick={handleServiceClick}
               >
-                Necesito un Servicio
+                🔍 Encontrar Profesional Ahora
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button 
                 size="xl" 
                 variant="outline" 
-                className="group border-2 hover:bg-accent/10"
+                className="group border-2 hover:bg-accent/10 text-base"
                 onClick={handleProfessionalClick}
               >
-                Soy Profesional
+                💼 Registrarme como Maestro
                 <Wrench className="ml-2 h-5 w-5 transition-transform group-hover:rotate-12" />
               </Button>
               <Button 
                 size="xl" 
                 variant="outline" 
-                className="group border-2 hover:bg-secondary/10"
+                className="group border-2 hover:bg-secondary/10 text-base"
                 onClick={handleBusinessClick}
               >
-                Soy Empresa
+                🏢 Soluciones Empresariales
                 <Building2 className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
               </Button>
             </div>
