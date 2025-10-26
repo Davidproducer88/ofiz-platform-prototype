@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   DollarSign,
   TrendingUp,
@@ -10,7 +11,9 @@ import {
   Eye,
   Edit,
   Trash2,
+  AlertTriangle,
 } from 'lucide-react';
+import { useState } from 'react';
 import type { MarketplaceProduct, MarketplaceOrder } from '@/hooks/useMarketplace';
 import {
   Table,
@@ -20,6 +23,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ProductFormDialog } from './ProductFormDialog';
+import { useMarketplace } from '@/hooks/useMarketplace';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SellerDashboardProps {
   balance: {
@@ -32,12 +38,46 @@ interface SellerDashboardProps {
 }
 
 export function SellerDashboard({ balance, products, orders }: SellerDashboardProps) {
+  const { profile } = useAuth();
+  const { categories, updateProduct, updateStock, deleteProduct, createProduct } = useMarketplace(profile?.id);
+  const [editingProduct, setEditingProduct] = useState<MarketplaceProduct | undefined>();
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [stockEditId, setStockEditId] = useState<string | null>(null);
+  const [newStock, setNewStock] = useState<number>(0);
+
   const totalSales = orders.filter(o => o.status === 'delivered').length;
   const totalRevenue = orders
     .filter(o => o.status === 'delivered')
     .reduce((sum, o) => sum + o.seller_amount, 0);
   const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
   const averageOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
+  const lowStockProducts = products.filter(p => p.stock_quantity > 0 && p.stock_quantity <= 5);
+
+  const handleSaveProduct = async (productData: any) => {
+    if (editingProduct) {
+      await updateProduct(editingProduct.id, productData);
+    } else {
+      await createProduct(productData);
+    }
+    setShowProductForm(false);
+    setEditingProduct(undefined);
+  };
+
+  const handleEditStock = (product: MarketplaceProduct) => {
+    setStockEditId(product.id);
+    setNewStock(product.stock_quantity);
+  };
+
+  const handleSaveStock = async (productId: string) => {
+    await updateStock(productId, newStock);
+    setStockEditId(null);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (confirm('¿Estás seguro de eliminar este producto?')) {
+      await deleteProduct(productId);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -104,15 +144,15 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
       </div>
 
       {/* Revenue Info */}
-      <Card className="bg-gradient-to-br from-green-500/10 to-background border-2 border-green-500/20">
-        <CardHeader>
-          <CardTitle>Información de Monetización</CardTitle>
-          <CardDescription>
-            Sistema de comisiones de Ofiz Market
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <Card className="bg-gradient-to-br from-green-500/10 to-background border-2 border-green-500/20">
+          <CardHeader>
+            <CardTitle>Información de Monetización</CardTitle>
+            <CardDescription>
+              Sistema de comisiones de Ofiz Market
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
               <h4 className="font-semibold">Comisión de Plataforma</h4>
               <p className="text-sm text-muted-foreground">
@@ -147,9 +187,41 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
                 Promedio de orden: ${Math.round(averageOrderValue).toLocaleString()}
               </p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Low Stock Alert */}
+        {lowStockProducts.length > 0 && (
+          <Card className="bg-gradient-to-br from-amber-500/10 to-background border-2 border-amber-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Alertas de Inventario
+              </CardTitle>
+              <CardDescription>
+                Productos con stock bajo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {lowStockProducts.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between p-2 bg-amber-500/5 rounded border border-amber-500/20">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{product.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        SKU: {product.sku || 'N/A'}
+                      </p>
+                    </div>
+                    <Badge variant="destructive" className="ml-2">
+                      {product.stock_quantity} unid.
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Products Table */}
       <Card>
@@ -159,7 +231,10 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
               <CardTitle>Mis Productos</CardTitle>
               <CardDescription>Gestiona tu inventario</CardDescription>
             </div>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => {
+              setEditingProduct(undefined);
+              setShowProductForm(true);
+            }}>
               <Plus className="h-4 w-4" />
               Nuevo Producto
             </Button>
@@ -220,11 +295,51 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
                         ${product.price.toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={product.stock_quantity > 0 ? 'default' : 'destructive'}
-                        >
-                          {product.stock_quantity}
-                        </Badge>
+                        {stockEditId === product.id ? (
+                          <div className="flex gap-1 items-center">
+                            <Input
+                              type="number"
+                              value={newStock}
+                              onChange={(e) => setNewStock(Number(e.target.value))}
+                              className="w-20 h-8"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSaveStock(product.id)}
+                            >
+                              ✓
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setStockEditId(null)}
+                            >
+                              ✗
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={
+                                product.stock_quantity === 0
+                                  ? 'destructive'
+                                  : product.stock_quantity <= 5
+                                  ? 'secondary'
+                                  : 'default'
+                              }
+                            >
+                              {product.stock_quantity}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditStock(product)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>{product.sales_count}</TableCell>
                       <TableCell>
@@ -248,10 +363,21 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingProduct(product);
+                              setShowProductForm(true);
+                            }}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteProduct(product.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -264,6 +390,15 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
           )}
         </CardContent>
       </Card>
+
+      {/* Product Form Dialog */}
+      <ProductFormDialog
+        product={editingProduct}
+        categories={categories}
+        open={showProductForm}
+        onOpenChange={setShowProductForm}
+        onSave={handleSaveProduct}
+      />
     </div>
   );
 }

@@ -37,7 +37,8 @@ export function MarketplaceFeed() {
     balance,
     loading,
     toggleFavorite,
-    createOrder
+    createOrder,
+    updateOrderStatus
   } = useMarketplace(profile?.id);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -260,7 +261,7 @@ export function MarketplaceFeed() {
         </TabsContent>
 
         <TabsContent value="orders">
-          <OrdersTable orders={orders} />
+          <OrdersTable orders={orders} onUpdateStatus={updateOrderStatus} />
         </TabsContent>
 
         <TabsContent value="seller">
@@ -278,16 +279,21 @@ export function MarketplaceFeed() {
           product={selectedProduct}
           open={showProductDialog}
           onOpenChange={setShowProductDialog}
-          onPurchase={(quantity, address) => {
+          onPurchase={(quantity, address, deliveryMethod, shippingType) => {
+            const shippingCost = deliveryMethod === 'shipping' 
+              ? (shippingType === 'express' ? 400 : 200)
+              : 0;
+            
             createOrder({
               product_id: selectedProduct.id,
               quantity,
               unit_price: selectedProduct.price,
               shipping_address: address,
-              shipping_cost: 0,
+              shipping_cost: shippingCost,
             });
             setShowProductDialog(false);
           }}
+          onUpdateOrderStatus={updateOrderStatus}
         />
       )}
     </div>

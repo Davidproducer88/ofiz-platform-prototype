@@ -312,6 +312,98 @@ export function useMarketplace(userId?: string) {
     }
   };
 
+  const updateProduct = async (productId: string, productData: Partial<MarketplaceProduct>) => {
+    if (!userId) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('marketplace_products')
+        .update(productData)
+        .eq('id', productId)
+        .eq('business_id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Producto actualizado',
+        description: 'Los cambios se han guardado exitosamente',
+      });
+
+      fetchProducts();
+      return data;
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+
+  const updateStock = async (productId: string, newStock: number) => {
+    if (!userId) return false;
+
+    try {
+      const { error } = await supabase
+        .from('marketplace_products')
+        .update({ 
+          stock_quantity: newStock,
+          status: newStock === 0 ? 'out_of_stock' : 'active'
+        })
+        .eq('id', productId)
+        .eq('business_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Stock actualizado',
+        description: `Nuevo stock: ${newStock} unidades`,
+      });
+
+      fetchProducts();
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    if (!userId) return false;
+
+    try {
+      const { error } = await supabase
+        .from('marketplace_products')
+        .delete()
+        .eq('id', productId)
+        .eq('business_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Producto eliminado',
+        description: 'El producto ha sido eliminado del marketplace',
+      });
+
+      fetchProducts();
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   const createOrder = async (orderData: {
     product_id: string;
     quantity: number;
@@ -412,6 +504,9 @@ export function useMarketplace(userId?: string) {
     loading,
     toggleFavorite,
     createProduct,
+    updateProduct,
+    updateStock,
+    deleteProduct,
     createOrder,
     updateOrderStatus,
     refresh: fetchMarketplaceData,

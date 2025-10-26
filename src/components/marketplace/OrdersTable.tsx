@@ -16,9 +16,10 @@ import { es } from 'date-fns/locale';
 
 interface OrdersTableProps {
   orders: MarketplaceOrder[];
+  onUpdateStatus?: (orderId: string, status: MarketplaceOrder['status']) => void;
 }
 
-export function OrdersTable({ orders }: OrdersTableProps) {
+export function OrdersTable({ orders, onUpdateStatus }: OrdersTableProps) {
   const statusColors: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
