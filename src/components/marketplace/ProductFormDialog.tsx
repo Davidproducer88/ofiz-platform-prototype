@@ -14,7 +14,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, DollarSign, Truck, MapPin } from 'lucide-react';
+import { Package, DollarSign, Truck, MapPin, Image as ImageIcon, Upload, X, Link as LinkIcon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import type { MarketplaceProduct, MarketplaceCategory } from '@/hooks/useMarketplace';
 
 interface ProductFormDialogProps {
@@ -32,6 +34,7 @@ export function ProductFormDialog({
   onOpenChange, 
   onSave 
 }: ProductFormDialogProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: product?.title || '',
     description: product?.description || '',
@@ -54,6 +57,75 @@ export function ProductFormDialog({
     pickup_address: '',
     pickup_hours: 'Lun-Vie 9:00-18:00, Sáb 9:00-13:00',
   });
+
+  const [images, setImages] = useState<string[]>(product?.images as string[] || []);
+  const [imageUrl, setImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No autenticado');
+
+      for (const file of Array.from(files)) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+        const { data, error } = await supabase.storage
+          .from('marketplace-products')
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('marketplace-products')
+          .getPublicUrl(data.path);
+
+        setImages(prev => [...prev, publicUrl]);
+      }
+
+      toast({
+        title: 'Imágenes subidas',
+        description: 'Las imágenes se han agregado correctamente',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudieron subir las imágenes',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAddUrlImage = () => {
+    if (!imageUrl.trim()) return;
+    
+    try {
+      new URL(imageUrl);
+      setImages(prev => [...prev, imageUrl]);
+      setImageUrl('');
+      toast({
+        title: 'Imagen agregada',
+        description: 'La imagen se ha agregado desde la URL',
+      });
+    } catch {
+      toast({
+        title: 'URL inválida',
+        description: 'Por favor ingresa una URL válida',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSave = () => {
     const shippingInfo = {
@@ -87,7 +159,7 @@ export function ProductFormDialog({
       status: formData.status,
       featured: formData.featured,
       shipping_info: shippingInfo,
-      images: product?.images || [],
+      images: images,
       specifications: product?.specifications || {},
     });
   };
@@ -105,10 +177,14 @@ export function ProductFormDialog({
         </DialogHeader>
 
         <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="basic">
               <Package className="h-4 w-4 mr-2" />
               Básico
+            </TabsTrigger>
+            <TabsTrigger value="images">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Imágenes
             </TabsTrigger>
             <TabsTrigger value="pricing">
               <DollarSign className="h-4 w-4 mr-2" />
@@ -200,6 +276,109 @@ export function ProductFormDialog({
                 onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
               />
               <Label htmlFor="featured">Producto destacado</Label>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="images" className="space-y-4 mt-4">
+            <div className="space-y-4">
+              <div>
+                <Label>Subir Imágenes Locales</Label>
+                <div className="mt-2">
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <div className="border-2 border-dashed rounded-lg p-6 hover:border-primary transition-colors">
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <div className="text-sm text-muted-foreground">
+                          Click para seleccionar imágenes
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          PNG, JPG, WEBP hasta 5MB
+                        </div>
+                      </div>
+                    </div>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileUpload}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">O</span>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="image-url">Agregar desde URL</Label>
+                <div className="flex gap-2 mt-2">
+                  <div className="relative flex-1">
+                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="image-url"
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleAddUrlImage}
+                  >
+                    Agregar
+                  </Button>
+                </div>
+              </div>
+
+              {images.length > 0 && (
+                <div>
+                  <Label>Imágenes del Producto ({images.length})</Label>
+                  <div className="grid grid-cols-3 gap-4 mt-2">
+                    {images.map((url, index) => (
+                      <div key={index} className="relative group aspect-square">
+                        <img
+                          src={url}
+                          alt={`Producto ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        {index === 0 && (
+                          <div className="absolute bottom-2 left-2 px-2 py-1 bg-primary text-primary-foreground text-xs rounded">
+                            Principal
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    La primera imagen será la principal. Arrastra para reordenar.
+                  </p>
+                </div>
+              )}
+
+              {uploading && (
+                <div className="text-center py-4">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
+                  <p className="text-sm text-muted-foreground mt-2">Subiendo imágenes...</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
