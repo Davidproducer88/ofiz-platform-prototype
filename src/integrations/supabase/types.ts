@@ -1440,10 +1440,7 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: string
       }
-      get_platform_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      get_platform_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1451,22 +1448,10 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { user_id?: string }
-        Returns: boolean
-      }
-      recalculate_all_rankings: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      reset_monthly_applications: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      seed_initial_feed_data: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      is_admin: { Args: { user_id?: string }; Returns: boolean }
+      recalculate_all_rankings: { Args: never; Returns: undefined }
+      reset_monthly_applications: { Args: never; Returns: undefined }
+      seed_initial_feed_data: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "client" | "master" | "admin" | "business"
