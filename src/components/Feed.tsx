@@ -3,9 +3,11 @@ import { useFeed } from '@/hooks/useFeed';
 import { FeedCard } from './FeedCard';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Briefcase, Search, Plus } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RefreshCw, Briefcase, Search, Plus, Store, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { MarketplaceFeed } from './MarketplaceFeed';
 
 export const Feed = () => {
   const navigate = useNavigate();
@@ -63,68 +65,41 @@ export const Feed = () => {
 
   return (
     <div className="w-full min-h-screen bg-background">
-      {/* Header simplificado */}
-      <div className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold">Servicios Disponibles</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/search-masters')}>
-              <Search className="h-4 w-4 mr-2" />
-              Buscar
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      {user && (
-        <div className="w-full border-b bg-muted/50">
-          <div className="container py-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <Button 
-                variant="outline" 
-                className="justify-start gap-2"
-                onClick={() => navigate('/search-masters')}
-              >
-                <Search className="h-4 w-4" />
-                Buscar Profesionales
-              </Button>
-              <Button 
-                variant="outline" 
-                className="justify-start gap-2"
-                onClick={() => {
-                  if (user) {
-                    navigate('/client-dashboard?tab=requests');
-                  } else {
-                    navigate('/auth');
-                  }
-                }}
-              >
-                <Plus className="h-4 w-4" />
-                Crear Solicitud
-              </Button>
-              <Button 
-                variant="outline" 
-                className="justify-start gap-2"
-                onClick={() => navigate('/client-dashboard')}
-              >
-                <Briefcase className="h-4 w-4" />
-                Mis Servicios
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Feed Content */}
       <div className="container py-6">
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <Tabs defaultValue="feed" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="feed" className="gap-2">
+              <Users className="h-4 w-4" />
+              Feed Social
+            </TabsTrigger>
+            <TabsTrigger value="marketplace" className="gap-2">
+              <Store className="h-4 w-4" />
+              Marketplace Pro
+            </TabsTrigger>
+            <TabsTrigger value="services" className="gap-2">
+              <Briefcase className="h-4 w-4" />
+              Servicios
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="marketplace">
+            <MarketplaceFeed />
+          </TabsContent>
+
+          <TabsContent value="feed">
+            <div className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur mb-4 -mx-4 px-4">
+              <div className="flex h-14 items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5 text-primary" />
+                  <h2 className="text-lg font-semibold">Feed de Servicios</h2>
+                </div>
+                <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
+                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4 max-w-4xl mx-auto">
           {feedItems.map((item, index) => (
             <div 
               key={`${item.type}-${item.id}-${index}`} 
@@ -174,7 +149,21 @@ export const Feed = () => {
               </div>
             </div>
           )}
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="services">
+            <div className="text-center py-12">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Directorio de Servicios</h3>
+              <p className="text-muted-foreground mb-4">Explora todos los servicios disponibles</p>
+              <Button onClick={() => navigate('/search-masters')}>
+                <Search className="mr-2 h-4 w-4" />
+                Ver Todos los Servicios
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
