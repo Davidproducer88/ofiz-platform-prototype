@@ -8,7 +8,7 @@ const corsHeaders = {
 
 interface MarketplacePaymentRequest {
   orderId: string;
-  amount: number;
+  amount?: number; // Optional, will use order.total_amount if not provided
   title: string;
   description: string;
 }
@@ -34,17 +34,13 @@ serve(async (req) => {
       throw new Error('No autenticado');
     }
 
-    const { orderId, amount, title, description }: MarketplacePaymentRequest = await req.json();
+    const { orderId, amount: clientAmount, title, description }: MarketplacePaymentRequest = await req.json();
     
-    console.log('Request received:', { orderId, amount, title, userId: user.id });
+    console.log('Request received:', { orderId, clientAmount, title, userId: user.id });
 
     // Validar datos de entrada
-    if (!orderId || !amount || !title) {
-      throw new Error('Faltan datos requeridos: orderId, amount, title');
-    }
-
-    if (amount <= 0) {
-      throw new Error('El monto debe ser mayor a 0');
+    if (!orderId || !title) {
+      throw new Error('Faltan datos requeridos: orderId, title');
     }
 
     console.log('Creating marketplace payment preference for order:', orderId);
@@ -67,11 +63,22 @@ serve(async (req) => {
       throw new Error('No autorizado para esta orden');
     }
 
+    // Use order total_amount from database (calculated by trigger)
+    const finalAmount = order.total_amount;
+
+    if (!finalAmount || finalAmount <= 0) {
+      console.error('Invalid order amount:', { orderId, totalAmount: order.total_amount });
+      throw new Error('El monto de la orden es inválido');
+    }
+
     console.log('Order details:', {
       orderId: order.id,
       buyer: order.buyer_id,
       seller: order.seller_id,
-      totalAmount: order.total_amount,
+      totalAmount: finalAmount,
+      subtotal: order.subtotal,
+      platformFee: order.platform_fee,
+      shippingCost: order.shipping_cost,
       status: order.status,
       paymentStatus: order.payment_status
     });
@@ -96,9 +103,9 @@ serve(async (req) => {
       items: [
         {
           title: title,
-          description: description,
+          description: description || `Orden #${order.order_number}`,
           quantity: 1,
-          unit_price: amount,
+          unit_price: finalAmount,
           currency_id: 'UYU',
         }
       ],
