@@ -665,6 +665,8 @@ export type Database = {
           created_at: string | null
           delivered_at: string | null
           id: string
+          mercadopago_payment_id: string | null
+          mercadopago_preference_id: string | null
           notes: string | null
           order_number: string
           payment_id: string | null
@@ -694,6 +696,8 @@ export type Database = {
           created_at?: string | null
           delivered_at?: string | null
           id?: string
+          mercadopago_payment_id?: string | null
+          mercadopago_preference_id?: string | null
           notes?: string | null
           order_number: string
           payment_id?: string | null
@@ -723,6 +727,8 @@ export type Database = {
           created_at?: string | null
           delivered_at?: string | null
           id?: string
+          mercadopago_payment_id?: string | null
+          mercadopago_preference_id?: string | null
           notes?: string | null
           order_number?: string
           payment_id?: string | null
