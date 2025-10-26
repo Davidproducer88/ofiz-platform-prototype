@@ -80,8 +80,17 @@ serve(async (req) => {
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
     
     if (!mercadoPagoToken) {
-      throw new Error('MercadoPago token no configurado');
+      console.error('MERCADO_PAGO_ACCESS_TOKEN not configured');
+      throw new Error('MercadoPago no está configurado. Contacta al administrador.');
     }
+
+    // Validate token format
+    if (!mercadoPagoToken.startsWith('APP_USR-') && !mercadoPagoToken.startsWith('TEST-')) {
+      console.error('Invalid MercadoPago token format');
+      throw new Error('Token de MercadoPago inválido');
+    }
+
+    console.log('Using MercadoPago token type:', mercadoPagoToken.startsWith('TEST-') ? 'TEST' : 'PRODUCTION');
 
     const preference = {
       items: [
