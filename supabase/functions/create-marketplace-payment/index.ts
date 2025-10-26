@@ -50,11 +50,7 @@ serve(async (req) => {
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
       .from('marketplace_orders')
-      .select(`
-        *,
-        profiles!buyer_id(email),
-        marketplace_products!product_id(title, business_id)
-      `)
+      .select('*')
       .eq('id', orderId)
       .single();
 
@@ -66,6 +62,18 @@ serve(async (req) => {
     // Verify buyer
     if (order.buyer_id !== user.id) {
       throw new Error('No autorizado para esta orden');
+    }
+
+    // Get buyer email
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('email')
+      .eq('id', order.buyer_id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error('Profile fetch error:', profileError);
+      throw new Error('Perfil del comprador no encontrado');
     }
 
     console.log('Order details:', {
@@ -93,7 +101,7 @@ serve(async (req) => {
         }
       ],
       payer: {
-        email: order.profiles.email,
+        email: profile.email || user.email,
       },
       back_urls: {
         success: `${req.headers.get('origin') || 'https://ofiz.com.uy'}/client-dashboard?marketplace_payment=success&order_id=${orderId}`,
