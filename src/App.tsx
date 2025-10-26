@@ -17,6 +17,7 @@ import ClientDashboard from "./pages/ClientDashboard";
 import MasterDashboard from "./pages/MasterDashboard";
 import SearchMasters from "./pages/SearchMasters";
 import BusinessDashboard from "./pages/BusinessDashboard";
+import BusinessStats from "./pages/BusinessStats";
 import HowItWorks from "./pages/HowItWorks";
 import Pricing from "./pages/Pricing";
 import Guarantees from "./pages/Guarantees";
@@ -131,6 +132,7 @@ const AppContent = () => {
           </RoleProtectedRoute>
         } 
       />
+      <Route path="/business-stats" element={<BusinessStats />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/guarantees" element={<Guarantees />} />

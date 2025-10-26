@@ -216,6 +216,53 @@ export const Header = ({
                   </AccordionContent>
                 </AccordionItem>
 
+                {/* Empresas */}
+                <AccordionItem value="empresas">
+                  <AccordionTrigger className="text-lg font-medium">
+                    Empresas
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex flex-col space-y-3 pl-4">
+              <button 
+                onClick={() => {
+                  navigate('/business-stats');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Estadísticas en Tiempo Real
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/business-dashboard');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Dashboard Empresarial
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/auth?type=business');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Registrarse como Empresa
+              </button>
+              <button 
+                onClick={() => {
+                  navigate('/pricing');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                Planes Empresariales
+              </button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
                 {/* Sobre nosotros */}
                 <AccordionItem value="empresa">
                   <AccordionTrigger className="text-lg font-medium">
@@ -391,6 +438,40 @@ export const Header = ({
                 onClick={navigateToMasterDashboard}
               >
                 Herramientas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Empresas Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-smooth">
+              Empresas
+              <ChevronDown className="ml-1 h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-card border border-border z-50">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/business-stats')}
+              >
+                Estadísticas en Tiempo Real
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/business-dashboard')}
+              >
+                Dashboard Empresarial
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/auth?type=business')}
+              >
+                Registrarse como Empresa
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => navigate('/pricing')}
+              >
+                Planes Empresariales
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
