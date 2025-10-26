@@ -1478,7 +1478,7 @@ export type Database = {
         | "appliance_repair"
         | "computer_repair"
       service_status: "draft" | "active" | "paused" | "completed"
-      subscription_plan: "free" | "premium"
+      subscription_plan: "free" | "premium" | "basic_plus"
       user_type: "client" | "master" | "admin" | "business"
     }
     CompositeTypes: {
@@ -1634,7 +1634,7 @@ export const Constants = {
         "computer_repair",
       ],
       service_status: ["draft", "active", "paused", "completed"],
-      subscription_plan: ["free", "premium"],
+      subscription_plan: ["free", "premium", "basic_plus"],
       user_type: ["client", "master", "admin", "business"],
     },
   },
