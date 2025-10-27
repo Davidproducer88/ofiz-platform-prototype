@@ -464,18 +464,9 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
                   ${total.toLocaleString()}
                 </span>
               </div>
-              <div className="p-2 bg-muted rounded text-xs space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Comisión Ofiz (12%):</span>
-                  <span className="text-primary">${platformFee.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Vendedor recibe:</span>
-                  <span className="text-green-600 font-medium">
-                    ${(subtotal - platformFee).toLocaleString()}
-                  </span>
-                </div>
-              </div>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Pago 100% seguro procesado por MercadoPago
+              </p>
             </div>
           </div>
         </div>

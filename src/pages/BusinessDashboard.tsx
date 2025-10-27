@@ -17,7 +17,9 @@ import {
   BarChart3,
   Megaphone,
   FileText,
-  Settings
+  Settings,
+  Package,
+  AlertTriangle
 } from "lucide-react";
 import { BusinessProfile } from "@/components/business/BusinessProfile";
 import { BusinessSubscriptionPlans } from "@/components/business/BusinessSubscriptionPlans";
@@ -308,7 +310,35 @@ export default function BusinessDashboard() {
           </TabsContent>
 
           <TabsContent value="marketplace">
-            <MarketplaceFeed />
+            {subscription?.status === 'active' ? (
+              <MarketplaceFeed />
+            ) : (
+              <Card className="border-amber-500/20 bg-amber-500/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-500">
+                    <AlertTriangle className="h-5 w-5" />
+                    Suscripción Requerida
+                  </CardTitle>
+                  <CardDescription>
+                    Necesitas una suscripción empresarial activa para vender en el marketplace
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    El marketplace de Ofiz te permite vender productos y servicios directamente a clientes y profesionales de la plataforma.
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <p>✓ Alcanza miles de compradores potenciales</p>
+                    <p>✓ Sistema de pagos seguro integrado</p>
+                    <p>✓ Gestión completa de inventario y órdenes</p>
+                    <p>✓ Comisión competitiva del 12%</p>
+                  </div>
+                  <Button onClick={() => document.getElementById('subscription-tab')?.click()}>
+                    Ver planes disponibles
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="overview">

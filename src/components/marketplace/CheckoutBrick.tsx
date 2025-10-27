@@ -120,27 +120,46 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
               setIsLoading(false);
               toast.success('Formulario de pago listo');
             },
-            onSubmit: async ({ selectedPaymentMethod, formData }, additionalData) => {
+            onSubmit: async (formData: any, additionalData: any) => {
               // CRITICAL: onSubmit must return a Promise that resolves/rejects
               return new Promise<void>(async (resolve, reject) => {
                 try {
                   console.log('=== PAYMENT FORM SUBMITTED ===');
-                  console.log('Selected payment method:', selectedPaymentMethod);
-                  console.log('Form data:', formData);
+                  console.log('Form data received:', formData);
                   console.log('Additional data:', additionalData);
+                  
+                  // MercadoPago puede enviar los datos en diferentes estructuras
+                  // Intentar extraer los datos de diferentes maneras
+                  let paymentData = formData;
+                  
+                  // Si formData tiene formData dentro (estructura anidada)
+                  if (formData.formData) {
+                    paymentData = formData.formData;
+                  }
+                  
+                  // Si hay selectedPaymentMethod
+                  if (formData.selectedPaymentMethod) {
+                    paymentData = { ...paymentData, ...formData };
+                  }
+                  
+                  console.log('Processed payment data:', paymentData);
                   console.log('================================');
                   
-                  // Verificar que tenemos los datos mínimos necesarios
-                  if (!formData.token || !formData.payment_method_id) {
-                    console.error('Missing required payment data!', formData);
-                    toast.error('Datos de pago incompletos');
+                  // Validación más flexible - solo verificar que tengamos algún dato de pago
+                  const hasToken = paymentData.token || paymentData.card_token_id;
+                  const hasPaymentMethod = paymentData.payment_method_id || paymentData.paymentMethodId;
+                  
+                  if (!hasToken && !hasPaymentMethod) {
+                    console.error('Missing required payment data!', paymentData);
+                    toast.error('Por favor completa todos los datos de pago');
                     reject(new Error('Datos de pago incompletos'));
                     return;
                   }
                   
-                  console.log('Calling onSuccess callback...');
-                  await onSuccess(formData);
+                  console.log('Payment data valid, calling onSuccess callback...');
+                  await onSuccess(paymentData);
                   console.log('Payment processed successfully');
+                  toast.success('¡Pago procesado exitosamente!');
                   
                   // Resolve the promise to indicate success
                   resolve();

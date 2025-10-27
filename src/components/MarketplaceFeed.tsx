@@ -18,7 +18,8 @@ import {
   Users,
   Zap,
   Award,
-  ShoppingBag
+  ShoppingBag,
+  AlertTriangle
 } from 'lucide-react';
 import { useMarketplace } from '@/hooks/useMarketplace';
 import { useAuth } from '@/hooks/useAuth';
@@ -136,14 +137,21 @@ export function MarketplaceFeed() {
         description: 'Espera mientras procesamos tu pago',
       });
 
+      // Extraer datos de pago de manera flexible
+      const paymentMethodId = formData.payment_method_id || formData.paymentMethodId;
+      const token = formData.token || formData.card_token_id;
+      const issuerId = formData.issuer_id || formData.issuerId;
+      const installments = formData.installments;
+      const payer = formData.payer;
+
       const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
         body: {
           orderId: orderId,
-          paymentMethodId: formData.payment_method_id,
-          token: formData.token,
-          issuerId: formData.issuer_id,
-          installments: formData.installments,
-          payer: formData.payer
+          paymentMethodId,
+          token,
+          issuerId,
+          installments,
+          payer
         }
       });
 
@@ -402,11 +410,40 @@ export function MarketplaceFeed() {
         </TabsContent>
 
         <TabsContent value="seller">
-          <SellerDashboard
-            balance={balance}
-            products={products.filter(p => p.business_id === profile?.id) || []}
-            orders={orders.filter(o => o.seller_id === profile?.id) || []}
-          />
+          {profile?.user_type === 'business' ? (
+            <SellerDashboard
+              balance={balance}
+              products={products.filter(p => p.business_id === profile?.id) || []}
+              orders={orders.filter(o => o.seller_id === profile?.id) || []}
+            />
+          ) : (
+            <Card className="border-amber-500/20 bg-amber-500/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-500">
+                  <AlertTriangle className="h-5 w-5" />
+                  Cuenta Empresarial Requerida
+                </CardTitle>
+                <CardDescription>
+                  Solo las cuentas empresariales con suscripción activa pueden vender en el marketplace
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Para vender en Ofiz Market necesitas:
+                </p>
+                <div className="space-y-2 text-sm">
+                  <p>1. Registrarte como empresa en Ofiz</p>
+                  <p>2. Activar una suscripción empresarial</p>
+                  <p>3. Completar tu perfil de vendedor</p>
+                </div>
+                <Button asChild>
+                  <a href="/auth?mode=business">
+                    Crear cuenta empresarial
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
 
