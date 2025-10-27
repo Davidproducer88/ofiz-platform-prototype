@@ -565,6 +565,7 @@ export function useMarketplace(userId?: string) {
     status: MarketplaceOrder['status'],
     trackingNumber?: string
   ) => {
+    console.log('updateOrderStatus called:', { orderId, status, trackingNumber });
     try {
       const updateData: any = { status };
       
@@ -572,25 +573,34 @@ export function useMarketplace(userId?: string) {
         updateData.tracking_number = trackingNumber;
       }
 
-      const { error } = await supabase
+      console.log('Updating order with data:', updateData);
+      const { data, error } = await supabase
         .from('marketplace_orders')
         .update(updateData)
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating order:', error);
+        throw error;
+      }
 
+      console.log('Order updated successfully:', data);
       toast({
         title: 'Estado actualizado',
         description: 'El estado de la orden ha sido actualizado',
       });
 
-      fetchOrders();
+      await fetchOrders();
     } catch (error: any) {
+      console.error('Error in updateOrderStatus:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message || 'No se pudo actualizar la orden',
         variant: 'destructive',
       });
+      throw error;
     }
   };
 

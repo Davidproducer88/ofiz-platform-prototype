@@ -28,7 +28,7 @@ import {
 import type { MarketplaceOrder } from '@/hooks/useMarketplace';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface OrderDetailsDialogProps {
@@ -50,6 +50,14 @@ export function OrderDetailsDialog({
   const [status, setStatus] = useState<MarketplaceOrder['status']>(order?.status || 'pending');
   const [trackingNumber, setTrackingNumber] = useState(order?.tracking_number || '');
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Sincronizar estado cuando cambia la orden
+  useEffect(() => {
+    if (order) {
+      setStatus(order.status);
+      setTrackingNumber(order.tracking_number || '');
+    }
+  }, [order?.id, order?.status, order?.tracking_number]);
 
   if (!order) return null;
 
@@ -77,14 +85,17 @@ export function OrderDetailsDialog({
 
   const handleUpdateStatus = async () => {
     setIsUpdating(true);
+    console.log('Updating order status:', { orderId: order.id, status, trackingNumber });
     try {
       await onUpdateStatus(order.id, status, trackingNumber || undefined);
+      console.log('Order status updated successfully');
       toast({
         title: "Orden actualizada",
         description: "El estado de la orden se actualizó correctamente",
       });
       onOpenChange(false);
     } catch (error) {
+      console.error('Error updating order status:', error);
       toast({
         title: "Error",
         description: "No se pudo actualizar la orden",
@@ -318,54 +329,80 @@ export function OrderDetailsDialog({
           )}
 
           {/* Seller Actions */}
-          {isSeller && order.payment_status === 'paid' && (
-            <Card className="border-primary/50">
+          {isSeller && (
+            <Card className={order.payment_status === 'paid' ? 'border-primary/50' : 'border-amber-500/50 bg-amber-500/5'}>
               <CardHeader>
-                <CardTitle className="text-base">Actualizar Estado de Orden</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  {order.payment_status === 'paid' ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      Actualizar Estado de Orden
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="h-4 w-4 text-amber-600" />
+                      Esperando Confirmación de Pago
+                    </>
+                  )}
+                </CardTitle>
                 <CardDescription>
-                  Mantén a tu cliente informado del progreso de su pedido
+                  {order.payment_status === 'paid' 
+                    ? 'Mantén a tu cliente informado del progreso de su pedido'
+                    : 'Esta orden aún no ha sido pagada. Podrás gestionarla una vez que se confirme el pago.'
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="status">Estado de la Orden</Label>
-                  <Select value={status} onValueChange={(value) => setStatus(value as MarketplaceOrder['status'])}>
-                    <SelectTrigger id="status">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pendiente</SelectItem>
-                      <SelectItem value="confirmed">Confirmada</SelectItem>
-                      <SelectItem value="processing">Procesando</SelectItem>
-                      <SelectItem value="shipped">Enviada</SelectItem>
-                      <SelectItem value="delivered">Entregada</SelectItem>
-                      <SelectItem value="cancelled">Cancelada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {order.payment_status === 'paid' ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Estado de la Orden</Label>
+                      <Select value={status} onValueChange={(value) => setStatus(value as MarketplaceOrder['status'])}>
+                        <SelectTrigger id="status">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendiente</SelectItem>
+                          <SelectItem value="confirmed">Confirmada</SelectItem>
+                          <SelectItem value="processing">Procesando</SelectItem>
+                          <SelectItem value="shipped">Enviada</SelectItem>
+                          <SelectItem value="delivered">Entregada</SelectItem>
+                          <SelectItem value="cancelled">Cancelada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {(status === 'shipped' || status === 'delivered') && (
-                  <div className="space-y-2">
-                    <Label htmlFor="tracking">Número de Seguimiento</Label>
-                    <Input
-                      id="tracking"
-                      placeholder="Ej: UY123456789"
-                      value={trackingNumber}
-                      onChange={(e) => setTrackingNumber(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Ingresa el número de rastreo de la empresa de envíos
-                    </p>
+                    {(status === 'shipped' || status === 'delivered') && (
+                      <div className="space-y-2">
+                        <Label htmlFor="tracking">Número de Seguimiento</Label>
+                        <Input
+                          id="tracking"
+                          placeholder="Ej: UY123456789"
+                          value={trackingNumber}
+                          onChange={(e) => setTrackingNumber(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Ingresa el número de rastreo de la empresa de envíos
+                        </p>
+                      </div>
+                    )}
+
+                    <Button
+                      className="w-full"
+                      onClick={handleUpdateStatus}
+                      disabled={isUpdating || status === order.status}
+                    >
+                      {isUpdating ? 'Actualizando...' : 'Actualizar Orden'}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                    <Clock className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                    <div className="text-sm text-muted-foreground">
+                      El cliente debe completar el pago para que puedas gestionar esta orden.
+                    </div>
                   </div>
                 )}
-
-                <Button
-                  className="w-full"
-                  onClick={handleUpdateStatus}
-                  disabled={isUpdating || status === order.status}
-                >
-                  {isUpdating ? 'Actualizando...' : 'Actualizar Orden'}
-                </Button>
               </CardContent>
             </Card>
           )}
