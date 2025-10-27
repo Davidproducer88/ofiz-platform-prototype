@@ -13,13 +13,24 @@ import { Package, Eye } from 'lucide-react';
 import type { MarketplaceOrder } from '@/hooks/useMarketplace';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { OrderDetailsDialog } from './OrderDetailsDialog';
+import { useState } from 'react';
 
 interface OrdersTableProps {
   orders: MarketplaceOrder[];
-  onUpdateStatus?: (orderId: string, status: MarketplaceOrder['status']) => void;
+  onUpdateStatus?: (orderId: string, status: string, trackingNumber?: string) => Promise<void>;
+  isSeller?: boolean;
 }
 
-export function OrdersTable({ orders, onUpdateStatus }: OrdersTableProps) {
+export function OrdersTable({ orders, onUpdateStatus, isSeller = false }: OrdersTableProps) {
+  const [selectedOrder, setSelectedOrder] = useState<MarketplaceOrder | null>(null);
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+
+  const handleViewOrder = (order: MarketplaceOrder) => {
+    setSelectedOrder(order);
+    setShowOrderDialog(true);
+  };
+
   const statusColors: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -129,7 +140,11 @@ export function OrdersTable({ orders, onUpdateStatus }: OrdersTableProps) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewOrder(order)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -139,6 +154,14 @@ export function OrdersTable({ orders, onUpdateStatus }: OrdersTableProps) {
           </Table>
         </div>
       </CardContent>
+
+      <OrderDetailsDialog
+        order={selectedOrder}
+        open={showOrderDialog}
+        onOpenChange={setShowOrderDialog}
+        onUpdateStatus={onUpdateStatus || (async () => {})}
+        isSeller={isSeller}
+      />
     </Card>
   );
 }

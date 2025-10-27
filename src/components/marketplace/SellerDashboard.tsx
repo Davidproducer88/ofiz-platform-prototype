@@ -24,6 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ProductFormDialog } from './ProductFormDialog';
+import { OrdersTable } from './OrdersTable';
 import { useMarketplace } from '@/hooks/useMarketplace';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -39,7 +40,7 @@ interface SellerDashboardProps {
 
 export function SellerDashboard({ balance, products, orders }: SellerDashboardProps) {
   const { profile } = useAuth();
-  const { categories, updateProduct, updateStock, deleteProduct, createProduct } = useMarketplace(profile?.id);
+  const { categories, updateProduct, updateStock, deleteProduct, createProduct, updateOrderStatus } = useMarketplace(profile?.id);
   const [editingProduct, setEditingProduct] = useState<MarketplaceProduct | undefined>();
   const [showProductForm, setShowProductForm] = useState(false);
   const [stockEditId, setStockEditId] = useState<string | null>(null);
@@ -390,6 +391,15 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
           )}
         </CardContent>
       </Card>
+
+      {/* Orders Table */}
+      {orders && orders.length > 0 && (
+        <OrdersTable 
+          orders={orders} 
+          onUpdateStatus={updateOrderStatus}
+          isSeller={true}
+        />
+      )}
 
       {/* Product Form Dialog */}
       <ProductFormDialog

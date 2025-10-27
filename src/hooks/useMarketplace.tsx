@@ -48,6 +48,9 @@ export interface MarketplaceOrder {
   total_amount: number;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+  payment_method?: string | null;
+  tracking_number?: string | null;
+  notes?: string | null;
   shipping_address: any;
   created_at: string;
 }
@@ -528,12 +531,19 @@ export function useMarketplace(userId?: string) {
 
   const updateOrderStatus = async (
     orderId: string,
-    status: MarketplaceOrder['status']
+    status: MarketplaceOrder['status'],
+    trackingNumber?: string
   ) => {
     try {
+      const updateData: any = { status };
+      
+      if (trackingNumber) {
+        updateData.tracking_number = trackingNumber;
+      }
+
       const { error } = await supabase
         .from('marketplace_orders')
-        .update({ status })
+        .update(updateData)
         .eq('id', orderId);
 
       if (error) throw error;
