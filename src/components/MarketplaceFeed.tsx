@@ -132,6 +132,7 @@ export function MarketplaceFeed() {
 
   const handlePaymentComplete = async (orderId: string, formData: any) => {
     try {
+      console.log('=== MARKETPLACE FEED: Processing payment ===');
       console.log('Processing payment with form data:', formData);
       
       toast({
@@ -145,6 +146,8 @@ export function MarketplaceFeed() {
       const issuerId = formData.issuer_id || formData.issuerId;
       const installments = formData.installments;
       const payer = formData.payer;
+
+      console.log('Calling create-marketplace-payment edge function...');
 
       const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
         body: {
@@ -162,7 +165,7 @@ export function MarketplaceFeed() {
         throw new Error(error.message || 'Error al procesar el pago');
       }
 
-      console.log('Payment processed:', data);
+      console.log('Payment processed successfully:', data);
 
       if (data.status === 'approved') {
         console.log('Payment approved! Preparing redirect...');
@@ -185,12 +188,13 @@ export function MarketplaceFeed() {
           redirectPath = '/business-dashboard';
         }
         
-        console.log('Redirecting to:', redirectPath);
+        console.log('Will redirect to:', redirectPath);
         
-        // Close dialog and navigate
+        // Close dialog first
         setShowProductDialog(false);
         setSelectedProduct(null);
         
+        console.log('Navigating now...');
         // Navigate immediately
         navigate(redirectPath);
         
