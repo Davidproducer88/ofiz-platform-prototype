@@ -156,7 +156,14 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      // Prevent closing dialog while payment is being processed
+      if (!isOpen && showPayment) {
+        console.log('Preventing dialog close during payment');
+        return;
+      }
+      onOpenChange(isOpen);
+    }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{product.title}</DialogTitle>

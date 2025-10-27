@@ -165,29 +165,34 @@ export function MarketplaceFeed() {
       console.log('Payment processed:', data);
 
       if (data.status === 'approved') {
+        console.log('Payment approved! Preparing redirect...');
+        
         toast({
           title: '✅ ¡Pago exitoso!',
-          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Redirigiendo a tu dashboard...`,
+          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Redirigiendo...`,
         });
         
-        // Close dialog and redirect to appropriate dashboard
-        setTimeout(() => {
-          setShowProductDialog(false);
-          setSelectedProduct(null);
-          
-          // Redirect based on user role
-          const userType = profile?.user_type;
-          if (userType === 'master') {
-            navigate('/master-dashboard');
-          } else if (userType === 'client') {
-            navigate('/client-dashboard');
-          } else if (userType === 'business') {
-            navigate('/business-dashboard');
-          } else {
-            // Fallback to home if no role detected
-            navigate('/');
-          }
-        }, 2000);
+        // Redirect based on user role
+        const userType = profile?.user_type;
+        console.log('User type for redirect:', userType);
+        
+        let redirectPath = '/';
+        if (userType === 'master') {
+          redirectPath = '/master-dashboard';
+        } else if (userType === 'client') {
+          redirectPath = '/client-dashboard';
+        } else if (userType === 'business') {
+          redirectPath = '/business-dashboard';
+        }
+        
+        console.log('Redirecting to:', redirectPath);
+        
+        // Close dialog and navigate
+        setShowProductDialog(false);
+        setSelectedProduct(null);
+        
+        // Navigate immediately
+        navigate(redirectPath);
         
         // Orders will refresh automatically via real-time subscription
       } else if (data.status === 'pending' || data.status === 'in_process') {
