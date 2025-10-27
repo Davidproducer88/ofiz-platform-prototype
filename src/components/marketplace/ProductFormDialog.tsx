@@ -432,15 +432,15 @@ export function ProductFormDialog({
                   <span className="font-medium">${formData.price.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Comisión Ofiz (12%):</span>
+                  <span className="text-muted-foreground">Comisión Ofiz (7%):</span>
                   <span className="font-medium text-primary">
-                    -${Math.round(formData.price * 0.12).toLocaleString()}
+                    -${Math.round(formData.price * 0.07).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between border-t pt-1">
                   <span className="font-semibold">Tú recibes:</span>
                   <span className="font-bold text-green-600">
-                    ${Math.round(formData.price * 0.88).toLocaleString()}
+                    ${Math.round(formData.price * 0.93).toLocaleString()}
                   </span>
                 </div>
               </div>

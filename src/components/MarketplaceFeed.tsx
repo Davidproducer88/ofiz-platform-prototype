@@ -262,7 +262,7 @@ export function MarketplaceFeed() {
           </div>
           <CardDescription className="text-base">
             Compra y vende productos profesionales con la comunidad más grande de Uruguay.
-            <span className="font-semibold text-primary"> Comisión justa del 12%</span> · Pagos seguros · Envíos nacionales
+            <span className="font-semibold text-primary"> Comisión justa del 7%</span> · Pagos seguros · Envíos nacionales
           </CardDescription>
         </CardHeader>
 

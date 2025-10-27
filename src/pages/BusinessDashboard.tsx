@@ -331,7 +331,7 @@ export default function BusinessDashboard() {
                     <p>✓ Alcanza miles de compradores potenciales</p>
                     <p>✓ Sistema de pagos seguro integrado</p>
                     <p>✓ Gestión completa de inventario y órdenes</p>
-                    <p>✓ Comisión competitiva del 12%</p>
+                    <p>✓ Comisión competitiva del 7%</p>
                   </div>
                   <Button onClick={() => document.getElementById('subscription-tab')?.click()}>
                     Ver planes disponibles

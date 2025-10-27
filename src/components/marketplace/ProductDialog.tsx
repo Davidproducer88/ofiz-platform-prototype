@@ -47,7 +47,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
   const expressShipping = shippingInfo.express || { cost: 400, delivery_days: '1-2 días' };
   
   const subtotal = product.price * quantity;
-  const platformFee = Math.round(subtotal * 0.12 * 100) / 100;
+  const platformFee = Math.round(subtotal * 0.07 * 100) / 100;
   
   let shippingCost = 0;
   if (deliveryMethod === 'shipping') {

@@ -58,8 +58,8 @@ serve(async (req) => {
       throw new Error('Reserva no encontrada');
     }
 
-    // Calculate commission (12%)
-    const commissionAmount = Math.round(amount * 0.12 * 100) / 100;
+    // Calculate commission (7%)
+    const commissionAmount = Math.round(amount * 0.07 * 100) / 100;
     const masterAmount = amount - commissionAmount;
 
     // Create payment preference with Mercado Pago
