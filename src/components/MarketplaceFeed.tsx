@@ -379,7 +379,7 @@ export function MarketplaceFeed() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="marketplace" className="space-y-4">
-        <TabsList className={`grid w-full ${profile?.user_type === 'business' || profile?.user_type === 'master' ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <TabsList className={`grid w-full ${profile?.user_type === 'business' ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="marketplace" className="gap-2">
             <ShoppingBag className="h-4 w-4" />
             Marketplace
@@ -388,7 +388,7 @@ export function MarketplaceFeed() {
             <Package className="h-4 w-4" />
             Mis Órdenes
           </TabsTrigger>
-          {(profile?.user_type === 'business' || profile?.user_type === 'master') && (
+          {profile?.user_type === 'business' && (
             <TabsTrigger value="seller" className="gap-2">
               <TrendingUp className="h-4 w-4" />
               Panel Vendedor
@@ -432,7 +432,7 @@ export function MarketplaceFeed() {
         </TabsContent>
 
         <TabsContent value="seller">
-          {profile?.user_type === 'business' || profile?.user_type === 'master' ? (
+          {profile?.user_type === 'business' ? (
             <SellerDashboard
               balance={balance}
               products={products.filter(p => p.business_id === profile?.id) || []}
@@ -446,34 +446,29 @@ export function MarketplaceFeed() {
                   Cuenta Empresarial Requerida
                 </CardTitle>
                 <CardDescription>
-                  Solo las cuentas empresariales o profesionales pueden vender en el marketplace
+                  Solo las cuentas empresariales pueden vender en el marketplace
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Para vender en Ofiz Market necesitas una cuenta empresarial o ser un profesional maestro:
+                  El Panel Vendedor es exclusivo para empresas registradas en Ofiz con suscripción activa.
                 </p>
                 <div className="space-y-2 text-sm">
-                  <p><strong>Opción 1: Cuenta Empresarial</strong></p>
-                  <p>• Registrarte como empresa en Ofiz</p>
-                  <p>• Activar una suscripción empresarial</p>
-                  <p>• Comisión del 7% sobre ventas</p>
-                  <p className="mt-3"><strong>Opción 2: Cuenta Profesional (Master)</strong></p>
-                  <p>• Ya disponible si eres un maestro verificado</p>
-                  <p>• Vende productos relacionados a tu oficio</p>
+                  <p><strong>Beneficios de vender como empresa:</strong></p>
+                  <p>✓ Alcanza miles de compradores potenciales</p>
+                  <p>✓ Sistema de pagos seguro integrado</p>
+                  <p>✓ Gestión completa de inventario y órdenes</p>
+                  <p>✓ Analytics y reportes en tiempo real</p>
+                  <p>✓ Comisión competitiva del 7%</p>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Los maestros y clientes pueden comprar productos pero no venderlos directamente.
+                  </p>
                 </div>
-                <div className="flex gap-2">
-                  <Button asChild>
-                    <a href="/auth?mode=business">
-                      Crear cuenta empresarial
-                    </a>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <a href="/auth?mode=master">
-                      Registrarme como maestro
-                    </a>
-                  </Button>
-                </div>
+                <Button asChild>
+                  <a href="/auth?mode=business">
+                    Crear cuenta empresarial
+                  </a>
+                </Button>
               </CardContent>
             </Card>
           )}
