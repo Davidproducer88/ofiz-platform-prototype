@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { rateLimiter, RATE_LIMITS, formatRemainingTime } from '@/utils/rateLimit';
+import { toast } from '@/hooks/use-toast';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -39,11 +41,25 @@ export const LoginForm = () => {
       return;
     }
 
+    // Rate limiting
+    const rateLimitKey = `login:${email}`;
+    if (!rateLimiter.check(rateLimitKey, RATE_LIMITS.LOGIN)) {
+      const remaining = rateLimiter.getRemainingTime(rateLimitKey);
+      toast({
+        title: "Demasiados intentos",
+        description: `Por favor espera ${formatRemainingTime(remaining)} antes de intentar de nuevo`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     
     try {
       const { error } = await signIn(email, password);
       if (!error) {
+        // Reset rate limit on successful login
+        rateLimiter.reset(rateLimitKey);
         // Wait a bit for session to be established
         await new Promise(resolve => setTimeout(resolve, 300));
         

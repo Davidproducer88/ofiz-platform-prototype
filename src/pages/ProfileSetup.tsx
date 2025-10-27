@@ -11,6 +11,31 @@ import { Camera, SkipForward, Save } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
+
+// Validation schema
+const profileSchema = z.object({
+  full_name: z.string()
+    .trim()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres')
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, 'El nombre solo puede contener letras'),
+  phone: z.string()
+    .trim()
+    .regex(/^\+?[\d\s-()]+$/, 'Formato de teléfono inválido')
+    .max(20, 'Teléfono demasiado largo')
+    .optional()
+    .or(z.literal('')),
+  address: z.string()
+    .trim()
+    .max(200, 'La dirección no puede exceder 200 caracteres')
+    .optional()
+    .or(z.literal('')),
+  city: z.string()
+    .optional()
+    .or(z.literal('')),
+  avatar_url: z.string().url().optional().or(z.literal(''))
+});
 
 const URUGUAY_CITIES = [
   // Montevideo
@@ -122,6 +147,7 @@ const ProfileSetup = () => {
     city: '',
     avatar_url: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -154,6 +180,10 @@ const ProfileSetup = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,6 +230,21 @@ const ProfileSetup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Validate form data
+    const validation = profileSchema.safeParse(formData);
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.errors.forEach((error) => {
+        if (error.path[0]) {
+          fieldErrors[error.path[0] as string] = error.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -309,7 +354,11 @@ const ProfileSetup = () => {
                   value={formData.full_name}
                   onChange={(e) => handleInputChange('full_name', e.target.value)}
                   disabled={loading}
+                  required
                 />
+                {errors.full_name && (
+                  <p className="text-sm text-destructive">{errors.full_name}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -317,11 +366,14 @@ const ProfileSetup = () => {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+57 300 123 4567"
+                  placeholder="+598 99 123 456"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   disabled={loading}
                 />
+                {errors.phone && (
+                  <p className="text-sm text-destructive">{errors.phone}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -333,7 +385,11 @@ const ProfileSetup = () => {
                   onChange={(e) => handleInputChange('address', e.target.value)}
                   disabled={loading}
                   rows={2}
+                  maxLength={200}
                 />
+                {errors.address && (
+                  <p className="text-sm text-destructive">{errors.address}</p>
+                )}
               </div>
 
               <div className="space-y-2">
