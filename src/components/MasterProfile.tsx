@@ -177,6 +177,7 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
     scheduledDate: Date;
     address: string;
     notes: string;
+    photos: string[];
   }) => {
     try {
       const service = services.find(s => s.id === bookingData.serviceId);
@@ -193,6 +194,7 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
           total_price: service.price,
           client_address: bookingData.address,
           notes: bookingData.notes,
+          client_photos: bookingData.photos,
           status: 'pending'
         })
         .select()

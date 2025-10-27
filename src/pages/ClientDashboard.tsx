@@ -212,6 +212,7 @@ const ClientDashboard = () => {
     scheduledDate: Date;
     address: string;
     notes: string;
+    photos: string[];
   }) => {
     try {
       const service = services.find(s => s.id === bookingData.serviceId);
@@ -227,6 +228,7 @@ const ClientDashboard = () => {
           total_price: service.price,
           client_address: bookingData.address,
           notes: bookingData.notes,
+          client_photos: bookingData.photos,
           status: 'pending'
         });
 

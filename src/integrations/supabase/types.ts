@@ -95,6 +95,7 @@ export type Database = {
         Row: {
           client_address: string
           client_id: string
+          client_photos: Json | null
           created_at: string
           id: string
           master_id: string
@@ -108,6 +109,7 @@ export type Database = {
         Insert: {
           client_address: string
           client_id: string
+          client_photos?: Json | null
           created_at?: string
           id?: string
           master_id: string
@@ -121,6 +123,7 @@ export type Database = {
         Update: {
           client_address?: string
           client_id?: string
+          client_photos?: Json | null
           created_at?: string
           id?: string
           master_id?: string
