@@ -161,6 +161,10 @@ export function OrderDetailsDialog({
                       src={order.marketplace_products.images[0]}
                       alt={order.marketplace_products.title}
                       className="h-20 w-20 rounded-lg object-cover border"
+                      onError={(e) => {
+                        console.error('Error loading product image');
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   )}
                   <div className="flex-1">
@@ -251,22 +255,24 @@ export function OrderDetailsDialog({
 
           {/* Customer & Shipping Info */}
           <div className="grid md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Cliente
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1 text-sm">
-                {order.profiles?.full_name && (
-                  <p className="font-medium">{order.profiles.full_name}</p>
-                )}
-                {order.profiles?.phone && (
-                  <p className="text-muted-foreground">Tel: {order.profiles.phone}</p>
-                )}
-              </CardContent>
-            </Card>
+            {order.profiles && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Cliente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-1 text-sm">
+                  {order.profiles.full_name && (
+                    <p className="font-medium">{order.profiles.full_name}</p>
+                  )}
+                  {order.profiles.phone && (
+                    <p className="text-muted-foreground">Tel: {order.profiles.phone}</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader className="pb-3">

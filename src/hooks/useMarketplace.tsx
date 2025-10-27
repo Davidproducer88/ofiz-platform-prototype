@@ -57,11 +57,11 @@ export interface MarketplaceOrder {
     title: string;
     images: string[];
     sku: string | null;
-  };
+  } | null;
   profiles?: {
     full_name: string;
     phone: string | null;
-  };
+  } | null;
 }
 
 export interface MarketplaceCategory {
@@ -212,23 +212,32 @@ export function useMarketplace(userId?: string) {
     if (!userId) return;
 
     try {
-      const { data, error } = await supabase
+      console.log('Fetching orders for user:', userId);
+      
+      // Fetch orders first
+      const { data: ordersData, error: ordersError } = await supabase
         .from('marketplace_orders')
-        .select(`
-          *,
-          marketplace_products!inner(
-            title,
-            images,
-            sku
-          )
-        `)
+        .select('*')
         .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (ordersError) {
+        console.error('Error fetching orders:', ordersError);
+        throw ordersError;
+      }
+
+      console.log('Orders fetched:', ordersData?.length || 0);
       
-      // Fetch buyer profiles separately
-      const ordersWithProfiles = await Promise.all((data || []).map(async (order) => {
+      // Enrich orders with product and profile data
+      const enrichedOrders = await Promise.all((ordersData || []).map(async (order) => {
+        // Fetch product data
+        const { data: product } = await supabase
+          .from('marketplace_products')
+          .select('title, images, sku')
+          .eq('id', order.product_id)
+          .single();
+        
+        // Fetch buyer profile
         const { data: profile } = await supabase
           .from('profiles')
           .select('full_name, phone')
@@ -237,13 +246,15 @@ export function useMarketplace(userId?: string) {
         
         return {
           ...order,
+          marketplace_products: product || undefined,
           profiles: profile || undefined
         };
       }));
       
-      setOrders(ordersWithProfiles as MarketplaceOrder[]);
+      console.log('Orders enriched with data:', enrichedOrders.length);
+      setOrders(enrichedOrders as MarketplaceOrder[]);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Error in fetchOrders:', error);
     }
   };
 
