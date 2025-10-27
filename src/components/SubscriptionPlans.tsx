@@ -67,13 +67,13 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: 29900,
+          price: 299000,
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: 59900,
+          price: 599000,
           applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
@@ -165,7 +165,7 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: "$299",
+      price: "$2,990",
       period: "/mes",
       features: [
         "20 propuestas por mes",
@@ -180,7 +180,7 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: "$599",
+      price: "$5,990",
       period: "/mes",
       features: [
         "50 propuestas por mes",
