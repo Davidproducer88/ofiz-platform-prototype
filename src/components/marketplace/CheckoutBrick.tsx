@@ -120,53 +120,52 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
               setIsLoading(false);
               toast.success('Formulario de pago listo');
             },
-            onSubmit: async (formData: any, additionalData: any) => {
-              // CRITICAL: Prevent default form submission and any redirects
-              try {
-                console.log('=== PAYMENT FORM SUBMITTED ===');
-                console.log('Form data received:', formData);
-                console.log('Additional data:', additionalData);
-                
-                // MercadoPago puede enviar los datos en diferentes estructuras
-                // Intentar extraer los datos de diferentes maneras
-                let paymentData = formData;
-                
-                // Si formData tiene formData dentro (estructura anidada)
-                if (formData.formData) {
-                  paymentData = formData.formData;
+            onSubmit: (formData: any) => {
+              // CRITICAL: Must return a Promise for proper async handling
+              return new Promise<void>(async (resolve, reject) => {
+                try {
+                  console.log('=== PAYMENT FORM SUBMITTED ===');
+                  console.log('Form data received:', formData);
+                  
+                  // MercadoPago puede enviar los datos en diferentes estructuras
+                  let paymentData = formData;
+                  
+                  // Si formData tiene formData dentro (estructura anidada)
+                  if (formData.formData) {
+                    paymentData = formData.formData;
+                  }
+                  
+                  // Si hay selectedPaymentMethod
+                  if (formData.selectedPaymentMethod) {
+                    paymentData = { ...paymentData, ...formData };
+                  }
+                  
+                  console.log('Processed payment data:', paymentData);
+                  
+                  // Validación
+                  const hasToken = paymentData.token || paymentData.card_token_id;
+                  const hasPaymentMethod = paymentData.payment_method_id || paymentData.paymentMethodId;
+                  
+                  if (!hasToken && !hasPaymentMethod) {
+                    console.error('Missing required payment data!', paymentData);
+                    toast.error('Por favor completa todos los datos de pago');
+                    reject(new Error('Datos incompletos'));
+                    return;
+                  }
+                  
+                  console.log('Payment data valid, calling onSuccess callback...');
+                  await onSuccess(paymentData);
+                  console.log('Payment processed successfully');
+                  
+                  // Resolve without data to prevent any redirect
+                  resolve();
+                } catch (error) {
+                  console.error('Payment error:', error);
+                  toast.error('Error al procesar el pago');
+                  onError(error);
+                  reject(error);
                 }
-                
-                // Si hay selectedPaymentMethod
-                if (formData.selectedPaymentMethod) {
-                  paymentData = { ...paymentData, ...formData };
-                }
-                
-                console.log('Processed payment data:', paymentData);
-                console.log('================================');
-                
-                // Validación más flexible - solo verificar que tengamos algún dato de pago
-                const hasToken = paymentData.token || paymentData.card_token_id;
-                const hasPaymentMethod = paymentData.payment_method_id || paymentData.paymentMethodId;
-                
-                if (!hasToken && !hasPaymentMethod) {
-                  console.error('Missing required payment data!', paymentData);
-                  toast.error('Por favor completa todos los datos de pago');
-                  return false; // Prevent default behavior
-                }
-                
-                console.log('Payment data valid, calling onSuccess callback...');
-                await onSuccess(paymentData);
-                console.log('Payment processed successfully');
-                toast.success('¡Pago procesado exitosamente!');
-                
-                // Return false to prevent any default redirect behavior
-                return false;
-              } catch (error) {
-                console.error('Payment error:', error);
-                toast.error('Error al procesar el pago');
-                onError(error);
-                return false; // Prevent default behavior even on error
-              }
+              });
             },
             onError: (error: any) => {
               console.error('Brick error:', error);
