@@ -171,16 +171,16 @@ export const BookingActions = ({
         )}
 
         {showReleaseEscrow && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleReleaseEscrow}
-            disabled={releasing}
-            className="flex-1 sm:flex-none"
-          >
-            <CheckCircle className="h-4 w-4 mr-2" />
-            {releasing ? 'Liberando...' : 'Liberar Pago'}
-          </Button>
+          <PaymentButton
+            bookingId={booking.id}
+            amount={booking.total_price}
+            title={`Pago Final - ${booking.services?.title || 'Servicio'}`}
+            description={`Pago por trabajo completado el ${new Date(booking.scheduled_date).toLocaleDateString('es-AR')}`}
+            onSuccess={async () => {
+              await handleReleaseEscrow();
+              if (onUpdate) onUpdate();
+            }}
+          />
         )}
 
         {showReschedule && onReschedule && (
