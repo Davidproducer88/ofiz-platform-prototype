@@ -71,6 +71,18 @@ serve(async (req) => {
               
               console.log('Processing approved payment for order:', orderId);
 
+              // Get order details
+              const { data: order, error: fetchError } = await supabaseClient
+                .from('marketplace_orders')
+                .select('*')
+                .eq('id', orderId)
+                .single();
+
+              if (fetchError || !order) {
+                console.error('Error fetching order:', fetchError);
+                continue;
+              }
+
               // Update marketplace order
               const { error: orderError } = await supabaseClient
                 .from('marketplace_orders')
@@ -87,6 +99,82 @@ serve(async (req) => {
                 console.error('Error updating marketplace order:', orderError);
               } else {
                 console.log('Marketplace order updated successfully:', orderId);
+                
+                // Process post-payment updates
+                // 1. Update product stock and sales
+                const { data: product } = await supabaseClient
+                  .from('marketplace_products')
+                  .select('stock_quantity, sales_count')
+                  .eq('id', order.product_id)
+                  .single();
+
+                if (product && product.stock_quantity >= order.quantity) {
+                  await supabaseClient
+                    .from('marketplace_products')
+                    .update({
+                      stock_quantity: product.stock_quantity - order.quantity,
+                      sales_count: (product.sales_count || 0) + 1
+                    })
+                    .eq('id', order.product_id);
+                }
+
+                // 2. Update seller balance
+                const { data: balance } = await supabaseClient
+                  .from('marketplace_seller_balance')
+                  .select('*')
+                  .eq('seller_id', order.seller_id)
+                  .single();
+
+                if (balance) {
+                  await supabaseClient
+                    .from('marketplace_seller_balance')
+                    .update({
+                      total_earnings: balance.total_earnings + order.seller_amount,
+                      available_balance: balance.available_balance + order.seller_amount
+                    })
+                    .eq('seller_id', order.seller_id);
+                } else {
+                  await supabaseClient
+                    .from('marketplace_seller_balance')
+                    .insert({
+                      seller_id: order.seller_id,
+                      total_earnings: order.seller_amount,
+                      available_balance: order.seller_amount
+                    });
+                }
+
+                // 3. Create transaction
+                await supabaseClient
+                  .from('marketplace_transactions')
+                  .insert({
+                    order_id: orderId,
+                    transaction_type: 'sale',
+                    amount: order.total_amount,
+                    platform_commission_amount: order.platform_fee,
+                    seller_net_amount: order.seller_amount,
+                    status: 'completed',
+                    payment_provider: 'mercadopago',
+                    payment_reference: payment.id.toString(),
+                    processed_at: new Date().toISOString()
+                  });
+
+                // 4. Create notifications
+                await supabaseClient.from('notifications').insert([
+                  {
+                    user_id: order.buyer_id,
+                    type: 'marketplace_order_confirmed',
+                    title: '✅ Pago confirmado',
+                    message: `Tu pago fue aprobado. Orden #${order.order_number}`,
+                    metadata: { order_id: orderId }
+                  },
+                  {
+                    user_id: order.seller_id,
+                    type: 'marketplace_new_sale',
+                    title: '💰 Nueva venta',
+                    message: `Nueva venta de $${order.seller_amount}. Orden #${order.order_number}`,
+                    metadata: { order_id: orderId }
+                  }
+                ]);
               }
             }
           }
@@ -244,6 +332,19 @@ serve(async (req) => {
       if (metadata.type === 'marketplace') {
         console.log('Processing marketplace payment for order:', externalReference);
         
+        // Get order details first
+        const { data: order, error: fetchError } = await supabaseClient
+          .from('marketplace_orders')
+          .select('*')
+          .eq('id', externalReference)
+          .single();
+
+        if (fetchError || !order) {
+          console.error('Error fetching order:', fetchError);
+          throw new Error('Order not found');
+        }
+
+        // Update order status
         const { error: orderError } = await supabaseClient
           .from('marketplace_orders')
           .update({
@@ -261,6 +362,98 @@ serve(async (req) => {
         }
 
         console.log('Marketplace order updated:', externalReference, status);
+
+          // If payment approved, process all related updates
+          if (status === 'approved') {
+            console.log('Payment approved via webhook - processing updates...');
+
+            // 1. Update product stock and sales
+            const { data: product } = await supabaseClient
+              .from('marketplace_products')
+              .select('stock_quantity, sales_count')
+              .eq('id', order.product_id)
+              .single();
+
+            if (product && product.stock_quantity >= order.quantity) {
+              await supabaseClient
+                .from('marketplace_products')
+                .update({
+                  stock_quantity: product.stock_quantity - order.quantity,
+                  sales_count: (product.sales_count || 0) + 1
+                })
+                .eq('id', order.product_id);
+            }
+
+            // 2. Update seller balance
+            const { data: existingBalance } = await supabaseClient
+              .from('marketplace_seller_balance')
+              .select('*')
+              .eq('seller_id', order.seller_id)
+              .single();
+
+            if (existingBalance) {
+              await supabaseClient
+                .from('marketplace_seller_balance')
+                .update({
+                  total_earnings: existingBalance.total_earnings + order.seller_amount,
+                  available_balance: existingBalance.available_balance + order.seller_amount,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('seller_id', order.seller_id);
+            } else {
+              await supabaseClient
+                .from('marketplace_seller_balance')
+                .insert({
+                  seller_id: order.seller_id,
+                  total_earnings: order.seller_amount,
+                  available_balance: order.seller_amount
+                });
+            }
+
+            // 3. Create transaction
+            await supabaseClient
+              .from('marketplace_transactions')
+              .insert({
+                order_id: externalReference,
+                transaction_type: 'sale',
+                amount: order.total_amount,
+                platform_commission_amount: order.platform_fee,
+                seller_net_amount: order.seller_amount,
+                status: 'completed',
+                payment_provider: 'mercadopago',
+                payment_reference: paymentId.toString(),
+                processed_at: new Date().toISOString()
+              });
+
+            // 4. Create notifications
+            await supabaseClient.from('notifications').insert([
+              {
+                user_id: order.buyer_id,
+                type: 'marketplace_order_confirmed',
+                title: '✅ Pago confirmado',
+                message: `Tu pago de $${order.total_amount} fue aprobado. Orden #${order.order_number}`,
+                metadata: {
+                  order_id: externalReference,
+                  payment_id: paymentId.toString(),
+                  amount: order.total_amount
+                }
+              },
+              {
+                user_id: order.seller_id,
+                type: 'marketplace_new_sale',
+                title: '💰 Nueva venta',
+                message: `Recibiste una nueva venta de $${order.seller_amount}. Orden #${order.order_number}`,
+                metadata: {
+                  order_id: externalReference,
+                  payment_id: paymentId.toString(),
+                  amount: order.seller_amount,
+                  buyer_id: order.buyer_id
+                }
+              }
+            ]);
+
+            console.log('All webhook post-payment updates completed');
+          }
       } else {
         // Regular booking payment
         console.log('Processing booking payment for:', externalReference);
