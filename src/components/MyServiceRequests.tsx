@@ -141,7 +141,7 @@ export function MyServiceRequests() {
     }
   };
 
-  const updateApplicationStatus = async (applicationId: string, status: string) => {
+  const updateApplicationStatus = async (applicationId: string, status: string, masterId?: string) => {
     try {
       const { error } = await supabase
         .from("service_applications")
@@ -152,10 +152,20 @@ export function MyServiceRequests() {
 
       toast({
         title: "Estado actualizado",
-        description: `Presupuesto ${status === "accepted" ? "aceptado" : "rechazado"}`,
+        description: status === "accepted" 
+          ? "Presupuesto aceptado. Ahora puedes chatear con el maestro en la pestaña 'Mensajes'"
+          : "Presupuesto rechazado",
       });
 
       fetchMyRequests();
+
+      // Si se aceptó, redirigir a mensajes después de un momento
+      if (status === "accepted") {
+        setTimeout(() => {
+          const messageTab = document.querySelector('[data-tab="mensajes"]') as HTMLElement;
+          if (messageTab) messageTab.click();
+        }, 2000);
+      }
     } catch (error: any) {
       console.error("Error updating application:", error);
       toast({
@@ -317,7 +327,11 @@ export function MyServiceRequests() {
                               <Button
                                 size="sm"
                                 onClick={() =>
-                                  updateApplicationStatus(application.id, "accepted")
+                                  updateApplicationStatus(
+                                    application.id, 
+                                    "accepted",
+                                    application.masters?.id
+                                  )
                                 }
                               >
                                 Aceptar presupuesto
@@ -331,6 +345,15 @@ export function MyServiceRequests() {
                               >
                                 Rechazar
                               </Button>
+                            </div>
+                          )}
+
+                          {application.status === "accepted" && (
+                            <div className="bg-primary/10 p-3 rounded-lg">
+                              <p className="text-sm font-medium mb-1">✓ Presupuesto aceptado</p>
+                              <p className="text-sm text-muted-foreground">
+                                Ve a la pestaña "Mensajes" para chatear y crear el encargo
+                              </p>
                             </div>
                           )}
                         </div>
