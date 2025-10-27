@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +31,6 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export function MarketplaceFeed() {
-  const navigate = useNavigate();
   const { profile } = useAuth();
   const { 
     products, 
@@ -168,37 +166,21 @@ export function MarketplaceFeed() {
       console.log('Payment processed successfully:', data);
 
       if (data.status === 'approved') {
-        console.log('Payment approved! Preparing redirect...');
+        console.log('Payment approved! Updating UI...');
         
         toast({
           title: '✅ ¡Pago exitoso!',
-          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Redirigiendo...`,
+          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada. Ve a la pestaña "Mis Órdenes" para ver los detalles.`,
+          duration: 5000,
         });
         
-        // Redirect based on user role
-        const userType = profile?.user_type;
-        console.log('User type for redirect:', userType);
-        
-        let redirectPath = '/';
-        if (userType === 'master') {
-          redirectPath = '/master-dashboard';
-        } else if (userType === 'client') {
-          redirectPath = '/client-dashboard';
-        } else if (userType === 'business') {
-          redirectPath = '/business-dashboard';
-        }
-        
-        console.log('Will redirect to:', redirectPath);
-        
-        // Close dialog first
+        // Close dialog - data will refresh automatically via real-time subscription
         setShowProductDialog(false);
         setSelectedProduct(null);
         
-        console.log('Navigating now...');
-        // Navigate immediately
-        navigate(redirectPath);
-        
         // Orders will refresh automatically via real-time subscription
+        console.log('Payment complete - orders will update automatically');
+        
       } else if (data.status === 'pending' || data.status === 'in_process') {
         toast({
           title: '⏳ Pago pendiente',

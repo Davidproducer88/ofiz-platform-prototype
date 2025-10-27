@@ -90,6 +90,7 @@ export function useMarketplace(userId?: string) {
           table: 'marketplace_products',
         },
         () => {
+          console.log('Products changed - refreshing...');
           fetchProducts();
         }
       )
@@ -102,7 +103,23 @@ export function useMarketplace(userId?: string) {
           filter: `buyer_id=eq.${userId}`,
         },
         () => {
+          console.log('Orders changed (as buyer) - refreshing...');
           fetchOrders();
+          fetchSellerBalance();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'marketplace_orders',
+          filter: `seller_id=eq.${userId}`,
+        },
+        () => {
+          console.log('Orders changed (as seller) - refreshing...');
+          fetchOrders();
+          fetchSellerBalance();
         }
       )
       .subscribe();
