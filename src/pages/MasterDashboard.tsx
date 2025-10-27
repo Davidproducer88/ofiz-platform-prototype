@@ -41,6 +41,7 @@ import { SubscriptionPlans } from '@/components/SubscriptionPlans';
 import { FinancialDashboard } from '@/components/FinancialDashboard';
 import { MasterAnalytics } from '@/components/master/MasterAnalytics';
 import { MyApplications } from '@/components/master/MyApplications';
+import { AvailableContracts } from '@/components/master/AvailableContracts';
 import { WorkCalendar } from '@/components/master/WorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
@@ -667,6 +668,7 @@ const MasterDashboard = () => {
             <TabsTrigger value="finances" className="text-xs sm:text-sm">Finanzas</TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">Análisis</TabsTrigger>
             <TabsTrigger value="applications" className="text-xs sm:text-sm">Propuestas</TabsTrigger>
+            <TabsTrigger value="contracts" className="text-xs sm:text-sm">Contratos</TabsTrigger>
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendario</TabsTrigger>
             <TabsTrigger value="notifications" className="text-xs sm:text-sm">Alertas</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs sm:text-sm">Transacciones</TabsTrigger>
@@ -1383,6 +1385,11 @@ const MasterDashboard = () => {
           {/* My Applications Tab */}
           <TabsContent value="applications" className="space-y-6">
             <MyApplications />
+          </TabsContent>
+
+          {/* Contracts Tab */}
+          <TabsContent value="contracts" className="space-y-6">
+            <AvailableContracts />
           </TabsContent>
 
           {/* Calendar Tab */}

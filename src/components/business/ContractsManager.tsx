@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Users, Calendar, DollarSign, MapPin, FileText } from "lucide-react";
+import { ContractPaymentCheckoutBrick } from "./ContractPaymentCheckoutBrick";
 
 interface ContractsManagerProps {
   businessId: string;
@@ -24,6 +25,8 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedContract, setSelectedContract] = useState<string | null>(null);
   const [applications, setApplications] = useState<any[]>([]);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -167,18 +170,47 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
     }
   };
 
-  const handleApplicationStatus = async (applicationId: string, status: 'accepted' | 'rejected') => {
+  const handleAcceptApplication = (application: any) => {
+    setSelectedApplication(application);
+    setShowPaymentDialog(true);
+  };
+
+  const handlePaymentSuccess = async (paymentData: any) => {
+    console.log('Payment successful:', paymentData);
+    toast({
+      title: "¡Pago exitoso!",
+      description: "El contrato ha sido asignado al profesional",
+    });
+    setShowPaymentDialog(false);
+    setSelectedApplication(null);
+    if (selectedContract) {
+      fetchApplications(selectedContract);
+    }
+    fetchContracts();
+    onUpdate();
+  };
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment error:', error);
+    toast({
+      variant: "destructive",
+      title: "Error en el pago",
+      description: "No se pudo procesar el pago. Intenta nuevamente.",
+    });
+  };
+
+  const handleRejectApplication = async (applicationId: string) => {
     try {
       const { error } = await supabase
         .from('business_contract_applications')
-        .update({ status })
+        .update({ status: 'rejected' })
         .eq('id', applicationId);
 
       if (error) throw error;
 
       toast({
-        title: status === 'accepted' ? "Aplicación aceptada" : "Aplicación rechazada",
-        description: `La aplicación ha sido ${status === 'accepted' ? 'aceptada' : 'rechazada'} correctamente`,
+        title: "Aplicación rechazada",
+        description: "La aplicación ha sido rechazada correctamente",
       });
 
       if (selectedContract) {
@@ -480,14 +512,14 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          onClick={() => handleApplicationStatus(app.id, 'accepted')}
+                          onClick={() => handleAcceptApplication(app)}
                         >
-                          Aceptar
+                          Aceptar y Pagar
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleApplicationStatus(app.id, 'rejected')}
+                          onClick={() => handleRejectApplication(app.id)}
                         >
                           Rechazar
                         </Button>
@@ -498,6 +530,50 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
               ))
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Confirmar Pago del Contrato</DialogTitle>
+            <DialogDescription>
+              Completa el pago para asignar el contrato al profesional
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedApplication && (
+            <div className="space-y-6">
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Profesional:</span>
+                  <span className="font-semibold">{selectedApplication.master?.business_name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Monto total:</span>
+                  <span className="text-2xl font-bold">${(selectedApplication.proposed_price / 100).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Comisión plataforma (5%):</span>
+                  <span className="font-medium">${(selectedApplication.proposed_price * 0.05 / 100).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">El profesional recibirá:</span>
+                  <span className="font-medium text-green-600">${(selectedApplication.proposed_price * 0.95 / 100).toLocaleString()}</span>
+                </div>
+              </div>
+
+              <ContractPaymentCheckoutBrick
+                amount={selectedApplication.proposed_price}
+                applicationId={selectedApplication.id}
+                contractTitle={contracts.find(c => c.id === selectedApplication.contract_id)?.title || ''}
+                masterName={selectedApplication.master?.business_name || ''}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
