@@ -280,10 +280,12 @@ export function MarketplaceFeed() {
             <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-primary/50 transition-all">
               <div className="flex items-center gap-2 mb-2">
                 <ShoppingCart className="h-5 w-5 text-secondary" />
-                <span className="text-sm text-muted-foreground">Órdenes</span>
+                <span className="text-sm text-muted-foreground">Mis Compras</span>
               </div>
-              <p className="text-2xl font-bold">{stats.totalOrders.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">{stats.totalSales} completadas</p>
+              <p className="text-2xl font-bold">{orders?.filter(o => o.buyer_id === profile?.id).length || 0}</p>
+              <p className="text-xs text-muted-foreground">
+                {orders?.filter(o => o.buyer_id === profile?.id && o.status === 'delivered').length || 0} recibidas
+              </p>
             </div>
 
             <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-primary/50 transition-all">
@@ -295,7 +297,24 @@ export function MarketplaceFeed() {
               <p className="text-xs text-muted-foreground">productos guardados</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="explorar" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="explorar" className="gap-2">
+            <Store className="h-4 w-4" />
+            Explorar Productos
+          </TabsTrigger>
+          <TabsTrigger value="compras" className="gap-2">
+            <ShoppingBag className="h-4 w-4" />
+            Mis Compras
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Explorar Tab */}
+        <TabsContent value="explorar" className="space-y-6">
           {/* Search Bar */}
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
@@ -312,81 +331,60 @@ export function MarketplaceFeed() {
               Filtros
             </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Categories */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <Button
-          variant={selectedCategory === 'all' ? 'default' : 'outline'}
-          onClick={() => setSelectedCategory('all')}
-          size="sm"
-          className="whitespace-nowrap"
-        >
-          Todos
-        </Button>
-        {categories.map((category) => (
-          <Button
-            key={category.id}
-            variant={selectedCategory === category.id ? 'default' : 'outline'}
-            onClick={() => setSelectedCategory(category.id)}
-            size="sm"
-            className="whitespace-nowrap gap-1"
-          >
-            {category.icon} {category.name}
-          </Button>
-        ))}
-      </div>
+          {/* Categories */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory('all')}
+              size="sm"
+              className="whitespace-nowrap"
+            >
+              Todos
+            </Button>
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.id ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(category.id)}
+                size="sm"
+                className="whitespace-nowrap gap-1"
+              >
+                {category.icon} {category.name}
+              </Button>
+            ))}
+          </div>
 
-      {/* Featured Products */}
-      {featuredProducts.length > 0 && (
-        <Card className="border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-background">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-amber-500" />
-              Productos Destacados
-              <Badge variant="secondary">Premium</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {featuredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isFavorite={favorites.includes(product.id)}
-                  onToggleFavorite={() => toggleFavorite(product.id)}
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setShowProductDialog(true);
-                  }}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="marketplace" className="space-y-4">
-        <TabsList className={`grid w-full ${profile?.user_type === 'business' ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          <TabsTrigger value="marketplace" className="gap-2">
-            <ShoppingBag className="h-4 w-4" />
-            Marketplace
-          </TabsTrigger>
-          <TabsTrigger value="orders" className="gap-2">
-            <Package className="h-4 w-4" />
-            Mis Órdenes
-          </TabsTrigger>
-          {profile?.user_type === 'business' && (
-            <TabsTrigger value="seller" className="gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Panel Vendedor
-            </TabsTrigger>
+          {/* Featured Products */}
+          {featuredProducts.length > 0 && (
+            <Card className="border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-background">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-amber-500" />
+                  Productos Destacados
+                  <Badge variant="secondary">Premium</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {featuredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      isFavorite={favorites.includes(product.id)}
+                      onToggleFavorite={() => toggleFavorite(product.id)}
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setShowProductDialog(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
-        </TabsList>
 
-        <TabsContent value="marketplace" className="space-y-4">
+          {/* Products Grid */}
           {filteredProducts.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
@@ -417,51 +415,13 @@ export function MarketplaceFeed() {
           )}
         </TabsContent>
 
-        <TabsContent value="orders">
-          <OrdersTable orders={orders} onUpdateStatus={updateOrderStatus} />
-        </TabsContent>
-
-        <TabsContent value="seller">
-          {profile?.user_type === 'business' ? (
-            <SellerDashboard
-              balance={balance}
-              products={products.filter(p => p.business_id === profile?.id) || []}
-              orders={orders.filter(o => o.seller_id === profile?.id) || []}
-            />
-          ) : (
-            <Card className="border-amber-500/20 bg-amber-500/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-500">
-                  <AlertTriangle className="h-5 w-5" />
-                  Cuenta Empresarial Requerida
-                </CardTitle>
-                <CardDescription>
-                  Solo las cuentas empresariales pueden vender en el marketplace
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  El Panel Vendedor es exclusivo para empresas registradas en Ofiz con suscripción activa.
-                </p>
-                <div className="space-y-2 text-sm">
-                  <p><strong>Beneficios de vender como empresa:</strong></p>
-                  <p>✓ Alcanza miles de compradores potenciales</p>
-                  <p>✓ Sistema de pagos seguro integrado</p>
-                  <p>✓ Gestión completa de inventario y órdenes</p>
-                  <p>✓ Analytics y reportes en tiempo real</p>
-                  <p>✓ Comisión competitiva del 7%</p>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    Los maestros y clientes pueden comprar productos pero no venderlos directamente.
-                  </p>
-                </div>
-                <Button asChild>
-                  <a href="/auth?mode=business">
-                    Crear cuenta empresarial
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+        {/* Mis Compras Tab */}
+        <TabsContent value="compras" className="space-y-6">
+          <OrdersTable 
+            orders={orders?.filter(o => o.buyer_id === profile?.id) || []} 
+            onUpdateStatus={updateOrderStatus}
+            isSeller={false}
+          />
         </TabsContent>
       </Tabs>
 
