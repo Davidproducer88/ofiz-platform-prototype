@@ -43,7 +43,11 @@ export function MarketplaceFeed() {
     loading,
     toggleFavorite,
     createOrder,
-    updateOrderStatus
+    updateOrderStatus,
+    updateProduct,
+    updateStock,
+    deleteProduct,
+    createProduct
   } = useMarketplace(profile?.id);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -222,6 +226,12 @@ export function MarketplaceFeed() {
 
   const featuredProducts = (products || []).filter(p => p.featured).slice(0, 3);
 
+  // Filtrar productos y órdenes según si es vendedor o comprador
+  const myProducts = products?.filter(p => p.business_id === profile?.id) || [];
+  const myBuyerOrders = orders?.filter(o => o.buyer_id === profile?.id) || [];
+  const mySellerOrders = orders?.filter(o => o.seller_id === profile?.id) || [];
+  const isBusinessSeller = profile?.user_type === 'business' && myProducts.length > 0;
+
   const stats = {
     totalProducts: products?.length || 0,
     totalOrders: orders?.length || 0,
@@ -302,7 +312,7 @@ export function MarketplaceFeed() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="explorar" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsList className={`grid w-full ${isBusinessSeller ? 'grid-cols-3' : 'grid-cols-2'} mb-6`}>
           <TabsTrigger value="explorar" className="gap-2">
             <Store className="h-4 w-4" />
             Explorar Productos
@@ -311,6 +321,12 @@ export function MarketplaceFeed() {
             <ShoppingBag className="h-4 w-4" />
             Mis Compras
           </TabsTrigger>
+          {isBusinessSeller && (
+            <TabsTrigger value="ventas" className="gap-2">
+              <DollarSign className="h-4 w-4" />
+              Mis Ventas
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Explorar Tab */}
@@ -417,12 +433,46 @@ export function MarketplaceFeed() {
 
         {/* Mis Compras Tab */}
         <TabsContent value="compras" className="space-y-6">
-          <OrdersTable 
-            orders={orders?.filter(o => o.buyer_id === profile?.id) || []} 
-            onUpdateStatus={updateOrderStatus}
-            isSeller={false}
-          />
+          {myBuyerOrders.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg font-medium text-muted-foreground">
+                  No tienes compras aún
+                </p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Explora el marketplace y realiza tu primera compra
+                </p>
+                <Button onClick={() => document.querySelector('[value="explorar"]')?.dispatchEvent(new Event('click', { bubbles: true }))}>
+                  Explorar productos
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <OrdersTable 
+              orders={myBuyerOrders} 
+              onUpdateStatus={updateOrderStatus}
+              isSeller={false}
+            />
+          )}
         </TabsContent>
+
+        {/* Mis Ventas Tab (Solo para empresas vendedoras) */}
+        {isBusinessSeller && (
+          <TabsContent value="ventas" className="space-y-6">
+            <SellerDashboard
+              balance={balance}
+              products={myProducts}
+              orders={mySellerOrders}
+              onUpdateProduct={updateProduct}
+              onUpdateStock={updateStock}
+              onDeleteProduct={deleteProduct}
+              onCreateProduct={createProduct}
+              onUpdateOrderStatus={updateOrderStatus}
+              categories={categories}
+            />
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Product Dialog */}

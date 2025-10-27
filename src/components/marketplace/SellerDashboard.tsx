@@ -14,7 +14,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useState } from 'react';
-import type { MarketplaceProduct, MarketplaceOrder } from '@/hooks/useMarketplace';
+import type { MarketplaceProduct, MarketplaceOrder, MarketplaceCategory } from '@/hooks/useMarketplace';
 import {
   Table,
   TableBody,
@@ -36,11 +36,25 @@ interface SellerDashboardProps {
   };
   products?: MarketplaceProduct[];
   orders?: MarketplaceOrder[];
+  onUpdateProduct?: (productId: string, productData: Partial<MarketplaceProduct>) => Promise<any>;
+  onUpdateStock?: (productId: string, newStock: number) => Promise<any>;
+  onDeleteProduct?: (productId: string) => Promise<any>;
+  onCreateProduct?: (productData: any) => Promise<any>;
+  onUpdateOrderStatus?: (orderId: string, status: MarketplaceOrder['status'], trackingNumber?: string) => Promise<any>;
+  categories?: MarketplaceCategory[];
 }
 
-export function SellerDashboard({ balance, products, orders }: SellerDashboardProps) {
-  const { profile } = useAuth();
-  const { categories, updateProduct, updateStock, deleteProduct, createProduct, updateOrderStatus } = useMarketplace(profile?.id);
+export function SellerDashboard({ 
+  balance, 
+  products, 
+  orders,
+  onUpdateProduct,
+  onUpdateStock,
+  onDeleteProduct,
+  onCreateProduct,
+  onUpdateOrderStatus,
+  categories = []
+}: SellerDashboardProps) {
   const [editingProduct, setEditingProduct] = useState<MarketplaceProduct | undefined>();
   const [showProductForm, setShowProductForm] = useState(false);
   const [stockEditId, setStockEditId] = useState<string | null>(null);
@@ -55,10 +69,12 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
   const lowStockProducts = products?.filter(p => (p.stock_quantity || 0) > 0 && (p.stock_quantity || 0) <= 5) || [];
 
   const handleSaveProduct = async (productData: any) => {
+    if (!onUpdateProduct || !onCreateProduct) return;
+    
     if (editingProduct) {
-      await updateProduct(editingProduct.id, productData);
+      await onUpdateProduct(editingProduct.id, productData);
     } else {
-      await createProduct(productData);
+      await onCreateProduct(productData);
     }
     setShowProductForm(false);
     setEditingProduct(undefined);
@@ -70,13 +86,15 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
   };
 
   const handleSaveStock = async (productId: string) => {
-    await updateStock(productId, newStock);
+    if (!onUpdateStock) return;
+    await onUpdateStock(productId, newStock);
     setStockEditId(null);
   };
 
   const handleDeleteProduct = async (productId: string) => {
+    if (!onDeleteProduct) return;
     if (confirm('¿Estás seguro de eliminar este producto?')) {
-      await deleteProduct(productId);
+      await onDeleteProduct(productId);
     }
   };
 
@@ -396,7 +414,7 @@ export function SellerDashboard({ balance, products, orders }: SellerDashboardPr
       {orders && orders.length > 0 && (
         <OrdersTable 
           orders={orders} 
-          onUpdateStatus={updateOrderStatus}
+          onUpdateStatus={onUpdateOrderStatus}
           isSeller={true}
         />
       )}
