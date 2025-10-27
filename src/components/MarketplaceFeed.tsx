@@ -176,15 +176,16 @@ export function MarketplaceFeed() {
           duration: 3000,
         });
         
-        // Close dialog
+        // Close dialog first to unmount the brick properly
+        console.log('Closing product dialog...');
         setShowProductDialog(false);
         setSelectedProduct(null);
         
-        // Redirect to client dashboard after a short delay
+        // Wait for the dialog to close and brick to unmount, then redirect
         setTimeout(() => {
           console.log('Redirecting to client dashboard...');
           navigate('/client-dashboard');
-        }, 2000);
+        }, 500); // Shorter delay since we're already closing the dialog
         
       } else if (data.status === 'pending' || data.status === 'in_process') {
         toast({

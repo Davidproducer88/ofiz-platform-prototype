@@ -195,9 +195,18 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
     return () => {
       if (brickRef.current) {
         console.log('Cleaning up Payment Brick');
-        brickRef.current.unmount().catch((err: any) => {
-          console.error('Error unmounting brick:', err);
-        });
+        try {
+          // Unmount without waiting for the promise to prevent errors during navigation
+          const unmountPromise = brickRef.current.unmount();
+          if (unmountPromise && typeof unmountPromise.catch === 'function') {
+            unmountPromise.catch((err: any) => {
+              console.warn('Error unmounting brick (safe to ignore during navigation):', err);
+            });
+          }
+        } catch (err) {
+          console.warn('Error during brick cleanup (safe to ignore during navigation):', err);
+        }
+        brickRef.current = null;
       }
     };
   }, [amount, orderId]);
