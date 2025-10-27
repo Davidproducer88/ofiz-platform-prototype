@@ -1524,6 +1524,36 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          ip_address: unknown
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       service_applications: {
         Row: {
           created_at: string | null
@@ -1856,6 +1886,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { user_id?: string }; Returns: boolean }
+      is_valid_email: { Args: { email: string }; Returns: boolean }
       recalculate_all_rankings: { Args: never; Returns: undefined }
       reset_monthly_applications: { Args: never; Returns: undefined }
       seed_initial_feed_data: { Args: never; Returns: undefined }
