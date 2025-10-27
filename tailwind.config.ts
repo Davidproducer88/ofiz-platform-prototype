@@ -23,6 +23,7 @@ export default {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
           hover: "hsl(var(--primary-hover))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -74,6 +75,7 @@ export default {
       },
       boxShadow: {
         'elegant': 'var(--shadow-elegant)',
+        'glow': 'var(--shadow-glow)',
         'soft': 'var(--shadow-soft)',
         'card': 'var(--shadow-card)',
       },

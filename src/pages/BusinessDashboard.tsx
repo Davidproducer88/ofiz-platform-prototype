@@ -19,7 +19,11 @@ import {
   FileText,
   Settings,
   Package,
-  AlertTriangle
+  AlertTriangle,
+  Download,
+  Sparkles,
+  Target,
+  Zap
 } from "lucide-react";
 import { BusinessProfile } from "@/components/business/BusinessProfile";
 import { BusinessSubscriptionPlans } from "@/components/business/BusinessSubscriptionPlans";
@@ -188,6 +192,60 @@ export default function BusinessDashboard() {
             Gestiona tus campañas publicitarias y contrataciones de profesionales
           </p>
         </div>
+
+        {/* Dossier Banner */}
+        <Card className="mb-8 overflow-hidden border-2 border-primary/20 shadow-lg bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Potencia tu Empresa con Ofiz Business
+                  </h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Descarga nuestro dossier empresarial con información detallada sobre planes, ROI, gestión de contratos múltiples y casos de éxito de empresas que ya confían en nosotros.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                    <Building2 className="h-3 w-3 mr-1" />
+                    Planes desde $4,500/mes
+                  </Badge>
+                  <Badge variant="secondary" className="bg-secondary/10 text-secondary border-secondary/20">
+                    <Target className="h-3 w-3 mr-1" />
+                    Publicidad Dirigida
+                  </Badge>
+                  <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/20">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Gestión Centralizada
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
+                  onClick={() => window.open('/dossier-empresas', '_blank')}
+                >
+                  <FileText className="h-5 w-5 mr-2" />
+                  Ver Dossier Empresarial
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    window.open('/dossier-empresas', '_blank');
+                    setTimeout(() => window.print(), 1000);
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar PDF
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

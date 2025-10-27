@@ -30,7 +30,10 @@ import {
   Bell,
   Settings,
   Award,
-  BarChart3
+  BarChart3,
+  FileText,
+  Download,
+  Sparkles
 } from 'lucide-react';
 import { ServiceRequestsList } from '@/components/ServiceRequestsList';
 import { ApplicationDialog } from '@/components/ApplicationDialog';
@@ -594,6 +597,60 @@ const MasterDashboard = () => {
             </Tabs>
           </div>
         </div>
+
+        {/* Dossier Banner */}
+        <Card className="mb-8 overflow-hidden border-2 border-primary/20 shadow-elegant bg-gradient-to-br from-primary/5 via-background to-primary-glow/5">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                  <h3 className="text-xl font-bold gradient-text">
+                    ¡Descubre Todo lo que Ofiz Puede Hacer por Ti!
+                  </h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Descarga nuestro dossier completo con toda la información sobre planes, beneficios, casos de éxito y cómo maximizar tus ingresos en la plataforma.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                    <Award className="h-3 w-3 mr-1" />
+                    Planes Premium desde $2,990
+                  </Badge>
+                  <Badge variant="secondary" className="bg-secondary/10 text-secondary border-secondary/20">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    ROI de +4,900%
+                  </Badge>
+                  <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/20">
+                    <Star className="h-3 w-3 mr-1" />
+                    Casos de Éxito Reales
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  size="lg"
+                  className="bg-gradient-primary hover:opacity-90 shadow-glow"
+                  onClick={() => window.open('/dossier-maestros', '_blank')}
+                >
+                  <FileText className="h-5 w-5 mr-2" />
+                  Ver Dossier Completo
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    window.open('/dossier-maestros', '_blank');
+                    setTimeout(() => window.print(), 1000);
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar PDF
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
