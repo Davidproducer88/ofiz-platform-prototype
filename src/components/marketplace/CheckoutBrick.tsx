@@ -58,17 +58,41 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
       try {
         console.log('Initializing Payment Brick for order:', orderId);
         
+        // Verificar que el contenedor existe
+        const container = document.getElementById('mercadopago-brick-container');
+        if (!container) {
+          console.error('Container not found!');
+          toast.error('Error: contenedor no encontrado');
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log('Container found, creating MercadoPago instance...');
+        
+        // @ts-ignore - MercadoPago SDK
+        if (!window.MercadoPago) {
+          console.error('MercadoPago SDK not loaded!');
+          toast.error('SDK de MercadoPago no disponible');
+          setIsLoading(false);
+          return;
+        }
+        
         // @ts-ignore - MercadoPago SDK
         const mp = new window.MercadoPago('TEST-4ca50886-cc32-4210-aa69-7d6faafef84c', {
           locale: 'es-UY'
         });
 
+        console.log('MercadoPago instance created, getting bricks builder...');
         const bricksBuilder = mp.bricks();
 
         // Destroy previous brick if exists
         if (brickRef.current) {
           console.log('Unmounting previous brick');
-          await brickRef.current.unmount();
+          try {
+            await brickRef.current.unmount();
+          } catch (unmountError) {
+            console.warn('Error unmounting previous brick:', unmountError);
+          }
         }
 
         console.log('Creating payment brick with amount:', amount);
