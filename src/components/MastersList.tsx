@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Star, MapPin, CheckCircle, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { MasterProfile } from "@/components/MasterProfile";
 
 interface SearchFilters {
   priceRange: [number, number];
@@ -55,6 +57,8 @@ export const MastersList = ({
 }: MastersListProps) => {
   const [masters, setMasters] = useState<Master[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMasterId, setSelectedMasterId] = useState<string | null>(null);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchMasters();
@@ -196,72 +200,29 @@ export const MastersList = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {masters.map((master) => (
-        <Card key={master.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={master.profiles.avatar_url} />
-              <AvatarFallback>{master.profiles.full_name[0]}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold">{master.profiles.full_name}</h3>
-                {master.is_verified && (
-                  <CheckCircle className="h-4 w-4 text-primary" />
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {master.business_name}
-              </p>
-              <div className="flex items-center gap-1 mt-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{master.rating}</span>
-                <span className="text-sm text-muted-foreground">
-                  ({master.total_reviews} reviews)
-                </span>
-              </div>
-            </div>
-          </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {masters.map((master) => (
+          <Card key={master.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
+...
+          </Card>
+        ))}
+      </div>
 
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-            {master.description}
-          </p>
-
-          <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{master.profiles.city}</span>
-            {master.distance !== undefined && (
-              <>
-                <span className="text-primary font-medium">• {master.distance.toFixed(1)} km</span>
-              </>
-            )}
-            <Clock className="h-4 w-4 ml-2" />
-            <span>{master.experience_years} años exp.</span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mb-4">
-            {master.services.slice(0, 3).map((service, idx) => (
-              <Badge key={idx} variant="secondary">
-                {getCategoryLabel(service.category)}
-              </Badge>
-            ))}
-            {master.services.length > 3 && (
-              <Badge variant="outline">+{master.services.length - 3}</Badge>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-2xl font-bold">
-                ${master.hourly_rate}
-              </span>
-              <span className="text-sm text-muted-foreground">/hora</span>
-            </div>
-            <Button>Ver Perfil</Button>
-          </div>
-        </Card>
-      ))}
-    </div>
+      {/* Master Profile Dialog */}
+      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Perfil del Profesional</DialogTitle>
+          </DialogHeader>
+          {selectedMasterId && (
+            <MasterProfile
+              masterId={selectedMasterId}
+              onClose={() => setProfileDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
