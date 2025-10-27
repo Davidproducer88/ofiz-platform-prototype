@@ -58,9 +58,10 @@ serve(async (req) => {
       throw new Error('Reserva no encontrada');
     }
 
-    // Calculate commission (7%)
-    const commissionAmount = Math.round(amount * 0.07 * 100) / 100;
-    const masterAmount = amount - commissionAmount;
+    // Calculate commission (5% for services, included in the amount)
+    const commissionRate = 0.05;
+    const commissionAmount = parseFloat((amount * commissionRate).toFixed(2));
+    const masterAmount = parseFloat((amount - commissionAmount).toFixed(2));
 
     // Create payment preference with Mercado Pago
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, X, Image as ImageIcon } from 'lucide-react';
+import { Send, Paperclip, X, Image as ImageIcon, FileCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,6 +10,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CreateBookingFromChat } from './CreateBookingFromChat';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -27,8 +29,10 @@ export const ChatWindow = ({
   onClose 
 }: ChatWindowProps) => {
   const { profile } = useAuth();
-  const { messages, sending, sendMessage } = useChat(conversationId);
+  const { messages, sending, sendMessage, refreshConversations } = useChat(conversationId);
   const [messageText, setMessageText] = useState('');
+  const [showCreateBooking, setShowCreateBooking] = useState(false);
+  const [conversationData, setConversationData] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll al final cuando hay nuevos mensajes
@@ -37,6 +41,20 @@ export const ChatWindow = ({
       scrollRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  useEffect(() => {
+    loadConversationData();
+  }, [conversationId]);
+
+  const loadConversationData = async () => {
+    const { data } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("id", conversationId)
+      .single();
+    
+    setConversationData(data);
+  };
 
   const handleSend = async () => {
     if (!messageText.trim() || sending) return;
@@ -63,22 +81,36 @@ export const ChatWindow = ({
     }
   };
 
+  const canCreateBooking = conversationData && !conversationData.booking_id;
+
   const content = (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="border-b p-4 bg-card">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex-1">
             <h3 className="font-semibold">{otherUserName}</h3>
             {bookingTitle && (
               <p className="text-sm text-muted-foreground">{bookingTitle}</p>
             )}
           </div>
-          {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {canCreateBooking && (
+              <Button
+                size="sm"
+                onClick={() => setShowCreateBooking(true)}
+                className="gap-2"
+              >
+                <FileCheck className="h-4 w-4" />
+                Crear Encargo
+              </Button>
+            )}
+            {onClose && (
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -187,14 +219,46 @@ export const ChatWindow = ({
   // Si se proporciona isOpen y onClose, renderizar como Dialog
   if (isOpen !== undefined && onClose) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl h-[600px] p-0">
-          {content}
-        </DialogContent>
-      </Dialog>
+      <>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="max-w-2xl h-[600px] p-0">
+            {content}
+          </DialogContent>
+        </Dialog>
+        {conversationData && (
+          <CreateBookingFromChat
+            open={showCreateBooking}
+            onOpenChange={setShowCreateBooking}
+            conversationId={conversationId}
+            masterId={conversationData.master_id}
+            clientId={conversationData.client_id}
+            onSuccess={() => {
+              refreshConversations();
+              loadConversationData();
+            }}
+          />
+        )}
+      </>
     );
   }
 
   // De lo contrario, renderizar directamente
-  return <div className="h-full">{content}</div>;
+  return (
+    <>
+      <div className="h-full">{content}</div>
+      {conversationData && (
+        <CreateBookingFromChat
+          open={showCreateBooking}
+          onOpenChange={setShowCreateBooking}
+          conversationId={conversationId}
+          masterId={conversationData.master_id}
+          clientId={conversationData.client_id}
+          onSuccess={() => {
+            refreshConversations();
+            loadConversationData();
+          }}
+        />
+      )}
+    </>
+  );
 };

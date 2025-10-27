@@ -141,7 +141,7 @@ export function MyServiceRequests() {
     }
   };
 
-  const updateApplicationStatus = async (applicationId: string, status: string, masterId?: string) => {
+  const updateApplicationStatus = async (applicationId: string, status: string) => {
     try {
       const { error } = await supabase
         .from("service_applications")
@@ -327,11 +327,7 @@ export function MyServiceRequests() {
                               <Button
                                 size="sm"
                                 onClick={() =>
-                                  updateApplicationStatus(
-                                    application.id, 
-                                    "accepted",
-                                    application.masters?.id
-                                  )
+                                  updateApplicationStatus(application.id, "accepted")
                                 }
                               >
                                 Aceptar presupuesto
