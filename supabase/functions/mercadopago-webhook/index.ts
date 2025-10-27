@@ -26,12 +26,87 @@ serve(async (req) => {
     
     if (!xSignature || !xRequestId) {
       console.warn('Missing MercadoPago headers');
-      // No rechazamos para compatibilidad, pero logueamos
     }
 
-    // Validar que body contenga los campos necesarios
+    const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
+
+    // MercadoPago sends notifications in two formats:
+    // 1. New format: { type, data: { id } }
+    // 2. Old format: { topic, resource }
+    
+    // Handle old format (merchant_order, payment)
+    if (body.topic && body.resource) {
+      const topic = body.topic;
+      const resourceUrl = body.resource;
+      
+      console.log('Processing old format notification:', { topic, resourceUrl });
+
+      // Handle merchant_order (marketplace payments)
+      if (topic === 'merchant_order') {
+        console.log('Fetching merchant order from:', resourceUrl);
+        
+        const mpResponse = await fetch(resourceUrl, {
+          headers: {
+            'Authorization': `Bearer ${mercadoPagoToken}`,
+          },
+        });
+
+        if (!mpResponse.ok) {
+          throw new Error(`Error fetching merchant order: ${mpResponse.status}`);
+        }
+
+        const merchantOrder = await mpResponse.json();
+        console.log('Merchant order data:', JSON.stringify(merchantOrder));
+
+        // Process payments in the merchant order
+        if (merchantOrder.payments && merchantOrder.payments.length > 0) {
+          for (const payment of merchantOrder.payments) {
+            if (payment.status === 'approved') {
+              const orderId = merchantOrder.external_reference;
+              
+              console.log('Processing approved payment for order:', orderId);
+
+              // Update marketplace order
+              const { error: orderError } = await supabaseClient
+                .from('marketplace_orders')
+                .update({
+                  payment_status: 'paid',
+                  status: 'confirmed',
+                  payment_method: payment.payment_type,
+                  mercadopago_payment_id: payment.id.toString(),
+                  confirmed_at: new Date().toISOString()
+                })
+                .eq('id', orderId);
+
+              if (orderError) {
+                console.error('Error updating marketplace order:', orderError);
+              } else {
+                console.log('Marketplace order updated successfully:', orderId);
+              }
+            }
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ received: true }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          }
+        );
+      }
+    }
+
+    // Validar que body contenga los campos necesarios para el formato nuevo
     if (!body || !body.type || !body.data || !body.data.id) {
-      throw new Error('Invalid webhook payload');
+      console.error('Invalid webhook payload - missing required fields');
+      return new Response(
+        JSON.stringify({ received: true }), // Return 200 to avoid retries
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
     }
 
     // Mercado Pago sends notifications for different events
@@ -40,8 +115,6 @@ serve(async (req) => {
     if (body.type === 'subscription_preapproval' || body.type === 'subscription_authorized_payment') {
       const preapprovalId = body.data.id;
       console.log('Processing subscription notification for:', preapprovalId);
-
-      const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
       
       // Get subscription details from Mercado Pago
       const mpResponse = await fetch(`https://api.mercadopago.com/preapproval/${preapprovalId}`, {
@@ -124,9 +197,6 @@ serve(async (req) => {
     if (body.type === 'payment') {
       const paymentId = body.data.id;
       console.log('Processing payment notification for:', paymentId);
-
-      // Get payment details from Mercado Pago
-      const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
       
       const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
         headers: {
