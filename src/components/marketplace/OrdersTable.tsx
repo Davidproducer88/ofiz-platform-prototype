@@ -18,7 +18,7 @@ import { useState } from 'react';
 
 interface OrdersTableProps {
   orders: MarketplaceOrder[];
-  onUpdateStatus?: (orderId: string, status: string, trackingNumber?: string) => Promise<void>;
+  onUpdateStatus?: (orderId: string, status: MarketplaceOrder['status'], trackingNumber?: string) => Promise<void>;
   isSeller?: boolean;
 }
 

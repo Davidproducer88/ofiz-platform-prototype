@@ -53,6 +53,7 @@ export function OrderDetailsDialog({
 
   // Sincronizar estado cuando cambia la orden
   useEffect(() => {
+    console.log('Order changed in dialog:', order?.id, order?.status);
     if (order) {
       setStatus(order.status);
       setTrackingNumber(order.tracking_number || '');
@@ -60,6 +61,14 @@ export function OrderDetailsDialog({
   }, [order?.id, order?.status, order?.tracking_number]);
 
   if (!order) return null;
+
+  console.log('OrderDetailsDialog rendering:', { 
+    orderId: order.id, 
+    orderStatus: order.status, 
+    paymentStatus: order.payment_status,
+    isSeller,
+    selectedStatus: status
+  });
 
   const statusIcons = {
     pending: Clock,
@@ -389,10 +398,13 @@ export function OrderDetailsDialog({
 
                     <Button
                       className="w-full"
-                      onClick={handleUpdateStatus}
-                      disabled={isUpdating || status === order.status}
+                      onClick={() => {
+                        console.log('Button clicked!', { status, currentOrderStatus: order.status, isUpdating });
+                        handleUpdateStatus();
+                      }}
+                      disabled={isUpdating}
                     >
-                      {isUpdating ? 'Actualizando...' : 'Actualizar Orden'}
+                      {isUpdating ? 'Actualizando...' : status === order.status ? 'Sin cambios' : 'Actualizar Orden'}
                     </Button>
                   </>
                 ) : (
