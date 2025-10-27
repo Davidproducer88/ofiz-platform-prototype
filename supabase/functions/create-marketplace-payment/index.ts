@@ -168,17 +168,23 @@ serve(async (req) => {
 
     // If payment is approved, process all related updates
     if (paymentResult.status === 'approved') {
-        console.log('Payment approved - processing post-payment updates...');
+      console.log('Payment approved - processing post-payment updates...');
+
+      // Create admin client with service role for system operations
+      const supabaseAdmin = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
 
       // 1. Update product stock and sales count
-      const { data: product } = await supabaseClient
+      const { data: product } = await supabaseAdmin
         .from('marketplace_products')
         .select('stock_quantity, sales_count')
         .eq('id', order.product_id)
         .single();
 
       if (product && product.stock_quantity >= order.quantity) {
-        const { error: productError } = await supabaseClient
+        const { error: productError } = await supabaseAdmin
           .from('marketplace_products')
           .update({
             stock_quantity: product.stock_quantity - order.quantity,
@@ -196,14 +202,14 @@ serve(async (req) => {
       }
 
       // 2. Update or create seller balance
-      const { data: existingBalance } = await supabaseClient
+      const { data: existingBalance } = await supabaseAdmin
         .from('marketplace_seller_balance')
         .select('*')
         .eq('seller_id', order.seller_id)
         .single();
 
       if (existingBalance) {
-        const { error: balanceError } = await supabaseClient
+        const { error: balanceError } = await supabaseAdmin
           .from('marketplace_seller_balance')
           .update({
             total_earnings: Number(existingBalance.total_earnings) + Number(order.seller_amount),
@@ -216,7 +222,7 @@ serve(async (req) => {
           console.error('Error updating balance:', balanceError);
         }
       } else {
-        const { error: balanceError } = await supabaseClient
+        const { error: balanceError } = await supabaseAdmin
           .from('marketplace_seller_balance')
           .insert({
             seller_id: order.seller_id,
@@ -232,7 +238,7 @@ serve(async (req) => {
       console.log('Seller balance updated');
 
       // 3. Create transaction record
-      const { error: transactionError } = await supabaseClient
+      const { error: transactionError } = await supabaseAdmin
         .from('marketplace_transactions')
         .insert({
           order_id: orderId,
@@ -253,7 +259,7 @@ serve(async (req) => {
       }
 
       // 4. Create notifications for buyer
-      const { error: buyerNotifError } = await supabaseClient
+      const { error: buyerNotifError } = await supabaseAdmin
         .from('notifications')
         .insert({
           user_id: order.buyer_id,
@@ -272,7 +278,7 @@ serve(async (req) => {
       }
 
       // 5. Create notification for seller
-      const { error: sellerNotifError } = await supabaseClient
+      const { error: sellerNotifError } = await supabaseAdmin
         .from('notifications')
         .insert({
           user_id: order.seller_id,

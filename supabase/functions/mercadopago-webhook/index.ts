@@ -100,16 +100,22 @@ serve(async (req) => {
               } else {
                 console.log('Marketplace order updated successfully:', orderId);
                 
+                // Create admin client with service role for system operations
+                const supabaseAdmin = createClient(
+                  Deno.env.get('SUPABASE_URL') ?? '',
+                  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+                );
+                
                 // Process post-payment updates
                 // 1. Update product stock and sales
-                const { data: product } = await supabaseClient
+                const { data: product } = await supabaseAdmin
                   .from('marketplace_products')
                   .select('stock_quantity, sales_count')
                   .eq('id', order.product_id)
                   .single();
 
                 if (product && product.stock_quantity >= order.quantity) {
-                  await supabaseClient
+                  await supabaseAdmin
                     .from('marketplace_products')
                     .update({
                       stock_quantity: product.stock_quantity - order.quantity,
@@ -119,14 +125,14 @@ serve(async (req) => {
                 }
 
                 // 2. Update seller balance
-                const { data: balance } = await supabaseClient
+                const { data: balance } = await supabaseAdmin
                   .from('marketplace_seller_balance')
                   .select('*')
                   .eq('seller_id', order.seller_id)
                   .single();
 
                 if (balance) {
-                  await supabaseClient
+                  await supabaseAdmin
                     .from('marketplace_seller_balance')
                     .update({
                       total_earnings: Number(balance.total_earnings) + Number(order.seller_amount),
@@ -134,7 +140,7 @@ serve(async (req) => {
                     })
                     .eq('seller_id', order.seller_id);
                 } else {
-                  await supabaseClient
+                  await supabaseAdmin
                     .from('marketplace_seller_balance')
                     .insert({
                       seller_id: order.seller_id,
@@ -144,7 +150,7 @@ serve(async (req) => {
                 }
 
                 // 3. Create transaction
-                await supabaseClient
+                await supabaseAdmin
                   .from('marketplace_transactions')
                   .insert({
                     order_id: orderId,
@@ -159,7 +165,7 @@ serve(async (req) => {
                   });
 
                 // 4. Create notifications
-                await supabaseClient.from('notifications').insert([
+                await supabaseAdmin.from('notifications').insert([
                   {
                     user_id: order.buyer_id,
                     type: 'marketplace_order_confirmed',

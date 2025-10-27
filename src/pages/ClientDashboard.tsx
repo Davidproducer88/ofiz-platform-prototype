@@ -132,12 +132,14 @@ const ClientDashboard = () => {
   };
 
   useEffect(() => {
+    console.log('[ClientDashboard] Mounting component, profile:', profile?.id);
     fetchServices();
     fetchBookings();
-  }, []);
+  }, [profile?.id]);
 
   const fetchServices = async () => {
     try {
+      console.log('[ClientDashboard] Fetching services...');
       const { data, error } = await supabase
         .from('services')
         .select(`
@@ -152,9 +154,10 @@ const ClientDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('[ClientDashboard] Services loaded:', data?.length);
       setServices(data || []);
     } catch (error) {
-      console.error('Error fetching services:', error);
+      console.error('[ClientDashboard] Error fetching services:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los servicios",
@@ -165,8 +168,14 @@ const ClientDashboard = () => {
 
   const fetchBookings = async () => {
     try {
-      if (!profile?.id) return;
+      console.log('[ClientDashboard] Checking profile:', profile?.id);
+      if (!profile?.id) {
+        console.log('[ClientDashboard] No profile ID, skipping bookings fetch');
+        setLoading(false);
+        return;
+      }
 
+      console.log('[ClientDashboard] Fetching bookings for:', profile.id);
       const { data, error } = await supabase
         .from('bookings')
         .select(`
@@ -178,15 +187,17 @@ const ClientDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('[ClientDashboard] Bookings loaded:', data?.length);
       setBookings(data || []);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+      console.error('[ClientDashboard] Error fetching bookings:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar tus encargos",
         variant: "destructive",
       });
     } finally {
+      console.log('[ClientDashboard] Setting loading to false');
       setLoading(false);
     }
   };
@@ -326,6 +337,7 @@ const ClientDashboard = () => {
   const completedBookings = bookings.filter(b => b.status === 'completed').length;
 
   if (loading) {
+    console.log('[ClientDashboard] Rendering loading state');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -335,6 +347,8 @@ const ClientDashboard = () => {
       </div>
     );
   }
+
+  console.log('[ClientDashboard] Rendering main dashboard, profile:', profile?.full_name);
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
