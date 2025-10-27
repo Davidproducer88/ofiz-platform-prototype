@@ -129,8 +129,8 @@ serve(async (req) => {
                   await supabaseClient
                     .from('marketplace_seller_balance')
                     .update({
-                      total_earnings: balance.total_earnings + order.seller_amount,
-                      available_balance: balance.available_balance + order.seller_amount
+                      total_earnings: Number(balance.total_earnings) + Number(order.seller_amount),
+                      available_balance: Number(balance.available_balance) + Number(order.seller_amount)
                     })
                     .eq('seller_id', order.seller_id);
                 } else {
@@ -138,8 +138,8 @@ serve(async (req) => {
                     .from('marketplace_seller_balance')
                     .insert({
                       seller_id: order.seller_id,
-                      total_earnings: order.seller_amount,
-                      available_balance: order.seller_amount
+                      total_earnings: Number(order.seller_amount),
+                      available_balance: Number(order.seller_amount)
                     });
                 }
 
@@ -149,9 +149,9 @@ serve(async (req) => {
                   .insert({
                     order_id: orderId,
                     transaction_type: 'sale',
-                    amount: order.total_amount,
-                    platform_commission_amount: order.platform_fee,
-                    seller_net_amount: order.seller_amount,
+                    amount: Number(order.total_amount),
+                    platform_commission_amount: Number(order.platform_fee),
+                    seller_net_amount: Number(order.seller_amount),
                     status: 'completed',
                     payment_provider: 'mercadopago',
                     payment_reference: payment.id.toString(),
@@ -165,14 +165,14 @@ serve(async (req) => {
                     type: 'marketplace_order_confirmed',
                     title: '✅ Pago confirmado',
                     message: `Tu pago fue aprobado. Orden #${order.order_number}`,
-                    metadata: { order_id: orderId }
+                    metadata: { order_id: orderId, payment_id: payment.id.toString() }
                   },
                   {
                     user_id: order.seller_id,
                     type: 'marketplace_new_sale',
                     title: '💰 Nueva venta',
-                    message: `Nueva venta de $${order.seller_amount}. Orden #${order.order_number}`,
-                    metadata: { order_id: orderId }
+                    message: `Nueva venta de $${Number(order.seller_amount).toLocaleString()}. Orden #${order.order_number}`,
+                    metadata: { order_id: orderId, payment_id: payment.id.toString() }
                   }
                 ]);
               }
@@ -395,8 +395,8 @@ serve(async (req) => {
               await supabaseClient
                 .from('marketplace_seller_balance')
                 .update({
-                  total_earnings: existingBalance.total_earnings + order.seller_amount,
-                  available_balance: existingBalance.available_balance + order.seller_amount,
+                  total_earnings: Number(existingBalance.total_earnings) + Number(order.seller_amount),
+                  available_balance: Number(existingBalance.available_balance) + Number(order.seller_amount),
                   updated_at: new Date().toISOString()
                 })
                 .eq('seller_id', order.seller_id);
@@ -405,8 +405,8 @@ serve(async (req) => {
                 .from('marketplace_seller_balance')
                 .insert({
                   seller_id: order.seller_id,
-                  total_earnings: order.seller_amount,
-                  available_balance: order.seller_amount
+                  total_earnings: Number(order.seller_amount),
+                  available_balance: Number(order.seller_amount)
                 });
             }
 
@@ -416,9 +416,9 @@ serve(async (req) => {
               .insert({
                 order_id: externalReference,
                 transaction_type: 'sale',
-                amount: order.total_amount,
-                platform_commission_amount: order.platform_fee,
-                seller_net_amount: order.seller_amount,
+                amount: Number(order.total_amount),
+                platform_commission_amount: Number(order.platform_fee),
+                seller_net_amount: Number(order.seller_amount),
                 status: 'completed',
                 payment_provider: 'mercadopago',
                 payment_reference: paymentId.toString(),
@@ -431,22 +431,22 @@ serve(async (req) => {
                 user_id: order.buyer_id,
                 type: 'marketplace_order_confirmed',
                 title: '✅ Pago confirmado',
-                message: `Tu pago de $${order.total_amount} fue aprobado. Orden #${order.order_number}`,
+                message: `Tu pago de $${Number(order.total_amount).toLocaleString()} fue aprobado. Orden #${order.order_number}`,
                 metadata: {
                   order_id: externalReference,
                   payment_id: paymentId.toString(),
-                  amount: order.total_amount
+                  amount: Number(order.total_amount)
                 }
               },
               {
                 user_id: order.seller_id,
                 type: 'marketplace_new_sale',
                 title: '💰 Nueva venta',
-                message: `Recibiste una nueva venta de $${order.seller_amount}. Orden #${order.order_number}`,
+                message: `Recibiste una nueva venta de $${Number(order.seller_amount).toLocaleString()}. Orden #${order.order_number}`,
                 metadata: {
                   order_id: externalReference,
                   payment_id: paymentId.toString(),
-                  amount: order.seller_amount,
+                  amount: Number(order.seller_amount),
                   buyer_id: order.buyer_id
                 }
               }

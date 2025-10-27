@@ -166,121 +166,133 @@ serve(async (req) => {
 
     console.log('Order updated with payment info');
 
-      // If payment is approved, process all related updates
-      if (paymentResult.status === 'approved') {
+    // If payment is approved, process all related updates
+    if (paymentResult.status === 'approved') {
         console.log('Payment approved - processing post-payment updates...');
 
-        // 1. Update product stock and sales count
-        const { data: product } = await supabaseClient
+      // 1. Update product stock and sales count
+      const { data: product } = await supabaseClient
+        .from('marketplace_products')
+        .select('stock_quantity, sales_count')
+        .eq('id', order.product_id)
+        .single();
+
+      if (product && product.stock_quantity >= order.quantity) {
+        const { error: productError } = await supabaseClient
           .from('marketplace_products')
-          .select('stock_quantity, sales_count')
-          .eq('id', order.product_id)
-          .single();
-
-        if (product && product.stock_quantity >= order.quantity) {
-          await supabaseClient
-            .from('marketplace_products')
-            .update({
-              stock_quantity: product.stock_quantity - order.quantity,
-              sales_count: (product.sales_count || 0) + 1
-            })
-            .eq('id', order.product_id);
-          
-          console.log('Product stock and sales count updated');
-        } else {
-          console.warn('Insufficient stock or product not found');
-        }
-
-        // 2. Update or create seller balance
-        const { data: existingBalance } = await supabaseClient
-          .from('marketplace_seller_balance')
-          .select('*')
-          .eq('seller_id', order.seller_id)
-          .single();
-
-        if (existingBalance) {
-          await supabaseClient
-            .from('marketplace_seller_balance')
-            .update({
-              total_earnings: existingBalance.total_earnings + order.seller_amount,
-              available_balance: existingBalance.available_balance + order.seller_amount,
-              updated_at: new Date().toISOString()
-            })
-            .eq('seller_id', order.seller_id);
-        } else {
-          await supabaseClient
-            .from('marketplace_seller_balance')
-            .insert({
-              seller_id: order.seller_id,
-              total_earnings: order.seller_amount,
-              available_balance: order.seller_amount
-            });
-        }
+          .update({
+            stock_quantity: product.stock_quantity - order.quantity,
+            sales_count: (product.sales_count || 0) + 1
+          })
+          .eq('id', order.product_id);
         
-        console.log('Seller balance updated');
-
-        // 3. Create transaction record
-        const { error: transactionError } = await supabaseClient
-          .from('marketplace_transactions')
-          .insert({
-            order_id: orderId,
-            transaction_type: 'sale',
-            amount: order.total_amount,
-            platform_commission_amount: order.platform_fee,
-            seller_net_amount: order.seller_amount,
-            status: 'completed',
-            payment_provider: 'mercadopago',
-            payment_reference: paymentResult.id.toString(),
-            processed_at: new Date().toISOString()
-          });
-
-        if (transactionError) {
-          console.error('Error creating transaction:', transactionError);
+        if (productError) {
+          console.error('Error updating product:', productError);
         } else {
-          console.log('Transaction record created');
+          console.log('Product stock and sales count updated');
         }
-
-        // 4. Create notifications for buyer
-        const { error: buyerNotifError } = await supabaseClient
-          .from('notifications')
-          .insert({
-            user_id: order.buyer_id,
-            type: 'marketplace_order_confirmed',
-            title: '✅ Pago confirmado',
-            message: `Tu pago de $${order.total_amount} fue aprobado. Orden #${order.order_number}`,
-            metadata: {
-              order_id: orderId,
-              payment_id: paymentResult.id.toString(),
-              amount: order.total_amount
-            }
-          });
-
-        if (buyerNotifError) {
-          console.error('Error creating buyer notification:', buyerNotifError);
-        }
-
-        // 5. Create notification for seller
-        const { error: sellerNotifError } = await supabaseClient
-          .from('notifications')
-          .insert({
-            user_id: order.seller_id,
-            type: 'marketplace_new_sale',
-            title: '💰 Nueva venta',
-            message: `Recibiste una nueva venta de $${order.seller_amount}. Orden #${order.order_number}`,
-            metadata: {
-              order_id: orderId,
-              payment_id: paymentResult.id.toString(),
-              amount: order.seller_amount,
-              buyer_id: order.buyer_id
-            }
-          });
-
-        if (sellerNotifError) {
-          console.error('Error creating seller notification:', sellerNotifError);
-        }
-
-        console.log('All post-payment updates completed');
+      } else {
+        console.warn('Insufficient stock or product not found');
       }
+
+      // 2. Update or create seller balance
+      const { data: existingBalance } = await supabaseClient
+        .from('marketplace_seller_balance')
+        .select('*')
+        .eq('seller_id', order.seller_id)
+        .single();
+
+      if (existingBalance) {
+        const { error: balanceError } = await supabaseClient
+          .from('marketplace_seller_balance')
+          .update({
+            total_earnings: Number(existingBalance.total_earnings) + Number(order.seller_amount),
+            available_balance: Number(existingBalance.available_balance) + Number(order.seller_amount),
+            updated_at: new Date().toISOString()
+          })
+          .eq('seller_id', order.seller_id);
+        
+        if (balanceError) {
+          console.error('Error updating balance:', balanceError);
+        }
+      } else {
+        const { error: balanceError } = await supabaseClient
+          .from('marketplace_seller_balance')
+          .insert({
+            seller_id: order.seller_id,
+            total_earnings: Number(order.seller_amount),
+            available_balance: Number(order.seller_amount)
+          });
+        
+        if (balanceError) {
+          console.error('Error creating balance:', balanceError);
+        }
+      }
+      
+      console.log('Seller balance updated');
+
+      // 3. Create transaction record
+      const { error: transactionError } = await supabaseClient
+        .from('marketplace_transactions')
+        .insert({
+          order_id: orderId,
+          transaction_type: 'sale',
+          amount: Number(order.total_amount),
+          platform_commission_amount: Number(order.platform_fee),
+          seller_net_amount: Number(order.seller_amount),
+          status: 'completed',
+          payment_provider: 'mercadopago',
+          payment_reference: paymentResult.id.toString(),
+          processed_at: new Date().toISOString()
+        });
+
+      if (transactionError) {
+        console.error('Error creating transaction:', transactionError);
+      } else {
+        console.log('Transaction record created');
+      }
+
+      // 4. Create notifications for buyer
+      const { error: buyerNotifError } = await supabaseClient
+        .from('notifications')
+        .insert({
+          user_id: order.buyer_id,
+          type: 'marketplace_order_confirmed',
+          title: '✅ Pago confirmado',
+          message: `Tu pago de $${Number(order.total_amount).toLocaleString()} fue aprobado. Orden #${order.order_number}`,
+          metadata: {
+            order_id: orderId,
+            payment_id: paymentResult.id.toString(),
+            amount: Number(order.total_amount)
+          }
+        });
+
+      if (buyerNotifError) {
+        console.error('Error creating buyer notification:', buyerNotifError);
+      }
+
+      // 5. Create notification for seller
+      const { error: sellerNotifError } = await supabaseClient
+        .from('notifications')
+        .insert({
+          user_id: order.seller_id,
+          type: 'marketplace_new_sale',
+          title: '💰 Nueva venta',
+          message: `Recibiste una nueva venta de $${Number(order.seller_amount).toLocaleString()}. Orden #${order.order_number}`,
+          metadata: {
+            order_id: orderId,
+            payment_id: paymentResult.id.toString(),
+            amount: Number(order.seller_amount),
+            buyer_id: order.buyer_id
+          }
+        });
+
+      if (sellerNotifError) {
+        console.error('Error creating seller notification:', sellerNotifError);
+      }
+
+      console.log('All post-payment updates completed');
+    }
 
     return new Response(
       JSON.stringify({ 
