@@ -125,7 +125,23 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
             },
             onSubmit: async (formData: any) => {
               try {
-                console.log('Payment form submitted:', formData);
+                console.log('=== PAYMENT FORM SUBMITTED ===');
+                console.log('Full formData received from Brick:', JSON.stringify(formData, null, 2));
+                console.log('Keys in formData:', Object.keys(formData));
+                console.log('payment_method_id:', formData.payment_method_id);
+                console.log('token:', formData.token);
+                console.log('issuer_id:', formData.issuer_id);
+                console.log('installments:', formData.installments);
+                console.log('payer:', formData.payer);
+                console.log('================================');
+                
+                // Verificar que tenemos los datos mínimos necesarios
+                if (!formData.token && !formData.payment_method_id) {
+                  console.error('Missing required payment data!');
+                  toast.error('Datos de pago incompletos');
+                  return;
+                }
+                
                 onSuccess(formData);
               } catch (error) {
                 console.error('Payment error:', error);
