@@ -63,15 +63,16 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
   const handleConfirmPurchase = async () => {
     // Validate form
     if (deliveryMethod === 'shipping') {
-      if (!address || !city || !phone) {
-        toast.error('Por favor completa todos los campos requeridos');
+      if (!address || !city) {
+        toast.error('Por favor completa la dirección de envío');
         return;
       }
-    } else {
-      if (!phone) {
-        toast.error('Por favor ingresa un número de teléfono');
-        return;
-      }
+    }
+    
+    // Phone is always required
+    if (!phone) {
+      toast.error('Por favor ingresa un número de teléfono');
+      return;
     }
 
     setIsProcessing(true);
@@ -92,11 +93,15 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
             notes,
           };
       
+      console.log('Creating order with address:', shippingAddress);
       const order = await onPurchase(quantity, shippingAddress, deliveryMethod, shippingType);
+      
+      console.log('Order created:', order);
       
       if (order) {
         setCurrentOrder(order);
         setShowPayment(true);
+        toast.success('Orden creada. Completa el pago');
       }
     } catch (error) {
       console.error('Error creating order:', error);
@@ -341,6 +346,20 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
               )}
             </div>
 
+            {/* Phone field - Always visible */}
+            <div className="space-y-2">
+              <Label htmlFor="phone-contact">Teléfono de contacto *</Label>
+              <Input
+                id="phone-contact"
+                placeholder="+598 99 123 456"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Te contactaremos a este número para coordinar {deliveryMethod === 'pickup' ? 'el retiro' : 'la entrega'}
+              </p>
+            </div>
+
             {deliveryMethod === 'shipping' && (
               <>
                 <Separator />
@@ -378,15 +397,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="phone">Teléfono *</Label>
-                    <Input
-                      id="phone"
-                      placeholder="+598 99 123 456"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                  </div>
+                  {/* Phone field removed from here - now always visible above */}
 
                   <div>
                     <Label htmlFor="notes">Notas (opcional)</Label>
@@ -458,12 +469,13 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
                 isProcessing ||
                 product.stock_quantity === 0 ||
                 quantity > product.stock_quantity ||
-                (deliveryMethod === 'shipping' && (!address || !city || !phone))
+                !phone ||
+                (deliveryMethod === 'shipping' && (!address || !city))
               }
               className="gap-2"
             >
               <ShoppingCart className="h-4 w-4" />
-              {isProcessing ? 'Procesando...' : (deliveryMethod === 'pickup' ? 'Confirmar Retiro' : 'Continuar al Pago')}
+              {isProcessing ? 'Procesando...' : (deliveryMethod === 'pickup' ? 'Continuar al Pago' : 'Continuar al Pago')}
             </Button>
           ) : null}
         </DialogFooter>
