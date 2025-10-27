@@ -53,8 +53,32 @@ export const PaymentButton = ({
   };
 
   const handlePayment = async () => {
+    if (!profile?.id) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Debes iniciar sesión para realizar el pago",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
+
+      // Verificar que el booking exista
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .select('client_id, master_id, total_price')
+        .eq('id', bookingId)
+        .single();
+
+      if (bookingError || !booking) {
+        throw new Error('No se encontró la reserva');
+      }
+
+      if (booking.client_id !== profile.id) {
+        throw new Error('No tienes permiso para pagar esta reserva');
+      }
 
       // Si hay créditos disponibles, marcarlos como usados
       if (availableCredits > 0) {
@@ -64,30 +88,71 @@ export const PaymentButton = ({
             used: true,
             used_in_booking_id: bookingId
           })
-          .eq('user_id', profile?.id)
+          .eq('user_id', profile.id)
           .eq('used', false);
 
         if (updateError) {
           console.error('Error updating credits:', updateError);
-        } else {
-          toast({
-            title: "¡Créditos aplicados!",
-            description: `Se aplicaron $U ${availableCredits.toLocaleString()} de descuento`,
-          });
+          throw new Error('Error al aplicar créditos');
         }
+
+        toast({
+          title: "¡Créditos aplicados!",
+          description: `Se aplicaron $U ${availableCredits.toLocaleString()} de descuento`,
+        });
       }
 
-      // Si el monto final es 0, no crear preferencia de pago
+      // Si el monto final es 0, crear pago completado sin Mercado Pago
       if (finalAmount === 0) {
+        // Calcular comisión
+        const commissionAmount = amount * 0.05;
+        const masterAmount = amount - commissionAmount;
+
+        // Crear registro de pago como aprobado
+        const { error: paymentError } = await supabase
+          .from('payments')
+          .insert({
+            booking_id: bookingId,
+            client_id: booking.client_id,
+            master_id: booking.master_id,
+            amount: amount,
+            commission_amount: commissionAmount,
+            master_amount: masterAmount,
+            status: 'approved',
+            payment_method: 'credits',
+            metadata: {
+              paid_with_credits: true,
+              credits_used: availableCredits
+            }
+          });
+
+        if (paymentError) {
+          console.error('Error creating payment:', paymentError);
+          throw new Error('Error al crear el registro de pago');
+        }
+
+        // Actualizar estado del booking
+        const { error: updateBookingError } = await supabase
+          .from('bookings')
+          .update({ status: 'confirmed' })
+          .eq('id', bookingId);
+
+        if (updateBookingError) {
+          console.error('Error updating booking:', updateBookingError);
+        }
+
         toast({
           title: "¡Pago completado!",
           description: "El servicio fue cubierto completamente con tus créditos",
         });
+
         if (onSuccess) onSuccess();
         return;
       }
 
-      // Crear preferencia de pago con el monto final
+      // Crear preferencia de pago con Mercado Pago para el monto final
+      console.log('Creating payment preference:', { bookingId, finalAmount, title });
+
       const { data, error } = await supabase.functions.invoke('create-payment-preference', {
         body: {
           bookingId,
@@ -99,19 +164,39 @@ export const PaymentButton = ({
         }
       });
 
-      if (error) throw error;
-
-      // Redirect to Mercado Pago checkout
-      if (data.initPoint) {
-        window.location.href = data.initPoint;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
       }
 
+      if (!data || !data.initPoint) {
+        throw new Error('No se recibió el link de pago de Mercado Pago');
+      }
+
+      console.log('Payment preference created, redirecting to:', data.initPoint);
+
+      // Redirigir a Mercado Pago
+      window.location.href = data.initPoint;
+
     } catch (error: any) {
-      console.error('Error creating payment:', error);
+      console.error('Error in payment process:', error);
+      
+      // Revertir créditos si hubo error
+      if (availableCredits > 0) {
+        await supabase
+          .from('referral_credits')
+          .update({ 
+            used: false,
+            used_in_booking_id: null
+          })
+          .eq('user_id', profile?.id)
+          .eq('used_in_booking_id', bookingId);
+      }
+
       toast({
         variant: "destructive",
         title: "Error al procesar el pago",
-        description: error.message || "No se pudo crear la preferencia de pago",
+        description: error.message || "No se pudo procesar el pago. Por favor intenta nuevamente.",
       });
     } finally {
       setLoading(false);
