@@ -616,7 +616,7 @@ const ClientDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <MyServiceRequests />
+                <MyServiceRequests onNavigateToChat={() => setActiveTab('chat')} />
               </CardContent>
             </Card>
           </TabsContent>

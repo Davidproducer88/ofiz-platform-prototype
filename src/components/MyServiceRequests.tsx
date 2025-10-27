@@ -43,6 +43,10 @@ interface ServiceRequest {
   service_applications: ServiceApplication[];
 }
 
+interface MyServiceRequestsProps {
+  onNavigateToChat?: () => void;
+}
+
 const categoryLabels: Record<string, string> = {
   plumbing: "Plomería",
   electricity: "Electricidad",
@@ -60,7 +64,7 @@ const statusLabels: Record<string, string> = {
   cancelled: "Cancelada",
 };
 
-export function MyServiceRequests() {
+export function MyServiceRequests({ onNavigateToChat }: MyServiceRequestsProps = {}) {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -153,18 +157,17 @@ export function MyServiceRequests() {
       toast({
         title: "Estado actualizado",
         description: status === "accepted" 
-          ? "Presupuesto aceptado. Ahora puedes chatear con el maestro en la pestaña 'Mensajes'"
+          ? "Presupuesto aceptado. La conversación con el maestro está lista."
           : "Presupuesto rechazado",
       });
 
       fetchMyRequests();
 
-      // Si se aceptó, redirigir a mensajes después de un momento
-      if (status === "accepted") {
+      // Si se aceptó, navegar a chat
+      if (status === "accepted" && onNavigateToChat) {
         setTimeout(() => {
-          const messageTab = document.querySelector('[data-tab="mensajes"]') as HTMLElement;
-          if (messageTab) messageTab.click();
-        }, 2000);
+          onNavigateToChat();
+        }, 1500);
       }
     } catch (error: any) {
       console.error("Error updating application:", error);
