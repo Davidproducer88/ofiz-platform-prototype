@@ -101,6 +101,7 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
         brickRef.current = await bricksBuilder.create('payment', 'mercadopago-brick-container', {
           initialization: {
             amount: amount,
+            redirectMode: 'self', // Prevent opening new tabs
           },
           customization: {
             visual: {

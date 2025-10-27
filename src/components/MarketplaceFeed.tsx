@@ -164,19 +164,22 @@ export function MarketplaceFeed() {
 
       if (data.status === 'approved') {
         toast({
-          title: '¡Pago exitoso!',
-          description: 'Tu compra fue procesada correctamente',
+          title: '✅ ¡Pago exitoso!',
+          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Puedes ver el estado en "Mis Órdenes"`,
         });
         
-        setShowProductDialog(false);
-        setSelectedProduct(null);
-        
+        // Don't close immediately - let ProductDialog handle it after showing the success message
         // Orders will refresh automatically via real-time subscription
       } else if (data.status === 'pending' || data.status === 'in_process') {
         toast({
-          title: 'Pago pendiente',
-          description: 'Tu pago está siendo procesado',
+          title: '⏳ Pago pendiente',
+          description: 'Tu pago está siendo procesado. Te notificaremos cuando se confirme.',
         });
+        
+        setTimeout(() => {
+          setShowProductDialog(false);
+          setSelectedProduct(null);
+        }, 3000);
       } else {
         throw new Error('El pago fue rechazado');
       }
