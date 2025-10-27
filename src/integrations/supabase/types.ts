@@ -94,6 +94,7 @@ export type Database = {
       bookings: {
         Row: {
           client_address: string
+          client_confirmed_at: string | null
           client_id: string
           client_photos: Json | null
           created_at: string
@@ -108,6 +109,7 @@ export type Database = {
         }
         Insert: {
           client_address: string
+          client_confirmed_at?: string | null
           client_id: string
           client_photos?: Json | null
           created_at?: string
@@ -122,6 +124,7 @@ export type Database = {
         }
         Update: {
           client_address?: string
+          client_confirmed_at?: string | null
           client_id?: string
           client_photos?: Json | null
           created_at?: string

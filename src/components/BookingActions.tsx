@@ -16,6 +16,7 @@ interface BookingActionsProps {
     service_id: string;
     total_price: number;
     scheduled_date: string;
+    client_confirmed_at?: string | null;
     services?: {
       title: string;
     };
@@ -53,6 +54,36 @@ export const BookingActions = ({
     }
   };
 
+  const handleConfirmCompletion = async () => {
+    if (releasing) return;
+    
+    setReleasing(true);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ client_confirmed_at: new Date().toISOString() })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Trabajo confirmado",
+        description: "Has confirmado que el trabajo fue completado satisfactoriamente"
+      });
+
+      if (onUpdate) onUpdate();
+    } catch (error: any) {
+      console.error('Error confirming completion:', error);
+      toast({
+        title: "Error al confirmar",
+        description: error.message || "No se pudo confirmar el trabajo",
+        variant: "destructive"
+      });
+    } finally {
+      setReleasing(false);
+    }
+  };
+
   const handleReleaseEscrow = async () => {
     if (releasing) return;
     
@@ -83,10 +114,11 @@ export const BookingActions = ({
   };
 
   const showChat = booking.status !== 'cancelled';
-  const showReview = booking.status === 'completed' && userType === 'client';
+  const showReview = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at;
   const showReschedule = ['pending', 'confirmed'].includes(booking.status);
   const showPayment = booking.status === 'pending' && userType === 'client';
-  const showReleaseEscrow = booking.status === 'completed' && userType === 'client';
+  const showConfirmCompletion = booking.status === 'completed' && userType === 'client' && !booking.client_confirmed_at;
+  const showReleaseEscrow = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at;
 
   return (
     <>
@@ -113,6 +145,19 @@ export const BookingActions = ({
           </Button>
         )}
         
+        {showConfirmCompletion && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleConfirmCompletion}
+            disabled={releasing}
+            className="flex-1 sm:flex-none"
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            {releasing ? 'Confirmando...' : 'Confirmar Trabajo Completado'}
+          </Button>
+        )}
+
         {showReview && onReview && (
           <Button
             variant="outline"
