@@ -29,6 +29,11 @@ serve(async (req) => {
     }
 
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
+    
+    if (!mercadoPagoToken) {
+      console.error('MERCADO_PAGO_ACCESS_TOKEN not configured');
+      throw new Error('MercadoPago token not configured');
+    }
 
     // MercadoPago sends notifications in two formats:
     // 1. New format: { type, data: { id } }

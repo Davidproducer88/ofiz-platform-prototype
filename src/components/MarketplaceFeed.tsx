@@ -127,7 +127,6 @@ export function MarketplaceFeed() {
       const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
         body: {
           orderId: newOrder.id,
-          amount: totalAmount,
           title: `${selectedProduct.title} (x${quantity})`,
           description: `Compra en Ofiz Marketplace - Orden #${newOrder.order_number}`
         }
