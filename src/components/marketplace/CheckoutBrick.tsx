@@ -78,7 +78,7 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
         }
         
         // @ts-ignore - MercadoPago SDK
-        const mp = new window.MercadoPago('TEST-4ca50886-cc32-4210-aa69-7d6faafef84c', {
+        const mp = new window.MercadoPago('TEST-e3eeddeb-6fd7-4a45-ba8d-a487720f7fc1', {
           locale: 'es-UY'
         });
 
