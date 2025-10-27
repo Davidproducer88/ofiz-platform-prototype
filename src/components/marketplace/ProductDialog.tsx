@@ -244,6 +244,27 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
 
             <Separator />
 
+            {/* Phone field - Always visible and required */}
+            <div className="space-y-2">
+              <Label htmlFor="phone-contact" className="text-base font-semibold">
+                Teléfono de contacto *
+              </Label>
+              <Input
+                id="phone-contact"
+                type="tel"
+                placeholder="+598 99 123 456"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="text-base"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Te contactaremos a este número para coordinar la {deliveryMethod === 'pickup' ? 'retirada' : 'entrega'}
+              </p>
+            </div>
+
+            <Separator />
+
             {/* Delivery Method */}
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
@@ -344,20 +365,6 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Phone field - Always visible */}
-            <div className="space-y-2">
-              <Label htmlFor="phone-contact">Teléfono de contacto *</Label>
-              <Input
-                id="phone-contact"
-                placeholder="+598 99 123 456"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Te contactaremos a este número para coordinar {deliveryMethod === 'pickup' ? 'el retiro' : 'la entrega'}
-              </p>
             </div>
 
             {deliveryMethod === 'shipping' && (
