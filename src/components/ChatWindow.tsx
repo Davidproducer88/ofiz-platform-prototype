@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, X, Image as ImageIcon, FileCheck } from 'lucide-react';
+import { Send, Paperclip, X, Image as ImageIcon, FileCheck, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,6 +12,7 @@ import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CreateBookingFromChat } from './CreateBookingFromChat';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -33,7 +34,10 @@ export const ChatWindow = ({
   const [messageText, setMessageText] = useState('');
   const [showCreateBooking, setShowCreateBooking] = useState(false);
   const [conversationData, setConversationData] = useState<any>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll al final cuando hay nuevos mensajes
   useEffect(() => {
@@ -56,11 +60,99 @@ export const ChatWindow = ({
     setConversationData(data);
   };
 
-  const handleSend = async () => {
-    if (!messageText.trim() || sending) return;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validar tipo y tamaño
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
+      if (!validTypes.includes(file.type)) {
+        toast({
+          title: 'Tipo de archivo no válido',
+          description: 'Solo se permiten imágenes (JPEG, PNG, GIF, WEBP) y videos (MP4, MOV, WEBM)',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        toast({
+          title: 'Archivo muy grande',
+          description: 'El archivo no puede superar los 10MB',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      setSelectedFile(file);
+    }
+  };
 
-    await sendMessage(messageText);
-    setMessageText('');
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadFile = async (file: File): Promise<{ url: string; type: string } | null> => {
+    if (!profile?.id) return null;
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('chat-attachments')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat-attachments')
+        .getPublicUrl(fileName);
+
+      return { url: publicUrl, type: file.type };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: 'Error al subir archivo',
+        description: 'No se pudo subir el archivo. Intenta nuevamente.',
+        variant: 'destructive'
+      });
+      return null;
+    }
+  };
+
+  const handleSend = async () => {
+    if ((!messageText.trim() && !selectedFile) || sending || uploading) return;
+
+    setUploading(true);
+    try {
+      let attachmentUrl: string | undefined;
+      let attachmentType: string | undefined;
+
+      // Si hay un archivo, subirlo primero
+      if (selectedFile) {
+        const uploadResult = await uploadFile(selectedFile);
+        if (uploadResult) {
+          attachmentUrl = uploadResult.url;
+          attachmentType = uploadResult.type;
+        } else {
+          setUploading(false);
+          return;
+        }
+      }
+
+      // Enviar mensaje con o sin adjunto
+      await sendMessage(messageText.trim() || '📎 Archivo adjunto', attachmentUrl, attachmentType);
+      setMessageText('');
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -147,13 +239,19 @@ export const ChatWindow = ({
                         <p className="text-sm whitespace-pre-wrap break-words">
                           {message.content}
                         </p>
-                        {message.attachment_url && (
+                         {message.attachment_url && (
                           <div className="mt-2">
                             {message.attachment_type?.startsWith('image/') ? (
                               <img 
                                 src={message.attachment_url} 
                                 alt="Adjunto" 
-                                className="rounded max-w-full h-auto"
+                                className="rounded max-w-full h-auto max-h-64 object-cover"
+                              />
+                            ) : message.attachment_type?.startsWith('video/') ? (
+                              <video 
+                                src={message.attachment_url} 
+                                controls 
+                                className="rounded max-w-full h-auto max-h-64"
                               />
                             ) : (
                               <a 
@@ -187,12 +285,43 @@ export const ChatWindow = ({
 
       {/* Input Area */}
       <div className="border-t p-4 bg-card">
+        {selectedFile && (
+          <div className="mb-2 p-2 bg-muted rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {selectedFile.type.startsWith('image/') ? (
+                <ImageIcon className="h-4 w-4 text-primary" />
+              ) : (
+                <Upload className="h-4 w-4 text-primary" />
+              )}
+              <span className="text-sm truncate max-w-[200px]">{selectedFile.name}</span>
+              <span className="text-xs text-muted-foreground">
+                ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleRemoveFile}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
         <div className="flex gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
           <Button
             variant="outline"
             size="icon"
-            disabled
-            title="Adjuntar archivo (próximamente)"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || sending}
+            title="Adjuntar foto o video"
           >
             <Paperclip className="h-4 w-4" />
           </Button>
@@ -201,15 +330,19 @@ export const ChatWindow = ({
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Escribe un mensaje..."
-            disabled={sending}
+            disabled={sending || uploading}
             className="flex-1"
           />
           <Button
             onClick={handleSend}
-            disabled={!messageText.trim() || sending}
+            disabled={(!messageText.trim() && !selectedFile) || sending || uploading}
             size="icon"
           >
-            <Send className="h-4 w-4" />
+            {uploading ? (
+              <Upload className="h-4 w-4 animate-pulse" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
