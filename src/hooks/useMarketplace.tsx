@@ -53,6 +53,15 @@ export interface MarketplaceOrder {
   notes?: string | null;
   shipping_address: any;
   created_at: string;
+  marketplace_products?: {
+    title: string;
+    images: string[];
+    sku: string | null;
+  };
+  profiles?: {
+    full_name: string;
+    phone: string | null;
+  };
 }
 
 export interface MarketplaceCategory {
@@ -205,12 +214,34 @@ export function useMarketplace(userId?: string) {
     try {
       const { data, error } = await supabase
         .from('marketplace_orders')
-        .select('*')
+        .select(`
+          *,
+          marketplace_products!inner(
+            title,
+            images,
+            sku
+          )
+        `)
         .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrders((data || []) as MarketplaceOrder[]);
+      
+      // Fetch buyer profiles separately
+      const ordersWithProfiles = await Promise.all((data || []).map(async (order) => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, phone')
+          .eq('id', order.buyer_id)
+          .single();
+        
+        return {
+          ...order,
+          profiles: profile || undefined
+        };
+      }));
+      
+      setOrders(ordersWithProfiles as MarketplaceOrder[]);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }

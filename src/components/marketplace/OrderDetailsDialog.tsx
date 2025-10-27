@@ -125,23 +125,55 @@ export function OrderDetailsDialog({
             </Badge>
           </div>
 
+          {/* Product Info */}
+          {order.marketplace_products && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  Producto
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  {order.marketplace_products.images && order.marketplace_products.images.length > 0 && (
+                    <img
+                      src={order.marketplace_products.images[0]}
+                      alt={order.marketplace_products.title}
+                      className="h-20 w-20 rounded-lg object-cover border"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <h4 className="font-semibold">{order.marketplace_products.title}</h4>
+                    {order.marketplace_products.sku && (
+                      <p className="text-sm text-muted-foreground">SKU: {order.marketplace_products.sku}</p>
+                    )}
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Cantidad: <span className="font-medium">{order.quantity} unidades</span>
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Order Info Grid */}
           <div className="grid md:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  Información del Pedido
+                  <CreditCard className="h-4 w-4" />
+                  Resumen de Pago
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Cantidad:</span>
-                  <span className="font-medium">{order.quantity} unidades</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-muted-foreground">Precio unitario:</span>
                   <span className="font-medium">${order.unit_price.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Cantidad:</span>
+                  <span className="font-medium">{order.quantity}x</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal:</span>
@@ -197,28 +229,56 @@ export function OrderDetailsDialog({
             )}
           </div>
 
-          {/* Shipping Address */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                Dirección de Envío
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1 text-sm">
-                {order.shipping_address?.address && (
-                  <p>{order.shipping_address.address}</p>
+          {/* Customer & Shipping Info */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Cliente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1 text-sm">
+                {order.profiles?.full_name && (
+                  <p className="font-medium">{order.profiles.full_name}</p>
                 )}
-                {order.shipping_address?.city && (
-                  <p className="text-muted-foreground">{order.shipping_address.city}</p>
+                {order.profiles?.phone && (
+                  <p className="text-muted-foreground">Tel: {order.profiles.phone}</p>
                 )}
-                {order.shipping_address?.phone && (
-                  <p className="text-muted-foreground">Tel: {order.shipping_address.phone}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Dirección de Envío
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1 text-sm">
+                  {order.shipping_address?.name && (
+                    <p className="font-medium">{order.shipping_address.name}</p>
+                  )}
+                  {order.shipping_address?.address && (
+                    <p>{order.shipping_address.address}</p>
+                  )}
+                  {order.shipping_address?.city && (
+                    <p className="text-muted-foreground">
+                      {order.shipping_address.city}
+                      {order.shipping_address.state && `, ${order.shipping_address.state}`}
+                    </p>
+                  )}
+                  {order.shipping_address?.zip_code && (
+                    <p className="text-muted-foreground">CP: {order.shipping_address.zip_code}</p>
+                  )}
+                  {order.shipping_address?.phone && (
+                    <p className="text-muted-foreground">Tel: {order.shipping_address.phone}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Tracking Number */}
           {(order.tracking_number || isSeller) && (
