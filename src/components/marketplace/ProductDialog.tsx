@@ -16,16 +16,19 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Star, Package, ShoppingCart, TrendingUp, Eye, Truck, MapPin, Clock, Zap } from 'lucide-react';
 import type { MarketplaceProduct } from '@/hooks/useMarketplace';
+import { CheckoutBrick } from './CheckoutBrick';
+import { toast } from 'sonner';
 
 interface ProductDialogProps {
   product: MarketplaceProduct;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPurchase: (quantity: number, address: any, deliveryMethod: string, shippingType?: string) => void;
+  onPurchase: (quantity: number, address: any, deliveryMethod: string, shippingType?: string) => Promise<any>;
+  onPaymentComplete?: (orderId: string, formData: any) => Promise<void>;
   onUpdateOrderStatus?: (orderId: string, status: any) => void;
 }
 
-export function ProductDialog({ product, open, onOpenChange, onPurchase }: ProductDialogProps) {
+export function ProductDialog({ product, open, onOpenChange, onPurchase, onPaymentComplete }: ProductDialogProps) {
   const [quantity, setQuantity] = useState(1);
   const [deliveryMethod, setDeliveryMethod] = useState<'shipping' | 'pickup'>('shipping');
   const [shippingType, setShippingType] = useState<'standard' | 'express'>('standard');
@@ -34,6 +37,9 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase }: Produ
   const [postalCode, setPostalCode] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
+  const [showPayment, setShowPayment] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const shippingInfo = product.shipping_info as any || {};
   const pickupInfo = shippingInfo.pickup || {};
@@ -54,23 +60,77 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase }: Produ
   
   const total = subtotal + shippingCost;
 
-  const handlePurchase = async () => {
-    const shippingAddress = deliveryMethod === 'pickup' 
-      ? {
-          pickup: true,
-          pickup_address: pickupInfo.address,
-          phone,
-          notes,
-        }
-      : {
-          address,
-          city,
-          postal_code: postalCode,
-          phone,
-          notes,
-        };
+  const handleConfirmPurchase = async () => {
+    // Validate form
+    if (deliveryMethod === 'shipping') {
+      if (!address || !city || !phone) {
+        toast.error('Por favor completa todos los campos requeridos');
+        return;
+      }
+    } else {
+      if (!phone) {
+        toast.error('Por favor ingresa un número de teléfono');
+        return;
+      }
+    }
+
+    setIsProcessing(true);
     
-    await onPurchase(quantity, shippingAddress, deliveryMethod, shippingType);
+    try {
+      const shippingAddress = deliveryMethod === 'pickup' 
+        ? {
+            pickup: true,
+            pickup_address: pickupInfo.address,
+            phone,
+            notes,
+          }
+        : {
+            address,
+            city,
+            postal_code: postalCode,
+            phone,
+            notes,
+          };
+      
+      const order = await onPurchase(quantity, shippingAddress, deliveryMethod, shippingType);
+      
+      if (order) {
+        setCurrentOrder(order);
+        setShowPayment(true);
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast.error('Error al crear la orden');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (formData: any) => {
+    if (!currentOrder || !onPaymentComplete) return;
+    
+    try {
+      await onPaymentComplete(currentOrder.id, formData);
+    } catch (error) {
+      console.error('Error processing payment:', error);
+    }
+  };
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment error:', error);
+    toast.error('Error al procesar el pago');
+  };
+
+  const handleClose = () => {
+    setShowPayment(false);
+    setCurrentOrder(null);
+    setQuantity(1);
+    setAddress('');
+    setCity('');
+    setPostalCode('');
+    setPhone('');
+    setNotes('');
+    onOpenChange(false);
   };
 
   return (
@@ -388,22 +448,38 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase }: Produ
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button
-            onClick={handlePurchase}
-            disabled={
-              product.stock_quantity === 0 ||
-              quantity > product.stock_quantity ||
-              (deliveryMethod === 'shipping' && (!address || !city || !phone))
-            }
-            className="gap-2"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            {deliveryMethod === 'pickup' ? 'Confirmar Retiro' : 'Confirmar Compra'}
-          </Button>
+          {!showPayment ? (
+            <Button
+              onClick={handleConfirmPurchase}
+              disabled={
+                isProcessing ||
+                product.stock_quantity === 0 ||
+                quantity > product.stock_quantity ||
+                (deliveryMethod === 'shipping' && (!address || !city || !phone))
+              }
+              className="gap-2"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {isProcessing ? 'Procesando...' : (deliveryMethod === 'pickup' ? 'Confirmar Retiro' : 'Continuar al Pago')}
+            </Button>
+          ) : null}
         </DialogFooter>
+        
+        {/* Payment Section */}
+        {showPayment && currentOrder && (
+          <div className="mt-6 border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4">Completa tu pago</h3>
+            <CheckoutBrick
+              amount={total}
+              orderId={currentOrder.id}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

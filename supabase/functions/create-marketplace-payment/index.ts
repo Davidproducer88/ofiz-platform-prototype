@@ -8,9 +8,17 @@ const corsHeaders = {
 
 interface MarketplacePaymentRequest {
   orderId: string;
-  amount?: number; // Optional, will use order.total_amount if not provided
-  title: string;
-  description: string;
+  paymentMethodId?: string;
+  token?: string;
+  issuerId?: string;
+  installments?: number;
+  payer?: {
+    email: string;
+    identification?: {
+      type: string;
+      number: string;
+    };
+  };
 }
 
 serve(async (req) => {
@@ -34,16 +42,18 @@ serve(async (req) => {
       throw new Error('No autenticado');
     }
 
-    const { orderId, amount: clientAmount, title, description }: MarketplacePaymentRequest = await req.json();
+    const { orderId, paymentMethodId, token, issuerId, installments, payer }: MarketplacePaymentRequest = await req.json();
     
-    console.log('Request received:', { orderId, clientAmount, title, userId: user.id });
+    console.log('Bricks payment request received:', { 
+      orderId, 
+      paymentMethodId, 
+      hasToken: !!token,
+      userId: user.id 
+    });
 
-    // Validar datos de entrada
-    if (!orderId || !title) {
-      throw new Error('Faltan datos requeridos: orderId, title');
+    if (!orderId) {
+      throw new Error('orderId es requerido');
     }
-
-    console.log('Creating marketplace payment preference for order:', orderId);
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -63,7 +73,6 @@ serve(async (req) => {
       throw new Error('No autorizado para esta orden');
     }
 
-    // Use order total_amount from database (calculated by trigger)
     const finalAmount = order.total_amount;
 
     if (!finalAmount || finalAmount <= 0) {
@@ -78,49 +87,33 @@ serve(async (req) => {
       totalAmount: finalAmount,
       subtotal: order.subtotal,
       platformFee: order.platform_fee,
-      shippingCost: order.shipping_cost,
-      status: order.status,
-      paymentStatus: order.payment_status
+      shippingCost: order.shipping_cost
     });
 
-    // Create payment preference with Mercado Pago
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
     
     if (!mercadoPagoToken) {
       console.error('MERCADO_PAGO_ACCESS_TOKEN not configured');
-      throw new Error('MercadoPago no está configurado. Contacta al administrador.');
-    }
-
-    // Validate token format
-    if (!mercadoPagoToken.startsWith('APP_USR-') && !mercadoPagoToken.startsWith('TEST-')) {
-      console.error('Invalid MercadoPago token format');
-      throw new Error('Token de MercadoPago inválido');
+      throw new Error('MercadoPago no está configurado');
     }
 
     console.log('Using MercadoPago token type:', mercadoPagoToken.startsWith('TEST-') ? 'TEST' : 'PRODUCTION');
 
-    const preference = {
-      items: [
-        {
-          title: title,
-          description: description || `Orden #${order.order_number}`,
-          quantity: 1,
-          unit_price: finalAmount,
-          currency_id: 'UYU',
-        }
-      ],
+    // Create payment using Bricks API
+    const paymentData = {
+      transaction_amount: finalAmount,
+      token: token,
+      description: `Orden #${order.order_number}`,
+      installments: installments || 1,
+      payment_method_id: paymentMethodId,
+      issuer_id: issuerId,
       payer: {
-        email: user.email,
+        email: payer?.email || user.email,
+        identification: payer?.identification,
       },
-      back_urls: {
-        success: `https://ofiz.com.uy/client-dashboard?marketplace_payment=success&order_id=${orderId}`,
-        failure: `https://ofiz.com.uy/client-dashboard?marketplace_payment=failure&order_id=${orderId}`,
-        pending: `https://ofiz.com.uy/client-dashboard?marketplace_payment=pending&order_id=${orderId}`,
-      },
-      auto_return: 'approved',
-      notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
       external_reference: orderId,
       statement_descriptor: 'OFIZ MARKETPLACE',
+      notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
       metadata: {
         order_id: orderId,
         buyer_id: order.buyer_id,
@@ -129,15 +122,16 @@ serve(async (req) => {
       }
     };
 
-    console.log('Sending preference to Mercado Pago for marketplace order');
+    console.log('Creating payment with Bricks API');
 
-    const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
+    const mpResponse = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${mercadoPagoToken}`,
         'Content-Type': 'application/json',
+        'X-Idempotency-Key': orderId,
       },
-      body: JSON.stringify(preference),
+      body: JSON.stringify(paymentData),
     });
 
     if (!mpResponse.ok) {
@@ -146,29 +140,36 @@ serve(async (req) => {
       throw new Error(`Error de Mercado Pago: ${mpResponse.status} - ${errorData}`);
     }
 
-    const mpData = await mpResponse.json();
-    console.log('Mercado Pago preference created:', mpData.id);
+    const paymentResult = await mpResponse.json();
+    console.log('Payment created:', {
+      id: paymentResult.id,
+      status: paymentResult.status,
+      statusDetail: paymentResult.status_detail
+    });
 
-    // Update order with preference ID
+    // Update order with payment info
     const { error: updateError } = await supabaseClient
       .from('marketplace_orders')
       .update({
-        mercadopago_preference_id: mpData.id,
-        payment_status: 'pending'
+        mercadopago_payment_id: paymentResult.id.toString(),
+        payment_status: paymentResult.status === 'approved' ? 'approved' : 'pending',
+        payment_method: paymentResult.payment_method_id,
+        status: paymentResult.status === 'approved' ? 'confirmed' : 'pending'
       })
       .eq('id', orderId);
 
     if (updateError) {
-      console.error('Error updating order with preference:', updateError);
+      console.error('Error updating order:', updateError);
       throw updateError;
     }
 
-    console.log('Order updated with preference ID');
+    console.log('Order updated with payment info');
 
     return new Response(
       JSON.stringify({ 
-        preferenceId: mpData.id,
-        initPoint: mpData.init_point,
+        paymentId: paymentResult.id,
+        status: paymentResult.status,
+        statusDetail: paymentResult.status_detail,
         orderId: order.id,
       }),
       { 

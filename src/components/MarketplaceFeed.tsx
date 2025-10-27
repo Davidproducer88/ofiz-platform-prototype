@@ -113,39 +113,9 @@ export function MarketplaceFeed() {
 
       console.log('Order created successfully:', newOrder.id);
 
-      // Use the total_amount calculated by the database trigger
-      const totalAmount = newOrder.total_amount;
+      // Return the order to ProductDialog to show payment form
+      return newOrder;
 
-      toast({
-        title: 'Procesando pago...',
-        description: 'Redirigiendo a MercadoPago',
-      });
-
-      // Create MercadoPago payment preference
-      console.log('Creating payment preference for order:', newOrder.id);
-      
-      const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
-        body: {
-          orderId: newOrder.id,
-          title: `${selectedProduct.title} (x${quantity})`,
-          description: `Compra en Ofiz Marketplace - Orden #${newOrder.order_number}`
-        }
-      });
-
-      if (error) {
-        console.error('Error creating payment preference:', error);
-        throw new Error(error.message || 'Error al crear preferencia de pago');
-      }
-
-      console.log('Payment preference created:', data);
-
-      if (data?.initPoint) {
-        // Redirect to MercadoPago checkout
-        console.log('Redirecting to MercadoPago:', data.initPoint);
-        window.location.href = data.initPoint;
-      } else {
-        throw new Error('No se recibió el link de pago de MercadoPago');
-      }
     } catch (error: any) {
       console.error('Error in purchase process:', error);
       toast({
@@ -153,6 +123,63 @@ export function MarketplaceFeed() {
         description: error.message || 'No se pudo procesar la compra. Por favor intenta de nuevo.',
         variant: 'destructive'
       });
+      throw error;
+    }
+  };
+
+  const handlePaymentComplete = async (orderId: string, formData: any) => {
+    try {
+      console.log('Processing payment with form data:', formData);
+      
+      toast({
+        title: 'Procesando pago...',
+        description: 'Espera mientras procesamos tu pago',
+      });
+
+      const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
+        body: {
+          orderId: orderId,
+          paymentMethodId: formData.payment_method_id,
+          token: formData.token,
+          issuerId: formData.issuer_id,
+          installments: formData.installments,
+          payer: formData.payer
+        }
+      });
+
+      if (error) {
+        console.error('Error processing payment:', error);
+        throw new Error(error.message || 'Error al procesar el pago');
+      }
+
+      console.log('Payment processed:', data);
+
+      if (data.status === 'approved') {
+        toast({
+          title: '¡Pago exitoso!',
+          description: 'Tu compra fue procesada correctamente',
+        });
+        
+        setShowProductDialog(false);
+        setSelectedProduct(null);
+        
+        // Orders will refresh automatically via real-time subscription
+      } else if (data.status === 'pending' || data.status === 'in_process') {
+        toast({
+          title: 'Pago pendiente',
+          description: 'Tu pago está siendo procesado',
+        });
+      } else {
+        throw new Error('El pago fue rechazado');
+      }
+    } catch (error: any) {
+      console.error('Error completing payment:', error);
+      toast({
+        title: 'Error al procesar pago',
+        description: error.message || 'No se pudo completar el pago',
+        variant: 'destructive'
+      });
+      throw error;
     }
   };
 
@@ -390,6 +417,7 @@ export function MarketplaceFeed() {
           open={showProductDialog}
           onOpenChange={setShowProductDialog}
           onPurchase={handlePurchase}
+          onPaymentComplete={handlePaymentComplete}
           onUpdateOrderStatus={updateOrderStatus}
         />
       )}

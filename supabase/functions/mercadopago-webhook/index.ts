@@ -198,7 +198,7 @@ serve(async (req) => {
       }
     }
     
-    // Handle regular payment events (bookings)
+    // Handle regular payment events (bookings and marketplace)
     if (body.type === 'payment') {
       const paymentId = body.data.id;
       console.log('Processing payment notification for:', paymentId);
@@ -216,14 +216,15 @@ serve(async (req) => {
       const paymentData = await mpResponse.json();
       console.log('Payment data from Mercado Pago:', JSON.stringify(paymentData));
 
-      const bookingId = paymentData.external_reference;
+      const externalReference = paymentData.external_reference;
       const status = paymentData.status;
+      const metadata = paymentData.metadata || {};
       
-      // Update payment record
+      // Determine payment status
       let paymentStatus: string;
       switch (status) {
         case 'approved':
-          paymentStatus = 'approved'; // Cambiar a approved, el escrow se maneja por separado
+          paymentStatus = 'approved';
           break;
         case 'pending':
         case 'in_process':
@@ -239,54 +240,80 @@ serve(async (req) => {
           paymentStatus = 'pending';
       }
 
-      const { error: updateError } = await supabaseClient
-        .from('payments')
-        .update({
-          status: paymentStatus,
-          mercadopago_payment_id: paymentId,
-          payment_method: paymentData.payment_method_id,
-          metadata: {
-            payment_data: paymentData,
-          }
-        })
-        .eq('booking_id', bookingId);
+      // Check if it's a marketplace payment or booking payment
+      if (metadata.type === 'marketplace') {
+        console.log('Processing marketplace payment for order:', externalReference);
+        
+        const { error: orderError } = await supabaseClient
+          .from('marketplace_orders')
+          .update({
+            payment_status: status === 'approved' ? 'paid' : 'pending',
+            status: status === 'approved' ? 'confirmed' : 'pending',
+            payment_method: paymentData.payment_method_id,
+            mercadopago_payment_id: paymentId.toString(),
+            confirmed_at: status === 'approved' ? new Date().toISOString() : null
+          })
+          .eq('id', externalReference);
 
-      if (updateError) {
-        console.error('Error updating payment:', updateError);
-        throw updateError;
-      }
-
-      // Update booking status if payment approved
-      if (status === 'approved') {
-        const { error: bookingError } = await supabaseClient
-          .from('bookings')
-          .update({ status: 'confirmed' })
-          .eq('id', bookingId);
-
-        if (bookingError) {
-          console.error('Error updating booking:', bookingError);
+        if (orderError) {
+          console.error('Error updating marketplace order:', orderError);
+          throw orderError;
         }
 
-        // Create commission record
-        const { data: payment } = await supabaseClient
+        console.log('Marketplace order updated:', externalReference, status);
+      } else {
+        // Regular booking payment
+        console.log('Processing booking payment for:', externalReference);
+        
+        const { error: updateError } = await supabaseClient
           .from('payments')
-          .select('id, master_id, commission_amount')
-          .eq('booking_id', bookingId)
-          .single();
+          .update({
+            status: paymentStatus,
+            mercadopago_payment_id: paymentId,
+            payment_method: paymentData.payment_method_id,
+            metadata: {
+              payment_data: paymentData,
+            }
+          })
+          .eq('booking_id', externalReference);
 
-        if (payment) {
-        await supabaseClient
-            .from('commissions')
-            .insert({
-              payment_id: payment.id,
-              master_id: payment.master_id,
-              amount: payment.commission_amount,
-              percentage: 12.00,
-              status: 'pending',
-            });
+        if (updateError) {
+          console.error('Error updating payment:', updateError);
+          throw updateError;
         }
 
-        console.log('Payment approved and booking confirmed:', bookingId);
+        // Update booking status if payment approved
+        if (status === 'approved') {
+          const { error: bookingError } = await supabaseClient
+            .from('bookings')
+            .update({ status: 'confirmed' })
+            .eq('id', externalReference);
+
+          if (bookingError) {
+            console.error('Error updating booking:', bookingError);
+          }
+
+          // Create commission record
+          const { data: payment } = await supabaseClient
+            .from('payments')
+            .select('id, master_id, commission_amount')
+            .eq('booking_id', externalReference)
+            .single();
+
+          if (payment) {
+            await supabaseClient
+              .from('commissions')
+              .insert({
+                payment_id: payment.id,
+                master_id: payment.master_id,
+                amount: payment.commission_amount,
+                percentage: 12.00,
+                status: 'pending',
+              });
+          }
+
+          console.log('Payment approved and booking confirmed:', externalReference);
+        }
       }
     }
 
