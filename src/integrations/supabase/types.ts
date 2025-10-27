@@ -470,7 +470,7 @@ export type Database = {
       }
       conversations: {
         Row: {
-          booking_id: string
+          booking_id: string | null
           client_id: string
           created_at: string | null
           id: string
@@ -478,7 +478,7 @@ export type Database = {
           master_id: string
         }
         Insert: {
-          booking_id: string
+          booking_id?: string | null
           client_id: string
           created_at?: string | null
           id?: string
@@ -486,7 +486,7 @@ export type Database = {
           master_id: string
         }
         Update: {
-          booking_id?: string
+          booking_id?: string | null
           client_id?: string
           created_at?: string | null
           id?: string
