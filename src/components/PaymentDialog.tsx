@@ -8,11 +8,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Loader2, Gift, AlertCircle, ExternalLink } from "lucide-react";
+import { Gift, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BookingCheckoutBrick } from "./BookingCheckoutBrick";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -36,30 +37,27 @@ export const PaymentDialog = ({
   onSuccess,
 }: PaymentDialogProps) => {
   const { profile } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   const finalAmount = Math.max(0, amount - availableCredits);
   const discount = amount - finalAmount;
 
-  const handlePayment = async () => {
+  const handleStartPayment = async () => {
     if (!profile?.id) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Debes iniciar sesión para realizar el pago",
-      });
+      toast.error("Debes iniciar sesión para realizar el pago");
       return;
     }
 
-    setLoading(true);
+    setProcessing(true);
     setError(null);
 
     try {
-      // Verificar que el booking exista
+      // Verificar booking
       const { data: booking, error: bookingError } = await supabase
         .from('bookings')
-        .select('client_id, master_id, total_price, status')
+        .select('client_id, master_id')
         .eq('id', bookingId)
         .single();
 
@@ -83,9 +81,10 @@ export const PaymentDialog = ({
           .eq('used', false);
 
         if (updateError) {
-          console.error('Error updating credits:', updateError);
           throw new Error('Error al aplicar créditos');
         }
+
+        toast.success(`Se aplicaron $${availableCredits.toLocaleString()} en créditos`);
       }
 
       // Si el pago se cubre 100% con créditos
@@ -117,44 +116,15 @@ export const PaymentDialog = ({
           .update({ status: 'confirmed' })
           .eq('id', bookingId);
 
-        toast({
-          title: "¡Pago completado!",
-          description: "El servicio fue cubierto con tus créditos",
-        });
-
+        toast.success('¡Pago completado con créditos!');
         onOpenChange(false);
         if (onSuccess) onSuccess();
         return;
       }
 
-      // Crear preferencia de pago con Mercado Pago
-      console.log('Creating payment preference for booking:', bookingId);
-
-      const { data, error: functionError } = await supabase.functions.invoke(
-        'create-payment-preference',
-        {
-          body: {
-            bookingId,
-            amount: finalAmount,
-            title,
-            description: discount > 0 
-              ? `${description} (Descuento: $${discount.toLocaleString()})`
-              : description,
-          }
-        }
-      );
-
-      if (functionError) {
-        console.error('Edge function error:', functionError);
-        throw new Error(functionError.message || 'Error al crear la preferencia de pago');
-      }
-
-      if (!data?.initPoint) {
-        throw new Error('No se recibió el link de pago');
-      }
-
-      // Redirigir a Mercado Pago
-      window.location.href = data.initPoint;
+      // Mostrar formulario de pago
+      setShowPaymentForm(true);
+      setProcessing(false);
 
     } catch (err: any) {
       console.error('Payment error:', err);
@@ -172,41 +142,60 @@ export const PaymentDialog = ({
       }
 
       setError(err.message || 'Error al procesar el pago');
-      toast({
-        variant: "destructive",
-        title: "Error al procesar el pago",
-        description: err.message || "Intenta nuevamente en unos momentos",
-      });
-    } finally {
-      setLoading(false);
+      toast.error(err.message || 'Error al procesar el pago');
+      setProcessing(false);
     }
+  };
+
+  const handlePaymentSuccess = async (paymentData: any) => {
+    console.log('Payment completed successfully:', paymentData);
+    
+    if (paymentData.status === 'approved') {
+      toast.success('¡Pago aprobado exitosamente!');
+      
+      // Close dialog
+      setTimeout(() => {
+        onOpenChange(false);
+        if (onSuccess) onSuccess();
+      }, 1000);
+    } else if (paymentData.status === 'pending' || paymentData.status === 'in_process') {
+      toast('Pago pendiente', {
+        description: 'Tu pago está siendo procesado. Te notificaremos cuando se confirme.'
+      });
+      
+      setTimeout(() => {
+        onOpenChange(false);
+        if (onSuccess) onSuccess();
+      }, 2000);
+    } else {
+      toast.error('El pago no fue aprobado. Por favor intenta nuevamente.');
+    }
+  };
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment error:', error);
+    setError(error.message || 'Error al procesar el pago');
+    setProcessing(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Confirmar pago</DialogTitle>
-          <DialogDescription>{title}</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* Descripción */}
-          <div className="text-sm text-muted-foreground">
-            {description}
-          </div>
+        {!showPaymentForm ? (
+          <div className="space-y-4 py-4">
+            {/* Detalle del pago */}
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Monto del servicio:</span>
+                <span className="font-medium">${amount.toLocaleString()}</span>
+              </div>
 
-          <Separator />
-
-          {/* Detalle del pago */}
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Monto del servicio:</span>
-              <span className="font-medium">${amount.toLocaleString()}</span>
-            </div>
-
-            {availableCredits > 0 && (
-              <>
+              {availableCredits > 0 && (
                 <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Gift className="h-4 w-4 text-secondary" />
@@ -216,71 +205,72 @@ export const PaymentDialog = ({
                     -${availableCredits.toLocaleString()}
                   </span>
                 </div>
-              </>
+              )}
+
+              <Separator />
+
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold">Total a pagar:</span>
+                <span className="text-2xl font-bold text-primary">
+                  ${finalAmount.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
 
-            <Separator />
+            {finalAmount > 0 && (
+              <Alert>
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>
+                  Completa el formulario de pago de forma segura con Mercado Pago
+                </AlertDescription>
+              </Alert>
+            )}
 
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold">Total a pagar:</span>
-              <span className="text-2xl font-bold text-primary">
-                ${finalAmount.toLocaleString()}
-              </span>
+            {/* Botones */}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={processing}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleStartPayment}
+                disabled={processing}
+                className="flex-1"
+              >
+                {processing ? (
+                  'Procesando...'
+                ) : finalAmount === 0 ? (
+                  <>
+                    <Gift className="mr-2 h-4 w-4" />
+                    Confirmar pago
+                  </>
+                ) : (
+                  'Continuar al pago'
+                )}
+              </Button>
             </div>
           </div>
-
-          {/* Error message */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Información sobre Mercado Pago */}
-          {finalAmount > 0 && (
-            <Alert>
-              <ExternalLink className="h-4 w-4" />
-              <AlertDescription>
-                Serás redirigido a Mercado Pago para completar el pago de forma segura
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-
-        {/* Botones de acción */}
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handlePayment}
-            disabled={loading}
-            className="flex-1"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Procesando...
-              </>
-            ) : finalAmount === 0 ? (
-              <>
-                <Gift className="mr-2 h-4 w-4" />
-                Confirmar
-              </>
-            ) : (
-              <>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Pagar ${finalAmount.toLocaleString()}
-              </>
-            )}
-          </Button>
-        </div>
+        ) : (
+          <div className="py-4">
+            <BookingCheckoutBrick
+              amount={finalAmount}
+              bookingId={bookingId}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

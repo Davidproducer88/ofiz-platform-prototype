@@ -41,3 +41,6 @@ verify_jwt = true
 [functions.create-marketplace-payment]
 verify_jwt = true
 
+[functions.create-booking-payment]
+verify_jwt = true
+
