@@ -101,9 +101,6 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
         brickRef.current = await bricksBuilder.create('payment', 'mercadopago-brick-container', {
           initialization: {
             amount: amount,
-            payer: {
-              email: '',
-            },
           },
           customization: {
             visual: {
@@ -139,13 +136,20 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
                 if (!formData.token && !formData.payment_method_id) {
                   console.error('Missing required payment data!');
                   toast.error('Datos de pago incompletos');
-                  return;
+                  return { error_messages: ['Datos de pago incompletos'] };
                 }
                 
-                onSuccess(formData);
+                console.log('Calling onSuccess callback...');
+                await onSuccess(formData);
+                console.log('onSuccess callback completed');
+                
+                // Retornar vacío para indicar éxito
+                return {};
               } catch (error) {
                 console.error('Payment error:', error);
+                toast.error('Error al procesar el pago');
                 onError(error);
+                return { error_messages: [(error as Error).message || 'Error al procesar el pago'] };
               }
             },
             onError: (error: any) => {

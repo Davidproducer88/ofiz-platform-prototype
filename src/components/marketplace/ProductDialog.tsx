@@ -112,12 +112,27 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
   };
 
   const handlePaymentSuccess = async (formData: any) => {
-    if (!currentOrder || !onPaymentComplete) return;
+    console.log('=== HANDLE PAYMENT SUCCESS CALLED ===');
+    console.log('Current order:', currentOrder?.id);
+    console.log('onPaymentComplete exists:', !!onPaymentComplete);
+    console.log('Form data:', formData);
+    
+    if (!currentOrder || !onPaymentComplete) {
+      console.error('Missing required data:', { 
+        hasOrder: !!currentOrder, 
+        hasCallback: !!onPaymentComplete 
+      });
+      toast.error('Error: datos de orden no disponibles');
+      return;
+    }
     
     try {
+      console.log('Calling onPaymentComplete...');
       await onPaymentComplete(currentOrder.id, formData);
+      console.log('onPaymentComplete completed successfully');
     } catch (error) {
       console.error('Error processing payment:', error);
+      toast.error('Error al procesar el pago');
     }
   };
 
@@ -491,6 +506,10 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
         {showPayment && currentOrder && (
           <div className="mt-6 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Completa tu pago</h3>
+            <div className="mb-4 p-3 bg-muted/50 rounded-lg text-sm">
+              <p><strong>Orden:</strong> {currentOrder.order_number}</p>
+              <p><strong>Total:</strong> ${total.toLocaleString()}</p>
+            </div>
             <CheckoutBrick
               amount={total}
               orderId={currentOrder.id}
