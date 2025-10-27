@@ -120,37 +120,38 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
               setIsLoading(false);
               toast.success('Formulario de pago listo');
             },
-            onSubmit: async (formData: any) => {
-              try {
-                console.log('=== PAYMENT FORM SUBMITTED ===');
-                console.log('Full formData received from Brick:', JSON.stringify(formData, null, 2));
-                console.log('Keys in formData:', Object.keys(formData));
-                console.log('payment_method_id:', formData.payment_method_id);
-                console.log('token:', formData.token);
-                console.log('issuer_id:', formData.issuer_id);
-                console.log('installments:', formData.installments);
-                console.log('payer:', formData.payer);
-                console.log('================================');
-                
-                // Verificar que tenemos los datos mínimos necesarios
-                if (!formData.token && !formData.payment_method_id) {
-                  console.error('Missing required payment data!');
-                  toast.error('Datos de pago incompletos');
-                  return { error_messages: ['Datos de pago incompletos'] };
+            onSubmit: async ({ selectedPaymentMethod, formData }, additionalData) => {
+              // CRITICAL: onSubmit must return a Promise that resolves/rejects
+              return new Promise<void>(async (resolve, reject) => {
+                try {
+                  console.log('=== PAYMENT FORM SUBMITTED ===');
+                  console.log('Selected payment method:', selectedPaymentMethod);
+                  console.log('Form data:', formData);
+                  console.log('Additional data:', additionalData);
+                  console.log('================================');
+                  
+                  // Verificar que tenemos los datos mínimos necesarios
+                  if (!formData.token || !formData.payment_method_id) {
+                    console.error('Missing required payment data!', formData);
+                    toast.error('Datos de pago incompletos');
+                    reject(new Error('Datos de pago incompletos'));
+                    return;
+                  }
+                  
+                  console.log('Calling onSuccess callback...');
+                  await onSuccess(formData);
+                  console.log('Payment processed successfully');
+                  
+                  // Resolve the promise to indicate success
+                  resolve();
+                } catch (error) {
+                  console.error('Payment error:', error);
+                  toast.error('Error al procesar el pago');
+                  onError(error);
+                  // Reject the promise to indicate failure
+                  reject(error);
                 }
-                
-                console.log('Calling onSuccess callback...');
-                await onSuccess(formData);
-                console.log('onSuccess callback completed');
-                
-                // Retornar vacío para indicar éxito
-                return {};
-              } catch (error) {
-                console.error('Payment error:', error);
-                toast.error('Error al procesar el pago');
-                onError(error);
-                return { error_messages: [(error as Error).message || 'Error al procesar el pago'] };
-              }
+              });
             },
             onError: (error: any) => {
               console.error('Brick error:', error);
