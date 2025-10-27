@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Check, Star, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { MasterSubscriptionCheckoutBrick } from "./MasterSubscriptionCheckoutBrick";
 
 interface Subscription {
   id: string;
@@ -18,6 +20,14 @@ interface Subscription {
 export const SubscriptionPlans = () => {
   const [currentPlan, setCurrentPlan] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{
+    id: 'free' | 'basic_plus' | 'premium';
+    name: string;
+    price: number;
+    applicationsLimit: number;
+    isFeatured: boolean;
+  } | null>(null);
 
   useEffect(() => {
     fetchSubscription();
@@ -44,7 +54,7 @@ export const SubscriptionPlans = () => {
     }
   };
 
-  const createSubscription = async (plan: 'free' | 'basic_plus' | 'premium') => {
+  const handlePlanSelection = async (plan: 'free' | 'basic_plus' | 'premium') => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
@@ -72,33 +82,26 @@ export const SubscriptionPlans = () => {
 
       const config = planConfig[plan];
 
-      toast({
-        title: "Procesando...",
-        description: "Preparando tu suscripción...",
-      });
-
-      // Call edge function to create subscription with MercadoPago
-      const { data, error } = await supabase.functions.invoke('create-master-subscription', {
-        body: {
-          planId: plan,
-          planName: config.name,
-          price: config.price,
-          applicationsLimit: config.applicationsLimit,
-          isFeatured: config.isFeatured,
-        }
-      });
-
-      if (error) {
-        console.error('Subscription error:', error);
-        throw new Error(error.message || 'Error al crear la suscripción');
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      // For free plan, just reload
+      // For free plan, create directly
       if (plan === 'free') {
+        toast({
+          title: "Procesando...",
+          description: "Activando plan gratuito...",
+        });
+
+        const { data, error } = await supabase.functions.invoke('create-master-subscription', {
+          body: {
+            planId: plan,
+            planName: config.name,
+            price: config.price,
+            applicationsLimit: config.applicationsLimit,
+            isFeatured: config.isFeatured,
+          }
+        });
+
+        if (error) throw new Error(error.message);
+        if (data?.error) throw new Error(data.error);
+
         toast({
           title: "Plan actualizado",
           description: "Ahora estás en el plan Gratuito",
@@ -107,29 +110,44 @@ export const SubscriptionPlans = () => {
         return;
       }
 
-      // For premium plan, redirect to MercadoPago
-      if (data?.initPoint) {
-        toast({
-          title: "Redirigiendo a pago",
-          description: "Serás redirigido a MercadoPago para completar el pago...",
-        });
-        
-        setTimeout(() => {
-          window.location.href = data.initPoint;
-        }, 500);
-      } else {
-        throw new Error('No se recibió URL de pago de MercadoPago');
-      }
+      // For paid plans, show payment dialog
+      setSelectedPlan({
+        id: plan,
+        name: config.name,
+        price: config.price,
+        applicationsLimit: config.applicationsLimit,
+        isFeatured: config.isFeatured,
+      });
+      setShowPaymentDialog(true);
 
     } catch (error: any) {
-      const errorMessage = error?.message || "No se pudo procesar la suscripción";
-      console.error('Error updating subscription:', error);
+      console.error('Error selecting plan:', error);
       toast({
         variant: "destructive",
-        title: "Error al crear suscripción",
-        description: errorMessage,
+        title: "Error",
+        description: error?.message || "No se pudo procesar la suscripción",
       });
     }
+  };
+
+  const handlePaymentSuccess = async (paymentData: any) => {
+    console.log('Payment successful:', paymentData);
+    toast({
+      title: "¡Pago exitoso!",
+      description: "Tu suscripción ha sido activada",
+    });
+    setShowPaymentDialog(false);
+    setSelectedPlan(null);
+    await fetchSubscription();
+  };
+
+  const handlePaymentError = (error: any) => {
+    console.error('Payment error:', error);
+    toast({
+      variant: "destructive",
+      title: "Error en el pago",
+      description: "No se pudo procesar el pago. Intenta nuevamente.",
+    });
   };
 
   const plans = [
@@ -255,7 +273,7 @@ export const SubscriptionPlans = () => {
                 <Button
                   className="w-full"
                   variant={isCurrentPlan ? "outline" : plan.popular ? "default" : "outline"}
-                  onClick={() => createSubscription(plan.value)}
+                  onClick={() => handlePlanSelection(plan.value)}
                   disabled={isCurrentPlan}
                 >
                   {isCurrentPlan ? "Plan Actual" : `Cambiar a ${plan.name}`}
@@ -265,6 +283,46 @@ export const SubscriptionPlans = () => {
           );
         })}
       </div>
+
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Suscripción {selectedPlan?.name}</DialogTitle>
+            <DialogDescription>
+              Completa el pago para activar tu suscripción
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedPlan && (
+            <div className="space-y-6">
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Plan:</span>
+                  <span className="font-semibold">{selectedPlan.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Monto:</span>
+                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Propuestas mensuales:</span>
+                  <span className="font-medium">{selectedPlan.applicationsLimit}</span>
+                </div>
+              </div>
+
+              <MasterSubscriptionCheckoutBrick
+                amount={selectedPlan.price}
+                planId={selectedPlan.id}
+                planName={selectedPlan.name}
+                applicationsLimit={selectedPlan.applicationsLimit}
+                isFeatured={selectedPlan.isFeatured}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

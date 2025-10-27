@@ -1,10 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Check, Zap, Crown, Building } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { BusinessSubscriptionCheckoutBrick } from "../BusinessSubscriptionCheckoutBrick";
 
 interface BusinessSubscriptionPlansProps {
   businessId: string;
@@ -86,9 +88,10 @@ export const BusinessSubscriptionPlans = ({
 }: BusinessSubscriptionPlansProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
 
-  const handleSubscribe = async (planId: string) => {
-    setLoading(planId);
+  const handleSubscribe = (planId: string) => {
     const plan = plans.find(p => p.id === planId);
     
     if (!plan) {
@@ -97,65 +100,33 @@ export const BusinessSubscriptionPlans = ({
         description: "Plan no encontrado",
         variant: "destructive",
       });
-      setLoading(null);
       return;
     }
     
-    try {
-      toast({
-        title: "Procesando...",
-        description: "Preparando tu suscripción...",
-      });
+    setSelectedPlan(plan);
+    setShowPaymentDialog(true);
+  };
 
-      // Call edge function to create MercadoPago subscription
-      const { data, error } = await supabase.functions.invoke('create-business-subscription', {
-        body: {
-          planId: plan.id,
-          planName: plan.name,
-          price: plan.price,
-          contacts: plan.contacts,
-          canPostAds: plan.canPostAds,
-          adImpressions: plan.adImpressions,
-        }
-      });
+  const handlePaymentSuccess = async (paymentData: any) => {
+    console.log('Payment successful:', paymentData);
+    toast({
+      title: "¡Pago exitoso!",
+      description: "Tu suscripción empresarial ha sido activada",
+    });
+    setShowPaymentDialog(false);
+    setSelectedPlan(null);
+    setLoading(null);
+    onUpdate();
+  };
 
-      if (error) {
-        console.error('Subscription error:', error);
-        throw new Error(error.message || 'Error al crear la suscripción');
-      }
-
-      if (!data) {
-        throw new Error('No se recibió respuesta del servidor');
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      if (data.initPoint) {
-        toast({
-          title: "Redirigiendo a pago",
-          description: "Serás redirigido a MercadoPago para completar el pago...",
-        });
-        
-        // Small delay to show the toast
-        setTimeout(() => {
-          window.location.href = data.initPoint;
-        }, 500);
-      } else {
-        throw new Error('No se recibió URL de pago de MercadoPago');
-      }
-
-    } catch (error: any) {
-      const errorMessage = error?.message || "No se pudo procesar la suscripción. Por favor, intenta nuevamente.";
-      console.error('Error creating subscription:', error);
-      toast({
-        title: "Error al crear suscripción",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setLoading(null);
-    }
+  const handlePaymentError = (error: any) => {
+    console.error('Payment error:', error);
+    toast({
+      variant: "destructive",
+      title: "Error en el pago",
+      description: "No se pudo procesar el pago. Intenta nuevamente.",
+    });
+    setLoading(null);
   };
 
   return (
@@ -265,6 +236,47 @@ export const BusinessSubscriptionPlans = ({
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Suscripción {selectedPlan?.name}</DialogTitle>
+            <DialogDescription>
+              Completa el pago para activar tu suscripción empresarial
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedPlan && (
+            <div className="space-y-6">
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Plan:</span>
+                  <span className="font-semibold">{selectedPlan.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Monto:</span>
+                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Contactos mensuales:</span>
+                  <span className="font-medium">{selectedPlan.contacts === 999999 ? 'Ilimitados' : selectedPlan.contacts}</span>
+                </div>
+              </div>
+
+              <BusinessSubscriptionCheckoutBrick
+                amount={selectedPlan.price}
+                planId={selectedPlan.id}
+                planName={selectedPlan.name}
+                contacts={selectedPlan.contacts}
+                canPostAds={selectedPlan.canPostAds}
+                adImpressions={selectedPlan.adImpressions}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

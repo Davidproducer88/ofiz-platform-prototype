@@ -38,6 +38,12 @@ verify_jwt = true
 [functions.create-master-subscription]
 verify_jwt = true
 
+[functions.create-master-subscription-payment]
+verify_jwt = true
+
+[functions.create-business-subscription-payment]
+verify_jwt = true
+
 [functions.create-marketplace-payment]
 verify_jwt = true
 
