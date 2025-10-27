@@ -27,6 +27,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
+import { DossierMaestros } from "./pages/DossierMaestros";
+import { DossierEmpresas } from "./pages/DossierEmpresas";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +144,8 @@ const AppContent = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/blog" element={<Blog />} />
+      <Route path="/dossier-maestros" element={<DossierMaestros />} />
+      <Route path="/dossier-empresas" element={<DossierEmpresas />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
