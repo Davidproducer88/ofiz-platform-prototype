@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +32,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export function MarketplaceFeed() {
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const { 
     products, 
@@ -165,13 +167,26 @@ export function MarketplaceFeed() {
       if (data.status === 'approved') {
         toast({
           title: '✅ ¡Pago exitoso!',
-          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Puedes ver el estado en "Mis Órdenes"`,
+          description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Redirigiendo a tu dashboard...`,
         });
         
-        // Close dialog and clear state after successful payment
+        // Close dialog and redirect to appropriate dashboard
         setTimeout(() => {
           setShowProductDialog(false);
           setSelectedProduct(null);
+          
+          // Redirect based on user role
+          const userType = profile?.user_type;
+          if (userType === 'master') {
+            navigate('/master-dashboard');
+          } else if (userType === 'client') {
+            navigate('/client-dashboard');
+          } else if (userType === 'business') {
+            navigate('/business-dashboard');
+          } else {
+            // Fallback to home if no role detected
+            navigate('/');
+          }
         }, 2000);
         
         // Orders will refresh automatically via real-time subscription
