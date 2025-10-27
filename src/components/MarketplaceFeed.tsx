@@ -168,7 +168,12 @@ export function MarketplaceFeed() {
           description: `Tu orden #${data.orderId?.substring(0, 8)} fue procesada correctamente. Puedes ver el estado en "Mis Órdenes"`,
         });
         
-        // Don't close immediately - let ProductDialog handle it after showing the success message
+        // Close dialog and clear state after successful payment
+        setTimeout(() => {
+          setShowProductDialog(false);
+          setSelectedProduct(null);
+        }, 2000);
+        
         // Orders will refresh automatically via real-time subscription
       } else if (data.status === 'pending' || data.status === 'in_process') {
         toast({

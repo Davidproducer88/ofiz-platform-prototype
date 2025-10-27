@@ -131,10 +131,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
       await onPaymentComplete(currentOrder.id, formData);
       console.log('onPaymentComplete completed successfully');
       
-      // Close dialog after successful payment
-      setTimeout(() => {
-        handleClose();
-      }, 2000); // Wait 2 seconds to show success message
+      // Keep dialog open to show success message, MarketplaceFeed will handle the rest
     } catch (error) {
       console.error('Error processing payment:', error);
       toast.error('Error al procesar el pago');
