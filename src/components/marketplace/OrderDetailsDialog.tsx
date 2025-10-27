@@ -231,7 +231,7 @@ export function OrderDetailsDialog({
                     <span>${order.subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-primary">
-                    <span>Comisión (7%):</span>
+                    <span>Comisión (12%):</span>
                     <span>-${order.platform_fee.toLocaleString()}</span>
                   </div>
                   <Separator />

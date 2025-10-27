@@ -89,7 +89,7 @@ export const PaymentDialog = ({
 
       // Si el pago se cubre 100% con créditos
       if (finalAmount === 0) {
-        const commissionAmount = amount * 0.05;
+        const commissionAmount = amount * 0.12;
         const masterAmount = amount - commissionAmount;
 
         const { error: paymentError } = await supabase

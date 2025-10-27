@@ -134,8 +134,8 @@ serve(async (req) => {
     const mpData = await mpResponse.json();
     console.log('Mercado Pago preference created:', mpData.id);
 
-    // Calculate commission (5% for services, included in the amount)
-    const commissionRate = 0.05;
+    // Calculate commission (12% for services, included in the amount)
+    const commissionRate = 0.12;
     const commissionAmount = parseFloat((amount * commissionRate).toFixed(2));
     const masterAmount = parseFloat((amount - commissionAmount).toFixed(2));
 

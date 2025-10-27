@@ -18,7 +18,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 45000,
+    price: 450000,
     icon: Building,
     description: 'Ideal para pequeñas empresas',
     features: [
@@ -37,7 +37,7 @@ const plans = [
   {
     id: 'professional',
     name: 'Professional',
-    price: 85000,
+    price: 850000,
     icon: Zap,
     popular: true,
     description: 'Para empresas en crecimiento',
@@ -59,7 +59,7 @@ const plans = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 150000,
+    price: 1500000,
     icon: Crown,
     description: 'Para grandes organizaciones',
     features: [

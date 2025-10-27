@@ -80,8 +80,8 @@ serve(async (req) => {
       throw new Error('El monto de la reserva es inválido');
     }
 
-    // Calculate commission (5%)
-    const commissionAmount = Math.round(finalAmount * 0.05 * 100) / 100;
+    // Calculate commission (12%)
+    const commissionAmount = Math.round(finalAmount * 0.12 * 100) / 100;
     const masterAmount = finalAmount - commissionAmount;
 
     console.log('Booking details:', {
