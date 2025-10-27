@@ -47,24 +47,43 @@ serve(async (req) => {
 
     console.log('Creating payment preference for booking:', bookingId);
 
-    // Get booking details
+    // Get booking details - usar maybeSingle en lugar de single para mejor manejo de errores
     const { data: booking, error: bookingError } = await supabaseClient
       .from('bookings')
-      .select('*, profiles!client_id(email)')
+      .select(`
+        *,
+        profiles!bookings_client_id_fkey(email)
+      `)
       .eq('id', bookingId)
-      .single();
+      .maybeSingle();
 
-    if (bookingError || !booking) {
-      throw new Error('Reserva no encontrada');
+    if (bookingError) {
+      console.error('Database error fetching booking:', bookingError);
+      throw new Error(`Error al buscar reserva: ${bookingError.message}`);
     }
 
-    // Calculate commission (5% for services, included in the amount)
-    const commissionRate = 0.05;
-    const commissionAmount = parseFloat((amount * commissionRate).toFixed(2));
-    const masterAmount = parseFloat((amount - commissionAmount).toFixed(2));
+    if (!booking) {
+      console.error('Booking not found:', bookingId);
+      throw new Error('Reserva no encontrada. Verifica el ID de la reserva.');
+    }
+
+    console.log('Booking found:', {
+      id: booking.id,
+      client_id: booking.client_id,
+      master_id: booking.master_id,
+      total_price: booking.total_price,
+      status: booking.status
+    });
 
     // Create payment preference with Mercado Pago
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
+    
+    if (!mercadoPagoToken) {
+      throw new Error('Token de Mercado Pago no configurado');
+    }
+
+    // Obtener email del cliente
+    const clientEmail = booking.profiles?.email || user.email;
     
     const preference = {
       items: [
@@ -77,17 +96,17 @@ serve(async (req) => {
         }
       ],
       payer: {
-        email: booking.profiles.email,
+        email: clientEmail,
       },
       back_urls: {
-        success: `https://ofiz.com.uy/client-dashboard?payment=success`,
-        failure: `https://ofiz.com.uy/client-dashboard?payment=failure`,
-        pending: `https://ofiz.com.uy/client-dashboard?payment=pending`,
+        success: `https://ofiz.com.uy/client-dashboard?payment=success&booking=${bookingId}`,
+        failure: `https://ofiz.com.uy/client-dashboard?payment=failure&booking=${bookingId}`,
+        pending: `https://ofiz.com.uy/client-dashboard?payment=pending&booking=${bookingId}`,
       },
-      auto_return: 'approved',
+      auto_return: 'approved' as const,
       notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
       external_reference: bookingId,
-      statement_descriptor: 'PLATAFORMA SERVICIOS',
+      statement_descriptor: 'OFIZ SERVICIOS',
       metadata: {
         booking_id: bookingId,
         client_id: booking.client_id,
@@ -95,7 +114,7 @@ serve(async (req) => {
       }
     };
 
-    console.log('Sending preference to Mercado Pago:', preference);
+    console.log('Sending preference to Mercado Pago');
 
     const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
@@ -109,11 +128,16 @@ serve(async (req) => {
     if (!mpResponse.ok) {
       const errorData = await mpResponse.text();
       console.error('Mercado Pago error:', errorData);
-      throw new Error(`Error de Mercado Pago: ${mpResponse.status}`);
+      throw new Error(`Error de Mercado Pago: ${mpResponse.status} - ${errorData}`);
     }
 
     const mpData = await mpResponse.json();
     console.log('Mercado Pago preference created:', mpData.id);
+
+    // Calculate commission (5% for services, included in the amount)
+    const commissionRate = 0.05;
+    const commissionAmount = parseFloat((amount * commissionRate).toFixed(2));
+    const masterAmount = parseFloat((amount - commissionAmount).toFixed(2));
 
     // Create payment record
     const { data: payment, error: paymentError } = await supabaseClient
@@ -136,7 +160,7 @@ serve(async (req) => {
 
     if (paymentError) {
       console.error('Error creating payment record:', paymentError);
-      throw paymentError;
+      throw new Error(`Error al crear registro de pago: ${paymentError.message}`);
     }
 
     console.log('Payment record created:', payment.id);
