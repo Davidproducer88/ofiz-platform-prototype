@@ -62,31 +62,17 @@ export function CreateBookingFromChat({
 
     setIsSubmitting(true);
     try {
-      // Primero crear un servicio temporal para este encargo
-      const { data: serviceData, error: serviceError } = await supabase
-        .from("service_from_chat")
-        .insert({
-          title: data.title,
-          description: data.description,
-          master_id: masterId,
-          price: data.price,
-        })
-        .select()
-        .single();
-
-      if (serviceError) throw serviceError;
-
-      // Crear el booking con el servicio temporal
+      // Crear el booking directamente (service_id puede ser null)
       const { data: bookingData, error: bookingError } = await supabase
         .from("bookings")
         .insert({
           client_id: clientId,
           master_id: masterId,
-          service_id: serviceData.id,
+          service_id: null, // No viene de un servicio específico
           total_price: data.price,
           scheduled_date: scheduledDate.toISOString(),
           client_address: data.address,
-          notes: data.description,
+          notes: `${data.title}\n\n${data.description}`,
           status: "confirmed",
         })
         .select()

@@ -17,7 +17,7 @@ export interface Message {
 
 export interface Conversation {
   id: string;
-  booking_id: string;
+  booking_id: string | null;
   client_id: string;
   master_id: string;
   last_message_at: string;
@@ -45,6 +45,7 @@ export const useChat = (conversationId?: string) => {
         .select(`
           *,
           bookings!conversations_booking_id_fkey (
+            notes,
             services (title)
           )
         `)
@@ -72,11 +73,24 @@ export const useChat = (conversationId?: string) => {
             .eq('read', false)
             .neq('sender_id', profile.id);
 
+          // Obtener título del encargo si existe
+          let bookingTitle = 'Conversación';
+          if (conv.booking_id && conv.bookings) {
+            const booking = conv.bookings as any;
+            if (booking.services?.title) {
+              bookingTitle = booking.services.title;
+            } else if (booking.notes) {
+              // Si no hay servicio, extraer título de las notas
+              const firstLine = booking.notes.split('\n')[0];
+              bookingTitle = firstLine || 'Encargo';
+            }
+          }
+
           return {
             ...conv,
             other_user_name: userData?.full_name || 'Usuario',
             other_user_id: otherUserId,
-            booking_title: (conv.bookings as any)?.services?.title || 'Conversación',
+            booking_title: bookingTitle,
             unread_count: count || 0
           };
         })
