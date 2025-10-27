@@ -14,7 +14,15 @@ export const RoleProtectedRoute = ({
 }: RoleProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
   
+  console.log('[RoleProtectedRoute]', {
+    loading,
+    hasUser: !!user,
+    profile: profile?.user_type,
+    allowedRoles
+  });
+  
   if (loading) {
+    console.log('[RoleProtectedRoute] Loading...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -27,17 +35,20 @@ export const RoleProtectedRoute = ({
   
   // Si no está autenticado, redirigir a login
   if (!user) {
+    console.log('[RoleProtectedRoute] No user, redirecting to /auth');
     return <Navigate to="/auth" replace />;
   }
 
   // Verificar verificación de email si es necesario
   if (user && !user.email_confirmed_at && profile?.login_provider === 'email') {
+    console.log('[RoleProtectedRoute] Email not verified, redirecting');
     const verificationUrl = `/auth?message=verify-email&email=${encodeURIComponent(user.email || '')}`;
     return <Navigate to={verificationUrl} replace />;
   }
   
   // Si el usuario no tiene el rol permitido
   if (profile && !allowedRoles.includes(profile.user_type)) {
+    console.log('[RoleProtectedRoute] Wrong role:', profile.user_type, 'allowed:', allowedRoles);
     // Redirigir al dashboard correcto según su rol
     const dashboardRoutes = {
       client: '/client-dashboard',
@@ -50,5 +61,6 @@ export const RoleProtectedRoute = ({
     return <Navigate to={redirectTo || userDashboard || '/'} replace />;
   }
   
+  console.log('[RoleProtectedRoute] Access granted, rendering children');
   return <>{children}</>;
 };
