@@ -76,7 +76,7 @@ export const useChat = (conversationId?: string) => {
             ...conv,
             other_user_name: userData?.full_name || 'Usuario',
             other_user_id: otherUserId,
-            booking_title: (conv.bookings as any)?.services?.title || 'Servicio',
+            booking_title: (conv.bookings as any)?.services?.title || 'Conversación',
             unread_count: count || 0
           };
         })

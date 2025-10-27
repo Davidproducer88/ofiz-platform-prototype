@@ -1605,6 +1605,41 @@ export type Database = {
           },
         ]
       }
+      service_from_chat: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          master_id: string
+          price: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          master_id: string
+          price: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          master_id?: string
+          price?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_from_chat_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_requests: {
         Row: {
           budget_range: string | null
