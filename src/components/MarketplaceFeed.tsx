@@ -379,7 +379,7 @@ export function MarketplaceFeed() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="marketplace" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className={`grid w-full ${profile?.user_type === 'business' || profile?.user_type === 'master' ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="marketplace" className="gap-2">
             <ShoppingBag className="h-4 w-4" />
             Marketplace
@@ -388,10 +388,12 @@ export function MarketplaceFeed() {
             <Package className="h-4 w-4" />
             Mis Órdenes
           </TabsTrigger>
-          <TabsTrigger value="seller" className="gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Panel Vendedor
-          </TabsTrigger>
+          {(profile?.user_type === 'business' || profile?.user_type === 'master') && (
+            <TabsTrigger value="seller" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Panel Vendedor
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="marketplace" className="space-y-4">
@@ -430,7 +432,7 @@ export function MarketplaceFeed() {
         </TabsContent>
 
         <TabsContent value="seller">
-          {profile?.user_type === 'business' ? (
+          {profile?.user_type === 'business' || profile?.user_type === 'master' ? (
             <SellerDashboard
               balance={balance}
               products={products.filter(p => p.business_id === profile?.id) || []}
@@ -444,23 +446,34 @@ export function MarketplaceFeed() {
                   Cuenta Empresarial Requerida
                 </CardTitle>
                 <CardDescription>
-                  Solo las cuentas empresariales con suscripción activa pueden vender en el marketplace
+                  Solo las cuentas empresariales o profesionales pueden vender en el marketplace
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Para vender en Ofiz Market necesitas:
+                  Para vender en Ofiz Market necesitas una cuenta empresarial o ser un profesional maestro:
                 </p>
                 <div className="space-y-2 text-sm">
-                  <p>1. Registrarte como empresa en Ofiz</p>
-                  <p>2. Activar una suscripción empresarial</p>
-                  <p>3. Completar tu perfil de vendedor</p>
+                  <p><strong>Opción 1: Cuenta Empresarial</strong></p>
+                  <p>• Registrarte como empresa en Ofiz</p>
+                  <p>• Activar una suscripción empresarial</p>
+                  <p>• Comisión del 7% sobre ventas</p>
+                  <p className="mt-3"><strong>Opción 2: Cuenta Profesional (Master)</strong></p>
+                  <p>• Ya disponible si eres un maestro verificado</p>
+                  <p>• Vende productos relacionados a tu oficio</p>
                 </div>
-                <Button asChild>
-                  <a href="/auth?mode=business">
-                    Crear cuenta empresarial
-                  </a>
-                </Button>
+                <div className="flex gap-2">
+                  <Button asChild>
+                    <a href="/auth?mode=business">
+                      Crear cuenta empresarial
+                    </a>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <a href="/auth?mode=master">
+                      Registrarme como maestro
+                    </a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
