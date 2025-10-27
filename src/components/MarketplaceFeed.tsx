@@ -261,14 +261,13 @@ export function MarketplaceFeed() {
             </div>
           </div>
           <CardDescription className="text-base">
-            Compra y vende productos profesionales con la comunidad más grande de Uruguay.
-            <span className="font-semibold text-primary"> Comisión justa del 7%</span> · Pagos seguros · Envíos nacionales
+            Compra productos profesionales con la comunidad más grande de Uruguay. Pagos seguros · Envíos nacionales
           </CardDescription>
         </CardHeader>
 
         {/* Stats Grid */}
         <CardContent className="relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-primary/50 transition-all">
               <div className="flex items-center gap-2 mb-2">
                 <Package className="h-5 w-5 text-primary" />
@@ -289,20 +288,11 @@ export function MarketplaceFeed() {
 
             <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-primary/50 transition-all">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="h-5 w-5 text-accent" />
+                <Heart className="h-5 w-5 text-accent" />
                 <span className="text-sm text-muted-foreground">Favoritos</span>
               </div>
               <p className="text-2xl font-bold">{favorites?.length || 0}</p>
               <p className="text-xs text-muted-foreground">productos guardados</p>
-            </div>
-
-            <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-primary/50 transition-all">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
-                <span className="text-sm text-muted-foreground">Ganancias</span>
-              </div>
-              <p className="text-2xl font-bold">${(balance?.total_earnings || 0).toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">${(balance?.available || 0).toLocaleString()} disponible</p>
             </div>
           </div>
 
