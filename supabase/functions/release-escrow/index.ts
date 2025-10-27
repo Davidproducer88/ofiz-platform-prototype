@@ -57,10 +57,14 @@ serve(async (req) => {
       .from('payments')
       .select('id, status')
       .eq('booking_id', bookingId)
-      .single();
+      .maybeSingle();
 
-    if (checkError || !existingPayment) {
-      throw new Error('No se encontró el pago para esta reserva');
+    if (checkError) {
+      throw new Error('Error al verificar el pago');
+    }
+
+    if (!existingPayment) {
+      throw new Error('No se encontró el pago para esta reserva. El cliente debe realizar el pago primero.');
     }
 
     if (existingPayment.status !== 'approved') {

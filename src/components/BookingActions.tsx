@@ -1,6 +1,6 @@
 import { MessageSquare, Star, Calendar, CreditCard, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatWindow } from '@/components/ChatWindow';
 import { useChat } from '@/hooks/useChat';
 import { toast } from '@/hooks/use-toast';
@@ -39,7 +39,21 @@ export const BookingActions = ({
   const [chatOpen, setChatOpen] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [releasing, setReleasing] = useState(false);
+  const [hasPayment, setHasPayment] = useState(false);
   const { getOrCreateConversation } = useChat();
+
+  // Verificar si existe un pago para esta reserva
+  useEffect(() => {
+    const checkPayment = async () => {
+      const { data } = await supabase
+        .from('payments')
+        .select('id')
+        .eq('booking_id', booking.id)
+        .single();
+      setHasPayment(!!data);
+    };
+    checkPayment();
+  }, [booking.id]);
 
   const handleOpenChat = async () => {
     const convId = await getOrCreateConversation(
@@ -89,7 +103,7 @@ export const BookingActions = ({
     
     setReleasing(true);
     try {
-      const { error } = await supabase.functions.invoke('release-escrow', {
+      const { data, error } = await supabase.functions.invoke('release-escrow', {
         body: { bookingId: booking.id }
       });
 
@@ -114,22 +128,39 @@ export const BookingActions = ({
   };
 
   const showChat = booking.status !== 'cancelled';
-  const showReview = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at;
+  const showReview = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment;
   const showReschedule = ['pending', 'confirmed'].includes(booking.status);
-  const showPayment = booking.status === 'pending' && userType === 'client';
+  const showPaymentInitial = booking.status === 'pending' && userType === 'client' && !hasPayment;
+  const showPaymentFinal = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && !hasPayment;
   const showConfirmCompletion = booking.status === 'completed' && userType === 'client' && !booking.client_confirmed_at;
-  const showReleaseEscrow = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at;
+  const showReleaseEscrow = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment;
 
   return (
     <>
       <div className="flex gap-2 flex-wrap">
-        {showPayment && (
+        {showPaymentInitial && (
           <PaymentButton
             bookingId={booking.id}
             amount={booking.total_price}
             title={`Pago - ${booking.services?.title || 'Servicio'}`}
             description={`Reserva para ${new Date(booking.scheduled_date).toLocaleDateString('es-AR')}`}
-            onSuccess={onUpdate}
+            onSuccess={() => {
+              setHasPayment(true);
+              if (onUpdate) onUpdate();
+            }}
+          />
+        )}
+
+        {showPaymentFinal && (
+          <PaymentButton
+            bookingId={booking.id}
+            amount={booking.total_price}
+            title={`Pago Final - ${booking.services?.title || 'Servicio'}`}
+            description={`Pago por trabajo completado el ${new Date(booking.scheduled_date).toLocaleDateString('es-AR')}`}
+            onSuccess={() => {
+              setHasPayment(true);
+              if (onUpdate) onUpdate();
+            }}
           />
         )}
         
@@ -171,16 +202,16 @@ export const BookingActions = ({
         )}
 
         {showReleaseEscrow && (
-          <PaymentButton
-            bookingId={booking.id}
-            amount={booking.total_price}
-            title={`Pago Final - ${booking.services?.title || 'Servicio'}`}
-            description={`Pago por trabajo completado el ${new Date(booking.scheduled_date).toLocaleDateString('es-AR')}`}
-            onSuccess={async () => {
-              await handleReleaseEscrow();
-              if (onUpdate) onUpdate();
-            }}
-          />
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleReleaseEscrow}
+            disabled={releasing}
+            className="flex-1 sm:flex-none"
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            {releasing ? 'Liberando...' : 'Liberar Pago al Profesional'}
+          </Button>
         )}
 
         {showReschedule && onReschedule && (
