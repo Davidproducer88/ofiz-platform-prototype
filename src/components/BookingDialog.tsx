@@ -118,7 +118,7 @@ export function BookingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Confirmar Solicitud de Servicio</DialogTitle>
           <DialogDescription>
@@ -126,7 +126,7 @@ export function BookingDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           {/* Service Info */}
           <div className="bg-muted p-4 rounded-lg space-y-2">
             <h4 className="font-semibold">{service.title}</h4>
@@ -239,7 +239,7 @@ export function BookingDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0 gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
