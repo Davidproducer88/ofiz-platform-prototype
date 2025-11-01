@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Users, UserCheck, Calendar, Star, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import { marked } from "marked";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
 import { BookingsTableEnhanced } from "@/components/admin/BookingsTableEnhanced";
@@ -83,27 +85,113 @@ const AdminDashboard = () => {
 
   const handleDownloadManual = async () => {
     try {
+      toast({
+        title: "Generando PDF",
+        description: "Por favor espera mientras se genera el documento...",
+      });
+
       const response = await fetch('/DOSSIER_EJECUTIVO_C_LEVEL.md');
-      const content = await response.text();
-      const blob = new Blob([content], { type: 'text/markdown' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Manual_Ejecutivo_C-Level_Ofiz.md';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const markdown = await response.text();
+      
+      // Configurar marked para generar HTML limpio
+      marked.setOptions({
+        breaks: true,
+        gfm: true,
+      });
+      
+      const html = await marked(markdown);
+      
+      // Crear PDF con jsPDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+      
+      // Configurar fuente y márgenes
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - (margin * 2);
+      let yPosition = margin;
+      
+      // Función para agregar nueva página si es necesario
+      const checkPageBreak = (increment: number) => {
+        if (yPosition + increment > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+      };
+      
+      // Parsear el HTML y convertir a PDF
+      const lines = markdown.split('\n');
+      
+      for (const line of lines) {
+        if (!line.trim()) {
+          yPosition += 3;
+          continue;
+        }
+        
+        // Títulos principales (# o ##)
+        if (line.startsWith('# ')) {
+          checkPageBreak(15);
+          pdf.setFontSize(20);
+          pdf.setFont('helvetica', 'bold');
+          const text = line.replace('# ', '');
+          pdf.text(text, margin, yPosition);
+          yPosition += 12;
+        }
+        // Subtítulos (## o ###)
+        else if (line.startsWith('## ')) {
+          checkPageBreak(12);
+          pdf.setFontSize(16);
+          pdf.setFont('helvetica', 'bold');
+          const text = line.replace('## ', '');
+          pdf.text(text, margin, yPosition);
+          yPosition += 10;
+        }
+        else if (line.startsWith('### ')) {
+          checkPageBreak(10);
+          pdf.setFontSize(14);
+          pdf.setFont('helvetica', 'bold');
+          const text = line.replace('### ', '');
+          pdf.text(text, margin, yPosition);
+          yPosition += 8;
+        }
+        // Listas
+        else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+          checkPageBreak(8);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'normal');
+          const text = '• ' + line.trim().substring(2);
+          const splitText = pdf.splitTextToSize(text, maxWidth - 5);
+          pdf.text(splitText, margin + 5, yPosition);
+          yPosition += splitText.length * 5;
+        }
+        // Texto normal
+        else if (!line.startsWith('```') && !line.startsWith('|')) {
+          checkPageBreak(8);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'normal');
+          const splitText = pdf.splitTextToSize(line, maxWidth);
+          pdf.text(splitText, margin, yPosition);
+          yPosition += splitText.length * 5;
+        }
+      }
+      
+      // Guardar el PDF
+      pdf.save('Manual_Ejecutivo_C-Level_Ofiz.pdf');
       
       toast({
-        title: "Manual descargado",
+        title: "PDF descargado",
         description: "El manual ejecutivo C-Level se ha descargado exitosamente",
       });
     } catch (error) {
+      console.error('Error generating PDF:', error);
       toast({
         variant: "destructive",
-        title: "Error al descargar",
-        description: "No se pudo descargar el manual. Por favor intenta de nuevo.",
+        title: "Error al generar PDF",
+        description: "No se pudo generar el PDF. Por favor intenta de nuevo.",
       });
     }
   };
