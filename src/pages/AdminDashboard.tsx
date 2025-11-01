@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Users, UserCheck, Calendar, Star } from "lucide-react";
+import { LogOut, Users, UserCheck, Calendar, Star, Download } from "lucide-react";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
 import { BookingsTableEnhanced } from "@/components/admin/BookingsTableEnhanced";
@@ -81,6 +81,33 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDownloadManual = async () => {
+    try {
+      const response = await fetch('/DOSSIER_EJECUTIVO_C_LEVEL.md');
+      const content = await response.text();
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Manual_Ejecutivo_C-Level_Ofiz.md';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Manual descargado",
+        description: "El manual ejecutivo C-Level se ha descargado exitosamente",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error al descargar",
+        description: "No se pudo descargar el manual. Por favor intenta de nuevo.",
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
@@ -108,10 +135,16 @@ const AdminDashboard = () => {
               </p>
             </div>
           </div>
-          <Button onClick={handleLogout} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
-            Cerrar Sesión
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleDownloadManual} variant="default" className="bg-gradient-to-r from-primary to-primary-glow">
+              <Download className="w-4 h-4 mr-2" />
+              Manual C-Level
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              <LogOut className="w-4 h-4 mr-2" />
+              Cerrar Sesión
+            </Button>
+          </div>
         </div>
       </header>
 
