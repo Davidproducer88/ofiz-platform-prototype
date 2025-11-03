@@ -15,6 +15,7 @@ import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab"
 import { TransactionsTable } from "@/components/admin/TransactionsTable";
 import { RankingsTable } from "@/components/admin/RankingsTable";
 import { Feed } from "@/components/Feed";
+import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -89,8 +90,8 @@ const AdminDashboard = () => {
         description: "Por favor espera mientras se genera el documento...",
       });
 
-      const response = await fetch('/DOSSIER_EJECUTIVO_C_LEVEL.md');
-      const markdown = await response.text();
+      // Usar contenido importado del dossier (evita fetch de archivos públicos)
+      const markdown = dossierMd;
       
       // Crear PDF con jsPDF
       const pdf = new jsPDF({

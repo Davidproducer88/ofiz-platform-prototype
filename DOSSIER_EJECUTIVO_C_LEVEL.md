@@ -1,16 +1,23 @@
-# 🎯 DOSSIER EJECUTIVO C-LEVEL
-## Metodologías de Trabajo - Plataforma de Servicios Profesionales
+# 🎯 DOSSIER EJECUTIVO C-LEVEL - OFIZ
+## Manual de Escalamiento para Alcanzar Billones de Dólares
+
+> **CONFIDENCIAL** - Metodologías de Trabajo Ejecutivo
+> 
+> **Objetivo:** Transformar OFIZ en una plataforma global de $1B+ USD
+> 
+> **Target:** Uruguay → LatAm → Global
 
 ---
 
-# 📋 ÍNDICE
+# 📋 ÍNDICE EJECUTIVO
 
-1. [CEO - Chief Executive Officer](#ceo)
-2. [COO - Chief Operating Officer](#coo)
-3. [CTO - Chief Technology Officer](#cto)
-4. [CDO - Chief Digital Officer](#cdo)
-5. [KPIs Compartidos](#kpis-compartidos)
-6. [Sincronización Ejecutiva](#sincronizacion)
+1. [CEO - Chief Executive Officer](#ceo) - Visión, Fundraising, M&A
+2. [COO - Chief Operating Officer](#coo) - Escalamiento, Operaciones Globales
+3. [CTO - Chief Technology Officer](#cto) - Arquitectura Global, AI, Blockchain
+4. [CDO - Chief Digital Officer](#cdo) - Hypergrowth Marketing, Data Science
+5. [Roadmap a $1B+ Valuation](#roadmap-billion)
+6. [KPIs de Unicornio](#kpis-unicornio)
+7. [Exit Strategy](#exit-strategy)
 
 ---
 
