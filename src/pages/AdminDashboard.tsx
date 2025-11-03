@@ -7,7 +7,6 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Users, UserCheck, Calendar, Star, Download } from "lucide-react";
 import jsPDF from "jspdf";
-import { marked } from "marked";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
 import { BookingsTableEnhanced } from "@/components/admin/BookingsTableEnhanced";
@@ -93,14 +92,6 @@ const AdminDashboard = () => {
       const response = await fetch('/DOSSIER_EJECUTIVO_C_LEVEL.md');
       const markdown = await response.text();
       
-      // Configurar marked para generar HTML limpio
-      marked.setOptions({
-        breaks: true,
-        gfm: true,
-      });
-      
-      const html = await marked(markdown);
-      
       // Crear PDF con jsPDF
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -111,80 +102,162 @@ const AdminDashboard = () => {
       // Configurar fuente y márgenes
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 20;
+      const margin = 15;
       const maxWidth = pageWidth - (margin * 2);
       let yPosition = margin;
+      let pageNumber = 1;
+      
+      // Función para agregar encabezado y pie de página
+      const addHeaderFooter = () => {
+        // Encabezado
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'italic');
+        pdf.setTextColor(128, 128, 128);
+        pdf.text('Dossier Ejecutivo C-Level - Ofiz', margin, 8);
+        
+        // Pie de página
+        pdf.text(`Página ${pageNumber}`, pageWidth - margin - 15, pageHeight - 8);
+        pdf.setTextColor(0, 0, 0);
+        pageNumber++;
+      };
       
       // Función para agregar nueva página si es necesario
       const checkPageBreak = (increment: number) => {
-        if (yPosition + increment > pageHeight - margin) {
+        if (yPosition + increment > pageHeight - 20) {
           pdf.addPage();
-          yPosition = margin;
+          yPosition = margin + 5;
+          addHeaderFooter();
         }
       };
       
-      // Parsear el HTML y convertir a PDF
+      // Primera página - encabezado inicial
+      addHeaderFooter();
+      
+      // Parsear el markdown y convertir a PDF
       const lines = markdown.split('\n');
       
-      for (const line of lines) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        // Líneas vacías
         if (!line.trim()) {
-          yPosition += 3;
+          yPosition += 2;
           continue;
         }
         
-        // Títulos principales (# o ##)
-        if (line.startsWith('# ')) {
+        // Ignorar líneas de código y tablas complejas
+        if (line.startsWith('```') || line.includes('┌') || line.includes('│') || 
+            line.includes('├') || line.includes('└') || line.includes('━')) {
+          continue;
+        }
+        
+        // Títulos principales (#)
+        if (line.match(/^# [^#]/)) {
+          checkPageBreak(20);
+          yPosition += 5;
+          pdf.setFontSize(18);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(33, 150, 243);
+          const text = line.replace(/^# /, '').replace(/<[^>]*>/g, '');
+          const splitText = pdf.splitTextToSize(text, maxWidth);
+          pdf.text(splitText, margin, yPosition);
+          yPosition += splitText.length * 8 + 5;
+          pdf.setTextColor(0, 0, 0);
+        }
+        // Subtítulos (##)
+        else if (line.match(/^## [^#]/)) {
           checkPageBreak(15);
-          pdf.setFontSize(20);
-          pdf.setFont('helvetica', 'bold');
-          const text = line.replace('# ', '');
-          pdf.text(text, margin, yPosition);
-          yPosition += 12;
-        }
-        // Subtítulos (## o ###)
-        else if (line.startsWith('## ')) {
-          checkPageBreak(12);
-          pdf.setFontSize(16);
-          pdf.setFont('helvetica', 'bold');
-          const text = line.replace('## ', '');
-          pdf.text(text, margin, yPosition);
-          yPosition += 10;
-        }
-        else if (line.startsWith('### ')) {
-          checkPageBreak(10);
+          yPosition += 4;
           pdf.setFontSize(14);
           pdf.setFont('helvetica', 'bold');
-          const text = line.replace('### ', '');
-          pdf.text(text, margin, yPosition);
-          yPosition += 8;
+          pdf.setTextColor(63, 81, 181);
+          const text = line.replace(/^## /, '').replace(/<[^>]*>/g, '');
+          const splitText = pdf.splitTextToSize(text, maxWidth);
+          pdf.text(splitText, margin, yPosition);
+          yPosition += splitText.length * 7 + 4;
+          pdf.setTextColor(0, 0, 0);
         }
-        // Listas
-        else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-          checkPageBreak(8);
+        // Subtítulos pequeños (###)
+        else if (line.match(/^### /)) {
+          checkPageBreak(12);
+          yPosition += 3;
+          pdf.setFontSize(12);
+          pdf.setFont('helvetica', 'bold');
+          const text = line.replace(/^### /, '').replace(/<[^>]*>/g, '');
+          const splitText = pdf.splitTextToSize(text, maxWidth);
+          pdf.text(splitText, margin, yPosition);
+          yPosition += splitText.length * 6 + 3;
+        }
+        // Títulos muy pequeños (####)
+        else if (line.match(/^#### /)) {
+          checkPageBreak(10);
+          yPosition += 2;
           pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          const text = line.replace(/^#### /, '').replace(/<[^>]*>/g, '');
+          const splitText = pdf.splitTextToSize(text, maxWidth);
+          pdf.text(splitText, margin, yPosition);
+          yPosition += splitText.length * 5 + 2;
+        }
+        // Listas con viñetas
+        else if (line.trim().match(/^[-*✅❌⚠️✓•] /)) {
+          checkPageBreak(7);
+          pdf.setFontSize(10);
           pdf.setFont('helvetica', 'normal');
-          const text = '• ' + line.trim().substring(2);
+          let text = line.trim();
+          
+          // Reemplazar emojis con símbolos de texto
+          text = text.replace(/^✅/, '✓')
+                     .replace(/^❌/, '✗')
+                     .replace(/^⚠️/, '!')
+                     .replace(/^[-*]/, '•');
+          
           const splitText = pdf.splitTextToSize(text, maxWidth - 5);
           pdf.text(splitText, margin + 5, yPosition);
-          yPosition += splitText.length * 5;
+          yPosition += splitText.length * 4.5;
+        }
+        // Separadores (---)
+        else if (line.trim().match(/^---+$/)) {
+          checkPageBreak(5);
+          pdf.setDrawColor(200, 200, 200);
+          pdf.setLineWidth(0.5);
+          pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+          yPosition += 5;
         }
         // Texto normal
-        else if (!line.startsWith('```') && !line.startsWith('|')) {
-          checkPageBreak(8);
-          pdf.setFontSize(11);
+        else if (line.trim() && !line.startsWith('|')) {
+          checkPageBreak(7);
+          pdf.setFontSize(10);
           pdf.setFont('helvetica', 'normal');
-          const splitText = pdf.splitTextToSize(line, maxWidth);
+          
+          // Limpiar markdown básico
+          let text = line.trim()
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Negritas
+            .replace(/\*(.*?)\*/g, '$1')     // Itálicas
+            .replace(/`(.*?)`/g, '$1')       // Código
+            .replace(/<[^>]*>/g, '')         // HTML tags
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // Links
+          
+          // Si es una línea de tabla simple, intentar procesarla
+          if (line.includes('|') && line.split('|').length > 2) {
+            const cells = line.split('|').map(c => c.trim()).filter(c => c);
+            if (cells.length > 0 && !cells[0].includes('-')) {
+              text = cells.join(' | ');
+            }
+          }
+          
+          const splitText = pdf.splitTextToSize(text, maxWidth);
           pdf.text(splitText, margin, yPosition);
-          yPosition += splitText.length * 5;
+          yPosition += splitText.length * 4.5;
         }
       }
       
       // Guardar el PDF
-      pdf.save('Manual_Ejecutivo_C-Level_Ofiz.pdf');
+      pdf.save('Dossier_Ejecutivo_C-Level_Ofiz.pdf');
       
       toast({
-        title: "PDF descargado",
-        description: "El manual ejecutivo C-Level se ha descargado exitosamente",
+        title: "PDF generado exitosamente",
+        description: `El dossier ejecutivo C-Level ha sido descargado (${pageNumber} páginas)`,
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
