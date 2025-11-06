@@ -29,6 +29,7 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import { DossierMaestros } from "./pages/DossierMaestros";
 import { DossierEmpresas } from "./pages/DossierEmpresas";
+import PitchDeck from "./pages/PitchDeck";
 
 const queryClient = new QueryClient();
 
@@ -144,9 +145,10 @@ const AppContent = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/blog" element={<Blog />} />
-      <Route path="/dossier-maestros" element={<DossierMaestros />} />
-      <Route path="/dossier-empresas" element={<DossierEmpresas />} />
-      <Route path="*" element={<NotFound />} />
+          <Route path="/dossier-maestros" element={<DossierMaestros />} />
+          <Route path="/dossier-empresas" element={<DossierEmpresas />} />
+          <Route path="/pitch-deck" element={<PitchDeck />} />
+          <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
