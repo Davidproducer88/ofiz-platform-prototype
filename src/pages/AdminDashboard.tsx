@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Users, UserCheck, Calendar, Star, Download } from "lucide-react";
+import { LogOut, Users, UserCheck, Calendar, Star, Download, FileText } from "lucide-react";
 import jsPDF from "jspdf";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
@@ -16,6 +17,7 @@ import { TransactionsTable } from "@/components/admin/TransactionsTable";
 import { RankingsTable } from "@/components/admin/RankingsTable";
 import { Feed } from "@/components/Feed";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
+import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -83,17 +85,127 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDownloadManual = async () => {
+  const handleDownloadManual = async (format: 'pdf' | 'docx' | 'md') => {
     try {
       toast({
-        title: "Generando PDF",
+        title: `Generando ${format.toUpperCase()}`,
         description: "Por favor espera mientras se genera el documento...",
       });
 
-      // Usar contenido importado del dossier (evita fetch de archivos públicos)
       const markdown = dossierMd;
-      
-      // Crear PDF con jsPDF
+
+      if (format === 'md') {
+        // Descargar markdown directamente
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'DOSSIER_EJECUTIVO_C_LEVEL.md';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        toast({
+          title: "Markdown descargado",
+          description: "El archivo .md editable ha sido descargado correctamente.",
+        });
+        return;
+      }
+
+      if (format === 'docx') {
+        // Generar documento Word editable
+        const lines = markdown.split('\n');
+        const paragraphs: Paragraph[] = [];
+
+        lines.forEach((line) => {
+          if (line.startsWith('# ')) {
+            const text = line.replace(/^# /, '').replace(/[#🎯📋]/g, '').trim();
+            if (text) {
+              paragraphs.push(
+                new Paragraph({
+                  text: text,
+                  heading: HeadingLevel.HEADING_1,
+                  alignment: AlignmentType.CENTER,
+                  spacing: { before: 400, after: 200 }
+                })
+              );
+            }
+          } else if (line.startsWith('## ')) {
+            const text = line.replace(/^## /, '').replace(/[#]/g, '').trim();
+            if (text) {
+              paragraphs.push(
+                new Paragraph({
+                  text: text,
+                  heading: HeadingLevel.HEADING_2,
+                  spacing: { before: 300, after: 150 }
+                })
+              );
+            }
+          } else if (line.startsWith('### ')) {
+            const text = line.replace(/^### /, '').replace(/[#]/g, '').trim();
+            if (text) {
+              paragraphs.push(
+                new Paragraph({
+                  text: text,
+                  heading: HeadingLevel.HEADING_3,
+                  spacing: { before: 200, after: 100 }
+                })
+              );
+            }
+          } else if (line.trim().startsWith('-') || line.trim().startsWith('*')) {
+            const text = line.replace(/^[\s-*]+/, '').replace(/\*\*/g, '').trim();
+            if (text) {
+              paragraphs.push(
+                new Paragraph({
+                  text: text,
+                  bullet: { level: 0 },
+                  spacing: { before: 100, after: 100 }
+                })
+              );
+            }
+          } else if (line.trim() === '---') {
+            paragraphs.push(new Paragraph({ text: '', spacing: { before: 200, after: 200 } }));
+          } else if (line.trim() !== '' && !line.includes('```')) {
+            const text = line.replace(/\*\*/g, '').replace(/[#]/g, '').trim();
+            if (text) {
+              paragraphs.push(
+                new Paragraph({
+                  text: text,
+                  spacing: { before: 100, after: 100 }
+                })
+              );
+            }
+          } else {
+            paragraphs.push(new Paragraph({ text: '' }));
+          }
+        });
+
+        const doc = new Document({
+          sections: [{
+            properties: {},
+            children: paragraphs
+          }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'DOSSIER_EJECUTIVO_C_LEVEL.docx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        toast({
+          title: "Word generado exitosamente",
+          description: "El documento editable .docx ha sido descargado correctamente.",
+        });
+        return;
+      }
+
+      // Generar PDF (código original)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -261,11 +373,11 @@ const AdminDashboard = () => {
         description: `El dossier ejecutivo C-Level ha sido descargado (${pageNumber} páginas)`,
       });
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error('Error generating document:', error);
       toast({
         variant: "destructive",
-        title: "Error al generar PDF",
-        description: "No se pudo generar el PDF. Por favor intenta de nuevo.",
+        title: "Error al generar documento",
+        description: "No se pudo generar el documento. Por favor intenta de nuevo.",
       });
     }
   };
@@ -298,10 +410,28 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleDownloadManual} variant="default" className="bg-gradient-to-r from-primary to-primary-glow">
-              <Download className="w-4 h-4 mr-2" />
-              Manual C-Level
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" className="bg-gradient-to-r from-primary to-primary-glow gap-2">
+                  <Download className="h-4 w-4" />
+                  Descargar Dossier
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleDownloadManual('docx')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Word (.docx) - Editable
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadManual('pdf')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  PDF - Lectura
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadManual('md')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Markdown (.md)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button onClick={handleLogout} variant="outline">
               <LogOut className="w-4 h-4 mr-2" />
               Cerrar Sesión
