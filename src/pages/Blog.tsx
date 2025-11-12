@@ -7,6 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Calendar, User, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import choosingProfessionalImg from "@/assets/blog/choosing-professional.jpg";
+import questionsHiringImg from "@/assets/blog/questions-hiring.jpg";
+import homeTrendsImg from "@/assets/blog/home-trends-2025.jpg";
+import budgetRenovationImg from "@/assets/blog/budget-renovation.jpg";
+import preventiveMaintenanceImg from "@/assets/blog/preventive-maintenance.jpg";
+import verifiedProfessionalsImg from "@/assets/blog/verified-professionals.jpg";
+import successStoriesImg from "@/assets/blog/success-stories.jpg";
 
 export default function Blog() {
   const navigate = useNavigate();
@@ -18,7 +25,7 @@ export default function Blog() {
     category: "Guías",
     date: "10 Mayo 2025",
     author: "Equipo Ofiz",
-    image: "bg-gradient-to-br from-primary to-secondary",
+    image: choosingProfessionalImg,
     readTime: "8 min"
   };
 
@@ -29,7 +36,7 @@ export default function Blog() {
       category: "Consejos",
       date: "7 Mayo 2025",
       author: "María González",
-      image: "bg-gradient-to-br from-blue-500 to-cyan-500",
+      image: questionsHiringImg,
       readTime: "5 min"
     },
     {
@@ -38,7 +45,7 @@ export default function Blog() {
       category: "Tendencias",
       date: "4 Mayo 2025",
       author: "Carlos Rodríguez",
-      image: "bg-gradient-to-br from-purple-500 to-pink-500",
+      image: homeTrendsImg,
       readTime: "6 min"
     },
     {
@@ -47,7 +54,7 @@ export default function Blog() {
       category: "Finanzas",
       date: "2 Mayo 2025",
       author: "Ana Martínez",
-      image: "bg-gradient-to-br from-green-500 to-emerald-500",
+      image: budgetRenovationImg,
       readTime: "7 min"
     },
     {
@@ -56,7 +63,7 @@ export default function Blog() {
       category: "Mantenimiento",
       date: "29 Abril 2025",
       author: "Juan Pérez",
-      image: "bg-gradient-to-br from-orange-500 to-red-500",
+      image: preventiveMaintenanceImg,
       readTime: "4 min"
     },
     {
@@ -65,7 +72,7 @@ export default function Blog() {
       category: "Seguridad",
       date: "26 Abril 2025",
       author: "Equipo Ofiz",
-      image: "bg-gradient-to-br from-indigo-500 to-purple-500",
+      image: verifiedProfessionalsImg,
       readTime: "5 min"
     },
     {
@@ -74,7 +81,7 @@ export default function Blog() {
       category: "Casos de Éxito",
       date: "23 Abril 2025",
       author: "Equipo Ofiz",
-      image: "bg-gradient-to-br from-pink-500 to-rose-500",
+      image: successStoriesImg,
       readTime: "6 min"
     }
   ];
@@ -120,7 +127,7 @@ export default function Blog() {
           <div className="container">
             <Card className="border-border/50 hover:shadow-elegant transition-all cursor-pointer overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2">
-                <div className={`${featuredPost.image} min-h-[300px] lg:min-h-[400px]`} />
+                <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full min-h-[300px] lg:min-h-[400px] object-cover" />
                 <CardContent className="p-8 md:p-12 flex flex-col justify-center space-y-4">
                   <div className="flex items-center gap-3 flex-wrap">
                     <Badge variant="secondary">{featuredPost.category}</Badge>
@@ -167,7 +174,7 @@ export default function Blog() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post, index) => (
                 <Card key={index} className="border-border/50 hover:shadow-elegant transition-all cursor-pointer overflow-hidden group">
-                  <div className={`${post.image} h-48 group-hover:scale-105 transition-transform duration-300`} />
+                  <img src={post.image} alt={post.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-3 flex-wrap">
                       <Badge variant="secondary">{post.category}</Badge>
