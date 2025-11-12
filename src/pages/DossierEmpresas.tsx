@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check, Star, TrendingUp, Shield, Users, DollarSign, Award, Zap, Target, BarChart, Clock, Building } from "lucide-react";
+import logoOfiz from "@/assets/logo-ofiz-footer.png";
 
 export const DossierEmpresas = () => {
   const handlePrint = () => {
@@ -20,9 +21,13 @@ export const DossierEmpresas = () => {
       <div className="min-h-screen flex flex-col items-center justify-center p-8 page-break">
         <div className="max-w-4xl w-full text-center space-y-8">
           <div className="space-y-4">
-            <h1 className="text-7xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Ofiz Business
-            </h1>
+            <div className="flex justify-center mb-6">
+              <img 
+                src={logoOfiz} 
+                alt="Ofiz Business" 
+                className="h-24 md:h-32"
+              />
+            </div>
             <p className="text-3xl font-semibold text-muted-foreground">
               Solución Empresarial
             </p>
