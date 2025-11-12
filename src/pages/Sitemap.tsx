@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Link } from "react-router-dom";
 import { blogPosts } from "@/lib/blogData";
 import { 
@@ -81,7 +82,10 @@ const Sitemap = () => {
       <Header />
       <main className="container mx-auto px-4 py-12 mt-20">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={[{ label: "Mapa del Sitio" }]} />
+
+          <div className="text-center mb-12 mt-6">
             <h1 className="text-4xl font-bold mb-4">Mapa del Sitio</h1>
             <p className="text-muted-foreground text-lg">
               Navegá fácilmente por todas las secciones de Ofiz

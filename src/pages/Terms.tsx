@@ -1,14 +1,20 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Card, CardContent } from "@/components/ui/card";
 export default function Terms() {
   return <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       <main className="flex-1">
-        <section className="relative py-20 overflow-hidden">
+        <section className="relative py-12 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background" />
           <div className="container relative z-10">
+            {/* Breadcrumbs */}
+            <div className="mb-8">
+              <Breadcrumbs items={[{ label: "Términos y Condiciones" }]} />
+            </div>
+
             <div className="text-center space-y-4 max-w-3xl mx-auto mb-12">
               <h1 className="text-4xl md:text-6xl font-bold gradient-text">
                 Términos y Condiciones

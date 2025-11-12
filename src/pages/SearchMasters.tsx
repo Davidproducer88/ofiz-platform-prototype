@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, MapPin } from "lucide-react";
@@ -64,6 +65,11 @@ const SearchMasters = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-4 sm:py-8">
+        {/* Breadcrumbs */}
+        <div className="mb-4">
+          <Breadcrumbs items={[{ label: "Buscar Profesionales" }]} />
+        </div>
+
         {/* Search Bar */}
         <div className="max-w-4xl mx-auto mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row gap-2">

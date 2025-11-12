@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -96,13 +97,13 @@ export default function BlogPost() {
       <Header />
       
       <main className="flex-1">
-        {/* Back Button */}
+        {/* Breadcrumbs */}
         <section className="py-8 border-b border-border">
           <div className="container">
-            <Button variant="ghost" onClick={() => navigate("/blog")}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al blog
-            </Button>
+            <Breadcrumbs items={[
+              { label: "Blog", href: "/blog" },
+              { label: post.title }
+            ]} />
           </div>
         </section>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -142,8 +143,13 @@ export default function Contact() {
       <Header />
       
       <main className="flex-1">
+        {/* Breadcrumbs */}
+        <div className="container pt-8">
+          <Breadcrumbs items={[{ label: "Contacto" }]} />
+        </div>
+
         {/* Hero Section */}
-        <section className="relative py-20 md:py-32 overflow-hidden">
+        <section className="relative py-12 md:py-20 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-background" />
           <div className="container relative z-10">
             <div className="text-center space-y-6 max-w-3xl mx-auto">
