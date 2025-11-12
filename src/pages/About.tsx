@@ -4,65 +4,56 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Heart, Zap, Users, Shield, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 export default function About() {
   const navigate = useNavigate();
-
-  const values = [
-    {
-      icon: <Heart className="h-8 w-8 text-primary" />,
-      title: "Confianza",
-      description: "Construimos relaciones basadas en la transparencia y honestidad"
-    },
-    {
-      icon: <Zap className="h-8 w-8 text-primary" />,
-      title: "Eficiencia",
-      description: "Simplificamos procesos para ahorrar tiempo a todos"
-    },
-    {
-      icon: <Users className="h-8 w-8 text-primary" />,
-      title: "Comunidad",
-      description: "Creamos un ecosistema donde todos ganan"
-    },
-    {
-      icon: <Shield className="h-8 w-8 text-primary" />,
-      title: "Seguridad",
-      description: "Protegemos cada transacción y dato personal"
-    }
-  ];
-
-  const stats = [
-    { number: "10,000+", label: "Usuarios Activos" },
-    { number: "50,000+", label: "Trabajos Completados" },
-    { number: "5,000+", label: "Profesionales Verificados" },
-    { number: "4.9/5", label: "Calificación Promedio" }
-  ];
-
-  const team = [
-    {
-      name: "David Moreno Rivera",
-      role: "CEO & Cofundador",
-      bio: "Emprendedor con 10+ años de experiencia en tecnología y servicios"
-    },
-    {
-      name: "Pedro Estrada",
-      role: "CTO & Cofundador",
-      bio: "Experto en desarrollo de plataformas y arquitectura de sistemas"
-    },
-    {
-      name: "Matías Alderete",
-      role: "COO & Cofundador",
-      bio: "Especialista en operaciones y crecimiento de negocios digitales"
-    },
-    {
-      name: "Martín Techera",
-      role: "CDO & Cofundador",
-      bio: "Diseñador UX/UI apasionado por crear experiencias intuitivas"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+  const values = [{
+    icon: <Heart className="h-8 w-8 text-primary" />,
+    title: "Confianza",
+    description: "Construimos relaciones basadas en la transparencia y honestidad"
+  }, {
+    icon: <Zap className="h-8 w-8 text-primary" />,
+    title: "Eficiencia",
+    description: "Simplificamos procesos para ahorrar tiempo a todos"
+  }, {
+    icon: <Users className="h-8 w-8 text-primary" />,
+    title: "Comunidad",
+    description: "Creamos un ecosistema donde todos ganan"
+  }, {
+    icon: <Shield className="h-8 w-8 text-primary" />,
+    title: "Seguridad",
+    description: "Protegemos cada transacción y dato personal"
+  }];
+  const stats = [{
+    number: "10,000+",
+    label: "Usuarios Activos"
+  }, {
+    number: "50,000+",
+    label: "Trabajos Completados"
+  }, {
+    number: "5,000+",
+    label: "Profesionales Verificados"
+  }, {
+    number: "4.9/5",
+    label: "Calificación Promedio"
+  }];
+  const team = [{
+    name: "David Moreno Rivera",
+    role: "CEO & Cofundador",
+    bio: "Emprendedor con 10+ años de experiencia en tecnología y servicios"
+  }, {
+    name: "Pedro Estrada",
+    role: "CTO & Cofundador",
+    bio: "Experto en desarrollo de plataformas y arquitectura de sistemas"
+  }, {
+    name: "Matías Alderete",
+    role: "COO & Cofundador",
+    bio: "Especialista en operaciones y crecimiento de negocios digitales"
+  }, {
+    name: "Martín Techera",
+    role: "CDO & Cofundador",
+    bio: "Diseñador UX/UI apasionado por crear experiencias intuitivas"
+  }];
+  return <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       <main className="flex-1">
@@ -127,14 +118,7 @@ export default function About() {
 
             <Card className="border-border/50">
               <CardContent className="p-8 space-y-6">
-                <p className="text-muted-foreground leading-relaxed">
-                  Ofiz nació en 2024 de la visión de un grupo de emprendedores que identificaron 
-                  un problema común: la dificultad para encontrar profesionales confiables y la 
-                  falta de herramientas para que los trabajadores independientes puedan desarrollar 
-                  sus negocios. Durante su etapa de desarrollo hasta 2025, la plataforma alcanzó 
-                  la madurez necesaria para convertirse en una solución profesional y confiable para 
-                  conectar a clientes con especialistas verificados.
-                </p>
+                <p className="text-muted-foreground leading-relaxed">Ofiz nació en 2025 de la visión de un grupo de emprendedores que identificaron un problema común: la dificultad para encontrar profesionales confiables y la falta de herramientas para que los trabajadores independientes puedan desarrollar sus negocios. Durante su etapa de desarrollo hasta ahora, la plataforma alcanzó la madurez necesaria para convertirse en una solución profesional y confiable para conectar a clientes con especialistas verificados.</p>
                 <p className="text-muted-foreground leading-relaxed">
                   Comenzamos con un pequeño equipo en Montevideo, Uruguay, con el objetivo de 
                   crear una plataforma que pusiera la tecnología al servicio de las personas. 
@@ -169,8 +153,7 @@ export default function About() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {values.map((value, index) => (
-                <Card key={index} className="border-border/50 hover:shadow-elegant transition-all text-center">
+              {values.map((value, index) => <Card key={index} className="border-border/50 hover:shadow-elegant transition-all text-center">
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mx-auto">
                       {value.icon}
@@ -178,8 +161,7 @@ export default function About() {
                     <h3 className="text-xl font-semibold">{value.title}</h3>
                     <p className="text-muted-foreground">{value.description}</p>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </div>
         </section>
@@ -192,14 +174,12 @@ export default function About() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center space-y-2">
+              {stats.map((stat, index) => <div key={index} className="text-center space-y-2">
                   <div className="text-4xl md:text-5xl font-bold gradient-text">
                     {stat.number}
                   </div>
                   <p className="text-muted-foreground">{stat.label}</p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </section>
@@ -215,8 +195,7 @@ export default function About() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {team.map((member, index) => (
-                <Card key={index} className="border-border/50 hover:shadow-elegant transition-all">
+              {team.map((member, index) => <Card key={index} className="border-border/50 hover:shadow-elegant transition-all">
                   <CardContent className="p-6 text-center space-y-4">
                     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary mx-auto" />
                     <div>
@@ -225,8 +204,7 @@ export default function About() {
                     </div>
                     <p className="text-sm text-muted-foreground">{member.bio}</p>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </div>
         </section>
@@ -256,6 +234,5 @@ export default function About() {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 }
