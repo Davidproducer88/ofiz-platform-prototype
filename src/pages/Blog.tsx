@@ -72,7 +72,7 @@ export default function Blog() {
       title: "Casos de éxito: transformaciones increíbles",
       excerpt: "Historias reales de proyectos exitosos realizados a través de Ofiz.",
       category: "Casos de Éxito",
-      date: "1 Enero 2025",
+      date: "1 Mayo 2025",
       author: "Equipo Ofiz",
       image: "bg-gradient-to-br from-pink-500 to-rose-500",
       readTime: "6 min"
