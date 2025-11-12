@@ -72,7 +72,7 @@ export const Footer = () => {
             <img 
               src={logoFooter} 
               alt="Ofiz" 
-              className="h-12 hover:scale-105 transition-transform cursor-pointer"
+              className="h-10 hover:scale-105 transition-transform cursor-pointer"
             />
             <p className="text-muted-foreground leading-relaxed">
               Servicios profesionales para tu hogar & oficina. 
