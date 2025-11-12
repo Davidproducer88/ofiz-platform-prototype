@@ -157,6 +157,9 @@ export const Footer = () => {
               <button onClick={() => navigate('/blog')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Blog
               </button>
+              <button onClick={() => navigate('/sitemap')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+                Mapa del Sitio
+              </button>
             </div>
           </div>
         </div>

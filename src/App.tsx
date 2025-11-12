@@ -31,6 +31,7 @@ import BlogPost from "./pages/BlogPost";
 import { DossierMaestros } from "./pages/DossierMaestros";
 import { DossierEmpresas } from "./pages/DossierEmpresas";
 import PitchDeck from "./pages/PitchDeck";
+import Sitemap from "./pages/Sitemap";
 
 const queryClient = new QueryClient();
 
@@ -147,10 +148,11 @@ const AppContent = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:id" element={<BlogPost />} />
-          <Route path="/dossier-maestros" element={<DossierMaestros />} />
-          <Route path="/dossier-empresas" element={<DossierEmpresas />} />
-          <Route path="/pitch-deck" element={<PitchDeck />} />
-          <Route path="*" element={<NotFound />} />
+      <Route path="/dossier-maestros" element={<DossierMaestros />} />
+      <Route path="/dossier-empresas" element={<DossierEmpresas />} />
+      <Route path="/pitch-deck" element={<PitchDeck />} />
+      <Route path="/sitemap" element={<Sitemap />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
