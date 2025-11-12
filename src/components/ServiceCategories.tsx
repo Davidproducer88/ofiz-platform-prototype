@@ -5,6 +5,7 @@ import servicesGrid from "@/assets/services-grid.jpg";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 import { useNavigate } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { use3DTilt } from "@/hooks/use3DTilt";
 import {
   Carousel,
   CarouselContent,
@@ -12,6 +13,59 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+
+const CategoryCard = ({ category, index }: { category: any; index: number }) => {
+  const navigate = useNavigate();
+  const { ref, tiltStyle, handlers } = use3DTilt({
+    maxTilt: 8,
+    perspective: 1000,
+    scale: 1.08,
+    speed: 400,
+  });
+
+  const Icon = category.icon;
+
+  const handleClick = () => {
+    navigate(`/search?category=${category.value}`);
+  };
+
+  return (
+    <Card 
+      ref={ref}
+      onClick={handleClick}
+      className="group relative overflow-hidden hover:shadow-elegant transition-all duration-500 cursor-pointer border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm animate-fade-in h-full"
+      style={{ 
+        animationDelay: `${index * 50}ms`,
+        transformStyle: 'preserve-3d',
+        ...tiltStyle 
+      }}
+      {...handlers}
+    >
+      {/* Hover gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Click indicator */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <ArrowRight className="h-4 w-4 text-primary" />
+      </div>
+      
+      <CardContent className="relative p-3 sm:p-4 md:p-6 text-center" style={{ transform: 'translateZ(20px)' }}>
+        <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-background to-muted shadow-soft mb-3 md:mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ${category.color}`}>
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
+        </div>
+        <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-primary transition-colors">
+          {category.label}
+        </h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 line-clamp-2 hidden sm:block">
+          {category.description}
+        </p>
+        <Badge variant="secondary" className="text-xs font-medium shadow-soft">
+          {category.count}
+        </Badge>
+      </CardContent>
+    </Card>
+  );
+};
 
 export const ServiceCategories = () => {
   const navigate = useNavigate();
@@ -56,44 +110,14 @@ export const ServiceCategories = () => {
             className="w-full"
           >
             <CarouselContent className="-ml-2 md:-ml-4">
-              {SERVICE_CATEGORIES.map((category, index) => {
-                const Icon = category.icon;
-                return (
-                  <CarouselItem 
-                    key={category.value} 
-                    className="pl-2 md:pl-4 basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                  >
-                    <Card 
-                      onClick={() => handleCategoryClick(category.value)}
-                      className="group relative overflow-hidden hover:shadow-elegant transition-all duration-500 hover:-translate-y-2 cursor-pointer border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm animate-fade-in h-full"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      {/* Hover gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
-                      {/* Click indicator */}
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <ArrowRight className="h-4 w-4 text-primary" />
-                      </div>
-                      
-                      <CardContent className="relative p-3 sm:p-4 md:p-6 text-center">
-                        <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-background to-muted shadow-soft mb-3 md:mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ${category.color}`}>
-                          <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
-                        </div>
-                        <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-primary transition-colors">
-                          {category.label}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 line-clamp-2 hidden sm:block">
-                          {category.description}
-                        </p>
-                        <Badge variant="secondary" className="text-xs font-medium shadow-soft">
-                          {category.count}
-                        </Badge>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                );
-              })}
+              {SERVICE_CATEGORIES.map((category, index) => (
+                <CarouselItem 
+                  key={category.value} 
+                  className="pl-2 md:pl-4 basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                >
+                  <CategoryCard category={category} index={index} />
+                </CarouselItem>
+              ))}
             </CarouselContent>
             <CarouselPrevious className="hidden md:flex -left-4" />
             <CarouselNext className="hidden md:flex -right-4" />
