@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check, Star, TrendingUp, Shield, Users, DollarSign, Award, Zap, Target, BarChart, Clock, Building } from "lucide-react";
-import logoOfiz from "@/assets/logo-ofiz-footer.png";
+import logoOfiz from "@/assets/logo-ofiz-new.png";
 
 export const DossierEmpresas = () => {
   const handlePrint = () => {

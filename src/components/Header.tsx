@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { smoothScrollTo, scrollToTop } from "@/utils/smoothScroll";
-import logoOfiz from "@/assets/logo-ofiz.png";
+import logoOfiz from "@/assets/logo-ofiz-new.png";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | 'business' | null;
   userName?: string;
