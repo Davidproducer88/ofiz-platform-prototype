@@ -1,10 +1,8 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-
 export default function Terms() {
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+  return <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       <main className="flex-1">
@@ -15,9 +13,7 @@ export default function Terms() {
               <h1 className="text-4xl md:text-6xl font-bold gradient-text">
                 Términos y Condiciones
               </h1>
-              <p className="text-muted-foreground">
-                Última actualización: Enero 2025
-              </p>
+              <p className="text-muted-foreground">Última actualización: Octubre 2025</p>
             </div>
 
             <Card className="max-w-4xl mx-auto border-border/50">
@@ -94,10 +90,7 @@ export default function Terms() {
 
                 <section className="space-y-4">
                   <h2 className="text-2xl font-bold">7. Propiedad Intelectual</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Todo el contenido de Ofiz, incluyendo diseños, logos, textos y código, es propiedad de Ofiz o 
-                    sus licenciantes. No podés copiar, modificar o distribuir nuestro contenido sin autorización.
-                  </p>
+                  <p className="text-muted-foreground leading-relaxed">Todo el contenido de Ofiz, incluyendo diseños, logos, textos y código, es propiedad de Orbital Estudio o sus licenciantes. No podés copiar, modificar o distribuir nuestro contenido sin autorización.</p>
                 </section>
 
                 <section className="space-y-4">
@@ -156,6 +149,5 @@ export default function Terms() {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 }
