@@ -27,6 +27,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { DossierMaestros } from "./pages/DossierMaestros";
 import { DossierEmpresas } from "./pages/DossierEmpresas";
 import PitchDeck from "./pages/PitchDeck";
@@ -145,6 +146,7 @@ const AppContent = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/dossier-maestros" element={<DossierMaestros />} />
           <Route path="/dossier-empresas" element={<DossierEmpresas />} />
           <Route path="/pitch-deck" element={<PitchDeck />} />

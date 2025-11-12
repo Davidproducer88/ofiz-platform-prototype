@@ -7,84 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Calendar, User, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import choosingProfessionalImg from "@/assets/blog/choosing-professional.jpg";
-import questionsHiringImg from "@/assets/blog/questions-hiring.jpg";
-import homeTrendsImg from "@/assets/blog/home-trends-2025.jpg";
-import budgetRenovationImg from "@/assets/blog/budget-renovation.jpg";
-import preventiveMaintenanceImg from "@/assets/blog/preventive-maintenance.jpg";
-import verifiedProfessionalsImg from "@/assets/blog/verified-professionals.jpg";
-import successStoriesImg from "@/assets/blog/success-stories.jpg";
+import { getFeaturedPost, getAllPosts } from "@/lib/blogData";
 
 export default function Blog() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const featuredPost = {
-    title: "Cómo elegir el profesional perfecto para tu proyecto",
-    excerpt: "Una guía completa con consejos prácticos para tomar la mejor decisión y asegurar el éxito de tu proyecto.",
-    category: "Guías",
-    date: "10 Mayo 2025",
-    author: "Equipo Ofiz",
-    image: choosingProfessionalImg,
-    readTime: "8 min"
-  };
-
-  const posts = [
-    {
-      title: "10 preguntas que debés hacer antes de contratar",
-      excerpt: "Las preguntas clave que te ayudarán a evaluar si un profesional es el indicado para tu proyecto.",
-      category: "Consejos",
-      date: "7 Mayo 2025",
-      author: "María González",
-      image: questionsHiringImg,
-      readTime: "5 min"
-    },
-    {
-      title: "Tendencias en renovación de hogares 2025",
-      excerpt: "Descubrí las últimas tendencias en diseño, materiales y estilos para tu hogar este año.",
-      category: "Tendencias",
-      date: "4 Mayo 2025",
-      author: "Carlos Rodríguez",
-      image: homeTrendsImg,
-      readTime: "6 min"
-    },
-    {
-      title: "Cómo maximizar tu presupuesto de remodelación",
-      excerpt: "Tips prácticos para sacar el máximo provecho de tu inversión sin sacrificar calidad.",
-      category: "Finanzas",
-      date: "2 Mayo 2025",
-      author: "Ana Martínez",
-      image: budgetRenovationImg,
-      readTime: "7 min"
-    },
-    {
-      title: "Mantenimiento preventivo: ahorra tiempo y dinero",
-      excerpt: "Por qué el mantenimiento regular es la clave para evitar reparaciones costosas.",
-      category: "Mantenimiento",
-      date: "29 Abril 2025",
-      author: "Juan Pérez",
-      image: preventiveMaintenanceImg,
-      readTime: "4 min"
-    },
-    {
-      title: "Profesionales verificados: qué significa y por qué importa",
-      excerpt: "Entendé nuestro proceso de verificación y cómo protege a los usuarios de la plataforma.",
-      category: "Seguridad",
-      date: "26 Abril 2025",
-      author: "Equipo Ofiz",
-      image: verifiedProfessionalsImg,
-      readTime: "5 min"
-    },
-    {
-      title: "Casos de éxito: transformaciones increíbles",
-      excerpt: "Historias reales de proyectos exitosos realizados a través de Ofiz.",
-      category: "Casos de Éxito",
-      date: "23 Abril 2025",
-      author: "Equipo Ofiz",
-      image: successStoriesImg,
-      readTime: "6 min"
-    }
-  ];
+  const featuredPost = getFeaturedPost();
+  const posts = getAllPosts();
 
   const categories = ["Todos", "Guías", "Consejos", "Tendencias", "Finanzas", "Mantenimiento", "Seguridad", "Casos de Éxito"];
 
@@ -125,7 +55,10 @@ export default function Blog() {
         {/* Featured Post */}
         <section className="py-16 md:py-24">
           <div className="container">
-            <Card className="border-border/50 hover:shadow-elegant transition-all cursor-pointer overflow-hidden">
+            <Card 
+              className="border-border/50 hover:shadow-elegant transition-all cursor-pointer overflow-hidden"
+              onClick={() => navigate(`/blog/${featuredPost.id}`)}
+            >
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full min-h-[300px] lg:min-h-[400px] object-cover" />
                 <CardContent className="p-8 md:p-12 flex flex-col justify-center space-y-4">
@@ -173,7 +106,11 @@ export default function Blog() {
           <div className="container">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post, index) => (
-                <Card key={index} className="border-border/50 hover:shadow-elegant transition-all cursor-pointer overflow-hidden group">
+                <Card 
+                  key={index} 
+                  className="border-border/50 hover:shadow-elegant transition-all cursor-pointer overflow-hidden group"
+                  onClick={() => navigate(`/blog/${post.id}`)}
+                >
                   <img src={post.image} alt={post.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-3 flex-wrap">
