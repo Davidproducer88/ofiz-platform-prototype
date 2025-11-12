@@ -16,7 +16,7 @@ export default function Blog() {
     title: "Cómo elegir el profesional perfecto para tu proyecto",
     excerpt: "Una guía completa con consejos prácticos para tomar la mejor decisión y asegurar el éxito de tu proyecto.",
     category: "Guías",
-    date: "15 Enero 2025",
+    date: "10 Mayo 2025",
     author: "Equipo Ofiz",
     image: "bg-gradient-to-br from-primary to-secondary",
     readTime: "8 min"
@@ -27,7 +27,7 @@ export default function Blog() {
       title: "10 preguntas que debés hacer antes de contratar",
       excerpt: "Las preguntas clave que te ayudarán a evaluar si un profesional es el indicado para tu proyecto.",
       category: "Consejos",
-      date: "12 Enero 2025",
+      date: "7 Mayo 2025",
       author: "María González",
       image: "bg-gradient-to-br from-blue-500 to-cyan-500",
       readTime: "5 min"
@@ -36,7 +36,7 @@ export default function Blog() {
       title: "Tendencias en renovación de hogares 2025",
       excerpt: "Descubrí las últimas tendencias en diseño, materiales y estilos para tu hogar este año.",
       category: "Tendencias",
-      date: "10 Enero 2025",
+      date: "4 Mayo 2025",
       author: "Carlos Rodríguez",
       image: "bg-gradient-to-br from-purple-500 to-pink-500",
       readTime: "6 min"
@@ -45,7 +45,7 @@ export default function Blog() {
       title: "Cómo maximizar tu presupuesto de remodelación",
       excerpt: "Tips prácticos para sacar el máximo provecho de tu inversión sin sacrificar calidad.",
       category: "Finanzas",
-      date: "8 Enero 2025",
+      date: "2 Mayo 2025",
       author: "Ana Martínez",
       image: "bg-gradient-to-br from-green-500 to-emerald-500",
       readTime: "7 min"
@@ -54,7 +54,7 @@ export default function Blog() {
       title: "Mantenimiento preventivo: ahorra tiempo y dinero",
       excerpt: "Por qué el mantenimiento regular es la clave para evitar reparaciones costosas.",
       category: "Mantenimiento",
-      date: "5 Enero 2025",
+      date: "29 Abril 2025",
       author: "Juan Pérez",
       image: "bg-gradient-to-br from-orange-500 to-red-500",
       readTime: "4 min"
@@ -63,7 +63,7 @@ export default function Blog() {
       title: "Profesionales verificados: qué significa y por qué importa",
       excerpt: "Entendé nuestro proceso de verificación y cómo protege a los usuarios de la plataforma.",
       category: "Seguridad",
-      date: "3 Enero 2025",
+      date: "26 Abril 2025",
       author: "Equipo Ofiz",
       image: "bg-gradient-to-br from-indigo-500 to-purple-500",
       readTime: "5 min"
@@ -72,7 +72,7 @@ export default function Blog() {
       title: "Casos de éxito: transformaciones increíbles",
       excerpt: "Historias reales de proyectos exitosos realizados a través de Ofiz.",
       category: "Casos de Éxito",
-      date: "1 Mayo 2025",
+      date: "23 Abril 2025",
       author: "Equipo Ofiz",
       image: "bg-gradient-to-br from-pink-500 to-rose-500",
       readTime: "6 min"
