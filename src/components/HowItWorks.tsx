@@ -13,7 +13,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useParallax } from "@/hooks/useParallax";
 
 const steps = [
   {
@@ -53,7 +52,6 @@ export const HowItWorks = () => {
   const { profile } = useAuth();
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal({ threshold: 0.2 });
   const { ref: ctaRef, isVisible: ctaVisible } = useScrollReveal({ threshold: 0.3 });
-  const parallaxOffset = useParallax({ speed: 0.15 });
 
   const handlePublishClick = () => {
     if (profile) {
@@ -161,7 +159,6 @@ export const HowItWorks = () => {
           className={`relative rounded-2xl overflow-hidden shadow-elegant transition-all duration-1000 ${
             ctaVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
-          style={{ transform: `translateY(${parallaxOffset * 0.3}px)` }}
         >
           <div className="absolute inset-0 bg-gradient-hero" />
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxIDAgNiAyLjY5IDYgNnMtMi42OSA2LTYgNi02LTIuNjktNi02IDIuNjktNiA2LTZ6TTI0IDQ4YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTYgMi42OS02IDYtNnoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ii8+PC9nPjwvc3ZnPg==')] opacity-20" />

@@ -5,7 +5,6 @@ import servicesGrid from "@/assets/services-grid.jpg";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 import { useNavigate } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useParallax } from "@/hooks/useParallax";
 import {
   Carousel,
   CarouselContent,
@@ -18,7 +17,6 @@ export const ServiceCategories = () => {
   const navigate = useNavigate();
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal({ threshold: 0.2 });
   const { ref: bannerRef, isVisible: bannerVisible } = useScrollReveal({ threshold: 0.3 });
-  const parallaxOffset = useParallax({ speed: 0.2 });
 
   const handleCategoryClick = (categoryValue: string) => {
     navigate(`/search?category=${categoryValue}`);
@@ -27,7 +25,7 @@ export const ServiceCategories = () => {
   return (
     <section className="py-24 bg-muted/30 relative overflow-hidden" id="categorias">
       {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent pointer-events-none" />
       
       <div className="container">
         {/* Header */}
@@ -108,7 +106,6 @@ export const ServiceCategories = () => {
           className={`relative rounded-2xl overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-1000 group ${
             bannerVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
-          style={{ transform: `translateY(${parallaxOffset * 0.5}px)` }}
         >
           <img 
             src={servicesGrid} 

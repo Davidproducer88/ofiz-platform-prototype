@@ -41,14 +41,14 @@ export const Hero = () => {
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5 animate-pulse" style={{ animationDuration: '8s' }} />
       
-      {/* Decorative elements with parallax */}
+      {/* Decorative elements with subtle parallax */}
       <div 
-        className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" 
-        style={{ transform: `translateY(${parallaxOffset}px)` }}
+        className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float pointer-events-none" 
+        style={{ transform: `translateY(${parallaxOffset * 0.3}px)` }}
       />
       <div 
-        className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" 
-        style={{ animationDelay: '2s', transform: `translateY(${parallaxOffset * 0.5}px)` }}
+        className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float pointer-events-none" 
+        style={{ animationDelay: '2s', transform: `translateY(${parallaxOffset * 0.2}px)` }}
       />
       
       <div className="container relative z-10 py-20 md:py-32">
