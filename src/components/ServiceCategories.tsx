@@ -4,6 +4,8 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import servicesGrid from "@/assets/services-grid.jpg";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 import { useNavigate } from "react-router-dom";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useParallax } from "@/hooks/useParallax";
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +16,9 @@ import {
 
 export const ServiceCategories = () => {
   const navigate = useNavigate();
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal({ threshold: 0.2 });
+  const { ref: bannerRef, isVisible: bannerVisible } = useScrollReveal({ threshold: 0.3 });
+  const parallaxOffset = useParallax({ speed: 0.2 });
 
   const handleCategoryClick = (categoryValue: string) => {
     navigate(`/search?category=${categoryValue}`);
@@ -26,7 +31,12 @@ export const ServiceCategories = () => {
       
       <div className="container">
         {/* Header */}
-        <div className="text-center mb-16 space-y-4">
+        <div 
+          ref={headerRef as any}
+          className={`text-center mb-16 space-y-4 transition-all duration-1000 ${
+            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
           <Badge className="bg-secondary/10 text-secondary border-secondary/20 mb-2 shadow-soft">
             Categorías Populares
           </Badge>
@@ -93,7 +103,13 @@ export const ServiceCategories = () => {
         </div>
 
         {/* Banner Image - Enhanced */}
-        <div className="relative rounded-2xl overflow-hidden shadow-elegant hover:shadow-soft transition-shadow duration-500 group">
+        <div 
+          ref={bannerRef as any}
+          className={`relative rounded-2xl overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-1000 group ${
+            bannerVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          }`}
+          style={{ transform: `translateY(${parallaxOffset * 0.5}px)` }}
+        >
           <img 
             src={servicesGrid} 
             alt="Servicios disponibles en Ofiz" 

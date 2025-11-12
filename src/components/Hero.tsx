@@ -6,6 +6,8 @@ import { ArrowRight, CheckCircle, Users, Star, Wrench, Shield, Sparkles, Trendin
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useParallax } from "@/hooks/useParallax";
 import heroClient from "@/assets/hero-client.jpg";
 import heroProfessionals from "@/assets/hero-professionals.jpg";
 
@@ -13,6 +15,9 @@ export const Hero = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { stats, loading } = usePlatformStats();
+  const { ref: heroRef, isVisible: heroVisible } = useScrollReveal({ threshold: 0.2 });
+  const { ref: statsRef, isVisible: statsVisible } = useScrollReveal({ threshold: 0.3 });
+  const parallaxOffset = useParallax({ speed: 0.3 });
   
   const handleServiceClick = () => {
     navigate('/auth?type=client');
@@ -32,18 +37,26 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden" ref={heroRef as any}>
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5 animate-pulse" style={{ animationDuration: '8s' }} />
       
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      {/* Decorative elements with parallax */}
+      <div 
+        className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" 
+        style={{ transform: `translateY(${parallaxOffset}px)` }}
+      />
+      <div 
+        className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" 
+        style={{ animationDelay: '2s', transform: `translateY(${parallaxOffset * 0.5}px)` }}
+      />
       
       <div className="container relative z-10 py-20 md:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
-          <div className="space-y-8 animate-fade-in">
+          <div className={`space-y-8 transition-all duration-1000 ${
+            heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
             <div className="space-y-6">
               <Badge className="bg-gradient-hero text-white border-0 px-4 py-1.5 text-sm font-medium shadow-elegant animate-scale-in">
                 <Sparkles className="h-3.5 w-3.5 mr-1.5 inline" />
@@ -135,7 +148,12 @@ export const Hero = () => {
             </div>
 
             {/* Stats */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 md:gap-8 pt-6 sm:pt-8 border-t border-border/50">
+            <div 
+              ref={statsRef as any}
+              className={`flex flex-wrap items-center gap-4 sm:gap-6 md:gap-8 pt-6 sm:pt-8 border-t border-border/50 transition-all duration-1000 delay-300 ${
+                statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}
+            >
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-soft">
                   <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -173,7 +191,9 @@ export const Hero = () => {
           </div>
 
           {/* Right Content - Enhanced Images - Now visible on tablets too */}
-          <div className="relative hidden md:block">
+          <div className={`relative hidden md:block transition-all duration-1000 delay-500 ${
+            heroVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+          }`}>
             <div className="grid grid-cols-2 gap-6 -mt-16">
               <Card className="overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-500 hover:-translate-y-2 animate-fade-in border-border/50">
                 <div className="relative group">
