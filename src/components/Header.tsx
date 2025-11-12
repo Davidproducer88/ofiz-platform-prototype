@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { smoothScrollTo, scrollToTop } from "@/utils/smoothScroll";
+import logoOfiz from "@/assets/logo-ofiz.png";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | 'business' | null;
   userName?: string;
@@ -80,12 +81,16 @@ export const Header = ({
   return <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button 
             onClick={handleLogoClick} 
-            className="text-2xl font-bold gradient-text cursor-pointer hover:scale-105 transition-all duration-300 hover:drop-shadow-lg"
+            className="flex items-center gap-2 hover:scale-105 transition-all duration-300"
           >
-            Ofiz
+            <img 
+              src={logoOfiz} 
+              alt="Ofiz - Plataforma de Servicios Profesionales" 
+              className="h-8 w-auto"
+            />
           </button>
           <Badge variant="secondary" className="hidden md:inline-flex shadow-soft">
             {getUserTypeLabel()}

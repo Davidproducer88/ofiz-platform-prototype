@@ -89,6 +89,7 @@ export const BusinessSubscriptionPlans = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
 
   const handleSubscribe = (planId: string) => {
@@ -129,61 +130,104 @@ export const BusinessSubscriptionPlans = ({
     setLoading(null);
   };
 
+  const isAnnual = billingPeriod === 'annual';
+  const adjustedPlans = plans.map(plan => ({
+    ...plan,
+    displayPrice: isAnnual ? plan.price * 10 : plan.price, // 2 meses gratis en anual
+    period: isAnnual ? '/año' : '/mes',
+    savings: isAnnual ? `Ahorrás $${(plan.price * 2).toLocaleString()}` : null
+  }));
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-2">Planes Empresariales</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2">Planes Empresariales</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Elige el plan que mejor se adapte a las necesidades de tu empresa
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan) => {
-          const Icon = plan.icon;
-          const isCurrentPlan = currentSubscription?.plan_type === plan.id;
+      {/* Billing Period Toggle */}
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex items-center gap-2 p-1 rounded-lg bg-muted">
+          <button
+            onClick={() => setBillingPeriod('monthly')}
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === 'monthly'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Mensual
+          </button>
+          <button
+            onClick={() => setBillingPeriod('annual')}
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === 'annual'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Anual
+            <Badge variant="secondary" className="ml-2 text-xs">-17%</Badge>
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        {adjustedPlans.map((plan, idx) => {
+          const originalPlan = plans[idx];
+          const Icon = originalPlan.icon;
+          const isCurrentPlan = currentSubscription?.plan_type === originalPlan.id;
 
           return (
             <Card
-              key={plan.id}
-              className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}
+              key={originalPlan.id}
+              className={`relative flex flex-col ${originalPlan.popular ? 'border-primary shadow-lg md:scale-105' : ''}`}
             >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-primary">Más Popular</Badge>
+              {originalPlan.popular && (
+                <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-primary text-xs sm:text-sm">Más Popular</Badge>
                 </div>
               )}
 
-              <CardHeader>
+              <CardHeader className="flex-grow">
                 <div className="flex items-center justify-between mb-2">
-                  <Icon className="h-8 w-8" />
-                  {isCurrentPlan && <Badge variant="secondary">Plan Actual</Badge>}
+                  <Icon className="h-6 w-6 sm:h-8 sm:w-8" />
+                  {isCurrentPlan && <Badge variant="secondary" className="text-xs">Plan Actual</Badge>}
                 </div>
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
+                <CardTitle className="text-xl sm:text-2xl">{originalPlan.name}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">{originalPlan.description}</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">${plan.price.toLocaleString()}</span>
-                  <span className="text-muted-foreground">/mes</span>
+                  <div>
+                    <span className="text-3xl sm:text-4xl font-bold">${plan.displayPrice.toLocaleString()}</span>
+                    <span className="text-sm sm:text-base text-muted-foreground">{plan.period}</span>
+                  </div>
+                  {plan.savings && (
+                    <Badge variant="secondary" className="mt-2 text-xs">
+                      {plan.savings}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
+              <CardContent className="space-y-4 flex flex-col">
+                <ul className="space-y-2 sm:space-y-3 flex-grow">
+                  {originalPlan.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">{feature}</span>
+                      <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Button
-                  className="w-full"
-                  variant={isCurrentPlan ? 'outline' : plan.popular ? 'default' : 'secondary'}
+                  className="w-full text-sm sm:text-base"
+                  variant={isCurrentPlan ? 'outline' : originalPlan.popular ? 'default' : 'secondary'}
                   disabled={loading !== null || isCurrentPlan}
-                  onClick={() => handleSubscribe(plan.id)}
+                  onClick={() => handleSubscribe(originalPlan.id)}
                 >
-                  {loading === plan.id
+                  {loading === originalPlan.id
                     ? "Procesando..."
                     : isCurrentPlan
                     ? "Plan Actual"

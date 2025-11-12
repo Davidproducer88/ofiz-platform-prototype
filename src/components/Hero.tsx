@@ -50,23 +50,23 @@ export const Hero = () => {
                 La plataforma #1 de servicios profesionales
               </Badge>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
-                ¿Sos <span className="gradient-text animate-float">trabajador de oficios</span>?
-                <br />
-                Multiplicá tus ingresos con Ofiz
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
+                ¿Necesitás un <span className="gradient-text">profesional de confianza</span>?
+                <br className="hidden sm:block" />
+                Encontralo en minutos con Ofiz
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl">
-                <span className="text-foreground font-semibold">¿Buscás más clientes?</span> Ofiz conecta profesionales con miles de clientes que necesitan tus servicios. <span className="text-primary font-semibold">Sin intermediarios. Pagos garantizados.</span>
+              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl">
+                <span className="text-foreground font-semibold">Electricistas, plomeros, pintores y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
               </p>
             </div>
 
             {/* Enhanced Features */}
-            <div className="grid gap-4">
+            <div className="grid gap-3 sm:gap-4">
               {[
-                { icon: Users, text: "✓ Miles de clientes buscando profesionales como vos", color: "text-primary" },
-                { icon: CheckCircle, text: "✓ Cobrá seguro - Sistema de pagos con garantía total", color: "text-secondary" },
-                { icon: TrendingUp, text: "✓ Aumentá tus ingresos hasta 300% con más trabajos", color: "text-accent" }
+                { icon: Users, text: "Miles de profesionales verificados disponibles", color: "text-primary" },
+                { icon: CheckCircle, text: "Pagos seguros con protección de garantía", color: "text-secondary" },
+                { icon: Shield, text: "Trabajos garantizados - tu dinero está protegido", color: "text-accent" }
               ].map((feature, i) => (
                 <div 
                   key={i}
@@ -76,7 +76,7 @@ export const Hero = () => {
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
                     <feature.icon className={`h-5 w-5 ${feature.color}`} />
                   </div>
-                  <span className="font-medium">{feature.text}</span>
+                  <span className="text-sm sm:text-base font-medium">{feature.text}</span>
                 </div>
               ))}
             </div>
@@ -107,67 +107,66 @@ export const Hero = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button 
-                size="xl" 
-                variant="hero" 
-                className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-base"
-                onClick={handleProfessionalClick}
-              >
-                🚀 Registrate Gratis - Empezá Ya
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button 
-                size="xl" 
-                variant="secondary" 
-                className="group hover:bg-secondary/80 text-base"
+                size="lg" 
+                className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
                 onClick={handleServiceClick}
               >
-                🔍 Busco Profesional
-                <Users className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                🔍 Buscar Profesional Ahora
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button 
-                size="xl" 
+                size="lg" 
                 variant="outline" 
-                className="group border-2 hover:bg-accent/10 text-base"
+                className="group border-2 hover:bg-primary/10 text-sm sm:text-base w-full sm:w-auto"
+                onClick={handleProfessionalClick}
+              >
+                Soy Profesional
+                <Wrench className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:rotate-12" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="group hover:bg-secondary/80 text-sm sm:text-base w-full sm:w-auto"
                 onClick={handleBusinessClick}
               >
-                🏢 Soluciones Empresas
-                <Building2 className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                Para Empresas
+                <Building2 className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
               </Button>
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-8 pt-8 border-t border-border/50">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-soft">
-                  <Users className="h-6 w-6 text-white" />
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 md:gap-8 pt-6 sm:pt-8 border-t border-border/50">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-soft">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold gradient-text">
+                  <div className="text-xl sm:text-2xl font-bold gradient-text">
                     {loading ? "..." : `${stats.total_masters.toLocaleString()}+`}
                   </div>
-                  <div className="text-sm text-muted-foreground">Profesionales</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Profesionales</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-secondary-hover flex items-center justify-center shadow-soft">
-                  <Star className="h-6 w-6 text-white fill-white" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-secondary to-secondary-hover flex items-center justify-center shadow-soft">
+                  <Star className="h-5 w-5 sm:h-6 sm:w-6 text-white fill-white" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold gradient-text">
+                  <div className="text-xl sm:text-2xl font-bold gradient-text">
                     {loading ? "..." : `${stats.average_rating.toFixed(1)}/5`}
                   </div>
-                  <div className="text-sm text-muted-foreground">Valoración</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Valoración</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-soft">
-                  <TrendingUp className="h-6 w-6 text-accent-foreground" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-soft">
+                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold gradient-text">
+                  <div className="text-xl sm:text-2xl font-bold gradient-text">
                     {loading ? "..." : `${stats.satisfaction_rate.toFixed(0)}%`}
                   </div>
-                  <div className="text-sm text-muted-foreground">Satisfacción</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Satisfacción</div>
                 </div>
               </div>
             </div>

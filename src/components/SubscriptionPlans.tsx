@@ -21,6 +21,7 @@ export const SubscriptionPlans = () => {
   const [currentPlan, setCurrentPlan] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<{
     id: 'free' | 'basic_plus' | 'premium';
     name: string;
@@ -59,6 +60,7 @@ export const SubscriptionPlans = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
+      const isAnnual = billingPeriod === 'annual';
       const planConfig = {
         free: {
           price: 0,
@@ -67,13 +69,13 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: 299000,
+          price: isAnnual ? 299000 * 10 : 299000, // 2 meses gratis en anual
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: 599000,
+          price: isAnnual ? 599000 * 10 : 599000, // 2 meses gratis en anual
           applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
@@ -150,6 +152,8 @@ export const SubscriptionPlans = () => {
     });
   };
 
+  const isAnnual = billingPeriod === 'annual';
+  
   const plans = [
     {
       name: "Gratuito",
@@ -165,8 +169,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: "$2,990",
-      period: "/mes",
+      price: isAnnual ? "$29,900" : "$2,990",
+      period: isAnnual ? "/año" : "/mes",
+      savings: isAnnual ? "Ahorrás $5,980" : null,
       features: [
         "20 propuestas por mes",
         "Perfil mejorado",
@@ -180,8 +185,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: "$5,990",
-      period: "/mes",
+      price: isAnnual ? "$59,900" : "$5,990",
+      period: isAnnual ? "/año" : "/mes",
+      savings: isAnnual ? "Ahorrás $11,980" : null,
       features: [
         "50 propuestas por mes",
         "Perfil destacado",
@@ -202,6 +208,33 @@ export const SubscriptionPlans = () => {
 
   return (
     <div className="space-y-6">
+      {/* Billing Period Toggle */}
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex items-center gap-2 p-1 rounded-lg bg-muted">
+          <button
+            onClick={() => setBillingPeriod('monthly')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === 'monthly'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Mensual
+          </button>
+          <button
+            onClick={() => setBillingPeriod('annual')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === 'annual'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Anual
+            <Badge variant="secondary" className="ml-2 text-xs">-17%</Badge>
+          </button>
+        </div>
+      </div>
+
       {currentPlan && (
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader>
@@ -237,26 +270,35 @@ export const SubscriptionPlans = () => {
         </Card>
       )}
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {plans.map((plan) => {
           const Icon = plan.icon;
           const isCurrentPlan = currentPlan?.plan === plan.value;
 
           return (
-            <Card key={plan.value} className={plan.popular ? "border-primary shadow-lg" : ""}>
+            <Card key={plan.value} className={`${plan.popular ? "border-primary shadow-lg" : ""} flex flex-col`}>
               <CardHeader>
                 {plan.popular && (
                   <Badge className="w-fit mb-2" variant="default">
                     Más Popular
                   </Badge>
                 )}
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                   <Icon className="h-5 w-5" />
                   {plan.name}
                 </CardTitle>
                 <CardDescription>
-                  <span className="text-3xl font-bold">{plan.price}</span>
-                  {plan.period && <span className="text-sm">{plan.period}</span>}
+                  <div className="flex flex-col gap-1">
+                    <div>
+                      <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
+                      {plan.period && <span className="text-sm">{plan.period}</span>}
+                    </div>
+                    {plan.savings && (
+                      <Badge variant="secondary" className="w-fit text-xs">
+                        {plan.savings}
+                      </Badge>
+                    )}
+                  </div>
                 </CardDescription>
               </CardHeader>
               <CardContent>
