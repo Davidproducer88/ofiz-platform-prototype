@@ -1930,6 +1930,16 @@ export type Database = {
       is_valid_email: { Args: { email: string }; Returns: boolean }
       recalculate_all_rankings: { Args: never; Returns: undefined }
       reset_monthly_applications: { Args: never; Returns: undefined }
+      search_masters: {
+        Args: { query: string }
+        Returns: {
+          avatar_url: string
+          city: string
+          full_name: string
+          hourly_rate: number
+          id: string
+        }[]
+      }
       seed_initial_feed_data: { Args: never; Returns: undefined }
     }
     Enums: {

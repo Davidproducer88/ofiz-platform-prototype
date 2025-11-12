@@ -51,22 +51,22 @@ export const Hero = () => {
               </Badge>
               
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
-                Tu <span className="gradient-text animate-float">maestro ideal</span>
+                ¿Sos <span className="gradient-text animate-float">trabajador de oficios</span>?
                 <br />
-                a un click de distancia
+                Multiplicá tus ingresos con Ofiz
               </h1>
               
               <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl">
-                La plataforma más confiable de Uruguay. Conectamos clientes con <span className="text-primary font-semibold">+5,000 profesionales certificados</span>. Garantía total en cada trabajo.
+                <span className="text-foreground font-semibold">¿Buscás más clientes?</span> Ofiz conecta profesionales con miles de clientes que necesitan tus servicios. <span className="text-primary font-semibold">Sin intermediarios. Pagos garantizados.</span>
               </p>
             </div>
 
             {/* Enhanced Features */}
             <div className="grid gap-4">
               {[
-                { icon: Shield, text: "✓ Verificación completa de identidad y antecedentes", color: "text-primary" },
-                { icon: CheckCircle, text: "✓ Pagos 100% seguros - Tu dinero protegido", color: "text-secondary" },
-                { icon: Star, text: "✓ +50,000 trabajos completados exitosamente", color: "text-accent" }
+                { icon: Users, text: "✓ Miles de clientes buscando profesionales como vos", color: "text-primary" },
+                { icon: CheckCircle, text: "✓ Cobrá seguro - Sistema de pagos con garantía total", color: "text-secondary" },
+                { icon: TrendingUp, text: "✓ Aumentá tus ingresos hasta 300% con más trabajos", color: "text-accent" }
               ].map((feature, i) => (
                 <div 
                   key={i}
@@ -110,27 +110,27 @@ export const Hero = () => {
                 size="xl" 
                 variant="hero" 
                 className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-base"
+                onClick={handleProfessionalClick}
+              >
+                🚀 Registrate Gratis - Empezá Ya
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+              <Button 
+                size="xl" 
+                variant="secondary" 
+                className="group hover:bg-secondary/80 text-base"
                 onClick={handleServiceClick}
               >
-                🔍 Encontrar Profesional Ahora
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                🔍 Busco Profesional
+                <Users className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
               </Button>
               <Button 
                 size="xl" 
                 variant="outline" 
                 className="group border-2 hover:bg-accent/10 text-base"
-                onClick={handleProfessionalClick}
-              >
-                💼 Registrarme como Maestro
-                <Wrench className="ml-2 h-5 w-5 transition-transform group-hover:rotate-12" />
-              </Button>
-              <Button 
-                size="xl" 
-                variant="outline" 
-                className="group border-2 hover:bg-secondary/10 text-base"
                 onClick={handleBusinessClick}
               >
-                🏢 Soluciones Empresariales
+                🏢 Soluciones Empresas
                 <Building2 className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
               </Button>
             </div>

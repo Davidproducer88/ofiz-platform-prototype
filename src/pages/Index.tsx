@@ -5,6 +5,7 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { Footer } from "@/components/Footer";
 import { FeedBanner } from "@/components/FeedBanner";
 import { TopMastersRanking } from "@/components/TopMastersRanking";
+import { BetaAnnouncementDialog } from "@/components/BetaAnnouncementDialog";
 
 interface IndexProps {
   userType?: 'client' | 'master' | 'admin' | 'business' | null;
@@ -14,6 +15,7 @@ interface IndexProps {
 const Index = ({ userType, onShowOnboarding }: IndexProps) => {
   return (
     <div className="min-h-screen bg-background">
+      <BetaAnnouncementDialog />
       <Header userType={userType} />
       <main>
         <Hero />
