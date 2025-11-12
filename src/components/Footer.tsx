@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import logoFooter from "@/assets/logo-ofiz-footer.png";
 export const Footer = () => {
   const navigate = useNavigate();
   const {
@@ -68,9 +69,11 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="text-3xl font-bold gradient-text hover:scale-105 transition-transform cursor-pointer inline-block">
-              Ofiz
-            </div>
+            <img 
+              src={logoFooter} 
+              alt="Ofiz" 
+              className="h-12 hover:scale-105 transition-transform cursor-pointer"
+            />
             <p className="text-muted-foreground leading-relaxed">
               Servicios profesionales para tu hogar & oficina. 
               Descubrí el oficio que necesitás.
