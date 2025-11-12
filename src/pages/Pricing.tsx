@@ -18,8 +18,8 @@ export default function Pricing() {
     },
     {
       title: "Comisión por servicio",
-      price: "5%",
-      description: "Solo cobramos una pequeña comisión cuando el servicio se completa exitosamente"
+      price: "12%",
+      description: "Solo cobramos una comisión cuando el servicio se completa exitosamente"
     },
     {
       title: "Protección de pago",
@@ -36,8 +36,8 @@ export default function Pricing() {
       description: "Ideal para comenzar",
       icon: User,
       features: [
-        { text: "8 postulaciones por mes", included: true },
-        { text: "Portfolio hasta 6 trabajos", included: true },
+        { text: "5 postulaciones por mes", included: true },
+        { text: "Perfil básico", included: true },
         { text: "Chat con clientes", included: true },
         { text: "Comisión del 12%", included: true },
         { text: "Verificación premium", included: false },
@@ -48,24 +48,43 @@ export default function Pricing() {
       highlighted: false
     },
     {
+      name: "Basic Plus",
+      price: "299",
+      period: "mes",
+      description: "Para profesionales nuevos",
+      icon: Wrench,
+      features: [
+        { text: "20 postulaciones mensuales", included: true },
+        { text: "Perfil mejorado", included: true },
+        { text: "Comisión del 12%", included: true },
+        { text: "Visibilidad aumentada", included: true },
+        { text: "Notificaciones en tiempo real", included: true },
+        { text: "Soporte estándar", included: true },
+        { text: "Estadísticas básicas", included: false }
+      ],
+      cta: "Elegir Basic Plus",
+      highlighted: false
+    },
+    {
       name: "Profesional",
-      price: "590",
+      price: "599",
       period: "mes",
       description: "Para profesionales activos",
       badge: "Más Popular",
-      icon: Wrench,
+      icon: Zap,
       features: [
-        { text: "30 postulaciones mensuales", included: true },
-        { text: "Portfolio hasta 20 trabajos", included: true },
+        { text: "50 postulaciones mensuales", included: true },
+        { text: "Perfil destacado", included: true },
         { text: "Comisión reducida al 8%", included: true },
-        { text: "Perfil destacado - Top 5", included: true },
-        { text: "Estadísticas básicas", included: true },
+        { text: "Aparece primero en búsquedas", included: true },
+        { text: "Estadísticas avanzadas", included: true },
         { text: "Calendario integrado", included: true },
-        { text: "Soporte prioritario", included: true }
+        { text: "Soporte prioritario", included: true },
+        { text: "Badge verificado", included: true }
       ],
       cta: "Elegir Profesional",
       highlighted: true,
-      roi: "ROI 1,180% con 5 servicios/mes"
+      roi: "ROI 4,900% promedio"
     },
     {
       name: "Elite",
@@ -85,8 +104,7 @@ export default function Pricing() {
         { text: "Contratos empresariales", included: true }
       ],
       cta: "Elegir Elite",
-      highlighted: false,
-      roi: "ROI 2,376% con 8 servicios/mes"
+      highlighted: false
     }
   ];
 
@@ -251,7 +269,7 @@ export default function Pricing() {
               </TabsList>
 
               <TabsContent value="professionals" className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
                   {masterPlans.map((plan, index) => {
                     const Icon = plan.icon;
                     return (
