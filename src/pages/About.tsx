@@ -60,7 +60,9 @@ export default function About() {
       <main className="flex-1">
         {/* Breadcrumbs */}
         <div className="container pt-8">
-          <Breadcrumbs items={[{ label: "Sobre Nosotros" }]} />
+          <Breadcrumbs items={[{
+          label: "Sobre Nosotros"
+        }]} />
         </div>
 
         {/* Hero Section */}
@@ -176,7 +178,7 @@ export default function About() {
         <section className="py-16 md:py-24 bg-gradient-to-br from-primary/10 via-secondary/10 to-background">
           <div className="container">
             <div className="text-center space-y-4 mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Nuestro Impacto</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">Nuestro Impacto Estimado </h2>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
@@ -192,27 +194,7 @@ export default function About() {
 
         {/* Equipo */}
         <section className="py-16 md:py-24">
-          <div className="container">
-            <div className="text-center space-y-4 mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Nuestro Equipo</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Conocé a las personas que hacen posible Ofiz
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {team.map((member, index) => <Card key={index} className="border-border/50 hover:shadow-elegant transition-all">
-                  <CardContent className="p-6 text-center space-y-4">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary mx-auto" />
-                    <div>
-                      <h3 className="text-xl font-semibold">{member.name}</h3>
-                      <p className="text-sm text-primary">{member.role}</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{member.bio}</p>
-                  </CardContent>
-                </Card>)}
-            </div>
-          </div>
+          
         </section>
 
         {/* CTA */}
