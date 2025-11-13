@@ -60,7 +60,7 @@ export const Hero = () => {
       transform: `translateY(${parallaxOffset * 0.2}px)`
     }} />
       
-      <div className="container relative z-10 py-20 md:py-32">
+      <div className="container relative z-10 pt-12 pb-20 md:pt-16 md:pb-32">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Content */}
           <div className={`space-y-6 transition-all duration-1000 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
