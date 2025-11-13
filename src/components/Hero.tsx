@@ -69,7 +69,7 @@ export const Hero = () => {
               La plataforma #1 de servicios profesionales
             </Badge>
             
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-center lg:text-left">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-center lg:text-left">
               ¿Necesitás un <span className="gradient-text">profesional de confianza</span>?
               <br className="hidden lg:block" />
               {" "}Encontralo en minutos con Ofiz
