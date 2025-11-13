@@ -98,7 +98,7 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
         .from('masters')
         .select(`
           *,
-          profiles (
+          profiles:profiles!id (
             full_name,
             phone,
             city,
@@ -322,16 +322,16 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={masterData.profiles.avatar_url} />
-              <AvatarFallback>{masterData.profiles.full_name[0]}</AvatarFallback>
+              <AvatarImage src={masterData.profiles?.avatar_url} />
+              <AvatarFallback>{masterData.profiles?.full_name[0]}</AvatarFallback>
             </Avatar>
             
             <div className="flex-1">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold">{masterData.profiles.full_name}</h2>
-                    {masterData.profiles.is_founder && <FounderBadge />}
+                    <h2 className="text-2xl font-bold">{masterData.profiles?.full_name}</h2>
+                    {masterData.profiles?.is_founder && <FounderBadge />}
                     {masterData.is_verified && (
                       <CheckCircle className="h-5 w-5 text-primary" />
                     )}
@@ -364,7 +364,7 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground" />
-                  <span>{masterData.profiles.city}</span>
+                  <span>{masterData.profiles?.city}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="h-5 w-5 text-muted-foreground" />
@@ -376,10 +376,10 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
                 </div>
               </div>
 
-              {masterData.profiles.phone && (
+              {masterData.profiles?.phone && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
-                  <span>{masterData.profiles.phone}</span>
+                  <span>{masterData.profiles?.phone}</span>
                 </div>
               )}
 
@@ -476,11 +476,11 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <Avatar>
-                      <AvatarFallback>{review.profiles.full_name[0]}</AvatarFallback>
+                      <AvatarFallback>{review.profiles?.full_name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold">{review.profiles.full_name}</h4>
+                        <h4 className="font-semibold">{review.profiles?.full_name}</h4>
                         <span className="text-sm text-muted-foreground">
                           {new Date(review.created_at).toLocaleDateString()}
                         </span>
