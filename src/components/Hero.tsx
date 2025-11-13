@@ -71,8 +71,8 @@ export const Hero = () => {
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-center lg:text-left">
               ¿Necesitás un <span className="gradient-text">profesional de confianza</span>?
-              <br className="hidden sm:block" />
-              Encontralo en minutos con Ofiz
+              <br className="hidden lg:block" />
+              {" "}Encontralo en minutos con Ofiz
             </h1>
           </div>
 
