@@ -4,7 +4,7 @@ import { useAuth } from './useAuth';
 
 export interface FeedItem {
   id: string;
-  type: 'service_request' | 'available_master' | 'service' | 'sponsored';
+  type: 'service_request' | 'available_master' | 'service' | 'sponsored' | 'master_post' | 'completed_work';
   score: number;
   created_at: string;
   data: any;
@@ -147,6 +147,10 @@ export const useFeed = () => {
       
       console.log('👨‍🔧 Available masters loaded:', availableMasters?.length || 0, mastersError);
 
+      // Por ahora no cargamos completed works ya que la tabla bookings no tiene campo photos
+      // En el futuro se puede agregar esta funcionalidad
+      const completedWorks: any[] = [];
+
       // Convertir a FeedItems con scoring
       const requestItems: FeedItem[] = (serviceRequests || []).map(request => ({
         id: request.id,
@@ -180,8 +184,16 @@ export const useFeed = () => {
         data: master
       }));
 
+      const completedWorkItems: FeedItem[] = (completedWorks || []).map(work => ({
+        id: work.id,
+        type: 'completed_work' as const,
+        score: calculateRelevanceScore(work, preferences, 'master') + 15, // Prioridad alta para contenido social
+        created_at: work.created_at,
+        data: work
+      }));
+
       // Combinar y ordenar por score
-      const allItems = [...requestItems, ...serviceItems, ...sponsoredItems, ...masterItems];
+      const allItems = [...requestItems, ...serviceItems, ...sponsoredItems, ...masterItems, ...completedWorkItems];
       const sortedItems = allItems.sort((a, b) => b.score - a.score);
 
       // Insertar contenido patrocinado estratégicamente (cada 5 items)
