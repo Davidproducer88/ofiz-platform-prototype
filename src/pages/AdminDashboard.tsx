@@ -17,6 +17,7 @@ import { TransactionsTable } from "@/components/admin/TransactionsTable";
 import { RankingsTable } from "@/components/admin/RankingsTable";
 import { DisputesManagement } from "@/components/admin/DisputesManagement";
 import { Feed } from "@/components/Feed";
+import { FounderCounter } from "@/components/admin/FounderCounter";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
 
@@ -483,6 +484,11 @@ const AdminDashboard = () => {
               <div className="text-2xl font-bold">{stats.totalReviews}</div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Contador de Fundadores */}
+        <div className="mb-8">
+          <FounderCounter />
         </div>
 
         {/* Main Content */}
