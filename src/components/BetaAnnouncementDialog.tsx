@@ -1,44 +1,28 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Rocket, Users, Shield, TrendingUp, X } from "lucide-react";
-
 export const BetaAnnouncementDialog = () => {
   const [open, setOpen] = useState(false);
-
   useEffect(() => {
     // Check if user has already seen the announcement
     const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen-v3");
-    
     if (!hasSeenAnnouncement) {
       // Show dialog after a short delay for better UX
       const timer = setTimeout(() => {
         setOpen(true);
       }, 1500);
-      
       return () => clearTimeout(timer);
     }
   }, []);
-
   const handleClose = () => {
     localStorage.setItem("beta-announcement-seen-v3", "true");
     setOpen(false);
   };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
+  return <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-[95vw] sm:max-w-md md:max-w-lg border-2 border-primary/20 bg-gradient-to-br from-background via-background to-primary/5 max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={handleClose}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-        >
+        <button onClick={handleClose} className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
           <X className="h-4 w-4" />
           <span className="sr-only">Cerrar</span>
         </button>
@@ -140,8 +124,8 @@ export const BetaAnnouncementDialog = () => {
               <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
                 <span className="text-primary text-base md:text-lg flex-shrink-0">💰</span>
                 <div>
-                  <span className="font-bold text-sm md:text-base">10% DE DESCUENTO PERMANENTE</span>
-                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Después del mes gratis, obtén 10% de descuento de por vida en todos los planes</p>
+                  <span className="font-bold text-sm md:text-base">10% DE DESCUENTO TEMPORAL</span>
+                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Después del mes gratis, obtén 10% de descuento por 3 meses en todos los planes</p>
                 </div>
               </li>
               <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
@@ -158,13 +142,7 @@ export const BetaAnnouncementDialog = () => {
                   <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Sé el primero en probar nuevas funcionalidades antes del lanzamiento público</p>
                 </div>
               </li>
-              <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
-                <span className="text-primary text-base md:text-lg flex-shrink-0">🎯</span>
-                <div>
-                  <span className="font-bold text-sm md:text-base">COMISIÓN REDUCIDA</span>
-                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Solo 5% de comisión vs 12% estándar (¡ahorra $700 por cada $10,000!)</p>
-                </div>
-              </li>
+              
             </ul>
             <div className="mt-3 md:mt-4 p-2 md:p-3 bg-primary/10 rounded-lg border border-primary/30">
               <p className="text-center text-xs md:text-sm font-semibold">
@@ -175,21 +153,11 @@ export const BetaAnnouncementDialog = () => {
         </div>
 
         <div className="flex flex-col gap-2 md:gap-3 px-2">
-          <Button
-            size="lg"
-            variant="hero"
-            className="w-full text-sm md:text-base font-semibold py-2 md:py-3"
-            onClick={handleClose}
-          >
+          <Button size="lg" variant="hero" className="w-full text-sm md:text-base font-semibold py-2 md:py-3" onClick={handleClose}>
             <Sparkles className="h-4 w-4 md:h-5 md:w-5 mr-2" />
             ¡Comenzar Ahora!
           </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="w-full text-xs md:text-sm"
-            onClick={handleClose}
-          >
+          <Button size="sm" variant="ghost" className="w-full text-xs md:text-sm" onClick={handleClose}>
             Recordarme más tarde
           </Button>
         </div>
@@ -203,6 +171,5 @@ export const BetaAnnouncementDialog = () => {
           </p>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
