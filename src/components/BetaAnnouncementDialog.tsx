@@ -15,7 +15,7 @@ export const BetaAnnouncementDialog = () => {
 
   useEffect(() => {
     // Check if user has already seen the announcement
-    const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen");
+    const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen-v2");
     
     if (!hasSeenAnnouncement) {
       // Show dialog after a short delay for better UX
@@ -28,7 +28,7 @@ export const BetaAnnouncementDialog = () => {
   }, []);
 
   const handleClose = () => {
-    localStorage.setItem("beta-announcement-seen", "true");
+    localStorage.setItem("beta-announcement-seen-v2", "true");
     setOpen(false);
   };
 
