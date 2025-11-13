@@ -1,486 +1,375 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  TrendingUp, 
-  TrendingDown,
-  DollarSign,
-  Target,
-  Activity,
-  Users,
-  Percent,
-  ArrowUpRight,
-  ArrowDownRight
-} from "lucide-react";
-import { 
-  LineChart, 
-  Line, 
-  BarChart, 
-  Bar, 
-  AreaChart,
-  Area,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from "recharts";
-
-interface KPIData {
-  gmv: number;
-  gmvGrowth: number;
-  totalCommissions: number;
-  commissionsGrowth: number;
-  avgTransactionValue: number;
-  transactionGrowth: number;
-  conversionRate: number;
-  conversionGrowth: number;
-  activeUsers: number;
-  userGrowth: number;
-  monthlyRevenue: any[];
-  projections: any[];
-  categoryBreakdown: any[];
-}
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ArrowUpRight, ArrowDownRight, TrendingUp, DollarSign, Users, Briefcase, Target, Info } from "lucide-react";
 
 export const BusinessKPIs = () => {
-  const [kpiData, setKpiData] = useState<KPIData>({
-    gmv: 0,
-    gmvGrowth: 0,
-    totalCommissions: 0,
-    commissionsGrowth: 0,
-    avgTransactionValue: 0,
-    transactionGrowth: 0,
-    conversionRate: 0,
-    conversionGrowth: 0,
-    activeUsers: 0,
-    userGrowth: 0,
-    monthlyRevenue: [],
-    projections: [],
-    categoryBreakdown: []
-  });
-  const [loading, setLoading] = useState(true);
+  const [showRevenueDetails, setShowRevenueDetails] = useState(false);
+  const [showProjectionDetails, setShowProjectionDetails] = useState(false);
 
-  useEffect(() => {
-    fetchKPIs();
-  }, []);
-
-  const fetchKPIs = async () => {
-    try {
-      setLoading(true);
-
-      // Obtener fecha de hace 30 y 60 días
-      const now = new Date();
-      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-
-      // Obtener pagos del último mes
-      const { data: currentMonthPayments } = await supabase
-        .from('payments')
-        .select('amount, commission_amount, created_at, status')
-        .gte('created_at', thirtyDaysAgo.toISOString())
-        .eq('status', 'approved');
-
-      // Obtener pagos del mes anterior
-      const { data: previousMonthPayments } = await supabase
-        .from('payments')
-        .select('amount, commission_amount, created_at, status')
-        .gte('created_at', sixtyDaysAgo.toISOString())
-        .lt('created_at', thirtyDaysAgo.toISOString())
-        .eq('status', 'approved');
-
-      // Obtener todos los pagos para revenue mensual (últimos 6 meses)
-      const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
-      const { data: allPayments } = await supabase
-        .from('payments')
-        .select('amount, commission_amount, created_at, status')
-        .gte('created_at', sixMonthsAgo.toISOString())
-        .eq('status', 'approved');
-
-      // Calcular GMV (Gross Merchandise Value)
-      const currentGMV = currentMonthPayments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-      const previousGMV = previousMonthPayments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-      const gmvGrowth = previousGMV > 0 ? ((currentGMV - previousGMV) / previousGMV) * 100 : 0;
-
-      // Calcular comisiones
-      const currentCommissions = currentMonthPayments?.reduce((sum, p) => sum + Number(p.commission_amount), 0) || 0;
-      const previousCommissions = previousMonthPayments?.reduce((sum, p) => sum + Number(p.commission_amount), 0) || 0;
-      const commissionsGrowth = previousCommissions > 0 ? ((currentCommissions - previousCommissions) / previousCommissions) * 100 : 0;
-
-      // Calcular valor promedio de transacción
-      const currentAvg = currentMonthPayments?.length ? currentGMV / currentMonthPayments.length : 0;
-      const previousAvg = previousMonthPayments?.length ? previousGMV / previousMonthPayments.length : 0;
-      const transactionGrowth = previousAvg > 0 ? ((currentAvg - previousAvg) / previousAvg) * 100 : 0;
-
-      // Obtener bookings para calcular tasa de conversión
-      const { data: currentBookings } = await supabase
-        .from('bookings')
-        .select('id, status, created_at')
-        .gte('created_at', thirtyDaysAgo.toISOString());
-
-      const { data: previousBookings } = await supabase
-        .from('bookings')
-        .select('id, status, created_at')
-        .gte('created_at', sixtyDaysAgo.toISOString())
-        .lt('created_at', thirtyDaysAgo.toISOString());
-
-      const currentCompleted = currentBookings?.filter(b => b.status === 'completed').length || 0;
-      const currentTotal = currentBookings?.length || 1;
-      const conversionRate = (currentCompleted / currentTotal) * 100;
-
-      const previousCompleted = previousBookings?.filter(b => b.status === 'completed').length || 0;
-      const previousTotal = previousBookings?.length || 1;
-      const previousConversionRate = (previousCompleted / previousTotal) * 100;
-      const conversionGrowth = previousConversionRate > 0 ? ((conversionRate - previousConversionRate) / previousConversionRate) * 100 : 0;
-
-      // Obtener usuarios activos
-      const { count: currentUsers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', thirtyDaysAgo.toISOString());
-
-      const { count: previousUsers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', sixtyDaysAgo.toISOString())
-        .lt('created_at', thirtyDaysAgo.toISOString());
-
-      const userGrowth = previousUsers ? ((currentUsers || 0) - previousUsers) / previousUsers * 100 : 0;
-
-      // Procesar revenue mensual
-      const monthlyData = processMonthlyRevenue(allPayments || []);
-
-      // Calcular proyecciones
-      const projections = calculateProjections(monthlyData);
-
-      // Obtener breakdown por categoría
-      const { data: bookingsWithService } = await supabase
-        .from('bookings')
-        .select(`
-          id,
-          service_id,
-          master_services!inner (
-            category
-          )
-        `)
-        .gte('created_at', thirtyDaysAgo.toISOString());
-
-      const categoryBreakdown = processCategories(bookingsWithService || [], currentMonthPayments || []);
-
-      setKpiData({
-        gmv: currentGMV,
-        gmvGrowth,
-        totalCommissions: currentCommissions,
-        commissionsGrowth,
-        avgTransactionValue: currentAvg,
-        transactionGrowth,
-        conversionRate,
-        conversionGrowth,
-        activeUsers: currentUsers || 0,
-        userGrowth,
-        monthlyRevenue: monthlyData,
-        projections,
-        categoryBreakdown
-      });
-    } catch (error) {
-      console.error('Error fetching KPIs:', error);
-    } finally {
-      setLoading(false);
-    }
+  // Demo data
+  const kpis = {
+    gmv: {
+      total: 2450000,
+      growth: 23.5,
+      avgTransaction: 1850,
+    },
+    revenue: {
+      total: 367500,
+      growth: 28.3,
+      services: 245000,
+      subscriptions: 89500,
+      advertising: 33000,
+      commission: 10,
+    },
+    transactions: {
+      total: 1324,
+      growth: 18.7,
+      completed: 1198,
+      pending: 126,
+    },
+    users: {
+      active: 8950,
+      growth: 15.2,
+      masters: 2840,
+      clients: 6110,
+    },
+    projections: {
+      gmv: 4200000,
+      revenue: 630000,
+      users: 4200,
+      growth: 15,
+    },
   };
-
-  const processMonthlyRevenue = (payments: any[]) => {
-    const monthlyMap = new Map();
-    
-    payments.forEach(payment => {
-      const date = new Date(payment.created_at);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      
-      if (!monthlyMap.has(monthKey)) {
-        monthlyMap.set(monthKey, {
-          month: new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString('es-UY', { month: 'short', year: 'numeric' }),
-          gmv: 0,
-          commissions: 0,
-          transactions: 0
-        });
-      }
-      
-      const data = monthlyMap.get(monthKey);
-      data.gmv += Number(payment.amount);
-      data.commissions += Number(payment.commission_amount);
-      data.transactions += 1;
-    });
-
-    return Array.from(monthlyMap.values()).sort((a, b) => {
-      const dateA = new Date(a.month);
-      const dateB = new Date(b.month);
-      return dateA.getTime() - dateB.getTime();
-    });
-  };
-
-  const calculateProjections = (monthlyData: any[]) => {
-    if (monthlyData.length < 3) return [];
-
-    // Calcular tasa de crecimiento promedio
-    const growthRates = [];
-    for (let i = 1; i < monthlyData.length; i++) {
-      const growth = (monthlyData[i].gmv - monthlyData[i-1].gmv) / monthlyData[i-1].gmv;
-      growthRates.push(growth);
-    }
-    const avgGrowth = growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
-
-    // Proyectar próximos 3 meses
-    const lastMonth = monthlyData[monthlyData.length - 1];
-    const projections = [];
-    
-    for (let i = 1; i <= 3; i++) {
-      const projectedGMV = lastMonth.gmv * Math.pow(1 + avgGrowth, i);
-      const projectedCommissions = projectedGMV * 0.05; // 5% commission rate
-      
-      const futureDate = new Date();
-      futureDate.setMonth(futureDate.getMonth() + i);
-      
-      projections.push({
-        month: futureDate.toLocaleDateString('es-UY', { month: 'short', year: 'numeric' }),
-        gmv: projectedGMV,
-        commissions: projectedCommissions,
-        projected: true
-      });
-    }
-
-    return [...monthlyData, ...projections];
-  };
-
-  const processCategories = (bookings: any[], payments: any[]) => {
-    const categories = new Map();
-    const totalGMV = payments.reduce((sum, p) => sum + Number(p.amount), 0);
-
-    bookings.forEach((booking: any) => {
-      const category = booking.master_services?.category || 'Otros';
-      
-      if (!categories.has(category)) {
-        categories.set(category, {
-          name: category,
-          value: 0,
-          percentage: 0
-        });
-      }
-      
-      // Encontrar el pago asociado
-      const payment = payments.find(p => p.booking_id === booking.id);
-      if (payment) {
-        const data = categories.get(category);
-        data.value += Number(payment.amount);
-      }
-    });
-
-    return Array.from(categories.values()).map(cat => ({
-      ...cat,
-      percentage: totalGMV > 0 ? (cat.value / totalGMV) * 100 : 0
-    })).sort((a, b) => b.value - a.value);
-  };
-
-  const MetricCard = ({ 
-    title, 
-    value, 
-    growth, 
-    icon: Icon, 
-    format = 'currency' 
-  }: { 
-    title: string; 
-    value: number; 
-    growth: number; 
-    icon: any; 
-    format?: 'currency' | 'number' | 'percent';
-  }) => {
-    const isPositive = growth >= 0;
-    const formattedValue = format === 'currency' 
-      ? `$${value.toLocaleString('es-UY', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-      : format === 'percent'
-      ? `${value.toFixed(1)}%`
-      : value.toLocaleString();
-
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">{formattedValue}</div>
-          <div className="flex items-center mt-2 text-sm">
-            {isPositive ? (
-              <>
-                <ArrowUpRight className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-green-500 font-medium">+{growth.toFixed(1)}%</span>
-              </>
-            ) : (
-              <>
-                <ArrowDownRight className="h-4 w-4 text-red-500 mr-1" />
-                <span className="text-red-500 font-medium">{growth.toFixed(1)}%</span>
-              </>
-            )}
-            <span className="text-muted-foreground ml-2">vs mes anterior</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <MetricCard
-          title="GMV (Gross Merchandise Value)"
-          value={kpiData.gmv}
-          growth={kpiData.gmvGrowth}
-          icon={DollarSign}
-          format="currency"
-        />
-        <MetricCard
-          title="Comisiones Generadas"
-          value={kpiData.totalCommissions}
-          growth={kpiData.commissionsGrowth}
-          icon={Target}
-          format="currency"
-        />
-        <MetricCard
-          title="Valor Promedio Transacción"
-          value={kpiData.avgTransactionValue}
-          growth={kpiData.transactionGrowth}
-          icon={Activity}
-          format="currency"
-        />
-        <MetricCard
-          title="Tasa de Conversión"
-          value={kpiData.conversionRate}
-          growth={kpiData.conversionGrowth}
-          icon={Percent}
-          format="percent"
-        />
-        <MetricCard
-          title="Usuarios Activos"
-          value={kpiData.activeUsers}
-          growth={kpiData.userGrowth}
-          icon={Users}
-          format="number"
-        />
+    <div className="space-y-4 md:space-y-6 px-2 md:px-4 lg:px-0">
+      {/* Overview Cards */}
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">GMV Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold">${kpis.gmv.total.toLocaleString()}</div>
+            <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <ArrowUpRight className="h-3 w-3 text-success mr-1" />
+              <span className="text-success">+{kpis.gmv.growth}%</span>
+              <span className="ml-1">vs mes anterior</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Promedio por transacción: ${kpis.gmv.avgTransaction.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold">${kpis.revenue.total.toLocaleString()}</div>
+            <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <ArrowUpRight className="h-3 w-3 text-success mr-1" />
+              <span className="text-success">+{kpis.revenue.growth}%</span>
+              <span className="ml-1">vs mes anterior</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Comisión: {kpis.revenue.commission}% por transacción
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Transacciones</CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold">{kpis.transactions.total.toLocaleString()}</div>
+            <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <ArrowUpRight className="h-3 w-3 text-success mr-1" />
+              <span className="text-success">+{kpis.transactions.growth}%</span>
+              <span className="ml-1">vs mes anterior</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Completadas: {kpis.transactions.completed} | Pendientes: {kpis.transactions.pending}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Usuarios Activos</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold">{kpis.users.active.toLocaleString()}</div>
+            <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <ArrowUpRight className="h-3 w-3 text-success mr-1" />
+              <span className="text-success">+{kpis.users.growth}%</span>
+              <span className="ml-1">vs mes anterior</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Maestros: {kpis.users.masters.toLocaleString()} | Clientes: {kpis.users.clients.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Revenue and Projections Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>GMV y Proyecciones de Crecimiento</CardTitle>
-          <CardDescription>
-            Historial de ingresos brutos y proyecciones basadas en tendencias
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={kpiData.projections}>
-              <defs>
-                <linearGradient id="colorGMV" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorCommissions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--secondary))" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(var(--secondary))" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="month" 
-                stroke="hsl(var(--muted-foreground))"
-                tick={{ fill: 'hsl(var(--muted-foreground))' }}
-              />
-              <YAxis 
-                stroke="hsl(var(--muted-foreground))"
-                tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
-                }}
-                formatter={(value: any) => [`$${Number(value).toLocaleString()}`, '']}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-              />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="gmv"
-                name="GMV"
-                stroke="hsl(var(--primary))"
-                fillOpacity={1}
-                fill="url(#colorGMV)"
-              />
-              <Area
-                type="monotone"
-                dataKey="commissions"
-                name="Comisiones"
-                stroke="hsl(var(--secondary))"
-                fillOpacity={1}
-                fill="url(#colorCommissions)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-          <div className="mt-4 flex items-center justify-center">
-            <Badge variant="secondary" className="mr-2">
-              <div className="w-3 h-3 border-2 border-primary mr-2"></div>
-              Histórico
-            </Badge>
-            <Badge variant="outline">
-              <div className="w-3 h-3 border-2 border-dashed border-primary mr-2"></div>
-              Proyección
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Detailed Metrics Grid */}
+      <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-2">
+        {/* Revenue Breakdown */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base md:text-lg">Desglose de Ingresos</CardTitle>
+                <CardDescription className="text-xs md:text-sm">Distribución por fuente de ingresos</CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowRevenueDetails(true)}
+                className="h-8 w-8"
+              >
+                <Info className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3 md:space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs md:text-sm">
+                <span className="flex items-center gap-2">
+                  <Briefcase className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="truncate">Comisión Servicios ({kpis.revenue.commission}%)</span>
+                </span>
+                <span className="font-medium whitespace-nowrap ml-2">${kpis.revenue.services.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs md:text-sm">
+                <span className="flex items-center gap-2">
+                  <Users className="h-3 w-3 md:h-4 md:w-4" />
+                  Suscripciones
+                </span>
+                <span className="font-medium whitespace-nowrap ml-2">${kpis.revenue.subscriptions.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs md:text-sm">
+                <span className="flex items-center gap-2">
+                  <Target className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="truncate">Publicidad & Destacados</span>
+                </span>
+                <span className="font-medium whitespace-nowrap ml-2">${kpis.revenue.advertising.toLocaleString()}</span>
+              </div>
+            </div>
 
-      {/* Category Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Desglose por Categoría</CardTitle>
-          <CardDescription>
-            Distribución de GMV por categoría de servicio
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {kpiData.categoryBreakdown.map((category, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{category.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    ${category.value.toLocaleString()} ({category.percentage.toFixed(1)}%)
-                  </span>
+            <div className="pt-3 border-t">
+              <div className="flex items-center justify-between font-semibold">
+                <span className="text-sm">Total</span>
+                <span className="text-base md:text-lg">${kpis.revenue.total.toLocaleString()}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Growth Projections */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base md:text-lg">Proyecciones de Crecimiento</CardTitle>
+                <CardDescription className="text-xs md:text-sm">Estimaciones para próximos 6 meses</CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowProjectionDetails(true)}
+                className="h-8 w-8"
+              >
+                <Info className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3 md:space-y-4">
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-xs md:text-sm mb-1">
+                  <span className="text-muted-foreground">GMV Proyectado</span>
+                  <span className="font-bold text-base md:text-lg">${kpis.projections.gmv.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all"
-                    style={{ width: `${category.percentage}%` }}
-                  />
+                <Badge variant="secondary" className="text-xs">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  +{kpis.projections.growth}% crecimiento mensual
+                </Badge>
+              </div>
+              
+              <div>
+                <div className="flex items-center justify-between text-xs md:text-sm mb-1">
+                  <span className="text-muted-foreground">Ingresos Proyectados</span>
+                  <span className="font-bold text-base md:text-lg">${kpis.projections.revenue.toLocaleString()}</span>
                 </div>
               </div>
-            ))}
+
+              <div>
+                <div className="flex items-center justify-between text-xs md:text-sm mb-1">
+                  <span className="text-muted-foreground">Nuevos Usuarios</span>
+                  <span className="font-bold text-base md:text-lg">+{kpis.projections.users.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t">
+              <p className="text-xs text-muted-foreground">
+                Basado en tendencias actuales y crecimiento sostenido
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Revenue Details Dialog */}
+      <Dialog open={showRevenueDetails} onOpenChange={setShowRevenueDetails}>
+        <DialogContent className="max-w-[90vw] sm:max-w-md md:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg md:text-xl">Detalle de Ingresos por Canal</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm">Análisis completo de fuentes de ingresos</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 md:space-y-4 mt-2">
+            <div className="border rounded-lg p-3 md:p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-sm md:text-base flex items-center gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Comisiones por Servicios
+                </h4>
+                <span className="font-bold text-base md:text-lg">${kpis.revenue.services.toLocaleString()}</span>
+              </div>
+              <div className="space-y-1 text-xs md:text-sm text-muted-foreground">
+                <p>• Tasa de comisión: {kpis.revenue.commission}%</p>
+                <p>• Transacciones del mes: {kpis.transactions.total.toLocaleString()}</p>
+                <p>• Ticket promedio: ${kpis.gmv.avgTransaction.toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="border rounded-lg p-3 md:p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-sm md:text-base flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Suscripciones
+                </h4>
+                <span className="font-bold text-base md:text-lg">${kpis.revenue.subscriptions.toLocaleString()}</span>
+              </div>
+              <div className="space-y-1 text-xs md:text-sm text-muted-foreground">
+                <p>• Plan Basic: $99/mes × {Math.floor(kpis.revenue.subscriptions / 500)} usuarios</p>
+                <p>• Plan Pro: $299/mes × {Math.floor(kpis.revenue.subscriptions / 800)} usuarios</p>
+                <p>• Plan Premium: $599/mes × {Math.floor(kpis.revenue.subscriptions / 1200)} usuarios</p>
+              </div>
+            </div>
+
+            <div className="border rounded-lg p-3 md:p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-sm md:text-base flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Publicidad y Destacados
+                </h4>
+                <span className="font-bold text-base md:text-lg">${kpis.revenue.advertising.toLocaleString()}</span>
+              </div>
+              <div className="space-y-1 text-xs md:text-sm text-muted-foreground">
+                <p>• Perfiles destacados: $200/mes</p>
+                <p>• Anuncios premium: $150/mes</p>
+                <p>• Badges especiales: $50/mes</p>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-sm md:text-base">Total Ingresos del Mes</span>
+                <span className="font-bold text-lg md:text-xl">${kpis.revenue.total.toLocaleString()}</span>
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
+
+      {/* Projection Details Dialog */}
+      <Dialog open={showProjectionDetails} onOpenChange={setShowProjectionDetails}>
+        <DialogContent className="max-w-[90vw] sm:max-w-md md:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg md:text-xl">Proyecciones de Crecimiento Detalladas</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm">Modelo de crecimiento basado en tendencias actuales</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 md:space-y-4 mt-2">
+            <div className="bg-primary/10 rounded-lg p-3 md:p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                <h4 className="font-semibold text-sm md:text-base">Proyección a 6 Meses</h4>
+              </div>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Basado en un crecimiento mensual promedio del {kpis.projections.growth}%
+              </p>
+            </div>
+
+            <div className="border rounded-lg p-3 md:p-4">
+              <h4 className="font-semibold mb-3 text-sm md:text-base">GMV Proyectado</h4>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground mb-1">Mes actual</p>
+                  <p className="text-base md:text-lg font-bold">${kpis.gmv.total.toLocaleString()}</p>
+                </div>
+                <ArrowUpRight className="h-5 w-5 md:h-6 md:w-6 text-success flex-shrink-0" />
+                <div className="flex-1 text-right">
+                  <p className="text-xs text-muted-foreground mb-1">Mes 6</p>
+                  <p className="text-base md:text-lg font-bold text-success">${kpis.projections.gmv.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border rounded-lg p-3 md:p-4">
+              <h4 className="font-semibold mb-3 text-sm md:text-base">Ingresos Proyectados</h4>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground mb-1">Mes actual</p>
+                  <p className="text-base md:text-lg font-bold">${kpis.revenue.total.toLocaleString()}</p>
+                </div>
+                <ArrowUpRight className="h-5 w-5 md:h-6 md:w-6 text-success flex-shrink-0" />
+                <div className="flex-1 text-right">
+                  <p className="text-xs text-muted-foreground mb-1">Mes 6</p>
+                  <p className="text-base md:text-lg font-bold text-success">${kpis.projections.revenue.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border rounded-lg p-3 md:p-4">
+              <h4 className="font-semibold mb-2 text-sm md:text-base">Crecimiento de Usuarios</h4>
+              <div className="space-y-1.5 text-xs md:text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Usuarios actuales</span>
+                  <span className="font-medium">{kpis.users.active.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Nuevos usuarios (6 meses)</span>
+                  <span className="font-medium text-success">+{kpis.projections.users.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between pt-1.5 border-t">
+                  <span className="font-semibold">Total proyectado</span>
+                  <span className="font-bold">{(kpis.users.active + kpis.projections.users).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+              <p className="text-xs md:text-sm text-muted-foreground">
+                <strong>Nota:</strong> Las proyecciones se basan en tendencias históricas y suponen
+                el mantenimiento de las tasas de conversión y retención actuales.
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
