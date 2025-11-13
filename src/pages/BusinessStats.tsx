@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
+import { BusinessKPIs } from "@/components/BusinessKPIs";
 import { 
   TrendingUp, 
   Users, 
@@ -324,15 +325,20 @@ export default function BusinessStats() {
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+        <Tabs defaultValue="kpis" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+            <TabsTrigger value="kpis">KPIs</TabsTrigger>
             <TabsTrigger value="overview">Resumen</TabsTrigger>
             <TabsTrigger value="revenue">Ingresos</TabsTrigger>
             <TabsTrigger value="categories">Categorías</TabsTrigger>
             <TabsTrigger value="platform">Plataforma</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="kpis" className="space-y-6">
+          <BusinessKPIs />
+        </TabsContent>
+
+        <TabsContent value="overview" className="space-y-6">
             {/* Real-time metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="shadow-soft hover-lift">
