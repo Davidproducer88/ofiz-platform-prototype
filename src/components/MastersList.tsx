@@ -199,12 +199,111 @@ export const MastersList = ({
     );
   }
 
+  const handleViewProfile = (masterId: string) => {
+    setSelectedMasterId(masterId);
+    setProfileDialogOpen(true);
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {masters.map((master) => (
-          <Card key={master.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
-...
+          <Card 
+            key={master.id} 
+            className="overflow-hidden hover:shadow-lg transition-all duration-300 border border-border"
+          >
+            {/* Header con Avatar */}
+            <div className="p-6 flex flex-col items-center text-center border-b bg-gradient-to-b from-muted/30 to-background">
+              <Avatar className="h-20 w-20 mb-4 ring-2 ring-primary/20">
+                <AvatarImage src={master.profiles.avatar_url} alt={master.business_name} />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/50 text-primary-foreground text-2xl">
+                  {master.business_name?.[0] || master.profiles.full_name?.[0]}
+                </AvatarFallback>
+              </Avatar>
+
+              <h3 className="text-lg font-bold mb-1">{master.business_name || master.profiles.full_name}</h3>
+              
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                <MapPin className="h-4 w-4" />
+                <span>{master.profiles.city}</span>
+              </div>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-6 space-y-4">
+              {/* Servicios/Categoría */}
+              {master.services && master.services.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {master.services.slice(0, 2).map((service, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {getCategoryLabel(service.category)}
+                    </Badge>
+                  ))}
+                  {master.services.length > 2 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{master.services.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Info Grid */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Experiencia</p>
+                    <p className="font-medium">{master.experience_years} años</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">💰</span>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Tarifa</p>
+                    <p className="font-medium">${master.hourly_rate}/h</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Verificación y Rating */}
+              <div className="flex items-center justify-between pt-3 border-t">
+                <div className="flex items-center gap-2">
+                  {master.is_verified ? (
+                    <Badge variant="secondary" className="gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      <span className="text-xs">Verificado</span>
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">No verificado</span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                  <span className="font-medium text-sm">{master.rating.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground">({master.total_reviews})</span>
+                </div>
+              </div>
+
+              {/* Distancia (si está disponible) */}
+              {master.distance !== undefined && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4" />
+                  <span>{master.distance.toFixed(1)} km de distancia</span>
+                </div>
+              )}
+            </div>
+
+            {/* Footer con botón */}
+            <div className="p-4 bg-muted/30 border-t">
+              <Button 
+                className="w-full" 
+                onClick={() => handleViewProfile(master.id)}
+              >
+                Ver perfil
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
