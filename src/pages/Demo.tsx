@@ -17,16 +17,38 @@ import {
   Sparkles,
   ArrowRight,
   BarChart3,
-  Home
+  Home,
+  Building2,
+  FileText,
+  ShoppingCart,
+  Megaphone,
+  Package,
+  Eye,
+  MousePointerClick,
+  CreditCard,
+  TrendingDown
 } from 'lucide-react';
-import { demoMasters, demoBookings, demoStats, demoMessages, demoReviews, demoPayments } from '@/data/demoData';
+import { 
+  demoMasters, 
+  demoBookings, 
+  demoStats, 
+  demoMessages, 
+  demoReviews, 
+  demoPayments,
+  demoBusinesses,
+  demoBusinessSubscriptions,
+  demoBusinessContracts,
+  demoMarketplaceProducts,
+  demoMarketplaceOrders,
+  demoAdvertisements
+} from '@/data/demoData';
 import { useNavigate } from 'react-router-dom';
 import { FounderBadge } from '@/components/FounderBadge';
 import { DemoModeIndicator } from '@/components/DemoModeIndicator';
 
 const Demo = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState<'client' | 'master' | 'admin'>('client');
+  const [activeView, setActiveView] = useState<'client' | 'master' | 'business' | 'admin'>('client');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-UY', {
@@ -73,7 +95,7 @@ const Demo = () => {
           <h1 className="text-4xl font-bold mb-2">Dashboard de Ofiz</h1>
           <p className="text-muted-foreground mb-6">Explora las diferentes vistas de la plataforma</p>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={activeView === 'client' ? 'default' : 'outline'}
               onClick={() => setActiveView('client')}
@@ -85,6 +107,13 @@ const Demo = () => {
               onClick={() => setActiveView('master')}
             >
               Vista Profesional
+            </Button>
+            <Button
+              variant={activeView === 'business' ? 'default' : 'outline'}
+              onClick={() => setActiveView('business')}
+            >
+              <Building2 className="h-4 w-4 mr-2" />
+              Vista Empresas
             </Button>
             <Button
               variant={activeView === 'admin' ? 'default' : 'outline'}
@@ -373,6 +402,363 @@ const Demo = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        )}
+
+        {/* Business View */}
+        {activeView === 'business' && (
+          <div className="space-y-6">
+            {/* Business Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Empresas Activas</CardTitle>
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{demoBusinesses.length}</div>
+                  <p className="text-xs text-success">Con suscripciones activas</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Contratos Abiertos</CardTitle>
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{demoBusinessContracts.filter(c => c.status === 'open').length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {demoBusinessContracts.reduce((sum, c) => sum + c.applications_count, 0)} postulaciones
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Productos Activos</CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{demoMarketplaceProducts.length}</div>
+                  <p className="text-xs text-success">
+                    {demoMarketplaceOrders.length} órdenes totales
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Anuncios Activos</CardTitle>
+                  <Megaphone className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{demoAdvertisements.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {demoAdvertisements.reduce((sum, ad) => sum + ad.impressions_count, 0).toLocaleString()} impresiones
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Tabs defaultValue="subscriptions" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
+                <TabsTrigger value="contracts">Contratos</TabsTrigger>
+                <TabsTrigger value="products">Productos</TabsTrigger>
+                <TabsTrigger value="orders">Órdenes</TabsTrigger>
+                <TabsTrigger value="ads">Anuncios</TabsTrigger>
+              </TabsList>
+
+              {/* Subscriptions Tab */}
+              <TabsContent value="subscriptions" className="space-y-4">
+                {demoBusinesses.map((business, index) => {
+                  const subscription = demoBusinessSubscriptions[index];
+                  return (
+                    <Card key={business.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex gap-4 flex-1">
+                            <Avatar className="h-14 w-14">
+                              <AvatarImage src={business.avatar_url} />
+                              <AvatarFallback><Building2 className="h-6 w-6" /></AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-lg">{business.company_name}</h3>
+                                {business.is_founder && <FounderBadge />}
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-2">{business.company_type} • {business.industry}</p>
+                              <div className="flex flex-wrap gap-3 text-sm">
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-4 w-4 text-muted-foreground" />
+                                  <span>{business.company_size} empleados</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-muted-foreground">•</span>
+                                  <span>{business.city}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant="default" className="mb-2">
+                              Plan {subscription.plan_type.charAt(0).toUpperCase() + subscription.plan_type.slice(1)}
+                            </Badge>
+                            <p className="text-2xl font-bold">{formatCurrency(subscription.price)}/mes</p>
+                            {subscription.has_founder_discount && (
+                              <p className="text-xs text-success mt-1">Con descuento fundador</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t grid grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Contactos</p>
+                            <p className="text-sm font-semibold">
+                              {subscription.contacts_used} / {subscription.monthly_contacts_limit}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Anuncios</p>
+                            <p className="text-sm font-semibold">
+                              {subscription.can_post_ads ? 'Habilitado' : 'No disponible'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Vence</p>
+                            <p className="text-sm font-semibold">
+                              {formatDate(subscription.current_period_end)}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </TabsContent>
+
+              {/* Contracts Tab */}
+              <TabsContent value="contracts" className="space-y-4">
+                {demoBusinessContracts.map((contract) => {
+                  const business = demoBusinesses.find(b => b.id === contract.business_id);
+                  return (
+                    <Card key={contract.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-lg">{contract.title}</h3>
+                              <Badge variant={contract.status === 'open' ? 'default' : 'secondary'}>
+                                {contract.status === 'open' ? 'Abierto' : 'En Progreso'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Por: {business?.company_name}
+                            </p>
+                            <p className="text-sm mb-3">{contract.description}</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Presupuesto</p>
+                            <p className="text-sm font-semibold">
+                              {formatCurrency(contract.budget_min)} - {formatCurrency(contract.budget_max)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Profesionales</p>
+                            <p className="text-sm font-semibold">{contract.required_masters} requeridos</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Postulaciones</p>
+                            <p className="text-sm font-semibold text-success">{contract.applications_count}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Fecha límite</p>
+                            <p className="text-sm font-semibold">{formatDate(contract.deadline)}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </TabsContent>
+
+              {/* Products Tab */}
+              <TabsContent value="products" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {demoMarketplaceProducts.map((product) => (
+                    <Card key={product.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex gap-4">
+                          <div className="h-20 w-20 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Package className="h-10 w-10 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold mb-1">{product.title}</h3>
+                            <p className="text-xs text-muted-foreground mb-2">
+                              Por: {product.seller_name}
+                            </p>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex items-center gap-1">
+                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                <span className="text-xs font-semibold">{product.rating}</span>
+                                <span className="text-xs text-muted-foreground">({product.reviews_count})</span>
+                              </div>
+                              <span className="text-xs text-muted-foreground">•</span>
+                              <span className="text-xs text-muted-foreground">{product.sales_count} vendidos</span>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                              <p className="text-lg font-bold">{formatCurrency(product.price)}</p>
+                              {product.compare_at_price && (
+                                <p className="text-sm text-muted-foreground line-through">
+                                  {formatCurrency(product.compare_at_price)}
+                                </p>
+                              )}
+                            </div>
+                            <Badge variant="secondary" className="mt-2">
+                              Stock: {product.stock_quantity}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Orders Tab */}
+              <TabsContent value="orders" className="space-y-4">
+                {demoMarketplaceOrders.map((order) => (
+                  <Card key={order.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold">{order.product_title}</h3>
+                            <Badge variant={
+                              order.status === 'delivered' ? 'default' :
+                              order.status === 'shipped' ? 'secondary' : 'outline'
+                            }>
+                              {order.status === 'delivered' ? 'Entregado' :
+                               order.status === 'shipped' ? 'Enviado' : 'Confirmado'}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-1">
+                            Vendedor: {order.seller_name}
+                          </p>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Comprador: {order.buyer_name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Orden #{order.order_number}
+                          </p>
+                          {order.tracking_number && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Tracking: {order.tracking_number}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold">{formatCurrency(order.total_amount)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {order.quantity} × {formatCurrency(order.unit_price)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-4 gap-4 pt-4 border-t text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Subtotal</p>
+                          <p className="font-semibold">{formatCurrency(order.subtotal)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Envío</p>
+                          <p className="font-semibold">{formatCurrency(order.shipping_cost)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Comisión (5%)</p>
+                          <p className="font-semibold text-primary">{formatCurrency(order.platform_fee)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Vendedor recibe</p>
+                          <p className="font-semibold text-success">{formatCurrency(order.seller_amount)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </TabsContent>
+
+              {/* Ads Tab */}
+              <TabsContent value="ads" className="space-y-4">
+                {demoAdvertisements.map((ad) => {
+                  const ctr = ((ad.clicks_count / ad.impressions_count) * 100).toFixed(2);
+                  return (
+                    <Card key={ad.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-lg">{ad.title}</h3>
+                              <Badge variant="default">Activo</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Por: {ad.business_name}
+                            </p>
+                            <p className="text-sm mb-3">{ad.description}</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{ad.ad_type}</Badge>
+                              <Badge variant="outline">{ad.target_audience}</Badge>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-muted-foreground mb-1">Presupuesto</p>
+                            <p className="text-2xl font-bold">{formatCurrency(ad.budget)}</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t">
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <Eye className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">Impresiones</p>
+                            </div>
+                            <p className="text-sm font-semibold">{ad.impressions_count.toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <MousePointerClick className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">Clicks</p>
+                            </div>
+                            <p className="text-sm font-semibold text-primary">{ad.clicks_count.toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">CTR</p>
+                            </div>
+                            <p className="text-sm font-semibold text-success">{ctr}%</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <DollarSign className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">CPI</p>
+                            </div>
+                            <p className="text-sm font-semibold">${ad.cost_per_impression.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <Calendar className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">Vence</p>
+                            </div>
+                            <p className="text-sm font-semibold">{formatDate(ad.end_date)}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </TabsContent>
+            </Tabs>
           </div>
         )}
 
