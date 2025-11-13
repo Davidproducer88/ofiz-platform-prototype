@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { User, Mail, Phone, MapPin, Save, Camera, Lock } from 'lucide-react';
 import { URUGUAY_LOCATIONS } from '@/lib/locations';
+import { FounderBadge } from '@/components/FounderBadge';
 
 interface ClientProfileProps {
   profile: {
@@ -19,6 +20,7 @@ interface ClientProfileProps {
     address: string | null;
     city: string | null;
     avatar_url: string | null;
+    is_founder?: boolean;
   };
   onProfileUpdate: () => void;
 }
@@ -245,7 +247,11 @@ export function ClientProfile({ profile, onProfileUpdate }: ClientProfileProps) 
                 {profile.full_name?.charAt(0) || 'U'}
               </AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-xl font-semibold">{profile.full_name}</h3>
+                {profile.is_founder && <FounderBadge />}
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"

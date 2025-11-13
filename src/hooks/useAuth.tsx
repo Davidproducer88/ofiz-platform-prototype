@@ -14,6 +14,10 @@ interface Profile {
   email_verified?: boolean;
   login_provider?: string;
   verification_sent_at?: string;
+  is_founder?: boolean;
+  founder_registered_at?: string;
+  free_trial_ends_at?: string;
+  founder_discount_percentage?: number;
 }
 
 interface AuthContextType {
@@ -81,6 +85,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             phone: meta.phone ?? null,
             address: meta.address ?? null,
             city: meta.city ?? null,
+            // Founder benefits from metadata
+            is_founder: meta.is_founder ?? false,
+            founder_registered_at: meta.founder_registered_at ?? null,
+            free_trial_ends_at: meta.free_trial_ends_at ?? null,
+            founder_discount_percentage: meta.founder_discount_percentage ?? 0,
           })
           .select()
           .maybeSingle();
@@ -151,6 +160,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userType = userData.user_type || 'client';
       const redirectUrl = `${window.location.origin}/auth/callback?type=signup&user_type=${userType}`;
       
+      // Calculate founder benefits
+      const now = new Date();
+      const freeTrialEndsAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -161,7 +174,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             user_type: userType,
             phone: userData.phone || null,
             address: userData.address || null,
-            city: userData.city || null
+            city: userData.city || null,
+            // Founder benefits
+            is_founder: true,
+            founder_registered_at: now.toISOString(),
+            free_trial_ends_at: freeTrialEndsAt.toISOString(),
+            founder_discount_percentage: 10
           }
         }
       });

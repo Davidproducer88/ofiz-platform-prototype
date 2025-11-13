@@ -15,7 +15,7 @@ export const BetaAnnouncementDialog = () => {
 
   useEffect(() => {
     // Check if user has already seen the announcement
-    const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen-v2");
+    const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen-v3");
     
     if (!hasSeenAnnouncement) {
       // Show dialog after a short delay for better UX
@@ -28,7 +28,7 @@ export const BetaAnnouncementDialog = () => {
   }, []);
 
   const handleClose = () => {
-    localStorage.setItem("beta-announcement-seen-v2", "true");
+    localStorage.setItem("beta-announcement-seen-v3", "true");
     setOpen(false);
   };
 
@@ -52,15 +52,15 @@ export const BetaAnnouncementDialog = () => {
           </div>
           
           <DialogTitle className="text-3xl font-bold text-center bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-            ¡Bienvenido a Ofiz Beta! 🚀
+            🎉 ¡Únete como Usuario Fundador! 🚀
           </DialogTitle>
           
           <DialogDescription className="text-center text-base space-y-4">
             <p className="text-lg font-semibold text-foreground">
-              Estamos construyendo la plataforma líder de servicios profesionales en Uruguay
+              Ofiz Beta: Tu oportunidad de ser pionero en la revolución de servicios profesionales
             </p>
             <p className="text-muted-foreground">
-              Te invitamos a ser parte de nuestra etapa beta. Tu feedback es fundamental para crear la mejor experiencia.
+              Regístrate ahora y obtén beneficios exclusivos de usuario fundador que mantendrás de por vida.
             </p>
           </DialogDescription>
         </DialogHeader>
@@ -124,28 +124,53 @@ export const BetaAnnouncementDialog = () => {
             </div>
           </div>
 
-          <div className="mt-4 p-6 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 border border-primary/20">
-            <h4 className="font-bold text-center mb-3 text-lg">
-              🎁 Beneficios Exclusivos Beta
+          <div className="mt-4 p-6 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 border-2 border-primary/30">
+            <h4 className="font-bold text-center mb-4 text-xl flex items-center justify-center gap-2">
+              <Sparkles className="h-6 w-6 text-primary" />
+              Beneficios de Usuario Fundador
             </h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Comisiones reducidas</strong> para los primeros 1,000 usuarios</span>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-3 bg-background/50 p-3 rounded-lg">
+                <span className="text-primary text-lg">🎁</span>
+                <div>
+                  <span className="font-bold text-base">1 MES GRATIS</span>
+                  <p className="text-muted-foreground mt-1">Prueba cualquier plan Premium sin costo durante 30 días desde el lanzamiento oficial</p>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Soporte prioritario</strong> durante todo el período beta</span>
+              <li className="flex items-start gap-3 bg-background/50 p-3 rounded-lg">
+                <span className="text-primary text-lg">💰</span>
+                <div>
+                  <span className="font-bold text-base">10% DE DESCUENTO PERMANENTE</span>
+                  <p className="text-muted-foreground mt-1">Después del mes gratis, obtén 10% de descuento de por vida en todos los planes</p>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Badge de usuario fundador</strong> en tu perfil</span>
+              <li className="flex items-start gap-3 bg-background/50 p-3 rounded-lg">
+                <span className="text-primary text-lg">⭐</span>
+                <div>
+                  <span className="font-bold text-base">BADGE DE FUNDADOR</span>
+                  <p className="text-muted-foreground mt-1">Distintivo especial en tu perfil que te identifica como usuario pionero</p>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Acceso anticipado</strong> a nuevas funcionalidades</span>
+              <li className="flex items-start gap-3 bg-background/50 p-3 rounded-lg">
+                <span className="text-primary text-lg">🚀</span>
+                <div>
+                  <span className="font-bold text-base">ACCESO ANTICIPADO</span>
+                  <p className="text-muted-foreground mt-1">Sé el primero en probar nuevas funcionalidades antes del lanzamiento público</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3 bg-background/50 p-3 rounded-lg">
+                <span className="text-primary text-lg">🎯</span>
+                <div>
+                  <span className="font-bold text-base">COMISIÓN REDUCIDA</span>
+                  <p className="text-muted-foreground mt-1">Solo 5% de comisión vs 12% estándar (¡ahorra $700 por cada $10,000!)</p>
+                </div>
               </li>
             </ul>
+            <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/30">
+              <p className="text-center text-sm font-semibold">
+                ⏰ <span className="text-primary">Oferta limitada:</span> Solo para los primeros 1,000 usuarios registrados
+              </p>
+            </div>
           </div>
         </div>
 
@@ -169,9 +194,14 @@ export const BetaAnnouncementDialog = () => {
           </Button>
         </div>
 
-        <p className="text-xs text-center text-muted-foreground mt-4">
-          Al continuar, aceptas ser parte de nuestra comunidad beta y ayudarnos a mejorar la plataforma
-        </p>
+        <div className="mt-4 text-center space-y-2">
+          <p className="text-sm font-semibold text-primary">
+            💎 Los beneficios de fundador son permanentes y transferibles de por vida
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Al registrarte ahora, estos beneficios quedan garantizados en tu cuenta para siempre
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -328,6 +328,7 @@ export type Database = {
           created_at: string
           current_period_end: string
           current_period_start: string
+          has_founder_discount: boolean | null
           id: string
           mercadopago_subscription_id: string | null
           monthly_contacts_limit: number
@@ -345,6 +346,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string
           current_period_start?: string
+          has_founder_discount?: boolean | null
           id?: string
           mercadopago_subscription_id?: string | null
           monthly_contacts_limit?: number
@@ -362,6 +364,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string
           current_period_start?: string
+          has_founder_discount?: boolean | null
           id?: string
           mercadopago_subscription_id?: string | null
           monthly_contacts_limit?: number
@@ -1332,8 +1335,12 @@ export type Database = {
           city: string | null
           created_at: string
           email_verified: boolean | null
+          founder_discount_percentage: number | null
+          founder_registered_at: string | null
+          free_trial_ends_at: string | null
           full_name: string
           id: string
+          is_founder: boolean | null
           latitude: number | null
           login_provider: string | null
           longitude: number | null
@@ -1348,8 +1355,12 @@ export type Database = {
           city?: string | null
           created_at?: string
           email_verified?: boolean | null
+          founder_discount_percentage?: number | null
+          founder_registered_at?: string | null
+          free_trial_ends_at?: string | null
           full_name: string
           id: string
+          is_founder?: boolean | null
           latitude?: number | null
           login_provider?: string | null
           longitude?: number | null
@@ -1364,8 +1375,12 @@ export type Database = {
           city?: string | null
           created_at?: string
           email_verified?: boolean | null
+          founder_discount_percentage?: number | null
+          founder_registered_at?: string | null
+          free_trial_ends_at?: string | null
           full_name?: string
           id?: string
+          is_founder?: boolean | null
           latitude?: number | null
           login_provider?: string | null
           longitude?: number | null
@@ -1801,6 +1816,7 @@ export type Database = {
           created_at: string
           current_period_end: string
           current_period_start: string
+          has_founder_discount: boolean | null
           id: string
           is_featured: boolean
           master_id: string
@@ -1816,6 +1832,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string
           current_period_start?: string
+          has_founder_discount?: boolean | null
           id?: string
           is_featured?: boolean
           master_id: string
@@ -1831,6 +1848,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string
           current_period_start?: string
+          has_founder_discount?: boolean | null
           id?: string
           is_featured?: boolean
           master_id?: string

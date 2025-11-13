@@ -22,6 +22,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
+import { FounderBadge } from '@/components/FounderBadge';
 
 interface Service {
   id: string;
@@ -46,6 +47,7 @@ interface MasterProfileData {
     phone: string;
     city: string;
     avatar_url: string;
+    is_founder?: boolean;
   };
 }
 
@@ -329,6 +331,7 @@ export const MasterProfile = ({ masterId, onClose }: MasterProfileProps) => {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-2xl font-bold">{masterData.profiles.full_name}</h2>
+                    {masterData.profiles.is_founder && <FounderBadge />}
                     {masterData.is_verified && (
                       <CheckCircle className="h-5 w-5 text-primary" />
                     )}
