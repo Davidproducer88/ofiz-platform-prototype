@@ -22,7 +22,7 @@ export const BusinessKPIs = () => {
       services: 245000,
       subscriptions: 89500,
       advertising: 33000,
-      commission: 10,
+      commission: 5,
     },
     transactions: {
       total: 1324,

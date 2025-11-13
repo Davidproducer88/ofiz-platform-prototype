@@ -175,7 +175,7 @@ export function SellerDashboard({
             <div className="space-y-2">
               <h4 className="font-semibold">Comisión de Plataforma</h4>
               <p className="text-sm text-muted-foreground">
-                Ofiz Market cobra una comisión del <span className="font-bold text-primary">7%</span> sobre
+                Ofiz Market cobra una comisión del <span className="font-bold text-primary">5%</span> sobre
                 cada venta realizada. Esto incluye:
               </p>
               <ul className="text-sm text-muted-foreground space-y-1 ml-4">
@@ -194,8 +194,8 @@ export function SellerDashboard({
                   <span className="font-medium">$10,000</span>
                 </div>
                 <div className="flex justify-between p-2 bg-primary/10 rounded">
-                  <span>Comisión Ofiz (7%):</span>
-                  <span className="font-medium text-primary">-$700</span>
+                  <span>Comisión Ofiz (5%):</span>
+                  <span className="font-medium text-primary">-$500</span>
                 </div>
                 <div className="flex justify-between p-2 bg-green-500/10 rounded border-2 border-green-500/20">
                   <span className="font-semibold">Tú recibes:</span>
