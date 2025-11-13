@@ -52,9 +52,9 @@ export const Hero = () => {
       />
       
       <div className="container relative z-10 py-20 md:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Content */}
-          <div className={`space-y-8 transition-all duration-1000 ${
+          <div className={`space-y-6 transition-all duration-1000 ${
             heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
             <div className="space-y-6">
@@ -72,26 +72,6 @@ export const Hero = () => {
               <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl">
                 <span className="text-foreground font-semibold">Electricistas, plomeros, pintores y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
               </p>
-            </div>
-
-            {/* Enhanced Features */}
-            <div className="grid gap-3 sm:gap-4">
-              {[
-                { icon: Users, text: "Miles de profesionales verificados disponibles", color: "text-primary" },
-                { icon: CheckCircle, text: "Pagos seguros con protección de garantía", color: "text-secondary" },
-                { icon: Shield, text: "Trabajos garantizados - tu dinero está protegido", color: "text-accent" }
-              ].map((feature, i) => (
-                <div 
-                  key={i}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card transition-all hover:translate-x-2"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                    <feature.icon className={`h-5 w-5 ${feature.color}`} />
-                  </div>
-                  <span className="text-sm sm:text-base font-medium">{feature.text}</span>
-                </div>
-              ))}
             </div>
 
             {/* Quick Search Bar */}
@@ -118,7 +98,7 @@ export const Hero = () => {
             </form>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button 
                 size="lg" 
                 className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
@@ -145,48 +125,6 @@ export const Hero = () => {
                 Para Empresas
                 <Building2 className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
               </Button>
-            </div>
-
-            {/* Stats */}
-            <div 
-              ref={statsRef as any}
-              className={`flex flex-wrap items-center gap-4 sm:gap-6 md:gap-8 pt-6 sm:pt-8 border-t border-border/50 transition-all duration-1000 delay-300 ${
-                statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-soft">
-                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold gradient-text">
-                    {loading ? "..." : `${stats.total_masters.toLocaleString()}+`}
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Profesionales</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-secondary to-secondary-hover flex items-center justify-center shadow-soft">
-                  <Star className="h-5 w-5 sm:h-6 sm:w-6 text-white fill-white" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold gradient-text">
-                    {loading ? "..." : `${stats.average_rating.toFixed(1)}/5`}
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Valoración</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-soft">
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold gradient-text">
-                    {loading ? "..." : `${stats.satisfaction_rate.toFixed(0)}%`}
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Satisfacción</div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -242,6 +180,69 @@ export const Hero = () => {
                 <Sparkles className="h-4 w-4 mr-2 inline" />
                 Nuevo
               </Badge>
+            </div>
+          </div>
+        </div>
+
+        {/* Features & Stats Section - Centered Below */}
+        <div className="flex flex-col items-center justify-center text-center mt-16 md:mt-24 max-w-4xl mx-auto space-y-8">
+          {/* Enhanced Features */}
+          <div 
+            className={`grid sm:grid-cols-3 gap-4 w-full transition-all duration-1000 delay-300 ${
+              heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            {[
+              { icon: Users, text: "Miles de profesionales verificados disponibles", color: "text-primary" },
+              { icon: CheckCircle, text: "Pagos seguros con protección de garantía", color: "text-secondary" },
+              { icon: Shield, text: "Trabajos garantizados - tu dinero está protegido", color: "text-accent" }
+            ].map((feature, i) => (
+              <div 
+                key={i}
+                className="flex flex-col items-center gap-3 p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card transition-all hover:scale-105"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                  <feature.icon className={`h-6 w-6 ${feature.color}`} />
+                </div>
+                <span className="text-sm font-medium">{feature.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats */}
+          <div 
+            ref={statsRef as any}
+            className={`flex flex-wrap items-center justify-center gap-6 md:gap-10 pt-8 border-t border-border/50 w-full transition-all duration-1000 delay-500 ${
+              statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-soft">
+                <Users className="h-7 w-7 text-white" />
+              </div>
+              <div className="text-2xl font-bold gradient-text">
+                {loading ? "..." : `${stats.total_masters.toLocaleString()}+`}
+              </div>
+              <div className="text-sm text-muted-foreground">Profesionales</div>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-secondary-hover flex items-center justify-center shadow-soft">
+                <Star className="h-7 w-7 text-white fill-white" />
+              </div>
+              <div className="text-2xl font-bold gradient-text">
+                {loading ? "..." : `${stats.average_rating.toFixed(1)}/5`}
+              </div>
+              <div className="text-sm text-muted-foreground">Valoración</div>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-soft">
+                <CheckCircle className="h-7 w-7 text-white" />
+              </div>
+              <div className="text-2xl font-bold gradient-text">
+                {loading ? "..." : `${stats.satisfaction_rate.toFixed(0)}%`}
+              </div>
+              <div className="text-sm text-muted-foreground">Satisfacción</div>
             </div>
           </div>
         </div>
