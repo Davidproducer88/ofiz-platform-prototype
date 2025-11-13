@@ -6,23 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface BookingPaymentRequest {
-  bookingId: string;
-  paymentMethodId?: string;
-  token?: string;
-  issuerId?: string;
-  installments?: number;
-  paymentPercentage?: number;
-  incentiveDiscount?: number;
-  payer?: {
-    email: string;
-    identification?: {
-      type: string;
-      number: string;
-    };
-  };
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -44,12 +27,23 @@ serve(async (req) => {
       throw new Error('No autenticado');
     }
 
-    const { bookingId, paymentMethodId, token, issuerId, installments, payer, paymentPercentage = 100, incentiveDiscount = 0 }: BookingPaymentRequest = await req.json();
+    const requestBody = await req.json();
+    const { 
+      bookingId, 
+      paymentMethodId, 
+      token, 
+      issuerId, 
+      installments = 1, 
+      payer,
+      paymentPercentage = 100,
+      incentiveDiscount = 0
+    } = requestBody;
     
-    console.log('Booking payment request received:', { 
+    console.log('Booking payment request:', { 
       bookingId, 
       paymentMethodId, 
       hasToken: !!token,
+      paymentPercentage,
       userId: user.id 
     });
 
@@ -57,10 +51,10 @@ serve(async (req) => {
       throw new Error('bookingId es requerido');
     }
 
-    // Get booking details
+    // Get booking
     const { data: booking, error: bookingError } = await supabaseClient
       .from('bookings')
-      .select('*')
+      .select('id, client_id, master_id, total_price')
       .eq('id', bookingId)
       .single();
 
@@ -69,52 +63,27 @@ serve(async (req) => {
       throw new Error('Reserva no encontrada');
     }
 
-    // Verify client
     if (booking.client_id !== user.id) {
-      console.error('Unauthorized access attempt:', { bookingId, userId: user.id, clientId: booking.client_id });
-      throw new Error('No autorizado para esta reserva');
+      throw new Error('No autorizado');
     }
 
-    const finalAmount = booking.total_price;
-    
-    // Calculate payment based on percentage
-    const paymentAmount = paymentPercentage === 50 ? finalAmount * 0.5 : finalAmount;
-    const remainingAmount = paymentPercentage === 50 ? finalAmount * 0.5 : 0;
-
-    if (!paymentAmount || paymentAmount <= 0) {
-      console.error('Invalid payment amount:', { bookingId, totalPrice: booking.total_price, paymentPercentage });
-      throw new Error('El monto del pago es inválido');
-    }
-
-    // Calculate commission (5%)
+    // Calculate amounts
+    const totalAmount = booking.total_price;
+    const paymentAmount = paymentPercentage === 50 ? totalAmount * 0.5 : totalAmount;
+    const remainingAmount = paymentPercentage === 50 ? totalAmount * 0.5 : 0;
     const commissionAmount = Math.round(paymentAmount * 0.05 * 100) / 100;
     const masterAmount = paymentAmount - commissionAmount;
 
-    console.log('Booking details:', {
-      bookingId: booking.id,
-      client: booking.client_id,
-      master: booking.master_id,
-      totalAmount: finalAmount,
-      paymentPercentage,
-      paymentAmount,
-      remainingAmount,
-      commissionAmount,
-      masterAmount,
-      incentiveDiscount
-    });
-
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
-    
     if (!mercadoPagoToken) {
-      console.error('MERCADO_PAGO_ACCESS_TOKEN not configured');
-      throw new Error('MercadoPago no está configurado');
+      throw new Error('MercadoPago no configurado');
     }
 
-    // Create payment using Bricks API
+    // Create payment
     const paymentData = {
       transaction_amount: paymentAmount,
-      token: token,
-      description: `Pago ${paymentPercentage}% reserva #${booking.id.substring(0, 8)}`,
+      token,
+      description: `Pago ${paymentPercentage}% #${booking.id.substring(0, 8)}`,
       installments: installments || 1,
       payment_method_id: paymentMethodId,
       issuer_id: issuerId,
@@ -123,20 +92,16 @@ serve(async (req) => {
         identification: payer?.identification,
       },
       external_reference: bookingId,
-      statement_descriptor: 'OFIZ SERVICIOS',
+      statement_descriptor: 'OFIZ',
       notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
       metadata: {
         booking_id: bookingId,
-        client_id: booking.client_id,
-        master_id: booking.master_id,
         type: 'booking',
         payment_percentage: paymentPercentage,
         remaining_amount: remainingAmount,
         incentive_discount: incentiveDiscount
       }
     };
-
-    console.log('Creating payment with Bricks API');
 
     const mpResponse = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
@@ -149,102 +114,57 @@ serve(async (req) => {
     });
 
     if (!mpResponse.ok) {
-      const errorData = await mpResponse.text();
-      console.error('Mercado Pago error:', errorData);
-      throw new Error(`Error de Mercado Pago: ${mpResponse.status} - ${errorData}`);
+      const errorText = await mpResponse.text();
+      console.error('MP error:', errorText);
+      throw new Error(`Error de pago: ${mpResponse.status}`);
     }
 
     const paymentResult = await mpResponse.json();
-    console.log('Payment created:', {
-      id: paymentResult.id,
-      status: paymentResult.status,
-      statusDetail: paymentResult.status_detail
-    });
 
-    // Create admin client for system operations
+    // Save payment
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Create or update payment record
-    const { error: paymentError } = await supabaseAdmin
-      .from('payments')
-      .insert({
-        booking_id: bookingId,
-        client_id: booking.client_id,
-        master_id: booking.master_id,
-        amount: paymentAmount,
-        commission_amount: commissionAmount,
-        master_amount: masterAmount,
-        status: paymentResult.status === 'approved' ? 'approved' : 'pending',
-        payment_method: paymentResult.payment_method_id,
-        mercadopago_payment_id: paymentResult.id.toString(),
-        payment_percentage: paymentPercentage,
-        remaining_amount: remainingAmount,
-        installments: installments || 1,
-        is_partial_payment: paymentPercentage === 50,
-        incentive_discount: incentiveDiscount,
-        metadata: {
-          mp_status: paymentResult.status,
-          mp_status_detail: paymentResult.status_detail,
-          payment_percentage: paymentPercentage
-        }
-      });
+    await supabaseAdmin.from('payments').insert({
+      booking_id: bookingId,
+      client_id: booking.client_id,
+      master_id: booking.master_id,
+      amount: paymentAmount,
+      commission_amount: commissionAmount,
+      master_amount: masterAmount,
+      status: paymentResult.status === 'approved' ? 'approved' : 'pending',
+      payment_method: paymentResult.payment_method_id,
+      mercadopago_payment_id: String(paymentResult.id),
+      payment_percentage: paymentPercentage,
+      remaining_amount: remainingAmount,
+      installments: installments || 1,
+      is_partial_payment: paymentPercentage === 50,
+      incentive_discount: incentiveDiscount,
+      metadata: { mp_status: paymentResult.status }
+    });
 
-    if (paymentError) {
-      console.error('Error creating payment:', paymentError);
-      throw paymentError;
-    }
-
-    console.log('Payment record created');
-
-    // If payment is approved, update booking status
+    // Update booking if approved
     if (paymentResult.status === 'approved') {
-      console.log('Payment approved - updating booking status...');
-
-      const { error: bookingUpdateError } = await supabaseAdmin
-        .from('bookings')
-        .update({ status: 'confirmed' })
-        .eq('id', bookingId);
-
-      if (bookingUpdateError) {
-        console.error('Error updating booking:', bookingUpdateError);
-      } else {
-        console.log('Booking status updated to confirmed');
-      }
-
-      // Create notification for client
-      await supabaseAdmin
-        .from('notifications')
-        .insert({
+      await supabaseAdmin.from('bookings').update({ status: 'confirmed' }).eq('id', bookingId);
+      
+      await supabaseAdmin.from('notifications').insert([
+        {
           user_id: booking.client_id,
           type: 'payment_confirmed',
           title: '✅ Pago confirmado',
-          message: `Tu pago de $${paymentAmount.toLocaleString()} (${paymentPercentage}%) fue aprobado${paymentPercentage === 50 ? '. Pagarás el 50% restante al completar el servicio.' : ''}`,
-          metadata: {
-            booking_id: bookingId,
-            payment_id: paymentResult.id.toString(),
-            amount: paymentAmount,
-            payment_percentage: paymentPercentage,
-            remaining_amount: remainingAmount
-          }
-        });
-
-      // Create notification for master
-      await supabaseAdmin
-        .from('notifications')
-        .insert({
+          message: `Pago de $${paymentAmount.toLocaleString()} (${paymentPercentage}%) aprobado`,
+          metadata: { booking_id: bookingId, amount: paymentAmount }
+        },
+        {
           user_id: booking.master_id,
           type: 'booking_confirmed',
-          title: '💰 Nueva reserva confirmada',
-          message: `Tienes una nueva reserva confirmada por $${masterAmount.toLocaleString()}`,
-          metadata: {
-            booking_id: bookingId,
-            payment_id: paymentResult.id.toString(),
-            amount: masterAmount
-          }
-        });
+          title: '💰 Nueva reserva',
+          message: `Reserva confirmada por $${masterAmount.toLocaleString()}`,
+          metadata: { booking_id: bookingId, amount: masterAmount }
+        }
+      ]);
     }
 
     return new Response(
@@ -252,22 +172,16 @@ serve(async (req) => {
         paymentId: paymentResult.id,
         status: paymentResult.status,
         statusDetail: paymentResult.status_detail,
-        bookingId: booking.id,
+        bookingId
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
 
   } catch (error) {
-    console.error('Error in create-booking-payment:', error);
+    console.error('Error:', error);
     return new Response(
       JSON.stringify({ error: error.message || 'Error desconocido' }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
     );
   }
 });
