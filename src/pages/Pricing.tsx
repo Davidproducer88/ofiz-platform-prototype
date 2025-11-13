@@ -18,7 +18,7 @@ export default function Pricing() {
     },
     {
       title: "Comisión por servicio",
-      price: "12%",
+      price: "5%",
       description: "Solo cobramos una comisión cuando el servicio se completa exitosamente"
     },
     {
@@ -39,7 +39,7 @@ export default function Pricing() {
         { text: "5 postulaciones por mes", included: true },
         { text: "Perfil básico", included: true },
         { text: "Chat con clientes", included: true },
-        { text: "Comisión del 12%", included: true },
+        { text: "Comisión del 5%", included: true },
         { text: "Verificación premium", included: false },
         { text: "Destacado en búsquedas", included: false },
         { text: "Estadísticas avanzadas", included: false }
@@ -56,7 +56,7 @@ export default function Pricing() {
       features: [
         { text: "20 postulaciones mensuales", included: true },
         { text: "Perfil mejorado", included: true },
-        { text: "Comisión del 12%", included: true },
+        { text: "Comisión del 5%", included: true },
         { text: "Visibilidad aumentada", included: true },
         { text: "Notificaciones en tiempo real", included: true },
         { text: "Soporte estándar", included: true },
@@ -75,7 +75,7 @@ export default function Pricing() {
       features: [
         { text: "50 postulaciones mensuales", included: true },
         { text: "Perfil destacado", included: true },
-        { text: "Comisión reducida al 8%", included: true },
+        { text: "Comisión del 5%", included: true },
         { text: "Aparece primero en búsquedas", included: true },
         { text: "Estadísticas avanzadas", included: true },
         { text: "Calendario integrado", included: true },

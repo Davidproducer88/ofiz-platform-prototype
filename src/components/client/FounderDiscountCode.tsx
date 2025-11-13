@@ -40,22 +40,22 @@ export const FounderDiscountCode = () => {
 
       // Obtener código de descuento
       const { data: codeData, error: codeError } = await supabase
-        .from("founder_discount_codes")
+        .from("founder_discount_codes" as any)
         .select("*")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .maybeSingle() as any;
 
       if (codeError) throw codeError;
-      setCode(codeData);
+      setCode(codeData as any);
 
       // Obtener historial de uso
-      if (codeData) {
+      if (codeData?.id) {
         const { data: usageData, error: usageError } = await supabase
-          .from("founder_code_usage")
+          .from("founder_code_usage" as any)
           .select("*")
           .eq("code_id", codeData.id)
           .order("created_at", { ascending: false })
-          .limit(10);
+          .limit(10) as any;
 
         if (usageError) throw usageError;
         setUsageHistory(usageData || []);

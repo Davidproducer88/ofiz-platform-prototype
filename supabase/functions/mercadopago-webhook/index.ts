@@ -506,7 +506,7 @@ serve(async (req) => {
                 payment_id: payment.id,
                 master_id: payment.master_id,
                 amount: payment.commission_amount,
-                percentage: 12.00,
+                percentage: 5.00,
                 status: 'pending',
               });
           }

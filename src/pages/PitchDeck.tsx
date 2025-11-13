@@ -229,9 +229,9 @@ export default function PitchDeck() {
                     <div className="grid md:grid-cols-2 gap-6">
                       <Card className="p-6">
                         <h5 className="font-bold mb-3">1️⃣ Comisión Transacciones</h5>
-                        <p className="text-2xl font-bold text-primary mb-2">12%</p>
+                        <p className="text-2xl font-bold text-primary mb-2">5%</p>
                         <p className="text-sm text-muted-foreground">
-                          Sobre valor del servicio. Ejemplo: Servicio $3,000 → Cliente paga $3,360
+                          Sobre valor del servicio. Ejemplo: Servicio $3,000 → Cliente paga $3,150
                         </p>
                       </Card>
                       <Card className="p-6">
@@ -250,7 +250,7 @@ export default function PitchDeck() {
                       </Card>
                       <Card className="p-6">
                         <h5 className="font-bold mb-3">4️⃣ Marketplace</h5>
-                        <p className="text-2xl font-bold text-primary mb-2">7%</p>
+                        <p className="text-2xl font-bold text-primary mb-2">5%</p>
                         <p className="text-sm text-muted-foreground">
                           Comisión sobre ventas de herramientas y materiales
                         </p>
@@ -442,10 +442,10 @@ export default function PitchDeck() {
                 <div>
                   <h3 className="text-xl font-bold mb-3">💰 Modelo de Negocio</h3>
                   <ul>
-                    <li>12% comisión por transacción</li>
+                    <li>5% comisión por transacción</li>
                     <li>Suscripciones profesionales: $0 - $999/mes</li>
                     <li>Suscripciones empresas: $4,500 - $15,000/mes</li>
-                    <li>Marketplace: 7% comisión</li>
+                    <li>Marketplace: 5% comisión</li>
                     <li>Publicidad y patrocinios</li>
                   </ul>
                 </div>
