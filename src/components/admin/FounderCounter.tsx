@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Users, Download } from "lucide-react";
 import { FounderBadge } from "@/components/FounderBadge";
+import { toast } from "@/hooks/use-toast";
 
 const TOTAL_FOUNDER_SLOTS = 1000;
 
@@ -57,14 +59,122 @@ export const FounderCounter = () => {
   const isAlmostFull = remainingSlots <= 100;
   const isCritical = remainingSlots <= 50;
 
+  const handleExportFounders = async () => {
+    try {
+      toast({
+        title: "Exportando datos",
+        description: "Generando archivo CSV...",
+      });
+
+      // Obtener todos los usuarios fundadores
+      const { data: founders, error } = await supabase
+        .from("profiles")
+        .select(`
+          id,
+          full_name,
+          email:id(email),
+          phone,
+          city,
+          user_type,
+          is_founder,
+          founder_registered_at,
+          founder_discount_percentage,
+          created_at,
+          login_provider
+        `)
+        .eq("is_founder", true)
+        .order("founder_registered_at", { ascending: true });
+
+      if (error) throw error;
+
+      // Obtener emails de auth.users
+      const foundersWithEmails = await Promise.all(
+        (founders || []).map(async (founder) => {
+          const { data: userData } = await supabase.auth.admin.getUserById(founder.id);
+          return {
+            ...founder,
+            email: userData?.user?.email || "N/A",
+          };
+        })
+      );
+
+      // Crear CSV
+      const headers = [
+        "Nombre Completo",
+        "Email",
+        "Teléfono",
+        "Ciudad",
+        "Tipo Usuario",
+        "Descuento (%)",
+        "Fecha Registro Fundador",
+        "Fecha Registro General",
+        "Proveedor Login",
+      ];
+
+      const csvRows = [headers.join(",")];
+
+      foundersWithEmails.forEach((founder) => {
+        const row = [
+          `"${founder.full_name || "N/A"}"`,
+          `"${founder.email}"`,
+          `"${founder.phone || "N/A"}"`,
+          `"${founder.city || "N/A"}"`,
+          `"${founder.user_type}"`,
+          `"${founder.founder_discount_percentage || 0}%"`,
+          `"${founder.founder_registered_at ? new Date(founder.founder_registered_at).toLocaleDateString("es-UY") : "N/A"}"`,
+          `"${new Date(founder.created_at).toLocaleDateString("es-UY")}"`,
+          `"${founder.login_provider || "email"}"`,
+        ];
+        csvRows.push(row.join(","));
+      });
+
+      const csvContent = csvRows.join("\n");
+
+      // Descargar archivo
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `usuarios_fundadores_${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Exportación exitosa",
+        description: `Se exportaron ${foundersWithEmails.length} usuarios fundadores`,
+      });
+    } catch (error) {
+      console.error("Error exporting founders:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al exportar",
+        description: "No se pudo generar el archivo CSV",
+      });
+    }
+  };
+
   return (
     <Card className="overflow-hidden border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-background">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500 animate-pulse" />
-          Programa de Fundadores
-          <FounderBadge showTooltip={false} className="ml-auto" />
-        </CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500 animate-pulse" />
+            Programa de Fundadores
+            <FounderBadge showTooltip={false} className="hidden sm:inline-flex" />
+          </CardTitle>
+          <Button
+            onClick={handleExportFounders}
+            variant="outline"
+            size="sm"
+            className="border-amber-500/30 hover:bg-amber-500/10"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Exportar CSV</span>
+            <span className="sm:hidden">CSV</span>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Contador principal */}
