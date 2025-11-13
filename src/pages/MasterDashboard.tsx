@@ -49,6 +49,7 @@ import { WorkCalendar } from '@/components/master/WorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 import { EscrowPayments } from '@/components/master/EscrowPayments';
+import { MyDisputes } from '@/components/MyDisputes';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
 import { MarketplaceFeed } from '@/components/MarketplaceFeed';
@@ -713,7 +714,7 @@ const MasterDashboard = () => {
         </div>
 
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-17 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-19 gap-1 h-auto p-1">
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
             <TabsTrigger value="services" className="text-xs sm:text-sm">Servicios</TabsTrigger>
@@ -721,6 +722,7 @@ const MasterDashboard = () => {
             <TabsTrigger value="bookings" className="text-xs sm:text-sm">Reservas</TabsTrigger>
             <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reseñas</TabsTrigger>
             <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
+            <TabsTrigger value="disputes" className="text-xs sm:text-sm">Disputas</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs sm:text-sm">Mensajes</TabsTrigger>
             <TabsTrigger value="subscription" className="text-xs sm:text-sm">Plan</TabsTrigger>
             <TabsTrigger value="finances" className="text-xs sm:text-sm">Finanzas</TabsTrigger>
@@ -1168,6 +1170,11 @@ const MasterDashboard = () => {
                 <MasterPortfolio masterId={profile?.id || ''} isOwner={true} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Disputes Tab */}
+          <TabsContent value="disputes">
+            <MyDisputes userId={profile?.id || ''} />
           </TabsContent>
 
           {/* Messages Tab */}

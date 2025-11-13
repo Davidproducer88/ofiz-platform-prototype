@@ -46,6 +46,7 @@ import { PaymentHistory } from '@/components/client/PaymentHistory';
 import { ClientCalendar } from '@/components/client/ClientCalendar';
 import { MyReviews } from '@/components/client/MyReviews';
 import { AddressBook } from '@/components/client/AddressBook';
+import { MyDisputes } from '@/components/MyDisputes';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
@@ -436,7 +437,7 @@ const ClientDashboard = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-12 min-w-max md:min-w-0">
+            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-13 min-w-max md:min-w-0">
               <TabsTrigger value="feed" className="text-xs md:text-sm whitespace-nowrap">Feed</TabsTrigger>
               <TabsTrigger value="marketplace" className="text-xs md:text-sm whitespace-nowrap">Marketplace</TabsTrigger>
               <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Servicios</TabsTrigger>
@@ -446,6 +447,7 @@ const ClientDashboard = () => {
               <TabsTrigger value="calendar" className="text-xs md:text-sm whitespace-nowrap">Calendario</TabsTrigger>
               <TabsTrigger value="payments" className="text-xs md:text-sm whitespace-nowrap">Pagos</TabsTrigger>
               <TabsTrigger value="reviews" className="text-xs md:text-sm whitespace-nowrap">Reseñas</TabsTrigger>
+              <TabsTrigger value="disputes" className="text-xs md:text-sm whitespace-nowrap">Disputas</TabsTrigger>
               <TabsTrigger value="addresses" className="text-xs md:text-sm whitespace-nowrap">Direcciones</TabsTrigger>
               <TabsTrigger value="referrals" className="text-xs md:text-sm whitespace-nowrap">Referidos</TabsTrigger>
               <TabsTrigger value="chat" className="text-xs md:text-sm whitespace-nowrap">Mensajes</TabsTrigger>
@@ -718,6 +720,11 @@ const ClientDashboard = () => {
           {/* Reviews Tab */}
           <TabsContent value="reviews">
             <MyReviews />
+          </TabsContent>
+
+          {/* Disputes Tab */}
+          <TabsContent value="disputes">
+            <MyDisputes userId={profile?.id || ''} />
           </TabsContent>
 
           {/* Addresses Tab */}

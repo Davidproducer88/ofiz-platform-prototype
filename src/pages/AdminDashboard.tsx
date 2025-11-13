@@ -15,6 +15,7 @@ import { ReviewsTableEnhanced } from "@/components/admin/ReviewsTableEnhanced";
 import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab";
 import { TransactionsTable } from "@/components/admin/TransactionsTable";
 import { RankingsTable } from "@/components/admin/RankingsTable";
+import { DisputesManagement } from "@/components/admin/DisputesManagement";
 import { Feed } from "@/components/Feed";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
@@ -486,12 +487,13 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-9">
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
+            <TabsTrigger value="disputes">Disputas</TabsTrigger>
             <TabsTrigger value="transactions">Transacciones</TabsTrigger>
             <TabsTrigger value="rankings">Rankings</TabsTrigger>
             <TabsTrigger value="financial">Financiero</TabsTrigger>
@@ -555,6 +557,10 @@ const AdminDashboard = () => {
                 <ReviewsTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="disputes">
+            <DisputesManagement />
           </TabsContent>
 
           <TabsContent value="transactions">

@@ -1,4 +1,4 @@
-import { MessageSquare, Star, Calendar, CreditCard, CheckCircle, DollarSign } from 'lucide-react';
+import { MessageSquare, Star, Calendar, CreditCard, CheckCircle, DollarSign, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { ChatWindow } from '@/components/ChatWindow';
@@ -6,6 +6,7 @@ import { useChat } from '@/hooks/useChat';
 import { toast } from '@/hooks/use-toast';
 import { PaymentButton } from '@/components/PaymentButton';
 import { RemainingPaymentDialog } from '@/components/RemainingPaymentDialog';
+import { DisputeDialog } from '@/components/DisputeDialog';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BookingActionsProps {
@@ -43,12 +44,15 @@ export const BookingActions = ({
   const [hasPayment, setHasPayment] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<any>(null);
   const [remainingPaymentOpen, setRemainingPaymentOpen] = useState(false);
+  const [disputeOpen, setDisputeOpen] = useState(false);
+  const [hasDispute, setHasDispute] = useState(false);
   const { getOrCreateConversation } = useChat();
 
-  // Verificar si existe un pago para esta reserva
+  // Verificar si existe un pago y disputas para esta reserva
   useEffect(() => {
-    const checkPayment = async () => {
-      const { data } = await supabase
+    const checkPaymentAndDisputes = async () => {
+      // Check payment
+      const { data: paymentData } = await supabase
         .from('payments')
         .select('id, payment_percentage, remaining_amount, is_partial_payment, status')
         .eq('booking_id', booking.id)
@@ -56,10 +60,21 @@ export const BookingActions = ({
         .limit(1)
         .single();
       
-      setHasPayment(!!data);
-      setPaymentInfo(data);
+      setHasPayment(!!paymentData);
+      setPaymentInfo(paymentData);
+
+      // Check disputes
+      const { data: disputeData } = await supabase
+        .from('disputes')
+        .select('id')
+        .eq('booking_id', booking.id)
+        .eq('status', 'open')
+        .maybeSingle();
+      
+      setHasDispute(!!disputeData);
     };
-    checkPayment();
+    
+    checkPaymentAndDisputes();
   }, [booking.id]);
 
   const handleOpenChat = async () => {
@@ -141,6 +156,7 @@ export const BookingActions = ({
   const showPaymentRemaining = booking.status === 'completed' && userType === 'client' && hasPayment && paymentInfo?.is_partial_payment && paymentInfo?.remaining_amount > 0;
   const showConfirmCompletion = booking.status === 'completed' && userType === 'client' && !booking.client_confirmed_at && hasPayment;
   const showReleaseEscrow = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment && (!paymentInfo?.is_partial_payment || paymentInfo?.remaining_amount === 0);
+  const showDispute = ['completed', 'in_progress'].includes(booking.status) && hasPayment && !hasDispute && !booking.client_confirmed_at;
 
   return (
     <>
@@ -220,6 +236,18 @@ export const BookingActions = ({
           </Button>
         )}
 
+        {showDispute && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDisputeOpen(true)}
+            className="flex-1 sm:flex-none border-orange-600 text-orange-600 hover:bg-orange-50"
+          >
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Abrir Disputa
+          </Button>
+        )}
+
         {showReschedule && onReschedule && (
           <Button
             variant="outline"
@@ -256,6 +284,18 @@ export const BookingActions = ({
           }}
         />
       )}
+
+      <DisputeDialog
+        open={disputeOpen}
+        onOpenChange={setDisputeOpen}
+        bookingId={booking.id}
+        bookingTitle={booking.services?.title}
+        userRole={userType}
+        onSuccess={() => {
+          setHasDispute(true);
+          if (onUpdate) onUpdate();
+        }}
+      />
     </>
   );
 };

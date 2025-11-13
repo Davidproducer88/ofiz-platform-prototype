@@ -509,6 +509,78 @@ export type Database = {
           },
         ]
       }
+      disputes: {
+        Row: {
+          admin_notes: string | null
+          booking_id: string
+          created_at: string
+          description: string
+          evidence_urls: Json | null
+          id: string
+          opened_by: string
+          opened_by_role: string
+          payment_id: string | null
+          reason: string
+          resolution: string | null
+          resolution_type: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          booking_id: string
+          created_at?: string
+          description: string
+          evidence_urls?: Json | null
+          id?: string
+          opened_by: string
+          opened_by_role: string
+          payment_id?: string | null
+          reason: string
+          resolution?: string | null
+          resolution_type?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          booking_id?: string
+          created_at?: string
+          description?: string
+          evidence_urls?: Json | null
+          id?: string
+          opened_by?: string
+          opened_by_role?: string
+          payment_id?: string | null
+          reason?: string
+          resolution?: string | null
+          resolution_type?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorite_masters: {
         Row: {
           client_id: string
