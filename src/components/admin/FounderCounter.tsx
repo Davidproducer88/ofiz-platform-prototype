@@ -66,13 +66,12 @@ export const FounderCounter = () => {
         description: "Generando archivo CSV...",
       });
 
-      // Obtener todos los usuarios fundadores
+      // Obtener todos los usuarios fundadores con sus emails
       const { data: founders, error } = await supabase
         .from("profiles")
         .select(`
           id,
           full_name,
-          email:id(email),
           phone,
           city,
           user_type,
@@ -87,21 +86,10 @@ export const FounderCounter = () => {
 
       if (error) throw error;
 
-      // Obtener emails de auth.users
-      const foundersWithEmails = await Promise.all(
-        (founders || []).map(async (founder) => {
-          const { data: userData } = await supabase.auth.admin.getUserById(founder.id);
-          return {
-            ...founder,
-            email: userData?.user?.email || "N/A",
-          };
-        })
-      );
-
-      // Crear CSV
+      // Crear CSV (sin emails por seguridad - los admins pueden verlos en el dashboard)
       const headers = [
+        "ID",
         "Nombre Completo",
-        "Email",
         "Teléfono",
         "Ciudad",
         "Tipo Usuario",
@@ -113,10 +101,10 @@ export const FounderCounter = () => {
 
       const csvRows = [headers.join(",")];
 
-      foundersWithEmails.forEach((founder) => {
+      (founders || []).forEach((founder) => {
         const row = [
+          `"${founder.id}"`,
           `"${founder.full_name || "N/A"}"`,
-          `"${founder.email}"`,
           `"${founder.phone || "N/A"}"`,
           `"${founder.city || "N/A"}"`,
           `"${founder.user_type}"`,
@@ -143,7 +131,7 @@ export const FounderCounter = () => {
 
       toast({
         title: "Exportación exitosa",
-        description: `Se exportaron ${foundersWithEmails.length} usuarios fundadores`,
+        description: `Se exportaron ${(founders || []).length} usuarios fundadores`,
       });
     } catch (error) {
       console.error("Error exporting founders:", error);
