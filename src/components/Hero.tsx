@@ -57,75 +57,16 @@ export const Hero = () => {
           <div className={`space-y-6 transition-all duration-1000 ${
             heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            <div className="space-y-6">
-              <Badge className="bg-gradient-hero text-white border-0 px-4 py-1.5 text-sm font-medium shadow-elegant animate-scale-in">
-                <Sparkles className="h-3.5 w-3.5 mr-1.5 inline" />
-                La plataforma #1 de servicios profesionales
-              </Badge>
-              
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
-                ¿Necesitás un <span className="gradient-text">profesional de confianza</span>?
-                <br className="hidden sm:block" />
-                Encontralo en minutos con Ofiz
-              </h1>
-              
-              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl">
-                <span className="text-foreground font-semibold">Electricistas, plomeros, pintores y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
-              </p>
-            </div>
-
-            {/* Quick Search Bar */}
-            <form onSubmit={handleSearch} className="relative max-w-2xl">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Buscar electricista, plomero, pintor..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-12 text-base shadow-soft border-border/50 focus:border-primary"
-                  />
-                </div>
-                <Button 
-                  type="submit"
-                  size="lg"
-                  className="h-12 px-6 shadow-soft"
-                >
-                  Buscar
-                </Button>
-              </div>
-            </form>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
-                size="lg" 
-                className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
-                onClick={handleServiceClick}
-              >
-                🔍 Buscar Profesional Ahora
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="group border-2 hover:bg-primary/10 text-sm sm:text-base w-full sm:w-auto"
-                onClick={handleProfessionalClick}
-              >
-                Soy Profesional
-                <Wrench className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:rotate-12" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="secondary" 
-                className="group hover:bg-secondary/80 text-sm sm:text-base w-full sm:w-auto"
-                onClick={handleBusinessClick}
-              >
-                Para Empresas
-                <Building2 className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
-              </Button>
-            </div>
+            <Badge className="bg-gradient-hero text-white border-0 px-4 py-1.5 text-sm font-medium shadow-elegant animate-scale-in">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 inline" />
+              La plataforma #1 de servicios profesionales
+            </Badge>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
+              ¿Necesitás un <span className="gradient-text">profesional de confianza</span>?
+              <br className="hidden sm:block" />
+              Encontralo en minutos con Ofiz
+            </h1>
           </div>
 
           {/* Right Content - Enhanced Images - Now visible on tablets too */}
@@ -184,8 +125,72 @@ export const Hero = () => {
           </div>
         </div>
 
+        {/* CTA Section - Centered Below Hero */}
+        <div 
+          className={`flex flex-col items-center justify-center text-center mt-10 md:mt-16 mb-10 max-w-3xl mx-auto space-y-6 transition-all duration-1000 delay-300 ${
+            heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4">
+            <span className="text-foreground font-semibold">Electricistas, plomeros, pintores y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
+          </p>
+
+          {/* Quick Search Bar */}
+          <form onSubmit={handleSearch} className="relative w-full max-w-2xl px-4">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Buscar electricista, plomero, pintor..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-12 text-base shadow-soft border-border/50 focus:border-primary"
+                />
+              </div>
+              <Button 
+                type="submit"
+                size="lg"
+                className="h-12 px-6 shadow-soft"
+              >
+                Buscar
+              </Button>
+            </div>
+          </form>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 px-4 w-full sm:w-auto justify-center">
+            <Button 
+              size="lg" 
+              className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+              onClick={handleServiceClick}
+            >
+              🔍 Buscar Profesional Ahora
+              <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="group border-2 hover:bg-primary/10 text-sm sm:text-base w-full sm:w-auto"
+              onClick={handleProfessionalClick}
+            >
+              Soy Profesional
+              <Wrench className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:rotate-12" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="group hover:bg-secondary/80 text-sm sm:text-base w-full sm:w-auto"
+              onClick={handleBusinessClick}
+            >
+              Para Empresas
+              <Building2 className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
+            </Button>
+          </div>
+        </div>
+
         {/* Features & Stats Section - Centered Below */}
-        <div className="flex flex-col items-center justify-center text-center mt-16 md:mt-24 max-w-4xl mx-auto space-y-8">
+        <div className="flex flex-col items-center justify-center text-center mt-8 md:mt-12 max-w-4xl mx-auto space-y-8">
           {/* Enhanced Features */}
           <div 
             className={`grid sm:grid-cols-3 gap-4 w-full transition-all duration-1000 delay-300 ${
