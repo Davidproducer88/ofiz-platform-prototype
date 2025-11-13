@@ -28,7 +28,16 @@ import {
   Megaphone,
   Eye,
   MousePointerClick,
-  Play
+  Play,
+  Search,
+  Filter,
+  MapPin,
+  Heart,
+  MessageCircle,
+  Share2,
+  ShoppingCart,
+  Truck,
+  CreditCard
 } from 'lucide-react';
 import { 
   demoMasters, 
@@ -53,7 +62,7 @@ interface DemoModalProps {
 
 export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
   const [activeView, setActiveView] = useState<'client' | 'master' | 'business' | 'admin'>('client');
-  const [activeClientTab, setActiveClientTab] = useState('bookings');
+  const [activeClientTab, setActiveClientTab] = useState('feed');
   const [activeBusinessTab, setActiveBusinessTab] = useState('subscriptions');
 
   const handleTabChange = (tab: string) => {
@@ -169,11 +178,159 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
                   </div>
 
                   <Tabs value={activeClientTab} onValueChange={setActiveClientTab}>
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-5">
+                      <TabsTrigger value="feed">Feed</TabsTrigger>
+                      <TabsTrigger value="search">Buscar</TabsTrigger>
                       <TabsTrigger value="bookings">Reservas</TabsTrigger>
                       <TabsTrigger value="masters">Profesionales</TabsTrigger>
                       <TabsTrigger value="messages">Mensajes</TabsTrigger>
                     </TabsList>
+
+                    <TabsContent value="feed" className="space-y-3 mt-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Badge variant="secondary">Feed Social</Badge>
+                        <span className="text-xs text-muted-foreground">Contenido personalizado según tus preferencias</span>
+                      </div>
+                      {[
+                        { type: 'request', title: 'Solicitud de Plomería Urgente', author: 'María González', category: 'Plomería', time: '15 min', likes: 23, comments: 5 },
+                        { type: 'master', title: 'Carlos Rodríguez - Electricista', subtitle: 'Instalaciones eléctricas certificadas', rating: 4.9, reviews: 127, price: 'desde $1,500/hr' },
+                        { type: 'sponsored', title: 'Oferta Especial - Pintura de Casas', company: 'PintaFácil', discount: '20% OFF', badge: 'Patrocinado' },
+                        { type: 'request', title: 'Busco Jardinero para Mantenimiento', author: 'Pedro Martínez', category: 'Jardinería', time: '1 hora', likes: 8, comments: 3 },
+                      ].map((item, i) => (
+                        <Card key={i} className="hover:shadow-md transition-shadow">
+                          <CardContent className="pt-4">
+                            {item.type === 'request' && (
+                              <>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex gap-3 flex-1">
+                                    <Avatar className="h-10 w-10">
+                                      <AvatarFallback>{item.author![0]}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <h4 className="font-semibold text-sm">{item.author}</h4>
+                                        <Badge variant="outline" className="text-xs">{item.category}</Badge>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">{item.time}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <p className="text-sm mb-3">{item.title}</p>
+                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                  <button className="flex items-center gap-1 hover:text-primary">
+                                    <Heart className="h-3 w-3" />
+                                    {item.likes}
+                                  </button>
+                                  <button className="flex items-center gap-1 hover:text-primary">
+                                    <MessageCircle className="h-3 w-3" />
+                                    {item.comments}
+                                  </button>
+                                  <button className="flex items-center gap-1 hover:text-primary">
+                                    <Share2 className="h-3 w-3" />
+                                    Compartir
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                            {item.type === 'master' && (
+                              <div className="flex items-start gap-3">
+                                <Avatar className="h-12 w-12">
+                                  <AvatarFallback>CR</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-sm">{item.title}</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">{item.subtitle}</p>
+                                  <div className="flex items-center gap-3 text-xs">
+                                    <div className="flex items-center gap-1">
+                                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                      <span className="font-semibold">{item.rating}</span>
+                                      <span className="text-muted-foreground">({item.reviews})</span>
+                                    </div>
+                                    <Badge variant="secondary">{item.price}</Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {item.type === 'sponsored' && (
+                              <>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div>
+                                    <Badge variant="default" className="mb-2">{item.badge}</Badge>
+                                    <h4 className="font-semibold">{item.title}</h4>
+                                    <p className="text-xs text-muted-foreground">{item.company}</p>
+                                  </div>
+                                  <Badge variant="secondary" className="text-success">{item.discount}</Badge>
+                                </div>
+                                <Button size="sm" className="w-full mt-2">Ver Oferta</Button>
+                              </>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </TabsContent>
+
+                    <TabsContent value="search" className="space-y-4 mt-4">
+                      <Card>
+                        <CardContent className="pt-4">
+                          <div className="flex gap-2 mb-4">
+                            <div className="relative flex-1">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <input 
+                                type="text" 
+                                placeholder="Buscar profesionales..."
+                                className="w-full pl-10 pr-4 py-2 border rounded-md"
+                                defaultValue="Electricista"
+                              />
+                            </div>
+                            <Button variant="outline" size="icon">
+                              <Filter className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge variant="secondary">Montevideo</Badge>
+                            <Badge variant="secondary">Verificados</Badge>
+                            <Badge variant="secondary">4+ estrellas</Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <div className="space-y-3">
+                        {demoMasters.slice(0, 3).map((master) => (
+                          <Card key={master.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="pt-4">
+                              <div className="flex items-start gap-3">
+                                <Avatar className="h-14 w-14">
+                                  <AvatarImage src={master.avatar_url} />
+                                  <AvatarFallback>{master.full_name[0]}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="font-semibold">{master.full_name}</h4>
+                                    {master.is_verified && <CheckCircle className="h-4 w-4 text-primary" />}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground mb-2">{master.business_name}</p>
+                                  <div className="flex items-center gap-3 text-sm mb-2">
+                                    <div className="flex items-center gap-1">
+                                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                      <span className="font-semibold">{master.rating}</span>
+                                      <span className="text-muted-foreground text-xs">({master.total_reviews || 0} reseñas)</span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                      <MapPin className="h-3 w-3" />
+                                      <span className="text-xs">{master.city}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button size="sm" variant="default">Ver Perfil</Button>
+                                    <Button size="sm" variant="outline">Contactar</Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </TabsContent>
 
                     <TabsContent value="bookings" className="space-y-3 mt-4">
                       {demoBookings.slice(0, 3).map((booking) => (
@@ -284,7 +441,7 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
                 </div>
               )}
 
-              {/* Business View - Simplified */}
+              {/* Business View - Enhanced */}
               {activeView === 'business' && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-4 gap-3">
@@ -294,23 +451,135 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
                     <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{demoAdvertisements.length}</div><p className="text-xs">Anuncios</p></CardContent></Card>
                   </div>
 
-                  <Card>
-                    <CardHeader><CardTitle className="text-sm">Suscripciones Activas</CardTitle></CardHeader>
-                    <CardContent className="space-y-2">
+                  <Tabs value={activeBusinessTab} onValueChange={setActiveBusinessTab}>
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
+                      <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
+                      <TabsTrigger value="contracts">Contratos</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="subscriptions" className="space-y-3 mt-4">
                       {demoBusinesses.slice(0, 2).map((business, index) => {
                         const subscription = demoBusinessSubscriptions[index];
                         return (
-                          <div key={business.id} className="flex items-center justify-between text-sm">
-                            <div>
-                              <p className="font-semibold">{business.company_name}</p>
-                              <p className="text-xs text-muted-foreground">Plan {subscription.plan_type}</p>
-                            </div>
-                            <Badge>{formatCurrency(subscription.price)}/mes</Badge>
-                          </div>
+                          <Card key={business.id}>
+                            <CardContent className="pt-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <div>
+                                  <h4 className="font-semibold">{business.company_name}</h4>
+                                  <p className="text-xs text-muted-foreground">Plan {subscription.plan_type}</p>
+                                </div>
+                                <Badge variant="default">Activo</Badge>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Precio mensual</span>
+                                <span className="font-bold">{formatCurrency(subscription.price)}</span>
+                              </div>
+                            </CardContent>
+                          </Card>
                         );
                       })}
-                    </CardContent>
-                  </Card>
+                    </TabsContent>
+
+                    <TabsContent value="marketplace" className="space-y-3 mt-4">
+                      <Card className="bg-gradient-to-br from-primary/5 to-secondary/5">
+                        <CardContent className="pt-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-lg">Mi Tienda</h4>
+                              <p className="text-xs text-muted-foreground">Gestiona tus productos y pedidos</p>
+                            </div>
+                            <ShoppingCart className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 mt-4">
+                            <div>
+                              <div className="text-2xl font-bold">{demoMarketplaceProducts.length}</div>
+                              <p className="text-xs text-muted-foreground">Productos</p>
+                            </div>
+                            <div>
+                              <div className="text-2xl font-bold">{demoMarketplaceOrders.length}</div>
+                              <p className="text-xs text-muted-foreground">Ventas</p>
+                            </div>
+                            <div>
+                              <div className="text-2xl font-bold">{formatCurrency(demoMarketplaceOrders.reduce((sum, order) => sum + (order.unit_price * order.quantity), 0))}</div>
+                              <p className="text-xs text-muted-foreground">Ingresos</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-sm">Productos Activos</h4>
+                        {demoMarketplaceProducts.slice(0, 3).map((product) => (
+                          <Card key={product.id}>
+                            <CardContent className="pt-4">
+                              <div className="flex gap-3">
+                                <div className="w-16 h-16 bg-secondary rounded-md flex items-center justify-center">
+                                  <Package className="h-8 w-8 text-muted-foreground" />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="font-semibold text-sm">{product.title}</h5>
+                                  <p className="text-xs text-muted-foreground line-clamp-1">{product.description}</p>
+                                  <div className="flex items-center gap-3 mt-2">
+                                    <Badge variant="secondary">{formatCurrency(product.price)}</Badge>
+                                    <span className="text-xs text-muted-foreground">Stock: {product.stock_quantity}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-sm">Pedidos Recientes</h4>
+                        {demoMarketplaceOrders.slice(0, 2).map((order) => (
+                          <Card key={order.id}>
+                            <CardContent className="pt-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <div>
+                                  <h5 className="font-semibold text-sm">Pedido #{order.order_number}</h5>
+                                  <p className="text-xs text-muted-foreground">{order.quantity} unidades</p>
+                                </div>
+                                <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
+                                  {order.status === 'pending' ? 'Pendiente' : order.status === 'processing' ? 'Procesando' : 'Completado'}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <Truck className="h-3 w-3" />
+                                  <span className="text-xs">Envío estándar</span>
+                                </div>
+                                <span className="font-bold">{formatCurrency(order.unit_price * order.quantity)}</span>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="contracts" className="space-y-3 mt-4">
+                      {demoBusinessContracts.slice(0, 2).map((contract) => (
+                        <Card key={contract.id}>
+                          <CardContent className="pt-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <h4 className="font-semibold text-sm">{contract.title}</h4>
+                                <p className="text-xs text-muted-foreground">{contract.description}</p>
+                              </div>
+                              <Badge variant={contract.status === 'active' ? 'default' : 'secondary'}>
+                                {contract.status === 'active' ? 'Activo' : contract.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center justify-between text-sm mt-2">
+                              <span className="text-muted-foreground">Presupuesto</span>
+                              <span className="font-bold">{formatCurrency(contract.budget_min)} - {formatCurrency(contract.budget_max)}</span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </TabsContent>
+                  </Tabs>
                 </div>
               )}
 
