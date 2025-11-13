@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, User, Bell, Settings, LogOut, Menu, ChevronDown } from "lucide-react";
+import { Search, User, Bell, Settings, LogOut, Menu, ChevronDown, PlayCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -324,6 +324,18 @@ export const Header = ({
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
+
+              {/* Demo Link in Mobile */}
+              <button 
+                onClick={() => {
+                  navigate('/demo');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-lg font-medium text-primary hover:text-primary/80 transition-smooth text-left flex items-center gap-2"
+              >
+                <PlayCircle className="h-5 w-5" />
+                Ver Demo Interactivo
+              </button>
 
               {/* Dashboard links for logged in users */}
               {userType === 'master' && <button onClick={() => {

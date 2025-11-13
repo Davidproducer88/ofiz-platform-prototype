@@ -33,6 +33,7 @@ import { DossierMaestros } from "./pages/DossierMaestros";
 import { DossierEmpresas } from "./pages/DossierEmpresas";
 import PitchDeck from "./pages/PitchDeck";
 import Sitemap from "./pages/Sitemap";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -159,6 +160,7 @@ const AppContent = () => {
       <Route path="/dossier-maestros" element={<DossierMaestros />} />
       <Route path="/dossier-empresas" element={<DossierEmpresas />} />
       <Route path="/pitch-deck" element={<PitchDeck />} />
+      <Route path="/demo" element={<Demo />} />
       <Route path="/sitemap" element={<Sitemap />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
