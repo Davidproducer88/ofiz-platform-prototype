@@ -1275,12 +1275,18 @@ export type Database = {
           created_at: string
           escrow_released_at: string | null
           id: string
+          incentive_discount: number | null
+          installments: number | null
+          is_partial_payment: boolean | null
           master_amount: number
           master_id: string
           mercadopago_payment_id: string | null
           mercadopago_preference_id: string | null
           metadata: Json | null
           payment_method: string | null
+          payment_percentage: number | null
+          remaining_amount: number | null
+          remaining_payment_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
         }
@@ -1292,12 +1298,18 @@ export type Database = {
           created_at?: string
           escrow_released_at?: string | null
           id?: string
+          incentive_discount?: number | null
+          installments?: number | null
+          is_partial_payment?: boolean | null
           master_amount: number
           master_id: string
           mercadopago_payment_id?: string | null
           mercadopago_preference_id?: string | null
           metadata?: Json | null
           payment_method?: string | null
+          payment_percentage?: number | null
+          remaining_amount?: number | null
+          remaining_payment_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -1309,12 +1321,18 @@ export type Database = {
           created_at?: string
           escrow_released_at?: string | null
           id?: string
+          incentive_discount?: number | null
+          installments?: number | null
+          is_partial_payment?: boolean | null
           master_amount?: number
           master_id?: string
           mercadopago_payment_id?: string | null
           mercadopago_preference_id?: string | null
           metadata?: Json | null
           payment_method?: string | null
+          payment_percentage?: number | null
+          remaining_amount?: number | null
+          remaining_payment_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
         }
@@ -1324,6 +1342,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_remaining_payment_id_fkey"
+            columns: ["remaining_payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
             referencedColumns: ["id"]
           },
         ]

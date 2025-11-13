@@ -5,11 +5,22 @@ import { supabase } from '@/integrations/supabase/client';
 interface BookingCheckoutBrickProps {
   amount: number;
   bookingId: string;
+  paymentPercentage?: number;
+  maxInstallments?: number;
+  incentiveDiscount?: number;
   onSuccess: (paymentData: any) => void;
   onError: (error: any) => void;
 }
 
-export const BookingCheckoutBrick = ({ amount, bookingId, onSuccess, onError }: BookingCheckoutBrickProps) => {
+export const BookingCheckoutBrick = ({ 
+  amount, 
+  bookingId, 
+  paymentPercentage = 100,
+  maxInstallments = 6,
+  incentiveDiscount = 0,
+  onSuccess, 
+  onError 
+}: BookingCheckoutBrickProps) => {
   const brickRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -110,7 +121,7 @@ export const BookingCheckoutBrick = ({ amount, bookingId, onSuccess, onError }: 
             paymentMethods: {
               creditCard: 'all',
               debitCard: 'all',
-              maxInstallments: 12,
+              maxInstallments: maxInstallments,
             },
           },
           callbacks: {
@@ -166,7 +177,9 @@ export const BookingCheckoutBrick = ({ amount, bookingId, onSuccess, onError }: 
                       token,
                       issuerId,
                       installments,
-                      payer
+                      payer,
+                      paymentPercentage,
+                      incentiveDiscount,
                     }
                   });
 

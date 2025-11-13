@@ -8,12 +8,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Gift, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Gift, AlertCircle, CheckCircle2, Zap, Shield, CreditCard, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BookingCheckoutBrick } from "./BookingCheckoutBrick";
+import { cn } from "@/lib/utils";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -40,9 +44,12 @@ export const PaymentDialog = ({
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentOption, setPaymentOption] = useState<'100' | '50'>('100');
 
-  const finalAmount = Math.max(0, amount - availableCredits);
-  const discount = amount - finalAmount;
+  // Incentivo: 5% descuento por pago 100%
+  const fullPaymentDiscount = paymentOption === '100' ? amount * 0.05 : 0;
+  const finalAmount = Math.max(0, (paymentOption === '100' ? amount - fullPaymentDiscount : amount * 0.5) - availableCredits);
+  const discount = (paymentOption === '100' ? amount - fullPaymentDiscount : amount * 0.5) - finalAmount;
 
   const handleStartPayment = async () => {
     if (!profile?.id) {
@@ -89,8 +96,9 @@ export const PaymentDialog = ({
 
       // Si el pago se cubre 100% con créditos
       if (finalAmount === 0) {
-        const commissionAmount = amount * 0.05;
-        const masterAmount = amount - commissionAmount;
+        const paymentAmount = paymentOption === '100' ? amount - fullPaymentDiscount : amount * 0.5;
+        const commissionAmount = paymentAmount * 0.05;
+        const masterAmount = paymentAmount - commissionAmount;
 
         const { error: paymentError } = await supabase
           .from('payments')
@@ -98,14 +106,19 @@ export const PaymentDialog = ({
             booking_id: bookingId,
             client_id: booking.client_id,
             master_id: booking.master_id,
-            amount: amount,
+            amount: paymentAmount,
             commission_amount: commissionAmount,
             master_amount: masterAmount,
             status: 'approved',
             payment_method: 'credits',
+            payment_percentage: paymentOption === '100' ? 100 : 50,
+            remaining_amount: paymentOption === '50' ? amount * 0.5 : 0,
+            is_partial_payment: paymentOption === '50',
+            incentive_discount: fullPaymentDiscount,
             metadata: {
               paid_with_credits: true,
-              credits_used: availableCredits
+              credits_used: availableCredits,
+              payment_option: paymentOption
             }
           });
 
@@ -188,12 +201,128 @@ export const PaymentDialog = ({
 
         {!showPaymentForm ? (
           <div className="space-y-4 py-4">
+            {/* Opciones de Pago */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">Selecciona tu modalidad de pago:</h4>
+              
+              <RadioGroup value={paymentOption} onValueChange={(value: '100' | '50') => setPaymentOption(value)}>
+                {/* Opción 100% - CON DESCUENTO */}
+                <div className="relative">
+                  <Label
+                    htmlFor="option-100"
+                    className={cn(
+                      "flex flex-col gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
+                      paymentOption === '100' ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="100" id="option-100" />
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold">Pago Total (100%)</span>
+                            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+                              <TrendingDown className="h-3 w-3 mr-1" />
+                              5% OFF
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Paga el monto completo ahora y obtén descuento
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pl-9 space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Zap className="h-4 w-4 text-secondary" />
+                        <span>Confirmación inmediata</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Shield className="h-4 w-4 text-secondary" />
+                        <span>Fondos retenidos hasta completar servicio</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CreditCard className="h-4 w-4 text-secondary" />
+                        <span className="font-semibold text-secondary">Hasta 6 cuotas sin interés</span>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground line-through">${amount.toLocaleString()}</span>
+                          <span className="text-lg font-bold text-secondary">${(amount - fullPaymentDiscount).toLocaleString()}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Ahorras ${fullPaymentDiscount.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </Label>
+                </div>
+
+                {/* Opción 50% - SIN DESCUENTO */}
+                <div className="relative">
+                  <Label
+                    htmlFor="option-50"
+                    className={cn(
+                      "flex flex-col gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
+                      paymentOption === '50' ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="50" id="option-50" />
+                        <div className="flex flex-col gap-1">
+                          <span className="font-bold">Pago Parcial (50%)</span>
+                          <p className="text-sm text-muted-foreground">
+                            Paga la mitad ahora, el resto al completar
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pl-9 space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Shield className="h-4 w-4 text-muted-foreground" />
+                        <span>Fondos retenidos hasta completar servicio</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        <span>Hasta 3 cuotas por pago</span>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Ahora:</span>
+                          <span className="text-lg font-bold">${(amount * 0.5).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-sm text-muted-foreground">Al completar:</span>
+                          <span className="text-sm text-muted-foreground">${(amount * 0.5).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <Separator />
+
             {/* Detalle del pago */}
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Monto del servicio:</span>
+                <span className="text-muted-foreground">Monto base:</span>
                 <span className="font-medium">${amount.toLocaleString()}</span>
               </div>
+
+              {paymentOption === '100' && fullPaymentDiscount > 0 && (
+                <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <TrendingDown className="h-4 w-4 text-secondary" />
+                    <span className="text-sm font-medium">Descuento pago total (5%):</span>
+                  </div>
+                  <span className="text-sm font-bold text-secondary">
+                    -${fullPaymentDiscount.toLocaleString()}
+                  </span>
+                </div>
+              )}
 
               {availableCredits > 0 && (
                 <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
@@ -210,11 +339,20 @@ export const PaymentDialog = ({
               <Separator />
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-bold">Total a pagar:</span>
+                <span className="text-lg font-bold">Total a pagar ahora:</span>
                 <span className="text-2xl font-bold text-primary">
                   ${finalAmount.toLocaleString()}
                 </span>
               </div>
+
+              {paymentOption === '50' && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    Pagarás ${(amount * 0.5).toLocaleString()} adicionales al finalizar el servicio
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {error && (
@@ -266,6 +404,9 @@ export const PaymentDialog = ({
             <BookingCheckoutBrick
               amount={finalAmount}
               bookingId={bookingId}
+              paymentPercentage={paymentOption === '100' ? 100 : 50}
+              maxInstallments={paymentOption === '100' ? 6 : 3}
+              incentiveDiscount={fullPaymentDiscount}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />

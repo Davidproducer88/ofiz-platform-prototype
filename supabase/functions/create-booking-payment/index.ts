@@ -12,6 +12,8 @@ interface BookingPaymentRequest {
   token?: string;
   issuerId?: string;
   installments?: number;
+  paymentPercentage?: number;
+  incentiveDiscount?: number;
   payer?: {
     email: string;
     identification?: {
@@ -42,7 +44,7 @@ serve(async (req) => {
       throw new Error('No autenticado');
     }
 
-    const { bookingId, paymentMethodId, token, issuerId, installments, payer }: BookingPaymentRequest = await req.json();
+    const { bookingId, paymentMethodId, token, issuerId, installments, payer, paymentPercentage = 100, incentiveDiscount = 0 }: BookingPaymentRequest = await req.json();
     
     console.log('Booking payment request received:', { 
       bookingId, 
@@ -74,23 +76,31 @@ serve(async (req) => {
     }
 
     const finalAmount = booking.total_price;
+    
+    // Calculate payment based on percentage
+    const paymentAmount = paymentPercentage === 50 ? finalAmount * 0.5 : finalAmount;
+    const remainingAmount = paymentPercentage === 50 ? finalAmount * 0.5 : 0;
 
-    if (!finalAmount || finalAmount <= 0) {
-      console.error('Invalid booking amount:', { bookingId, totalPrice: booking.total_price });
-      throw new Error('El monto de la reserva es inválido');
+    if (!paymentAmount || paymentAmount <= 0) {
+      console.error('Invalid payment amount:', { bookingId, totalPrice: booking.total_price, paymentPercentage });
+      throw new Error('El monto del pago es inválido');
     }
 
     // Calculate commission (5%)
-    const commissionAmount = Math.round(finalAmount * 0.05 * 100) / 100;
-    const masterAmount = finalAmount - commissionAmount;
+    const commissionAmount = Math.round(paymentAmount * 0.05 * 100) / 100;
+    const masterAmount = paymentAmount - commissionAmount;
 
     console.log('Booking details:', {
       bookingId: booking.id,
       client: booking.client_id,
       master: booking.master_id,
       totalAmount: finalAmount,
+      paymentPercentage,
+      paymentAmount,
+      remainingAmount,
       commissionAmount,
-      masterAmount
+      masterAmount,
+      incentiveDiscount
     });
 
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
@@ -102,9 +112,9 @@ serve(async (req) => {
 
     // Create payment using Bricks API
     const paymentData = {
-      transaction_amount: finalAmount,
+      transaction_amount: paymentAmount,
       token: token,
-      description: `Pago reserva #${booking.id.substring(0, 8)}`,
+      description: `Pago ${paymentPercentage}% reserva #${booking.id.substring(0, 8)}`,
       installments: installments || 1,
       payment_method_id: paymentMethodId,
       issuer_id: issuerId,
@@ -119,7 +129,10 @@ serve(async (req) => {
         booking_id: bookingId,
         client_id: booking.client_id,
         master_id: booking.master_id,
-        type: 'booking'
+        type: 'booking',
+        payment_percentage: paymentPercentage,
+        remaining_amount: remainingAmount,
+        incentive_discount: incentiveDiscount
       }
     };
 
@@ -161,15 +174,21 @@ serve(async (req) => {
         booking_id: bookingId,
         client_id: booking.client_id,
         master_id: booking.master_id,
-        amount: finalAmount,
+        amount: paymentAmount,
         commission_amount: commissionAmount,
         master_amount: masterAmount,
         status: paymentResult.status === 'approved' ? 'approved' : 'pending',
         payment_method: paymentResult.payment_method_id,
         mercadopago_payment_id: paymentResult.id.toString(),
+        payment_percentage: paymentPercentage,
+        remaining_amount: remainingAmount,
+        installments: installments || 1,
+        is_partial_payment: paymentPercentage === 50,
+        incentive_discount: incentiveDiscount,
         metadata: {
           mp_status: paymentResult.status,
-          mp_status_detail: paymentResult.status_detail
+          mp_status_detail: paymentResult.status_detail,
+          payment_percentage: paymentPercentage
         }
       });
 
@@ -202,11 +221,13 @@ serve(async (req) => {
           user_id: booking.client_id,
           type: 'payment_confirmed',
           title: '✅ Pago confirmado',
-          message: `Tu pago de $${finalAmount.toLocaleString()} fue aprobado`,
+          message: `Tu pago de $${paymentAmount.toLocaleString()} (${paymentPercentage}%) fue aprobado${paymentPercentage === 50 ? '. Pagarás el 50% restante al completar el servicio.' : ''}`,
           metadata: {
             booking_id: bookingId,
             payment_id: paymentResult.id.toString(),
-            amount: finalAmount
+            amount: paymentAmount,
+            payment_percentage: paymentPercentage,
+            remaining_amount: remainingAmount
           }
         });
 
