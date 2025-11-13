@@ -26,7 +26,8 @@ import {
   Eye,
   MousePointerClick,
   CreditCard,
-  TrendingDown
+  TrendingDown,
+  Play
 } from 'lucide-react';
 import { 
   demoMasters, 
@@ -46,6 +47,7 @@ import { useNavigate } from 'react-router-dom';
 import { FounderBadge } from '@/components/FounderBadge';
 import { DemoModeIndicator } from '@/components/DemoModeIndicator';
 import { DemoTour } from '@/components/DemoTour';
+import { DemoWorkflow } from '@/components/DemoWorkflow';
 
 const Demo = () => {
   const navigate = useNavigate();
@@ -110,8 +112,10 @@ const Demo = () => {
             <Button
               variant={activeView === 'client' ? 'default' : 'outline'}
               onClick={() => setActiveView('client')}
+              className="gap-2"
             >
-              Vista Cliente
+              <Play className="h-4 w-4" />
+              Demo Completa (Flujo)
             </Button>
             <Button
               variant={activeView === 'master' ? 'default' : 'outline'}
@@ -135,8 +139,13 @@ const Demo = () => {
           </div>
         </div>
 
-        {/* Client View */}
+        {/* Workflow Demo - Complete Flow */}
         {activeView === 'client' && (
+          <DemoWorkflow />
+        )}
+
+        {/* Master View - Keep existing */}
+        {activeView === 'master' && (
           <div className="space-y-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
