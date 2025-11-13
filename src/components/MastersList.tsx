@@ -9,6 +9,7 @@ import { Star, MapPin, CheckCircle, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { MasterProfile } from "@/components/MasterProfile";
+import { createClient } from '@supabase/supabase-js'
 
 interface SearchFilters {
   priceRange: [number, number];
@@ -66,6 +67,7 @@ export const MastersList = ({
 
   useEffect(() => {
     fetchMasters();
+    searchMasters();
   }, [searchQuery, filters, sortBy, userLocation]);
 
   const fetchMasters = async () => {
@@ -102,22 +104,25 @@ export const MastersList = ({
 
       if (filters.priceRange) {
         query = query
-          .gte("hourly_rate", filters.priceRange[0])
+          .gte("hourly_rate", filters.priceRange[0])  
           .lte("hourly_rate", filters.priceRange[1]);
       }
 
       // Text search
       if (searchQuery) {
         query = query.or(
-          `business_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,profiles.full_name.ilike.%${searchQuery}%`
+          `business_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
         );
       }
 
-      const { data, error } = await query;
+      // const { data, error } = await query;
+      const { data, error } = await supabase.functions.invoke('search-master', {
+      body: { name: 'david' },
+    })
 
       if (error) throw error;
       
-      let mastersWithDistance = (data || []) as Master[];
+      let mastersWithDistance = JSON.parse(data) as Master[]
 
       // Calcular distancias si hay ubicación del usuario
       if (userLocation && mastersWithDistance.length > 0) {
@@ -211,6 +216,13 @@ export const MastersList = ({
       setLoading(false);
     }
   };
+  const searchMasters = async () => {
+    const { data, error } = await supabase.functions.invoke('search-master', {
+      body: { name: 'david' },
+    })
+    const results: Master[] = await data;
+    console.log(results)
+  }
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
@@ -264,7 +276,7 @@ export const MastersList = ({
             {/* Header con Avatar */}
             <div className="p-6 flex flex-col items-center text-center border-b bg-gradient-to-b from-muted/30 to-background">
               <Avatar className="h-20 w-20 mb-4 ring-2 ring-primary/20">
-                <AvatarImage src={master.profiles.avatar_url} alt={master.business_name} />
+                <AvatarImage src={master.profiles?.avatar_url} alt={master.business_name} />
                 <AvatarFallback className="bg-gradient-to-br from-primary to-primary/50 text-primary-foreground text-2xl">
                   {master.business_name?.[0] || master.profiles.full_name?.[0]}
                 </AvatarFallback>
@@ -274,7 +286,7 @@ export const MastersList = ({
               
               <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
                 <MapPin className="h-4 w-4" />
-                <span>{master.profiles.city}</span>
+                <span>{master.profiles?.city}</span>
               </div>
             </div>
 
