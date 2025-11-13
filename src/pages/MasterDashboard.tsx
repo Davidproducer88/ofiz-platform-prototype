@@ -48,6 +48,7 @@ import { AvailableContracts } from '@/components/master/AvailableContracts';
 import { WorkCalendar } from '@/components/master/WorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
+import { EscrowPayments } from '@/components/master/EscrowPayments';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
 import { MarketplaceFeed } from '@/components/MarketplaceFeed';
@@ -728,6 +729,7 @@ const MasterDashboard = () => {
             <TabsTrigger value="contracts" className="text-xs sm:text-sm">Contratos</TabsTrigger>
             <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendario</TabsTrigger>
             <TabsTrigger value="notifications" className="text-xs sm:text-sm">Alertas</TabsTrigger>
+            <TabsTrigger value="escrow" className="text-xs sm:text-sm">Escrow</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs sm:text-sm">Transacciones</TabsTrigger>
             <TabsTrigger value="withdrawals" className="text-xs sm:text-sm">Retiros</TabsTrigger>
             <TabsTrigger value="profile" className="text-xs sm:text-sm">Perfil</TabsTrigger>
@@ -1457,6 +1459,11 @@ const MasterDashboard = () => {
           {/* Notifications Tab */}
           <TabsContent value="notifications" className="space-y-6">
             <MasterNotifications />
+          </TabsContent>
+
+          {/* Escrow Payments Tab */}
+          <TabsContent value="escrow" className="space-y-6">
+            <EscrowPayments masterId={profile?.id || ''} />
           </TabsContent>
 
           {/* Payments/Transactions Tab */}

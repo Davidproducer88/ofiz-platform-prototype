@@ -1,10 +1,11 @@
-import { MessageSquare, Star, Calendar, CreditCard, CheckCircle } from 'lucide-react';
+import { MessageSquare, Star, Calendar, CreditCard, CheckCircle, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { ChatWindow } from '@/components/ChatWindow';
 import { useChat } from '@/hooks/useChat';
 import { toast } from '@/hooks/use-toast';
 import { PaymentButton } from '@/components/PaymentButton';
+import { RemainingPaymentDialog } from '@/components/RemainingPaymentDialog';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BookingActionsProps {
@@ -40,6 +41,8 @@ export const BookingActions = ({
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [releasing, setReleasing] = useState(false);
   const [hasPayment, setHasPayment] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState<any>(null);
+  const [remainingPaymentOpen, setRemainingPaymentOpen] = useState(false);
   const { getOrCreateConversation } = useChat();
 
   // Verificar si existe un pago para esta reserva
@@ -47,10 +50,14 @@ export const BookingActions = ({
     const checkPayment = async () => {
       const { data } = await supabase
         .from('payments')
-        .select('id')
+        .select('id, payment_percentage, remaining_amount, is_partial_payment, status')
         .eq('booking_id', booking.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
+      
       setHasPayment(!!data);
+      setPaymentInfo(data);
     };
     checkPayment();
   }, [booking.id]);
@@ -128,12 +135,12 @@ export const BookingActions = ({
   };
 
   const showChat = booking.status !== 'cancelled';
-  const showReview = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment;
+  const showReview = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment && paymentInfo?.remaining_amount === 0;
   const showReschedule = ['pending', 'confirmed'].includes(booking.status);
   const showPaymentInitial = booking.status === 'pending' && userType === 'client' && !hasPayment;
-  const showPaymentFinal = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && !hasPayment;
-  const showConfirmCompletion = booking.status === 'completed' && userType === 'client' && !booking.client_confirmed_at;
-  const showReleaseEscrow = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment;
+  const showPaymentRemaining = booking.status === 'completed' && userType === 'client' && hasPayment && paymentInfo?.is_partial_payment && paymentInfo?.remaining_amount > 0;
+  const showConfirmCompletion = booking.status === 'completed' && userType === 'client' && !booking.client_confirmed_at && hasPayment;
+  const showReleaseEscrow = booking.status === 'completed' && userType === 'client' && booking.client_confirmed_at && hasPayment && (!paymentInfo?.is_partial_payment || paymentInfo?.remaining_amount === 0);
 
   return (
     <>
@@ -151,17 +158,16 @@ export const BookingActions = ({
           />
         )}
 
-        {showPaymentFinal && (
-          <PaymentButton
-            bookingId={booking.id}
-            amount={booking.total_price}
-            title={`Pago Final - ${booking.services?.title || 'Servicio'}`}
-            description={`Pago por trabajo completado el ${new Date(booking.scheduled_date).toLocaleDateString('es-AR')}`}
-            onSuccess={() => {
-              setHasPayment(true);
-              if (onUpdate) onUpdate();
-            }}
-          />
+        {showPaymentRemaining && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setRemainingPaymentOpen(true)}
+            className="flex-1 sm:flex-none"
+          >
+            <DollarSign className="h-4 w-4 mr-2" />
+            Pagar Saldo (50% restante)
+          </Button>
         )}
         
         {showChat && (
@@ -234,6 +240,20 @@ export const BookingActions = ({
           bookingTitle={booking.services?.title}
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
+        />
+      )}
+
+      {paymentInfo?.is_partial_payment && paymentInfo?.remaining_amount > 0 && (
+        <RemainingPaymentDialog
+          open={remainingPaymentOpen}
+          onOpenChange={setRemainingPaymentOpen}
+          bookingId={booking.id}
+          remainingAmount={paymentInfo.remaining_amount}
+          title={`Pago del Saldo - ${booking.services?.title || 'Servicio'}`}
+          description={`Completa el pago del 50% restante por el servicio del ${new Date(booking.scheduled_date).toLocaleDateString('es-UY')}`}
+          onSuccess={() => {
+            if (onUpdate) onUpdate();
+          }}
         />
       )}
     </>
