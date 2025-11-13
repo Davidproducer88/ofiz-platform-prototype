@@ -45,10 +45,21 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { FounderBadge } from '@/components/FounderBadge';
 import { DemoModeIndicator } from '@/components/DemoModeIndicator';
+import { DemoTour } from '@/components/DemoTour';
 
 const Demo = () => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<'client' | 'master' | 'business' | 'admin'>('client');
+  const [activeClientTab, setActiveClientTab] = useState('bookings');
+  const [activeBusinessTab, setActiveBusinessTab] = useState('subscriptions');
+
+  const handleTabChange = (tab: string) => {
+    if (activeView === 'client') {
+      setActiveClientTab(tab);
+    } else if (activeView === 'business') {
+      setActiveBusinessTab(tab);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-UY', {
@@ -180,7 +191,7 @@ const Demo = () => {
               </Card>
             </div>
 
-            <Tabs defaultValue="bookings" className="w-full">
+            <Tabs value={activeClientTab} onValueChange={setActiveClientTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="bookings">Mis Reservas</TabsTrigger>
                 <TabsTrigger value="masters">Profesionales</TabsTrigger>
@@ -461,7 +472,7 @@ const Demo = () => {
               </Card>
             </div>
 
-            <Tabs defaultValue="subscriptions" className="w-full">
+            <Tabs value={activeBusinessTab} onValueChange={setActiveBusinessTab} className="w-full">
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
                 <TabsTrigger value="contracts">Contratos</TabsTrigger>
@@ -865,6 +876,12 @@ const Demo = () => {
           </div>
         )}
       </div>
+
+      {/* Tour Guiado Interactivo */}
+      <DemoTour 
+        onViewChange={setActiveView} 
+        onTabChange={handleTabChange}
+      />
     </div>
   );
 };
