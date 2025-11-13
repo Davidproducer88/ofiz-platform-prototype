@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -1197,6 +1197,7 @@ const MasterDashboard = () => {
                     <div className="flex items-center space-x-4">
                       <div className="relative">
                         <Avatar className="h-20 w-20">
+                          <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
                           <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                             {profile?.full_name?.charAt(0) || 'M'}
                           </AvatarFallback>
