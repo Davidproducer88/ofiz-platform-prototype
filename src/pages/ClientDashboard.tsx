@@ -47,6 +47,7 @@ import { ClientCalendar } from '@/components/client/ClientCalendar';
 import { MyReviews } from '@/components/client/MyReviews';
 import { AddressBook } from '@/components/client/AddressBook';
 import { MyDisputes } from '@/components/MyDisputes';
+import { FounderDiscountCode } from '@/components/client/FounderDiscountCode';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
@@ -449,6 +450,11 @@ const ClientDashboard = () => {
               <TabsTrigger value="reviews" className="text-xs md:text-sm whitespace-nowrap">Reseñas</TabsTrigger>
               <TabsTrigger value="disputes" className="text-xs md:text-sm whitespace-nowrap">Disputas</TabsTrigger>
               <TabsTrigger value="addresses" className="text-xs md:text-sm whitespace-nowrap">Direcciones</TabsTrigger>
+              {profile?.is_founder && (
+                <TabsTrigger value="founder" className="text-xs md:text-sm whitespace-nowrap flex items-center gap-1">
+                  ✨ Fundador
+                </TabsTrigger>
+              )}
               <TabsTrigger value="referrals" className="text-xs md:text-sm whitespace-nowrap">Referidos</TabsTrigger>
               <TabsTrigger value="chat" className="text-xs md:text-sm whitespace-nowrap">Mensajes</TabsTrigger>
               <TabsTrigger value="notifications" className="text-xs md:text-sm whitespace-nowrap">Notificaciones</TabsTrigger>
@@ -736,6 +742,13 @@ const ClientDashboard = () => {
           <TabsContent value="chat">
             <ChatTab />
           </TabsContent>
+
+          {/* Founder Code Tab */}
+          {profile?.is_founder && (
+            <TabsContent value="founder">
+              <FounderDiscountCode />
+            </TabsContent>
+          )}
 
           {/* Referrals Tab */}
           <TabsContent value="referrals">
