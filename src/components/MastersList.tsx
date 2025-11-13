@@ -19,6 +19,8 @@ interface SearchFilters {
   maxDistance?: number;
 }
 
+export type SortOption = 'relevance' | 'price_asc' | 'price_desc' | 'rating' | 'distance';
+
 interface Master {
   id: string;
   business_name: string;
@@ -45,13 +47,15 @@ interface Master {
 interface MastersListProps {
   searchQuery: string;
   filters: SearchFilters;
+  sortBy?: SortOption;
   userLocation?: { lat: number; lng: number } | null;
   onMastersChange?: (masters: Master[]) => void;
 }
 
 export const MastersList = ({ 
   searchQuery, 
-  filters, 
+  filters,
+  sortBy = 'relevance',
   userLocation,
   onMastersChange 
 }: MastersListProps) => {
@@ -62,7 +66,7 @@ export const MastersList = ({
 
   useEffect(() => {
     fetchMasters();
-  }, [searchQuery, filters, userLocation]);
+  }, [searchQuery, filters, sortBy, userLocation]);
 
   const fetchMasters = async () => {
     try {
@@ -143,12 +147,57 @@ export const MastersList = ({
           );
         }
 
-        // Ordenar por distancia
-        mastersWithDistance.sort((a, b) => {
-          if (a.distance === undefined) return 1;
-          if (b.distance === undefined) return -1;
-          return a.distance - b.distance;
-        });
+        // Ordenar según criterio seleccionado
+        switch (sortBy) {
+          case 'distance':
+            mastersWithDistance.sort((a, b) => {
+              if (a.distance === undefined) return 1;
+              if (b.distance === undefined) return -1;
+              return a.distance - b.distance;
+            });
+            break;
+          case 'rating':
+            mastersWithDistance.sort((a, b) => b.rating - a.rating);
+            break;
+          case 'price_asc':
+            mastersWithDistance.sort((a, b) => (a.hourly_rate || 0) - (b.hourly_rate || 0));
+            break;
+          case 'price_desc':
+            mastersWithDistance.sort((a, b) => (b.hourly_rate || 0) - (a.hourly_rate || 0));
+            break;
+          case 'relevance':
+          default:
+            // Ordenar por relevancia: verificados primero, luego por rating
+            mastersWithDistance.sort((a, b) => {
+              if (a.is_verified !== b.is_verified) {
+                return a.is_verified ? -1 : 1;
+              }
+              return b.rating - a.rating;
+            });
+            break;
+        }
+      } else {
+        // Si no hay ubicación, ordenar según criterio (sin distancia)
+        switch (sortBy) {
+          case 'rating':
+            mastersWithDistance.sort((a, b) => b.rating - a.rating);
+            break;
+          case 'price_asc':
+            mastersWithDistance.sort((a, b) => (a.hourly_rate || 0) - (b.hourly_rate || 0));
+            break;
+          case 'price_desc':
+            mastersWithDistance.sort((a, b) => (b.hourly_rate || 0) - (a.hourly_rate || 0));
+            break;
+          case 'relevance':
+          default:
+            mastersWithDistance.sort((a, b) => {
+              if (a.is_verified !== b.is_verified) {
+                return a.is_verified ? -1 : 1;
+              }
+              return b.rating - a.rating;
+            });
+            break;
+        }
       }
 
       setMasters(mastersWithDistance);
