@@ -56,3 +56,6 @@ verify_jwt = true
 [functions.send-founder-welcome-email]
 verify_jwt = true
 
+[functions.filter-chat-message]
+verify_jwt = true
+

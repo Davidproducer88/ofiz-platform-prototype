@@ -13,6 +13,9 @@ export interface Message {
   attachment_type?: string;
   created_at: string;
   sender_name?: string;
+  blocked?: boolean;
+  censored?: boolean;
+  block_reason?: string;
 }
 
 export interface Conversation {
@@ -147,23 +150,69 @@ export const useChat = (conversationId?: string) => {
     }
   };
 
-  // Enviar mensaje
+  // Enviar mensaje con filtrado de seguridad
   const sendMessage = async (content: string, attachmentUrl?: string, attachmentType?: string) => {
     if (!conversationId || !profile?.id || !content.trim()) return;
 
     setSending(true);
     try {
+      // Filtrar mensaje antes de enviarlo
+      const { data: filterResult, error: filterError } = await supabase.functions.invoke('filter-chat-message', {
+        body: {
+          content: content.trim(),
+          conversationId,
+          senderId: profile.id
+        }
+      });
+
+      if (filterError) {
+        console.error('Filter error:', filterError);
+        toast({
+          title: 'Advertencia',
+          description: 'No se pudo verificar el mensaje completamente',
+          variant: 'destructive'
+        });
+      }
+
+      // Si el mensaje fue bloqueado
+      if (filterResult && !filterResult.allowed) {
+        toast({
+          title: '⛔ Mensaje Bloqueado',
+          description: filterResult.block_reason || 'Este mensaje contiene información no permitida',
+          variant: 'destructive'
+        });
+        setSending(false);
+        return;
+      }
+
+      // Usar contenido censurado si fue modificado
+      const finalContent = filterResult?.censored ? filterResult.content : content.trim();
+      const isCensored = filterResult?.censored || false;
+      const isBlocked = filterResult?.blocked || false;
+
+      // Insertar mensaje en la base de datos
       const { error } = await supabase
         .from('messages')
         .insert({
           conversation_id: conversationId,
           sender_id: profile.id,
-          content: content.trim(),
+          content: finalContent,
           attachment_url: attachmentUrl,
-          attachment_type: attachmentType
+          attachment_type: attachmentType,
+          blocked: isBlocked,
+          censored: isCensored,
+          block_reason: filterResult?.block_reason
         });
 
       if (error) throw error;
+
+      if (isCensored) {
+        toast({
+          title: '⚠️ Mensaje Modificado',
+          description: 'Parte de tu mensaje fue censurada por contener información no permitida',
+          variant: 'default'
+        });
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
