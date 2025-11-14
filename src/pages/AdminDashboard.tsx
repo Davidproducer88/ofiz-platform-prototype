@@ -16,6 +16,7 @@ import { FinancialDashboardTab } from "@/components/admin/FinancialDashboardTab"
 import { TransactionsTable } from "@/components/admin/TransactionsTable";
 import { RankingsTable } from "@/components/admin/RankingsTable";
 import { DisputesManagement } from "@/components/admin/DisputesManagement";
+import { SecurityViolationsTable } from "@/components/admin/SecurityViolationsTable";
 import { Feed } from "@/components/Feed";
 import { FounderCounter } from "@/components/admin/FounderCounter";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
@@ -493,7 +494,7 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-10">
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
@@ -503,6 +504,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="transactions">Transacciones</TabsTrigger>
             <TabsTrigger value="rankings">Rankings</TabsTrigger>
             <TabsTrigger value="financial">Financiero</TabsTrigger>
+            <TabsTrigger value="security">Seguridad</TabsTrigger>
           </TabsList>
 
           <TabsContent value="feed">
@@ -589,6 +591,10 @@ const AdminDashboard = () => {
                 <FinancialDashboardTab />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="security">
+            <SecurityViolationsTable />
           </TabsContent>
         </Tabs>
       </div>

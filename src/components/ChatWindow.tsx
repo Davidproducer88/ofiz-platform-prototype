@@ -236,6 +236,11 @@ export const ChatWindow = ({
                             : 'bg-muted'
                         }`}
                       >
+                        {message.censored && (
+                          <div className="text-xs mb-2 px-2 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded flex items-center gap-1">
+                            ⚠️ Contenido censurado
+                          </div>
+                        )}
                         <p className="text-sm whitespace-pre-wrap break-words">
                           {message.content}
                         </p>
