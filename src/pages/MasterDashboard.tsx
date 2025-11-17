@@ -33,7 +33,15 @@ import {
   BarChart3,
   FileText,
   Download,
-  Sparkles
+  Sparkles,
+  Briefcase,
+  MessageSquare,
+  Package,
+  CreditCard,
+  TrendingDown,
+  User,
+  Home,
+  ShoppingBag
 } from 'lucide-react';
 import { ServiceRequestsList } from '@/components/ServiceRequestsList';
 import { ApplicationDialog } from '@/components/ApplicationDialog';
@@ -53,6 +61,8 @@ import { MyDisputes } from '@/components/MyDisputes';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
 import { MarketplaceFeed } from '@/components/MarketplaceFeed';
+import { useMasterDashboard } from '@/hooks/useMasterDashboard';
+import { DashboardStats } from '@/components/master/DashboardStats';
 
 interface Service {
   id: string;
@@ -109,11 +119,19 @@ interface MasterProfile {
 
 const MasterDashboard = () => {
   const { profile, refreshProfile } = useAuth();
-  const [services, setServices] = useState<Service[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [masterProfile, setMasterProfile] = useState<MasterProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    services,
+    bookings,
+    reviews,
+    masterProfile,
+    loading,
+    stats,
+    refetch,
+    setServices,
+    setBookings,
+    setMasterProfile
+  } = useMasterDashboard(profile?.id);
+  
   const [showServiceDialog, setShowServiceDialog] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
@@ -167,156 +185,6 @@ const MasterDashboard = () => {
     };
     fetchUserEmail();
   }, []);
-
-  useEffect(() => {
-    if (profile?.id) {
-      fetchMasterData();
-    } else {
-      // If there's no profile yet, avoid infinite loading and show onboarding UI below
-      setLoading(false);
-    }
-  }, [profile]);
-
-  useEffect(() => {
-    if (profile && masterProfile) {
-      setProfileForm({
-        full_name: profile.full_name || '',
-        phone: profile.phone || '',
-        city: profile.city || '',
-        address: profile.address || '',
-        business_name: masterProfile.business_name || '',
-        experience_years: masterProfile.experience_years?.toString() || '',
-        hourly_rate: masterProfile.hourly_rate?.toString() || '',
-        description: masterProfile.description || ''
-      });
-    }
-  }, [profile, masterProfile]);
-
-  const fetchMasterData = async () => {
-    try {
-      await Promise.all([
-        fetchMasterProfile(),
-        fetchServices(),
-        fetchBookings(),
-        fetchReviews()
-      ]);
-    } catch (error) {
-      console.error('Error fetching master data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchMasterProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('masters')
-        .select('*')
-        .eq('id', profile?.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      
-      // If no master profile exists, create one
-      if (!data && profile?.id) {
-        const { data: newMasterData, error: createError } = await supabase
-          .from('masters')
-          .insert({
-            id: profile.id,
-            business_name: `${profile.full_name} - Servicios`
-          })
-          .select()
-          .maybeSingle();
-        
-        if (createError) {
-          console.error('Error creating master profile:', createError);
-        } else {
-          setMasterProfile(newMasterData);
-        }
-      } else {
-        setMasterProfile(data);
-      }
-    } catch (error) {
-      console.error('Error fetching master profile:', error);
-    }
-  };
-
-  const fetchServices = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('master_id', profile?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setServices(data || []);
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los servicios",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const fetchBookings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          services (title, category),
-          profiles (full_name, phone)
-        `)
-        .eq('master_id', profile?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBookings(data || []);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar las reservas",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select(`
-          *,
-          profiles (full_name)
-        `)
-        .eq('master_id', profile?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      // Get service titles separately
-      const reviewsWithServices = await Promise.all((data || []).map(async (review) => {
-        const { data: serviceData } = await supabase
-          .from('services')
-          .select('title')
-          .eq('id', review.booking_id)
-          .maybeSingle();
-        
-        return {
-          ...review,
-          services: { title: serviceData?.title || 'Servicio no encontrado' }
-        };
-      }));
-      
-      setReviews(reviewsWithServices);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-    }
-  };
 
   const convertToMinutes = (value: string, unit: string): number => {
     const numValue = parseInt(value);
@@ -381,7 +249,7 @@ const MasterDashboard = () => {
         duration_value: '',
         duration_unit: 'hours'
       });
-      fetchServices();
+      refetch();
     } catch (error) {
       console.error('Error saving service:', error);
       toast({
@@ -442,7 +310,7 @@ const MasterDashboard = () => {
         title: "Servicio eliminado",
         description: "El servicio ha sido desactivado",
       });
-      fetchServices();
+      refetch();
     } catch (error) {
       console.error('Error deleting service:', error);
       toast({
@@ -487,7 +355,7 @@ const MasterDashboard = () => {
       });
       setIsEditingProfile(false);
       await refreshProfile();
-      await fetchMasterProfile();
+      await refetch();
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
@@ -511,7 +379,7 @@ const MasterDashboard = () => {
         title: "Estado actualizado",
         description: "El estado de la reserva ha sido actualizado",
       });
-      fetchBookings();
+      refetch();
     } catch (error) {
       console.error('Error updating booking status:', error);
       toast({
@@ -522,15 +390,7 @@ const MasterDashboard = () => {
     }
   };
 
-  // Calculate stats
-  const activeServices = services.filter(s => s.status === 'active').length;
-  const totalBookings = bookings.length;
-  const completedBookings = bookings.filter(b => b.status === 'completed').length;
-  const pendingBookings = bookings.filter(b => b.status === 'pending').length;
-  const totalEarnings = bookings
-    .filter(b => b.status === 'completed')
-    .reduce((sum, b) => sum + (b.total_price || 0), 0);
-  const averageRating = masterProfile?.rating || 0;
+  // Stats are now calculated by the useMasterDashboard hook
 
   if (loading) {
     return (
@@ -565,38 +425,28 @@ const MasterDashboard = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold gradient-text">
+              <h1 className="text-4xl font-bold gradient-text animate-fade-in">
                 ¡Hola, {profile?.full_name}! 💼
               </h1>
-              <p className="text-muted-foreground mt-2">
+              <p className="text-muted-foreground mt-2 text-lg">
                 Gestiona tus servicios y conecta con clientes
               </p>
               {masterProfile?.is_verified && (
-                <div className="flex items-center mt-2">
-                  <Award className="h-4 w-4 text-blue-500 mr-1" />
-                  <span className="text-sm text-blue-600 font-medium">Profesional Verificado</span>
+                <div className="flex items-center mt-3">
+                  <Award className="h-5 w-5 text-blue-500 mr-2" />
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">
+                    Profesional Verificado
+                  </Badge>
                 </div>
               )}
             </div>
-            <Tabs value={undefined} className="hidden md:flex items-center space-x-4">
-              <TabsList className="bg-transparent border-0">
-                <TabsTrigger value="notifications" className="data-[state=active]:bg-primary/10">
-                  <Button variant="outline" size="icon">
-                    <Bell className="h-4 w-4" />
-                  </Button>
-                </TabsTrigger>
-                <TabsTrigger value="profile" className="data-[state=active]:bg-primary/10">
-                  <Button variant="outline" size="icon">
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </TabsTrigger>
-              </TabsList>
-              <Avatar>
-                <AvatarFallback className="bg-primary text-primary-foreground">
+            <div className="hidden md:flex items-center space-x-4">
+              <Avatar className="h-14 w-14 border-2 border-primary/20 shadow-soft">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xl font-bold">
                   {profile?.full_name?.charAt(0) || 'M'}
                 </AvatarFallback>
               </Avatar>
-            </Tabs>
+            </div>
           </div>
         </div>
 
@@ -617,7 +467,7 @@ const MasterDashboard = () => {
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                     <Award className="h-3 w-3 mr-1" />
-                    Planes Premium desde $2,990
+                    Planes Premium desde $2,990 UYU
                   </Badge>
                   <Badge variant="secondary" className="bg-secondary/10 text-secondary border-secondary/20">
                     <TrendingUp className="h-3 w-3 mr-1" />
@@ -654,87 +504,91 @@ const MasterDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-muted-foreground">Servicios Activos</p>
-                  <p className="text-2xl font-bold">{activeServices}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Stats Cards - Now using DashboardStats component */}
+        <DashboardStats stats={stats} />
 
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-secondary/10 rounded-lg">
-                  <Calendar className="h-6 w-6 text-secondary" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-muted-foreground">Total Reservas</p>
-                  <p className="text-2xl font-bold">{totalBookings}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-accent/10 rounded-lg">
-                  <Star className="h-6 w-6 text-accent" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-muted-foreground">Calificación</p>
-                  <p className="text-2xl font-bold">{averageRating.toFixed(1)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-muted-foreground">Ingresos Totales</p>
-                  <p className="text-2xl font-bold">${totalEarnings.toLocaleString()}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 xl:grid-cols-19 gap-1 h-auto p-1">
-            <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
-            <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
-            <TabsTrigger value="services" className="text-xs sm:text-sm">Servicios</TabsTrigger>
-            <TabsTrigger value="job-requests" className="text-xs sm:text-sm">Trabajos</TabsTrigger>
-            <TabsTrigger value="bookings" className="text-xs sm:text-sm">Reservas</TabsTrigger>
-            <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reseñas</TabsTrigger>
-            <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
-            <TabsTrigger value="disputes" className="text-xs sm:text-sm">Disputas</TabsTrigger>
-            <TabsTrigger value="messages" className="text-xs sm:text-sm">Mensajes</TabsTrigger>
-            <TabsTrigger value="subscription" className="text-xs sm:text-sm">Plan</TabsTrigger>
-            <TabsTrigger value="finances" className="text-xs sm:text-sm">Finanzas</TabsTrigger>
-            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Análisis</TabsTrigger>
-            <TabsTrigger value="applications" className="text-xs sm:text-sm">Propuestas</TabsTrigger>
-            <TabsTrigger value="contracts" className="text-xs sm:text-sm">Contratos</TabsTrigger>
-            <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendario</TabsTrigger>
-            <TabsTrigger value="notifications" className="text-xs sm:text-sm">Alertas</TabsTrigger>
-            <TabsTrigger value="escrow" className="text-xs sm:text-sm">Escrow</TabsTrigger>
-            <TabsTrigger value="payments" className="text-xs sm:text-sm">Transacciones</TabsTrigger>
-            <TabsTrigger value="withdrawals" className="text-xs sm:text-sm">Retiros</TabsTrigger>
-            <TabsTrigger value="profile" className="text-xs sm:text-sm">Perfil</TabsTrigger>
+        <Tabs defaultValue="services" className="w-full mt-8">
+          <TabsList className="inline-flex flex-wrap w-full justify-start h-auto p-2 gap-2 bg-muted/50 rounded-xl">
+            <TabsTrigger value="feed" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Feed</span>
+            </TabsTrigger>
+            <TabsTrigger value="marketplace" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <ShoppingBag className="h-4 w-4" />
+              <span className="hidden sm:inline">Marketplace</span>
+            </TabsTrigger>
+            <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Briefcase className="h-4 w-4" />
+              <span className="hidden sm:inline">Servicios</span>
+            </TabsTrigger>
+            <TabsTrigger value="job-requests" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Trabajos</span>
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Reservas</span>
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Star className="h-4 w-4" />
+              <span className="hidden sm:inline">Reseñas</span>
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Eye className="h-4 w-4" />
+              <span className="hidden sm:inline">Portfolio</span>
+            </TabsTrigger>
+            <TabsTrigger value="disputes" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <AlertCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Disputas</span>
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Mensajes</span>
+            </TabsTrigger>
+            <TabsTrigger value="subscription" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Award className="h-4 w-4" />
+              <span className="hidden sm:inline">Plan</span>
+            </TabsTrigger>
+            <TabsTrigger value="finances" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <DollarSign className="h-4 w-4" />
+              <span className="hidden sm:inline">Finanzas</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Análisis</span>
+            </TabsTrigger>
+            <TabsTrigger value="applications" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Propuestas</span>
+            </TabsTrigger>
+            <TabsTrigger value="contracts" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Package className="h-4 w-4" />
+              <span className="hidden sm:inline">Contratos</span>
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Calendario</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Bell className="h-4 w-4" />
+              <span className="hidden sm:inline">Alertas</span>
+            </TabsTrigger>
+            <TabsTrigger value="escrow" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <CreditCard className="h-4 w-4" />
+              <span className="hidden sm:inline">Escrow</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Transacciones</span>
+            </TabsTrigger>
+            <TabsTrigger value="withdrawals" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TrendingDown className="h-4 w-4" />
+              <span className="hidden sm:inline">Retiros</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <User className="h-4 w-4" />
+              <span className="hidden sm:inline">Perfil</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Feed Tab */}
@@ -967,7 +821,7 @@ const MasterDashboard = () => {
                     <AlertCircle className="h-8 w-8 text-yellow-500" />
                     <div className="ml-3">
                       <p className="text-sm text-muted-foreground">Pendientes</p>
-                      <p className="text-2xl font-bold">{pendingBookings}</p>
+                      <p className="text-2xl font-bold">{stats.pendingBookings}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -978,7 +832,7 @@ const MasterDashboard = () => {
                     <CheckCircle className="h-8 w-8 text-green-500" />
                     <div className="ml-3">
                       <p className="text-sm text-muted-foreground">Completados</p>
-                      <p className="text-2xl font-bold">{completedBookings}</p>
+                      <p className="text-2xl font-bold">{stats.completedBookings}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -990,7 +844,7 @@ const MasterDashboard = () => {
                     <div className="ml-3">
                       <p className="text-sm text-muted-foreground">Tasa Éxito</p>
                       <p className="text-2xl font-bold">
-                        {totalBookings > 0 ? Math.round((completedBookings / totalBookings) * 100) : 0}%
+                        {bookings.length > 0 ? Math.round((stats.completedBookings / bookings.length) * 100) : 0}%
                       </p>
                     </div>
                   </div>
@@ -1269,7 +1123,7 @@ const MasterDashboard = () => {
                         <div className="flex items-center mt-2">
                           <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
                           <span className="text-sm">
-                            {averageRating.toFixed(1)} ({masterProfile?.total_reviews || 0} reseñas)
+                            {stats.averageRating.toFixed(1)} ({stats.totalReviews} reseñas)
                           </span>
                         </div>
                       </div>
