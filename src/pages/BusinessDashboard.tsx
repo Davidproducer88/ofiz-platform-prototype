@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useBusinessDashboard } from "@/hooks/useBusinessDashboard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { 
   Building2, 
   TrendingUp, 
@@ -23,7 +22,9 @@ import {
   Download,
   Sparkles,
   Target,
-  Zap
+  Zap,
+  Store,
+  Bell
 } from "lucide-react";
 import { BusinessProfile } from "@/components/business/BusinessProfile";
 import { BusinessSubscriptionPlans } from "@/components/business/BusinessSubscriptionPlans";
@@ -38,83 +39,25 @@ import { MarketplaceFeed } from "@/components/MarketplaceFeed";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [businessProfile, setBusinessProfile] = useState<any>(null);
-  const [subscription, setSubscription] = useState<any>(null);
-  const [stats, setStats] = useState({
-    activeAds: 0,
-    totalImpressions: 0,
-    totalClicks: 0,
-    openContracts: 0,
-    contactsUsed: 0,
-    contactsLimit: 50
-  });
+  const {
+    loading,
+    businessProfile,
+    subscription,
+    stats,
+    refetch,
+    handleSubscriptionSuccess
+  } = useBusinessDashboard(user?.id);
 
   useEffect(() => {
-    if (user) {
-      fetchBusinessData();
-    }
-    
     // Check for subscription payment status in URL
     const urlParams = new URLSearchParams(window.location.search);
     const subscriptionStatus = urlParams.get('subscription');
     
     if (subscriptionStatus === 'success') {
-      toast({
-        title: "¡Suscripción activada!",
-        description: "Tu suscripción ha sido procesada correctamente. Puede tomar unos minutos en aparecer.",
-      });
-      
-      // Clean URL
+      handleSubscriptionSuccess();
       window.history.replaceState({}, '', '/business-dashboard');
-      
-      // Refresh data after a short delay to allow webhook to process
-      setTimeout(() => {
-        if (user) fetchBusinessData();
-      }, 2000);
     }
-  }, [user]);
-
-  const fetchBusinessData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch business profile
-      const { data: businessData, error: profileError } = await supabase
-        .from('business_profiles')
-        .select('*')
-        .eq('id', user!.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error('Error fetching business profile:', profileError);
-      }
-
-      setBusinessProfile(businessData);
-
-      // Fetch subscription
-      const { data: subData, error: subError } = await supabase
-        .from('business_subscriptions')
-        .select('*')
-        .eq('business_id', user!.id)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (subError && subError.code !== 'PGRST116') {
-        console.error('Error fetching subscription:', subError);
-      }
-
-      setSubscription(subData);
-
-      // Fetch statistics
-      const [adsData, contractsData] = await Promise.all([
-        supabase
-          .from('advertisements')
-          .select('impressions_count, clicks_count')
-          .eq('business_id', user!.id),
-        supabase
-          .from('business_contracts')
+  }, [handleSubscriptionSuccess]);
           .select('*', { count: 'exact', head: true })
           .eq('business_id', user!.id)
           .eq('status', 'open')
@@ -470,7 +413,7 @@ export default function BusinessDashboard() {
             <AdvertisementManager 
               businessId={user!.id}
               subscription={subscription}
-              onUpdate={fetchBusinessData}
+              onUpdate={refetch}
             />
           </TabsContent>
 
@@ -478,7 +421,7 @@ export default function BusinessDashboard() {
             <ContractsManager 
               businessId={user!.id}
               subscription={subscription}
-              onUpdate={fetchBusinessData}
+              onUpdate={refetch}
             />
           </TabsContent>
 
@@ -505,7 +448,7 @@ export default function BusinessDashboard() {
             <BusinessSubscriptionPlans
               businessId={user!.id}
               currentSubscription={subscription}
-              onUpdate={fetchBusinessData}
+              onUpdate={refetch}
             />
           </TabsContent>
 
@@ -522,7 +465,7 @@ export default function BusinessDashboard() {
             <BusinessProfile
               businessId={user!.id}
               businessProfile={businessProfile}
-              onUpdate={fetchBusinessData}
+              onUpdate={refetch}
             />
           </TabsContent>
         </Tabs>
