@@ -27,7 +27,7 @@ interface EscrowPayment {
     };
     profiles: {
       full_name: string;
-    };
+    } | null;
   };
 }
 
@@ -219,7 +219,7 @@ export const EscrowPayments = ({ masterId }: EscrowPaymentsProps) => {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Cliente: {payment.bookings.profiles.full_name} • 
+                      Cliente: {payment.bookings.profiles?.full_name || 'Cliente no disponible'} • 
                       {new Date(payment.bookings.scheduled_date).toLocaleDateString('es-UY')}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
