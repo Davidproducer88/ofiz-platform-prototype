@@ -153,6 +153,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
@@ -205,6 +212,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_contract_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
         ]
@@ -512,11 +526,18 @@ export type Database = {
       disputes: {
         Row: {
           admin_notes: string | null
+          auto_escalated_at: string | null
           booking_id: string
+          client_proposal: Json | null
           created_at: string
           description: string
           evidence_urls: Json | null
           id: string
+          master_proposal: Json | null
+          mediation_attempts: number | null
+          mediation_deadline: string | null
+          mediation_messages: Json | null
+          mediation_status: string | null
           opened_by: string
           opened_by_role: string
           payment_id: string | null
@@ -530,11 +551,18 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          auto_escalated_at?: string | null
           booking_id: string
+          client_proposal?: Json | null
           created_at?: string
           description: string
           evidence_urls?: Json | null
           id?: string
+          master_proposal?: Json | null
+          mediation_attempts?: number | null
+          mediation_deadline?: string | null
+          mediation_messages?: Json | null
+          mediation_status?: string | null
           opened_by: string
           opened_by_role: string
           payment_id?: string | null
@@ -548,11 +576,18 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          auto_escalated_at?: string | null
           booking_id?: string
+          client_proposal?: Json | null
           created_at?: string
           description?: string
           evidence_urls?: Json | null
           id?: string
+          master_proposal?: Json | null
+          mediation_attempts?: number | null
+          mediation_deadline?: string | null
+          mediation_messages?: Json | null
+          mediation_status?: string | null
           opened_by?: string
           opened_by_role?: string
           payment_id?: string | null
@@ -615,6 +650,13 @@ export type Database = {
             referencedRelation: "masters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "favorite_masters_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
         ]
       }
       feed_posts: {
@@ -668,7 +710,122 @@ export type Database = {
             referencedRelation: "masters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "feed_posts_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      founder_alerts_sent: {
+        Row: {
+          id: string
+          remaining_slots: number
+          sent_at: string
+          threshold: number
+        }
+        Insert: {
+          id?: string
+          remaining_slots: number
+          sent_at?: string
+          threshold: number
+        }
+        Update: {
+          id?: string
+          remaining_slots?: number
+          sent_at?: string
+          threshold?: number
+        }
+        Relationships: []
+      }
+      founder_code_usage: {
+        Row: {
+          booking_id: string | null
+          code_id: string
+          created_at: string
+          discount_amount: number
+          id: string
+          used_by_user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          code_id: string
+          created_at?: string
+          discount_amount: number
+          id?: string
+          used_by_user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          code_id?: string
+          created_at?: string
+          discount_amount?: number
+          id?: string
+          used_by_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_code_usage_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_code_usage_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "founder_discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          discount_percentage: number
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          times_used: number
+          updated_at: string
+          user_id: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          times_used?: number
+          updated_at?: string
+          user_id: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          times_used?: number
+          updated_at?: string
+          user_id?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: []
       }
       marketplace_categories: {
         Row: {
@@ -1115,6 +1272,13 @@ export type Database = {
             referencedRelation: "masters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "master_portfolio_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
         ]
       }
       master_rankings: {
@@ -1160,6 +1324,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: true
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_rankings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: true
+            referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
         ]
@@ -1220,10 +1391,63 @@ export type Database = {
           },
         ]
       }
+      message_violations: {
+        Row: {
+          action_taken: string
+          admin_notes: string | null
+          admin_reviewed: boolean | null
+          conversation_id: string
+          created_at: string
+          detected_info: Json | null
+          id: string
+          original_content: string
+          sender_id: string
+          severity: string
+          violation_type: string
+        }
+        Insert: {
+          action_taken?: string
+          admin_notes?: string | null
+          admin_reviewed?: boolean | null
+          conversation_id: string
+          created_at?: string
+          detected_info?: Json | null
+          id?: string
+          original_content: string
+          sender_id: string
+          severity?: string
+          violation_type: string
+        }
+        Update: {
+          action_taken?: string
+          admin_notes?: string | null
+          admin_reviewed?: boolean | null
+          conversation_id?: string
+          created_at?: string
+          detected_info?: Json | null
+          id?: string
+          original_content?: string
+          sender_id?: string
+          severity?: string
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_violations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_type: string | null
           attachment_url: string | null
+          block_reason: string | null
+          blocked: boolean | null
+          censored: boolean | null
           content: string
           conversation_id: string
           created_at: string | null
@@ -1234,6 +1458,9 @@ export type Database = {
         Insert: {
           attachment_type?: string | null
           attachment_url?: string | null
+          block_reason?: string | null
+          blocked?: boolean | null
+          censored?: boolean | null
           content: string
           conversation_id: string
           created_at?: string | null
@@ -1244,6 +1471,9 @@ export type Database = {
         Update: {
           attachment_type?: string | null
           attachment_url?: string | null
+          block_reason?: string | null
+          blocked?: boolean | null
+          censored?: boolean | null
           content?: string
           conversation_id?: string
           created_at?: string | null
@@ -1640,6 +1870,13 @@ export type Database = {
             referencedRelation: "masters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reviews_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
         ]
       }
       security_audit_log: {
@@ -1709,6 +1946,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
           {
@@ -1839,6 +2083,13 @@ export type Database = {
             referencedRelation: "masters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "services_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
         ]
       }
       sponsored_content: {
@@ -1902,6 +2153,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsored_content_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
         ]
@@ -2011,15 +2269,73 @@ export type Database = {
         }
         Relationships: []
       }
+      user_warnings: {
+        Row: {
+          created_at: string
+          id: string
+          last_warning_at: string | null
+          permanently_banned: boolean | null
+          suspended_until: string | null
+          updated_at: string
+          user_id: string
+          warning_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_warning_at?: string | null
+          permanently_banned?: boolean | null
+          suspended_until?: string | null
+          updated_at?: string
+          user_id: string
+          warning_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_warning_at?: string | null
+          permanently_banned?: boolean | null
+          suspended_until?: string | null
+          updated_at?: string
+          user_id?: string
+          warning_count?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      masters_with_profile_and_services: {
+        Row: {
+          business_name: string | null
+          description: string | null
+          experience_years: number | null
+          hourly_rate: number | null
+          id: string | null
+          is_verified: boolean | null
+          latitude: number | null
+          longitude: number | null
+          profiles: Json | null
+          rating: number | null
+          services: Json | null
+          total_reviews: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "masters_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       assign_admin_role: {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      auto_escalate_expired_mediations: { Args: never; Returns: undefined }
       calculate_distance: {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
@@ -2027,6 +2343,10 @@ export type Database = {
       calculate_master_ranking: {
         Args: { master_id_param: string }
         Returns: undefined
+      }
+      generate_founder_code: {
+        Args: { founder_user_id: string }
+        Returns: string
       }
       generate_order_number: { Args: never; Returns: string }
       generate_referral_code: {
@@ -2056,6 +2376,19 @@ export type Database = {
         }[]
       }
       seed_initial_feed_data: { Args: never; Returns: undefined }
+      use_founder_code: {
+        Args: {
+          booking_id_param: string
+          code_id_param: string
+          discount_amount_param: number
+          used_by_user_id_param: string
+        }
+        Returns: boolean
+      }
+      validate_founder_code: {
+        Args: { code_to_validate: string; user_id_param: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "client" | "master" | "admin" | "business"
