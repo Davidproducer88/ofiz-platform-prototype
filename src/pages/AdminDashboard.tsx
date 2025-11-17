@@ -19,6 +19,7 @@ import { DisputesManagement } from "@/components/admin/DisputesManagement";
 import { SecurityViolationsTable } from "@/components/admin/SecurityViolationsTable";
 import { Feed } from "@/components/Feed";
 import { FounderCounter } from "@/components/admin/FounderCounter";
+import { ExecutiveCompensation } from "@/components/admin/ExecutiveCompensation";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
 
@@ -494,7 +495,7 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-10">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-11">
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
@@ -505,6 +506,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="rankings">Rankings</TabsTrigger>
             <TabsTrigger value="financial">Financiero</TabsTrigger>
             <TabsTrigger value="security">Seguridad</TabsTrigger>
+            <TabsTrigger value="executives">C-Level</TabsTrigger>
           </TabsList>
 
           <TabsContent value="feed">
@@ -595,6 +597,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="security">
             <SecurityViolationsTable />
+          </TabsContent>
+
+          <TabsContent value="executives">
+            <ExecutiveCompensation />
           </TabsContent>
         </Tabs>
       </div>
