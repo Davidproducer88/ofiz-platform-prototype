@@ -18,7 +18,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 450000,
+    price: 49990, // CLP por mes
     icon: Building,
     description: 'Ideal para pequeñas empresas',
     features: [
@@ -37,7 +37,7 @@ const plans = [
   {
     id: 'professional',
     name: 'Professional',
-    price: 850000,
+    price: 99990, // CLP por mes
     icon: Zap,
     popular: true,
     description: 'Para empresas en crecimiento',
@@ -59,7 +59,7 @@ const plans = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 1500000,
+    price: 199990, // CLP por mes
     icon: Crown,
     description: 'Para grandes organizaciones',
     features: [
@@ -94,8 +94,9 @@ export const BusinessSubscriptionPlans = ({
 
   const handleSubscribe = (planId: string) => {
     const plan = plans.find(p => p.id === planId);
+    const adjustedPlan = adjustedPlans.find(p => p.id === planId);
     
-    if (!plan) {
+    if (!plan || !adjustedPlan) {
       toast({
         title: "Error",
         description: "Plan no encontrado",
@@ -104,7 +105,14 @@ export const BusinessSubscriptionPlans = ({
       return;
     }
     
-    setSelectedPlan(plan);
+    // Guardar tanto el plan original como el ajustado
+    setSelectedPlan({
+      ...plan,
+      displayPrice: adjustedPlan.displayPrice,
+      actualPrice: adjustedPlan.actualPrice,
+      period: adjustedPlan.period,
+      savings: adjustedPlan.savings
+    } as any);
     setShowPaymentDialog(true);
   };
 
@@ -131,12 +139,19 @@ export const BusinessSubscriptionPlans = ({
   };
 
   const isAnnual = billingPeriod === 'annual';
-  const adjustedPlans = plans.map(plan => ({
-    ...plan,
-    displayPrice: isAnnual ? plan.price * 10 : plan.price, // 2 meses gratis en anual
-    period: isAnnual ? '/año' : '/mes',
-    savings: isAnnual ? `Ahorrás $${(plan.price * 2).toLocaleString()}` : null
-  }));
+  const adjustedPlans = plans.map(plan => {
+    // Precio anual = 10 meses (equivalente a 2 meses gratis = ~17% descuento)
+    const annualPrice = plan.price * 10;
+    const monthlySavings = plan.price * 2;
+    
+    return {
+      ...plan,
+      displayPrice: isAnnual ? annualPrice : plan.price,
+      actualPrice: isAnnual ? annualPrice : plan.price, // Precio real para el pago
+      period: isAnnual ? ' CLP/año' : ' CLP/mes',
+      savings: isAnnual ? `Ahorrás $${monthlySavings.toLocaleString()} CLP` : null
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -169,7 +184,7 @@ export const BusinessSubscriptionPlans = ({
             }`}
           >
             Anual
-            <Badge variant="secondary" className="ml-2 text-xs">-17%</Badge>
+            <Badge variant="secondary" className="ml-2 text-xs">2 meses gratis</Badge>
           </button>
         </div>
       </div>
@@ -295,12 +310,19 @@ export const BusinessSubscriptionPlans = ({
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Plan:</span>
-                  <span className="font-semibold">{selectedPlan.name}</span>
+                  <span className="font-semibold">{selectedPlan.name} {billingPeriod === 'annual' ? '(Anual)' : '(Mensual)'}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
-                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString()}</span>
+                  <span className="text-2xl font-bold">
+                    ${((selectedPlan as any).actualPrice || selectedPlan.price).toLocaleString()} CLP
+                  </span>
                 </div>
+                {(selectedPlan as any).savings && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-green-600 dark:text-green-400">💰 {(selectedPlan as any).savings}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Contactos mensuales:</span>
                   <span className="font-medium">{selectedPlan.contacts === 999999 ? 'Ilimitados' : selectedPlan.contacts}</span>
@@ -308,9 +330,9 @@ export const BusinessSubscriptionPlans = ({
               </div>
 
               <BusinessSubscriptionCheckoutBrick
-                amount={selectedPlan.price}
+                amount={(selectedPlan as any).actualPrice || selectedPlan.price}
                 planId={selectedPlan.id}
-                planName={selectedPlan.name}
+                planName={`${selectedPlan.name} - ${billingPeriod === 'annual' ? 'Anual' : 'Mensual'}`}
                 contacts={selectedPlan.contacts}
                 canPostAds={selectedPlan.canPostAds}
                 adImpressions={selectedPlan.adImpressions}
