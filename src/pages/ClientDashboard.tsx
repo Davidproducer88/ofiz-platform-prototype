@@ -85,6 +85,7 @@ const ClientDashboard = () => {
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
   const [bookingToReschedule, setBookingToReschedule] = useState<any>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [serviceRequestDialogOpen, setServiceRequestDialogOpen] = useState(false);
   const [newDate, setNewDate] = useState<Date>(new Date());
   
   const [filters, setFilters] = useState({
@@ -403,13 +404,20 @@ const ClientDashboard = () => {
           <TabsContent value="requests" className="space-y-6">
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Crear Solicitud de Servicio
-                </CardTitle>
-                <CardDescription>
-                  Publica lo que necesitas y recibe presupuestos
-                </CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Mis Solicitudes de Servicio
+                    </CardTitle>
+                    <CardDescription>
+                      Publica lo que necesitas y recibe presupuestos de profesionales
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => setServiceRequestDialogOpen(true)}>
+                    Nueva Solicitud
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <MyServiceRequests />
@@ -577,6 +585,15 @@ const ClientDashboard = () => {
           verifiedOnly: false,
           city: 'all',
         })}
+      />
+
+      <ServiceRequestForm
+        open={serviceRequestDialogOpen}
+        onOpenChange={setServiceRequestDialogOpen}
+        onSuccess={() => {
+          setServiceRequestDialogOpen(false);
+          // Refresh requests if needed
+        }}
       />
     </div>
   );
