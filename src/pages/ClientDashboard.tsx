@@ -481,7 +481,7 @@ const ClientDashboard = () => {
           </TabsContent>
 
           <TabsContent value="referrals">
-            <ReferralProgram />
+            <ReferralProgram userId={profile?.id || ''} />
           </TabsContent>
 
           <TabsContent value="profile">
