@@ -58,34 +58,6 @@ export default function BusinessDashboard() {
       window.history.replaceState({}, '', '/business-dashboard');
     }
   }, [handleSubscriptionSuccess]);
-          .select('*', { count: 'exact', head: true })
-          .eq('business_id', user!.id)
-          .eq('status', 'open')
-      ]);
-
-      const totalImpressions = adsData.data?.reduce((sum, ad) => sum + (ad.impressions_count || 0), 0) || 0;
-      const totalClicks = adsData.data?.reduce((sum, ad) => sum + (ad.clicks_count || 0), 0) || 0;
-
-      setStats({
-        activeAds: adsData.data?.length || 0,
-        totalImpressions,
-        totalClicks,
-        openContracts: contractsData.count || 0,
-        contactsUsed: subData?.contacts_used || 0,
-        contactsLimit: subData?.monthly_contacts_limit || 50
-      });
-
-    } catch (error: any) {
-      console.error('Error fetching business data:', error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los datos empresariales",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -283,7 +255,7 @@ export default function BusinessDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" onClick={fetchBusinessData}>
+              <Button variant="outline" onClick={refetch}>
                 Actualizar estado
               </Button>
             </CardContent>
