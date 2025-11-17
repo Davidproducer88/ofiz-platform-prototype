@@ -4,7 +4,7 @@ import { useAuth } from './useAuth';
 
 export interface FeedItem {
   id: string;
-  type: 'service_request' | 'available_master' | 'service' | 'sponsored' | 'master_post' | 'completed_work';
+  type: 'service_request' | 'available_master' | 'service' | 'sponsored' | 'master_post' | 'completed_work' | 'marketplace_product' | 'advertisement';
   score: number;
   created_at: string;
   data: any;
@@ -134,6 +134,36 @@ export const useFeed = () => {
         .order('created_at', { ascending: false })
         .limit(1);
 
+      // Cargar productos del marketplace
+      const { data: products } = await supabase
+        .from('marketplace_products')
+        .select(`
+          *,
+          marketplace_categories (
+            name,
+            icon
+          )
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      // Cargar publicidad de empresas
+      const { data: ads } = await supabase
+        .from('advertisements')
+        .select(`
+          *,
+          business_profiles (
+            company_name
+          )
+        `)
+        .eq('status', 'active')
+        .eq('is_active', true)
+        .lte('start_date', new Date().toISOString())
+        .gte('end_date', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(2);
+
       // Cargar maestros disponibles y verificados
       const { data: availableMasters, error: mastersError } = await supabase
         .from('masters')
@@ -184,6 +214,22 @@ export const useFeed = () => {
         data: master
       }));
 
+      const productItems: FeedItem[] = (products || []).map(product => ({
+        id: product.id,
+        type: 'marketplace_product' as const,
+        score: 80 + (product.rating || 0) * 10 + (product.sales_count || 0) * 2,
+        created_at: product.created_at,
+        data: product
+      }));
+
+      const adItems: FeedItem[] = (ads || []).map(ad => ({
+        id: ad.id,
+        type: 'advertisement' as const,
+        score: 95 + (ad.impressions_count || 0) * 0.01,
+        created_at: ad.created_at,
+        data: ad
+      }));
+
       const completedWorkItems: FeedItem[] = (completedWorks || []).map(work => ({
         id: work.id,
         type: 'completed_work' as const,
@@ -193,27 +239,33 @@ export const useFeed = () => {
       }));
 
       // Combinar y ordenar por score
-      const allItems = [...requestItems, ...serviceItems, ...sponsoredItems, ...masterItems, ...completedWorkItems];
+      const allItems = [...requestItems, ...serviceItems, ...sponsoredItems, ...masterItems, ...productItems, ...adItems, ...completedWorkItems];
       const sortedItems = allItems.sort((a, b) => b.score - a.score);
 
-      // Insertar contenido patrocinado estratégicamente (cada 5 items)
+      // Insertar contenido promocional estratégicamente (cada 4 items)
       const finalFeed: FeedItem[] = [];
-      let organicCount = 0;
+      const promotedItems = sortedItems.filter(item => 
+        item.type === 'sponsored' || item.type === 'advertisement' || item.type === 'marketplace_product'
+      );
+      const organicItems = sortedItems.filter(item => 
+        item.type !== 'sponsored' && item.type !== 'advertisement' && item.type !== 'marketplace_product'
+      );
       
-      sortedItems.forEach((item) => {
-        if (item.type !== 'sponsored') {
-          finalFeed.push(item);
-          organicCount++;
-          // Insertar patrocinado cada 5 items orgánicos
-          if (organicCount % 5 === 0 && sponsoredItems.length > 0) {
-            const sponsoredItem = sponsoredItems.shift();
-            if (sponsoredItem) finalFeed.push(sponsoredItem);
-          }
+      let promotedIndex = 0;
+      organicItems.forEach((item, index) => {
+        finalFeed.push(item);
+        // Insertar promocional cada 4 items orgánicos
+        if ((index + 1) % 4 === 0 && promotedIndex < promotedItems.length) {
+          finalFeed.push(promotedItems[promotedIndex]);
+          promotedIndex++;
         }
       });
 
-      // Agregar patrocinados restantes al final
-      finalFeed.push(...sponsoredItems);
+      // Agregar promocionales restantes al final
+      while (promotedIndex < promotedItems.length) {
+        finalFeed.push(promotedItems[promotedIndex]);
+        promotedIndex++;
+      }
 
       console.log('✅ Final feed items:', finalFeed.length);
       

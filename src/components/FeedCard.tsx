@@ -15,7 +15,11 @@ import {
   Heart,
   MessageCircle,
   Share2,
-  ThumbsUp
+  ThumbsUp,
+  ShoppingCart,
+  Tag,
+  TrendingUp,
+  Eye
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +28,7 @@ import { toast } from 'sonner';
 interface FeedCardProps {
   item: {
     id: string;
-    type: 'service_request' | 'available_master' | 'service' | 'sponsored' | 'master_post' | 'completed_work';
+    type: 'service_request' | 'available_master' | 'service' | 'sponsored' | 'master_post' | 'completed_work' | 'marketplace_product' | 'advertisement';
     data: any;
   };
   onInteraction: (targetId: string, targetType: string, interactionType: string, category?: string) => void;
@@ -44,6 +48,198 @@ export const FeedCard = ({ item, onInteraction }: FeedCardProps) => {
     setLikes(liked ? likes - 1 : likes + 1);
     handleAction('like');
   };
+
+  // Tarjeta de Producto del Marketplace
+  if (item.type === 'marketplace_product') {
+    const product = item.data;
+    const images = product.images as string[] || [];
+    const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
+    const discountPercent = hasDiscount 
+      ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
+      : 0;
+
+    return (
+      <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
+        <div className="px-4 py-2 bg-gradient-to-r from-green-500/10 to-blue-500/10 border-b flex items-center justify-between">
+          <span className="text-xs font-medium flex items-center gap-1">
+            <ShoppingCart className="h-3 w-3" />
+            Marketplace Pro
+          </span>
+          {product.featured && (
+            <Badge variant="default" className="text-xs">
+              <Star className="h-3 w-3 mr-1 fill-current" />
+              Destacado
+            </Badge>
+          )}
+        </div>
+
+        {images[0] && (
+          <div className="relative">
+            <img
+              src={images[0]}
+              alt={product.title}
+              className="w-full h-64 object-cover"
+            />
+            {hasDiscount && (
+              <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                -{discountPercent}%
+              </div>
+            )}
+            <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+              <Eye className="h-3 w-3" />
+              {product.views_count || 0} vistas
+            </div>
+          </div>
+        )}
+
+        <div className="p-6">
+          <div className="flex items-center gap-2 mb-3">
+            {product.marketplace_categories && (
+              <Badge variant="outline" className="capitalize">
+                {product.marketplace_categories.icon} {product.marketplace_categories.name}
+              </Badge>
+            )}
+            <div className="flex items-center gap-1 text-sm text-yellow-500">
+              <Star className="h-4 w-4 fill-current" />
+              <span className="font-medium">{product.rating?.toFixed(1) || '0.0'}</span>
+              <span className="text-muted-foreground">({product.reviews_count || 0})</span>
+            </div>
+          </div>
+          
+          <h3 className="text-xl font-bold mb-2">{product.title}</h3>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{product.description}</p>
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col">
+              {hasDiscount && (
+                <span className="text-sm text-muted-foreground line-through">
+                  ${product.compare_at_price?.toLocaleString()}
+                </span>
+              )}
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-primary">
+                  ${product.price.toLocaleString()}
+                </span>
+                {hasDiscount && (
+                  <Badge variant="destructive" className="text-xs">
+                    Oferta
+                  </Badge>
+                )}
+              </div>
+            </div>
+            {product.stock_quantity !== undefined && (
+              <div className="text-sm">
+                <span className={product.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'}>
+                  {product.stock_quantity > 0 ? `${product.stock_quantity} disponibles` : 'Agotado'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 mb-4 text-xs text-muted-foreground">
+            <TrendingUp className="h-3 w-3" />
+            <span>{product.sales_count || 0} vendidos</span>
+            <Heart className="h-3 w-3 ml-2" />
+            <span>{product.favorites_count || 0} favoritos</span>
+          </div>
+
+          <div className="flex gap-2">
+            <Button 
+              className="flex-1"
+              onClick={() => {
+                handleAction('view_product');
+                navigate('/client-dashboard');
+                toast.success('Abriendo producto en Marketplace');
+              }}
+            >
+              Ver Producto
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                handleAction('favorite');
+                toast.success('Agregado a favoritos');
+              }}
+            >
+              <Heart className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Tarjeta de Publicidad de Empresas
+  if (item.type === 'advertisement') {
+    const ad = item.data;
+    const company = ad.business_profiles?.company_name || 'Empresa Verificada';
+
+    return (
+      <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-card">
+        <div className="px-4 py-2 bg-primary/10 border-b border-primary/20">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-primary" />
+              Publicidad
+            </span>
+            <span className="text-xs text-muted-foreground">{company}</span>
+          </div>
+        </div>
+
+        {ad.media_url && (
+          <div className="relative">
+            <img
+              src={ad.media_url}
+              alt={ad.title}
+              className="w-full h-56 object-cover"
+            />
+            {ad.category && (
+              <div className="absolute top-2 left-2">
+                <Badge variant="default" className="capitalize">
+                  {ad.category}
+                </Badge>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="p-6">
+          <h3 className="text-xl font-bold mb-2">{ad.title}</h3>
+          <p className="text-muted-foreground text-sm mb-4">{ad.description}</p>
+
+          <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Eye className="h-3 w-3" />
+              <span>{ad.impressions_count || 0} impresiones</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MessageCircle className="h-3 w-3" />
+              <span>{ad.clicks_count || 0} clics</span>
+            </div>
+          </div>
+
+          <Button 
+            className="w-full"
+            size="lg"
+            onClick={() => {
+              handleAction('click');
+              if (ad.cta_url) {
+                if (ad.cta_url.startsWith('http')) {
+                  window.open(ad.cta_url, '_blank');
+                } else {
+                  navigate(ad.cta_url);
+                }
+              }
+            }}
+          >
+            {ad.cta_text || 'Más información'}
+            <ExternalLink className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
+    );
+  }
 
   // Tarjeta de Solicitud de Servicio (Mejorada visualmente)
   if (item.type === 'service_request') {
