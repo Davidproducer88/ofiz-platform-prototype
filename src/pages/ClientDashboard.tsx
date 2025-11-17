@@ -1,34 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Search, 
-  Star, 
-  Clock, 
-  MapPin, 
-  Calendar,
-  Phone,
-  CheckCircle,
-  AlertCircle,
-  Plus,
-  Filter,
   Heart,
   User,
   CreditCard,
   Bell,
   Home,
-  MessageSquare
+  MessageSquare,
+  Calendar,
+  Star,
+  ShoppingBag,
+  ClipboardList,
+  FileText,
+  MapPin,
+  Gift,
+  Users,
+  AlertCircle,
+  Filter,
+  DollarSign,
+  CheckCircle
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { BookingDialog } from '@/components/BookingDialog';
@@ -39,7 +39,6 @@ import { ClientNotifications } from '@/components/ClientNotifications';
 import { ServiceRequestForm } from '@/components/ServiceRequestForm';
 import { MyServiceRequests } from '@/components/MyServiceRequests';
 import { ChatTab } from '@/components/ChatTab';
-import { BookingActions } from '@/components/BookingActions';
 import { ReferralProgram } from '@/components/ReferralProgram';
 import { FavoriteMasters } from '@/components/client/FavoriteMasters';
 import { PaymentHistory } from '@/components/client/PaymentHistory';
@@ -49,63 +48,40 @@ import { AddressBook } from '@/components/client/AddressBook';
 import { MyDisputes } from '@/components/MyDisputes';
 import { FounderDiscountCode } from '@/components/client/FounderDiscountCode';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useClientDashboard } from '@/hooks/useClientDashboard';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
 import { MarketplaceFeed } from '@/components/MarketplaceFeed';
-
-interface Service {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  category: string;
-  duration_minutes: number;
-  master_id: string;
-  masters: {
-    business_name: string;
-    rating: number;
-    total_reviews: number;
-  };
-}
-
-interface Booking {
-  id: string;
-  service_id: string;
-  scheduled_date: string;
-  status: string;
-  total_price: number;
-  client_address: string;
-  notes?: string;
-  services: {
-    title: string;
-    category: string;
-  };
-  masters: {
-    business_name: string;
-    rating: number;
-  };
-}
+import { ServiceCard } from '@/components/client/ServiceCard';
+import { ClientBookingsList } from '@/components/client/ClientBookingsList';
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { favorites, toggleFavorite, isFavorite } = useFavorites(profile?.id);
-  const [services, setServices] = useState<Service[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    services, 
+    bookings, 
+    loading, 
+    createBooking, 
+    rescheduleBooking, 
+    cancelBooking,
+    refetchBookings 
+  } = useClientDashboard(profile?.id);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   
-  // Dialogs and Sheets
+  // Dialogs
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
-  const [bookingToReschedule, setBookingToReschedule] = useState<Booking | null>(null);
+  const [bookingToReschedule, setBookingToReschedule] = useState<any>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [requestFormOpen, setRequestFormOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('services');
+  const [newDate, setNewDate] = useState<Date>(new Date());
+  
   const [filters, setFilters] = useState({
     priceRange: [0, 500000] as [number, number],
     minRating: 0,
@@ -125,89 +101,16 @@ const ClientDashboard = () => {
     { id: 'appliance_repair', name: 'Reparaciones', icon: '⚙️' },
   ];
 
-  const statusTranslations = {
-    'pending': { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-800' },
-    'confirmed': { label: 'Confirmado', color: 'bg-blue-100 text-blue-800' },
-    'in_progress': { label: 'En Progreso', color: 'bg-purple-100 text-purple-800' },
-    'completed': { label: 'Completado', color: 'bg-green-100 text-green-800' },
-    'cancelled': { label: 'Cancelado', color: 'bg-red-100 text-red-800' },
-  };
-
-  useEffect(() => {
-    console.log('[ClientDashboard] Mounting component, profile:', profile?.id);
-    fetchServices();
-    fetchBookings();
-  }, [profile?.id]);
-
-  const fetchServices = async () => {
-    try {
-      console.log('[ClientDashboard] Fetching services...');
-      const { data, error } = await supabase
-        .from('services')
-        .select(`
-          *,
-          masters (
-            business_name,
-            rating,
-            total_reviews
-          )
-        `)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      console.log('[ClientDashboard] Services loaded:', data?.length);
-      setServices(data || []);
-    } catch (error) {
-      console.error('[ClientDashboard] Error fetching services:', error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los servicios",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const fetchBookings = async () => {
-    try {
-      console.log('[ClientDashboard] Checking profile:', profile?.id);
-      if (!profile?.id) {
-        console.log('[ClientDashboard] No profile ID, skipping bookings fetch');
-        setLoading(false);
-        return;
-      }
-
-      console.log('[ClientDashboard] Fetching bookings for:', profile.id);
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          services (title, category),
-          masters (business_name, rating)
-        `)
-        .eq('client_id', profile.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      console.log('[ClientDashboard] Bookings loaded:', data?.length);
-      setBookings(data || []);
-    } catch (error) {
-      console.error('[ClientDashboard] Error fetching bookings:', error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar tus encargos",
-        variant: "destructive",
-      });
-    } finally {
-      console.log('[ClientDashboard] Setting loading to false');
-      setLoading(false);
-    }
-  };
-
-  const handleBookingRequest = (service: Service) => {
-    setSelectedService(service);
-    setBookingDialogOpen(true);
-  };
+  const filteredServices = services.filter(service => {
+    const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         service.masters.business_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+    const matchesPrice = service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1];
+    const matchesRating = service.masters.rating >= filters.minRating;
+    
+    return matchesSearch && matchesCategory && matchesPrice && matchesRating;
+  });
 
   const handleBookingConfirm = async (bookingData: {
     serviceId: string;
@@ -216,54 +119,36 @@ const ClientDashboard = () => {
     notes: string;
     photos: string[];
   }) => {
-    try {
-      const service = services.find(s => s.id === bookingData.serviceId);
-      if (!service) return;
+    const service = services.find(s => s.id === bookingData.serviceId);
+    if (!service) return;
 
-      const { error } = await supabase
-        .from('bookings')
-        .insert({
-          service_id: bookingData.serviceId,
-          client_id: profile?.id,
-          master_id: service.master_id,
-          scheduled_date: bookingData.scheduledDate.toISOString(),
-          total_price: service.price,
-          client_address: bookingData.address,
-          notes: bookingData.notes,
-          client_photos: bookingData.photos,
-          status: 'pending'
-        });
+    const success = await createBooking({
+      serviceId: bookingData.serviceId,
+      masterId: service.master_id,
+      scheduledDate: bookingData.scheduledDate,
+      address: bookingData.address,
+      notes: bookingData.notes,
+      photos: bookingData.photos,
+      totalPrice: service.price,
+    });
 
-      if (error) throw error;
-
-      toast({
-        title: "¡Solicitud Enviada!",
-        description: "El profesional recibirá tu solicitud pronto",
-      });
-      
+    if (success) {
       setBookingDialogOpen(false);
-      fetchBookings();
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo crear el encargo",
-        variant: "destructive",
-      });
+      setSelectedService(null);
     }
   };
 
   const handleReviewSubmit = async (bookingId: string, rating: number, comment: string) => {
-    try {
-      const booking = bookings.find(b => b.id === bookingId);
-      if (!booking) return;
+    if (!selectedBooking) return;
 
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { error } = await supabase
         .from('reviews')
         .insert({
-          booking_id: bookingId,
+          booking_id: selectedBooking.id,
           client_id: profile?.id,
-          master_id: booking.masters ? (booking as any).master_id : null,
+          master_id: selectedBooking.masters?.id,
           rating,
           comment,
         });
@@ -271,216 +156,171 @@ const ClientDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "¡Reseña Publicada!",
-        description: "Gracias por compartir tu experiencia",
+        title: "¡Reseña enviada!",
+        description: "Tu valoración ha sido publicada",
       });
-      
+
       setReviewDialogOpen(false);
-    } catch (error) {
-      console.error('Error creating review:', error);
+      setSelectedBooking(null);
+    } catch (error: any) {
+      console.error('Error submitting review:', error);
       toast({
         title: "Error",
-        description: "No se pudo publicar la reseña",
+        description: error.message || "No se pudo enviar la reseña",
         variant: "destructive",
       });
     }
   };
 
-  const handleReschedule = (booking: Booking) => {
-    setBookingToReschedule(booking);
-    setRescheduleDialogOpen(true);
-  };
-
-  const handleRescheduleConfirm = async (rescheduleData: {
-    scheduledDate: Date;
-    notes: string;
-  }) => {
+  const handleRescheduleConfirm = async () => {
     if (!bookingToReschedule) return;
 
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({
-          scheduled_date: rescheduleData.scheduledDate.toISOString(),
-          notes: rescheduleData.notes,
-        })
-        .eq('id', bookingToReschedule.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Servicio reprogramado",
-        description: "La fecha del servicio ha sido actualizada",
-      });
-
+    const success = await rescheduleBooking(bookingToReschedule.id, newDate);
+    if (success) {
       setRescheduleDialogOpen(false);
-      fetchBookings();
-    } catch (error) {
-      console.error('Error rescheduling booking:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo reprogramar el servicio",
-        variant: "destructive",
-      });
+      setBookingToReschedule(null);
     }
   };
 
-  const filteredServices = services.filter(service => {
-    const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.masters.business_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
-    const matchesPrice = service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1];
-    const matchesRating = filters.minRating === 0 || service.masters.rating >= filters.minRating;
-    const matchesCity = filters.city === 'all' || filters.city === '';
-    
-    return matchesSearch && matchesCategory && matchesPrice && matchesRating && matchesCity;
-  });
-
-  const recentBookings = bookings.slice(0, 3);
   const completedBookings = bookings.filter(b => b.status === 'completed').length;
+  const totalSpent = bookings
+    .filter(b => b.status === 'completed')
+    .reduce((sum, b) => sum + b.total_price, 0);
 
   if (loading) {
-    console.log('[ClientDashboard] Rendering loading state');
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Cargando tu dashboard...</p>
+      <div className="min-h-screen bg-gradient-subtle">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center">Cargando...</div>
         </div>
       </div>
     );
   }
 
-  console.log('[ClientDashboard] Rendering main dashboard, profile:', profile?.full_name);
-
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <Header 
-        userType="client"
-        onNotificationsClick={() => setActiveTab('notifications')}
-        onProfileClick={() => setActiveTab('profile')}
-      />
+      <Header />
       
-      <div className="container px-4 md:px-6 py-4 md:py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
-        <div className="mb-6 md:mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">
-              ¡Hola, {profile?.full_name}! 👋
-            </h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-2">
-              Encuentra y gestiona todos tus servicios domésticos
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Hola, {profile?.full_name || 'Cliente'} 👋
+          </h1>
+          <p className="text-muted-foreground">
+            Encuentra y gestiona tus servicios profesionales
+          </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
-          <Card className="shadow-card">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center">
-                <div className="p-2 bg-primary/10 rounded-lg mb-2 md:mb-0">
-                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-                </div>
-                <div className="md:ml-4">
-                  <p className="text-xs md:text-sm text-muted-foreground">Total Encargos</p>
-                  <p className="text-xl md:text-2xl font-bold">{bookings.length}</p>
-                </div>
-              </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="shadow-card hover:shadow-elegant transition-smooth">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <ClipboardList className="h-4 w-4" />
+                Total Reservas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">{bookings.length}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center">
-                <div className="p-2 bg-secondary/10 rounded-lg mb-2 md:mb-0">
-                  <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
-                </div>
-                <div className="md:ml-4">
-                  <p className="text-xs md:text-sm text-muted-foreground">Completados</p>
-                  <p className="text-xl md:text-2xl font-bold">{completedBookings}</p>
-                </div>
-              </div>
+          <Card className="shadow-card hover:shadow-elegant transition-smooth">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Completadas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{completedBookings}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center">
-                <div className="p-2 bg-accent/10 rounded-lg mb-2 md:mb-0">
-                  <Star className="h-5 w-5 md:h-6 md:w-6 text-accent" />
-                </div>
-                <div className="md:ml-4">
-                  <p className="text-xs md:text-sm text-muted-foreground">Favoritos</p>
-                  <p className="text-xl md:text-2xl font-bold">{favorites.length}</p>
-                </div>
-              </div>
+          <Card className="shadow-card hover:shadow-elegant transition-smooth">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                Favoritos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-500">{favorites.length}</div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center">
-                <div className="p-2 bg-purple-100 rounded-lg mb-2 md:mb-0">
-                  <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-purple-600" />
-                </div>
-                <div className="md:ml-4">
-                  <p className="text-xs md:text-sm text-muted-foreground">Total Gastado</p>
-                  <p className="text-xl md:text-2xl font-bold">
-                    ${bookings.reduce((sum, b) => sum + (b.total_price || 0), 0).toLocaleString()}
-                  </p>
-                </div>
+          <Card className="shadow-card hover:shadow-elegant transition-smooth">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Total Gastado
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">
+                $U {totalSpent.toLocaleString()}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-            <TabsList className="inline-flex md:grid w-auto md:w-full grid-cols-13 min-w-max md:min-w-0">
-              <TabsTrigger value="feed" className="text-xs md:text-sm whitespace-nowrap">Feed</TabsTrigger>
-              <TabsTrigger value="marketplace" className="text-xs md:text-sm whitespace-nowrap">Marketplace</TabsTrigger>
-              <TabsTrigger value="services" className="text-xs md:text-sm whitespace-nowrap">Servicios</TabsTrigger>
-              <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Solicitudes</TabsTrigger>
-              <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Encargos</TabsTrigger>
-              <TabsTrigger value="favorites" className="text-xs md:text-sm whitespace-nowrap">Favoritos</TabsTrigger>
-              <TabsTrigger value="calendar" className="text-xs md:text-sm whitespace-nowrap">Calendario</TabsTrigger>
-              <TabsTrigger value="payments" className="text-xs md:text-sm whitespace-nowrap">Pagos</TabsTrigger>
-              <TabsTrigger value="reviews" className="text-xs md:text-sm whitespace-nowrap">Reseñas</TabsTrigger>
-              <TabsTrigger value="disputes" className="text-xs md:text-sm whitespace-nowrap">Disputas</TabsTrigger>
-              <TabsTrigger value="addresses" className="text-xs md:text-sm whitespace-nowrap">Direcciones</TabsTrigger>
-              {profile?.is_founder && (
-                <TabsTrigger value="founder" className="text-xs md:text-sm whitespace-nowrap flex items-center gap-1">
-                  ✨ Fundador
-                </TabsTrigger>
-              )}
-              <TabsTrigger value="referrals" className="text-xs md:text-sm whitespace-nowrap">Referidos</TabsTrigger>
-              <TabsTrigger value="chat" className="text-xs md:text-sm whitespace-nowrap">Mensajes</TabsTrigger>
-              <TabsTrigger value="notifications" className="text-xs md:text-sm whitespace-nowrap">Notificaciones</TabsTrigger>
-              <TabsTrigger value="profile" className="hidden">Mi Perfil</TabsTrigger>
-            </TabsList>
-          </div>
+        {/* Tabs Section */}
+        <Tabs defaultValue="feed" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-2">
+            <TabsTrigger value="feed" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Feed</span>
+            </TabsTrigger>
+            <TabsTrigger value="marketplace" className="flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4" />
+              <span className="hidden sm:inline">Mercado</span>
+            </TabsTrigger>
+            <TabsTrigger value="services" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              <span className="hidden sm:inline">Servicios</span>
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Solicitudes</span>
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="flex items-center gap-2">
+              <ClipboardList className="h-4 w-4" />
+              <span className="hidden sm:inline">Reservas</span>
+            </TabsTrigger>
+            <TabsTrigger value="favorites" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Favoritos</span>
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Chat</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span className="hidden sm:inline">Perfil</span>
+            </TabsTrigger>
+          </TabsList>
 
           {/* Feed Tab */}
-          <TabsContent value="feed">
+          <TabsContent value="feed" className="space-y-4">
             <Feed />
           </TabsContent>
 
           {/* Marketplace Tab */}
-          <TabsContent value="marketplace">
+          <TabsContent value="marketplace" className="space-y-4">
             <MarketplaceFeed />
           </TabsContent>
 
           {/* Services Tab */}
           <TabsContent value="services" className="space-y-6">
-            {/* Search and Filters */}
             <Card className="shadow-card">
-              <CardHeader className="p-4 md:p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                    <Search className="h-4 w-4 md:h-5 md:w-5" />
-                    Encuentra el servicio perfecto
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    Servicios Disponibles
                   </CardTitle>
                   <Button 
                     variant="outline"
@@ -491,7 +331,7 @@ const ClientDashboard = () => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4 p-4 md:p-6">
+              <CardContent className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
                     <Input
@@ -530,338 +370,209 @@ const ClientDashboard = () => {
             </Card>
 
             {/* Services Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredServices.map((service) => (
-                <Card key={service.id} className="shadow-card hover:shadow-elegant transition-smooth">
-                  <CardHeader className="p-4 md:p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base md:text-lg truncate">{service.title}</CardTitle>
-                        <CardDescription className="text-xs md:text-sm truncate">
-                          {service.masters.business_name}
-                        </CardDescription>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(service.master_id);
-                        }}
-                      >
-                        <Heart className={`h-4 w-4 ${isFavorite(service.master_id) ? 'fill-red-500 text-red-500' : ''}`} />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 md:p-6">
-                    <p className="text-xs md:text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {service.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="flex items-center">
-                          <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-500 fill-current" />
-                          <span className="text-xs md:text-sm ml-1">{service.masters.rating}</span>
-                        </div>
-                        <span className="text-xs md:text-sm text-muted-foreground">
-                          ({service.masters.total_reviews})
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <span className="text-lg md:text-2xl font-bold text-primary">
-                          ${service.price.toLocaleString()}
-                        </span>
-                        <div className="flex items-center text-xs md:text-sm text-muted-foreground mt-1">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {service.duration_minutes} min
-                        </div>
-                      </div>
-                      <Button 
-                        onClick={() => handleBookingRequest(service)}
-                        size="sm"
-                        className="shrink-0"
-                      >
-                        <Plus className="h-4 w-4 md:mr-2" />
-                        <span className="hidden md:inline">Solicitar</span>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  isFavorite={isFavorite(service.master_id)}
+                  onBook={() => {
+                    setSelectedService(service);
+                    setBookingDialogOpen(true);
+                  }}
+                  onToggleFavorite={() => toggleFavorite(service.master_id)}
+                />
               ))}
             </div>
 
             {filteredServices.length === 0 && (
-              <div className="text-center py-12">
-                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No se encontraron servicios</h3>
-                <p className="text-muted-foreground">
-                  Intenta ajustar los filtros o términos de búsqueda
-                </p>
-              </div>
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <p className="text-muted-foreground">No se encontraron servicios</p>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 
-          {/* Service Requests Tab */}
+          {/* Requests Tab */}
           <TabsContent value="requests" className="space-y-6">
             <Card className="shadow-card">
-              <CardHeader className="p-4 md:p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base md:text-lg">Mis Solicitudes de Servicio</CardTitle>
-                    <CardDescription className="text-xs md:text-sm">
-                      Publica proyectos y recibe presupuestos de maestros calificados
-                    </CardDescription>
-                  </div>
-                  <Button onClick={() => setRequestFormOpen(true)} className="w-full sm:w-auto shrink-0" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Solicitud
-                  </Button>
-                </div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Crear Solicitud de Servicio
+                </CardTitle>
+                <CardDescription>
+                  Publica lo que necesitas y recibe presupuestos
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <MyServiceRequests onNavigateToChat={() => setActiveTab('chat')} />
+                <MyServiceRequests />
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Bookings Tab */}
-          <TabsContent value="bookings" className="space-y-6">
+          <TabsContent value="bookings" className="space-y-4">
             <Card className="shadow-card">
-              <CardHeader className="p-4 md:p-6">
-                <CardTitle className="text-base md:text-lg">Mis Encargos</CardTitle>
-                <CardDescription className="text-xs md:text-sm">
-                  Gestiona y revisa todos tus servicios solicitados
-                </CardDescription>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ClipboardList className="h-5 w-5" />
+                  Mis Reservas
+                </CardTitle>
               </CardHeader>
-              <CardContent className="p-4 md:p-6">
-                {bookings.length > 0 ? (
-                  <div className="space-y-3 md:space-y-4">
-                    {bookings.map((booking) => (
-                      <div key={booking.id} className="border border-border rounded-lg p-3 md:p-4">
-                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0 w-full sm:w-auto">
-                            <h3 className="font-medium text-sm md:text-base">{booking.services.title}</h3>
-                            <p className="text-xs md:text-sm text-muted-foreground">
-                              {booking.masters.business_name}
-                            </p>
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-2 text-xs md:text-sm text-muted-foreground">
-                              <div className="flex items-center">
-                                <Calendar className="h-3 w-3 md:h-4 md:w-4 mr-1 shrink-0" />
-                                <span className="truncate">{new Date(booking.scheduled_date).toLocaleDateString('es-ES')}</span>
-                              </div>
-                              <div className="flex items-center">
-                                <MapPin className="h-3 w-3 md:h-4 md:w-4 mr-1 shrink-0" />
-                                <span className="truncate">{booking.client_address}</span>
-                              </div>
-                            </div>
-                            {booking.notes && (
-                              <p className="text-xs md:text-sm text-muted-foreground mt-2 line-clamp-2">
-                                Notas: {booking.notes}
-                             </p>
-                            )}
-                          </div>
-                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto gap-2 sm:space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Badge 
-                                className={`${statusTranslations[booking.status as keyof typeof statusTranslations]?.color} text-xs whitespace-nowrap`}
-                              >
-                                {statusTranslations[booking.status as keyof typeof statusTranslations]?.label}
-                              </Badge>
-                              <p className="text-base md:text-lg font-bold whitespace-nowrap">
-                                ${booking.total_price.toLocaleString()}
-                              </p>
-                            </div>
-                            <BookingActions
-                              booking={booking as any}
-                              userType="client"
-                              otherUserName={booking.masters?.business_name}
-                              onReview={() => {
-                                setSelectedBooking(booking);
-                                setReviewDialogOpen(true);
-                              }}
-                              onReschedule={() => handleReschedule(booking)}
-                              onUpdate={fetchBookings}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No tienes encargos aún</h3>
-                    <p className="text-muted-foreground mb-4">
-                      ¡Solicita tu primer servicio y comienza a disfrutar de Ofiz!
-                    </p>
-                    <Button onClick={() => setActiveTab('services')}>
-                      Buscar Servicios
-                    </Button>
-                  </div>
-                )}
+              <CardContent>
+                <ClientBookingsList
+                  bookings={bookings}
+                  onReview={(booking) => {
+                    setSelectedBooking(booking);
+                    setReviewDialogOpen(true);
+                  }}
+                  onReschedule={(booking) => {
+                    setBookingToReschedule(booking);
+                    setRescheduleDialogOpen(true);
+                  }}
+                  onCancel={async (id) => {
+                    await cancelBooking(id);
+                  }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Favorites Tab */}
-          <TabsContent value="favorites">
+          <TabsContent value="favorites" className="space-y-4">
             <FavoriteMasters />
           </TabsContent>
 
-          {/* Calendar Tab */}
+          {/* Additional Tabs */}
           <TabsContent value="calendar">
             <ClientCalendar />
           </TabsContent>
 
-          {/* Payments Tab */}
           <TabsContent value="payments">
-            <TransactionsList />
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Historial de Pagos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PaymentHistory />
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          {/* Reviews Tab */}
           <TabsContent value="reviews">
             <MyReviews />
           </TabsContent>
 
-          {/* Disputes Tab */}
           <TabsContent value="disputes">
             <MyDisputes userId={profile?.id || ''} />
           </TabsContent>
 
-          {/* Addresses Tab */}
           <TabsContent value="addresses">
             <AddressBook />
           </TabsContent>
 
-          {/* Chat Tab */}
           <TabsContent value="chat">
             <ChatTab />
           </TabsContent>
 
-          {/* Founder Code Tab */}
-          {profile?.is_founder && (
-            <TabsContent value="founder">
-              <FounderDiscountCode />
-            </TabsContent>
-          )}
-
-          {/* Referrals Tab */}
           <TabsContent value="referrals">
-            <ReferralProgram userId={profile?.id || ''} />
+            <ReferralProgram />
           </TabsContent>
 
-          {/* Profile Tab */}
           <TabsContent value="profile">
-            <ClientProfile 
-              profile={profile as any} 
-              onProfileUpdate={fetchBookings}
-            />
+            {profile && (
+              <ClientProfile
+                profile={{
+                  id: profile.id,
+                  full_name: profile.full_name,
+                  phone: profile.phone || '',
+                  address: profile.address || '',
+                  city: profile.city || '',
+                  avatar_url: profile.avatar_url || '',
+                  is_founder: profile.is_founder,
+                }}
+                onProfileUpdate={() => window.location.reload()}
+              />
+            )}
           </TabsContent>
 
-          {/* Notifications Tab */}
           <TabsContent value="notifications">
-            <ClientNotifications />
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Notificaciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ClientNotifications />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
+      </main>
 
-        {/* Dialogs */}
-        <BookingDialog
-          service={selectedService}
-          open={bookingDialogOpen}
-          onOpenChange={setBookingDialogOpen}
-          onConfirm={handleBookingConfirm}
-          defaultAddress={profile?.address || ''}
-        />
+      {/* Dialogs */}
+      <BookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        service={selectedService}
+        onConfirm={handleBookingConfirm}
+      />
 
-        <ReviewDialog
-          booking={selectedBooking as any}
-          open={reviewDialogOpen}
-          onOpenChange={setReviewDialogOpen}
-          onSubmit={handleReviewSubmit}
-        />
+      <ReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        booking={selectedBooking}
+        onSubmit={handleReviewSubmit}
+      />
 
-        <FiltersSheet
-          open={filtersOpen}
-          onOpenChange={setFiltersOpen}
-          filters={filters}
-          onFiltersChange={setFilters}
-          onReset={() => setFilters({ priceRange: [0, 500000], minRating: 0, verifiedOnly: false, city: 'all' })}
-        />
+      <Dialog open={rescheduleDialogOpen} onOpenChange={setRescheduleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reprogramar Reserva</DialogTitle>
+            <DialogDescription>
+              Selecciona una nueva fecha y hora para tu servicio
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Nueva Fecha y Hora</Label>
+              <Input
+                type="datetime-local"
+                value={newDate.toISOString().slice(0, 16)}
+                onChange={(e) => setNewDate(new Date(e.target.value))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRescheduleDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleRescheduleConfirm}>
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <ServiceRequestForm
-          open={requestFormOpen}
-          onOpenChange={setRequestFormOpen}
-          onSuccess={fetchBookings}
-        />
-
-        {/* Reschedule Dialog */}
-        <Dialog open={rescheduleDialogOpen} onOpenChange={setRescheduleDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Reprogramar Servicio</DialogTitle>
-              <DialogDescription>
-                Selecciona una nueva fecha y hora para tu servicio
-              </DialogDescription>
-            </DialogHeader>
-            {bookingToReschedule && (
-              <div className="space-y-4 py-4">
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-semibold">{bookingToReschedule.services.title}</h4>
-                  <p className="text-sm text-muted-foreground">{bookingToReschedule.masters.business_name}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label>Nueva Fecha y Hora</Label>
-                  <Input
-                    type="datetime-local"
-                    min={new Date().toISOString().slice(0, 16)}
-                    onChange={(e) => {
-                      const date = new Date(e.target.value);
-                      setBookingToReschedule({
-                        ...bookingToReschedule,
-                        scheduled_date: date.toISOString(),
-                      });
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Notas (opcional)</Label>
-                  <Textarea
-                    placeholder="Agrega notas sobre la reprogramación..."
-                    onChange={(e) => {
-                      setBookingToReschedule({
-                        ...bookingToReschedule,
-                        notes: e.target.value,
-                      });
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setRescheduleDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => {
-                  if (bookingToReschedule) {
-                    handleRescheduleConfirm({
-                      scheduledDate: new Date(bookingToReschedule.scheduled_date),
-                      notes: bookingToReschedule.notes || '',
-                    });
-                  }
-                }}
-              >
-                Confirmar Reprogramación
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <FiltersSheet
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onReset={() => setFilters({
+          priceRange: [0, 500000],
+          minRating: 0,
+          verifiedOnly: false,
+          city: 'all',
+        })}
+      />
     </div>
   );
 };

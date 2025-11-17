@@ -23,7 +23,7 @@ interface CodeUsage {
   booking_id: string;
 }
 
-export const FounderDiscountCode = () => {
+export const FounderDiscountCode = ({ userId }: { userId?: string }) => {
   const [code, setCode] = useState<DiscountCode | null>(null);
   const [usageHistory, setUsageHistory] = useState<CodeUsage[]>([]);
   const [copied, setCopied] = useState(false);
