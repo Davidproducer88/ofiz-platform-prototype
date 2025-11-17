@@ -18,7 +18,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 49990, // CLP por mes
+    price: 49990, // UYU por mes
     icon: Building,
     description: 'Ideal para pequeñas empresas',
     features: [
@@ -37,7 +37,7 @@ const plans = [
   {
     id: 'professional',
     name: 'Professional',
-    price: 99990, // CLP por mes
+    price: 99990, // UYU por mes
     icon: Zap,
     popular: true,
     description: 'Para empresas en crecimiento',
@@ -59,7 +59,7 @@ const plans = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 199990, // CLP por mes
+    price: 199990, // UYU por mes
     icon: Crown,
     description: 'Para grandes organizaciones',
     features: [
@@ -148,8 +148,8 @@ export const BusinessSubscriptionPlans = ({
       ...plan,
       displayPrice: isAnnual ? annualPrice : plan.price,
       actualPrice: isAnnual ? annualPrice : plan.price, // Precio real para el pago
-      period: isAnnual ? ' CLP/año' : ' CLP/mes',
-      savings: isAnnual ? `Ahorrás $${monthlySavings.toLocaleString()} CLP` : null
+      period: isAnnual ? ' UYU/año' : ' UYU/mes',
+      savings: isAnnual ? `Ahorrás $${monthlySavings.toLocaleString()} UYU` : null
     };
   });
 
@@ -315,7 +315,7 @@ export const BusinessSubscriptionPlans = ({
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
                   <span className="text-2xl font-bold">
-                    ${((selectedPlan as any).actualPrice || selectedPlan.price).toLocaleString()} CLP
+                    ${((selectedPlan as any).actualPrice || selectedPlan.price).toLocaleString()} UYU
                   </span>
                 </div>
                 {(selectedPlan as any).savings && (
