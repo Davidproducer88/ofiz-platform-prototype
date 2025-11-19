@@ -90,17 +90,27 @@ serve(async (req) => {
 
     let masters = mastersData || [];
     console.log(`Found ${masters.length} masters before filtering`);
+    console.log('Sample master:', masters[0] ? JSON.stringify({
+      id: masters[0].id,
+      business_name: masters[0].business_name,
+      profiles: masters[0].profiles,
+      services_count: masters[0].services?.length || 0
+    }) : 'none');
 
     // Filtrar por ciudad si está especificado
     if (filters.city && filters.city !== "all") {
+      const beforeCityFilter = masters.length;
       masters = masters.filter(master => 
         master.profiles?.city === filters.city
       );
+      console.log(`City filter (${filters.city}): ${beforeCityFilter} -> ${masters.length} masters`);
     }
 
     // Filtro adicional por búsqueda de texto (solo si hay searchQuery)
     if (searchQuery && searchQuery.trim() !== "") {
       const searchTerm = searchQuery.trim().toLowerCase();
+      const beforeTextFilter = masters.length;
+      
       masters = masters.filter(master => {
         const fullName = master.profiles?.full_name?.toLowerCase() || '';
         const businessName = master.business_name?.toLowerCase() || '';
@@ -114,23 +124,27 @@ serve(async (req) => {
           service.description?.toLowerCase().includes(searchTerm)
         );
 
-        return fullName.includes(searchTerm) || 
+        const matches = fullName.includes(searchTerm) || 
                businessName.includes(searchTerm) || 
                description.includes(searchTerm) ||
                city.includes(searchTerm) ||
                hasServiceMatch;
+        
+        return matches;
       });
       
-      console.log(`After text search: ${masters.length} masters`);
+      console.log(`Text search "${searchTerm}": ${beforeTextFilter} -> ${masters.length} masters`);
     }
 
     // Filtrar por categoría de servicios
     if (filters.category) {
+      const beforeCategoryFilter = masters.length;
       masters = masters.filter(master => 
         master.services?.some((service: any) => 
           service.category === filters.category
         )
       );
+      console.log(`Category filter (${filters.category}): ${beforeCategoryFilter} -> ${masters.length} masters`);
     }
 
     // Calcular distancias si hay ubicación del usuario
