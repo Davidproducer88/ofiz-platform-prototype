@@ -204,6 +204,55 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const signUpClient = async (email: string, password: string, userData: any) => {
+    try {
+      // Call edge function to handle client registration
+      const { data, error } = await supabase.functions.invoke('register-client', {
+        body: {
+          email,
+          password,
+          full_name: userData.full_name,
+          phone: userData.phone,
+          address: userData.address,
+          city: userData.city,
+          referral_code: userData.referral_code
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Error en el registro",
+          description: error.message || 'Error al registrar cliente',
+          variant: "destructive"
+        });
+        return { error };
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Error en el registro",
+          description: data.error,
+          variant: "destructive"
+        });
+        return { error: new Error(data.error) };
+      }
+
+      toast({
+        title: "Registro exitoso",
+        description: "Por favor verifica tu email para activar tu cuenta"
+      });
+
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: "Error en el registro",
+        description: error.message,
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
+
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       const userType = userData.user_type || 'client';
@@ -213,6 +262,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return await signUpMaster(email, password, userData);
       }
       
+      // Use edge function for client registration
+      if (userType === 'client') {
+        return await signUpClient(email, password, userData);
+      }
+      
+      // Fallback for other user types (business, etc.)
       const redirectUrl = `${window.location.origin}/auth/callback?type=signup&user_type=${userType}`;
       
       // Calculate founder benefits
@@ -246,54 +301,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           variant: "destructive"
         });
         return { error };
-      }
-
-      // Process referral after successful signup if provided
-      if (userData.referral_code && userType === 'client' && data.user) {
-        try {
-          // Get referrer ID
-          const { data: referrerData } = await supabase
-            .from('referral_codes')
-            .select('user_id')
-            .eq('code', userData.referral_code.toUpperCase())
-            .eq('is_active', true)
-            .maybeSingle();
-
-          if (referrerData) {
-            // Create referral record
-            const { data: referral, error: refError } = await supabase
-              .from('referrals')
-              .insert({
-                referrer_id: referrerData.user_id,
-                referred_id: data.user.id,
-                referral_code: userData.referral_code.toUpperCase(),
-                status: 'pending'
-              })
-              .select()
-              .maybeSingle();
-
-            if (!refError && referral) {
-              // Create credits for both users
-              await supabase.from('referral_credits').insert([
-                {
-                  user_id: referrerData.user_id,
-                  amount: 500,
-                  type: 'referrer_bonus',
-                  referral_id: referral.id
-                },
-                {
-                  user_id: data.user.id,
-                  amount: 500,
-                  type: 'welcome_bonus',
-                  referral_id: referral.id
-                }
-              ]);
-            }
-          }
-        } catch (refError) {
-          console.error('Error processing referral:', refError);
-          // Don't fail the signup if referral fails
-        }
       }
 
       toast({
