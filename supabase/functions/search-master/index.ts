@@ -98,8 +98,8 @@ serve(async (req) => {
       );
     }
 
-    // Filtro adicional por búsqueda de texto
-    if (searchQuery && searchQuery.trim()) {
+    // Filtro adicional por búsqueda de texto (solo si hay searchQuery)
+    if (searchQuery && searchQuery.trim() !== "") {
       const searchTerm = searchQuery.trim().toLowerCase();
       masters = masters.filter(master => {
         const fullName = master.profiles?.full_name?.toLowerCase() || '';
@@ -120,6 +120,8 @@ serve(async (req) => {
                city.includes(searchTerm) ||
                hasServiceMatch;
       });
+      
+      console.log(`After text search: ${masters.length} masters`);
     }
 
     // Filtrar por categoría de servicios
