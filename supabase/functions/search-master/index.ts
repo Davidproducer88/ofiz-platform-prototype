@@ -66,7 +66,7 @@ serve(async (req) => {
         )
       `);
 
-    // Aplicar filtros
+    // Aplicar solo filtros estrictos en el query SQL
     if (filters.verifiedOnly) {
       query = query.eq("is_verified", true);
     }
@@ -75,11 +75,8 @@ serve(async (req) => {
       query = query.gte("rating", filters.minRating);
     }
 
-    if (filters.priceRange) {
-      query = query
-        .gte("hourly_rate", filters.priceRange[0])
-        .lte("hourly_rate", filters.priceRange[1]);
-    }
+    // NO filtrar por hourly_rate aquí porque excluye nulls
+    // Se hará en JavaScript después
 
     const { data: mastersData, error } = await query;
 
@@ -93,9 +90,25 @@ serve(async (req) => {
     console.log('Sample master:', masters[0] ? JSON.stringify({
       id: masters[0].id,
       business_name: masters[0].business_name,
+      hourly_rate: masters[0].hourly_rate,
       profiles: masters[0].profiles,
       services_count: masters[0].services?.length || 0
     }) : 'none');
+
+    // Filtrar por precio (incluir nulls si están en rango o si el rango es completo)
+    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000)) {
+      const beforePriceFilter = masters.length;
+      masters = masters.filter(master => {
+        // Si no tiene hourly_rate, incluirlo (podría tener precios en servicios)
+        if (master.hourly_rate === null || master.hourly_rate === undefined) {
+          return true;
+        }
+        // Si tiene hourly_rate, verificar que esté en el rango
+        return master.hourly_rate >= filters.priceRange[0] && 
+               master.hourly_rate <= filters.priceRange[1];
+      });
+      console.log(`Price filter (${filters.priceRange[0]}-${filters.priceRange[1]}): ${beforePriceFilter} -> ${masters.length} masters`);
+    }
 
     // Filtrar por ciudad si está especificado
     if (filters.city && filters.city !== "all") {
