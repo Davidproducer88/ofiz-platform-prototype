@@ -65,3 +65,6 @@ verify_jwt = false
 [functions.register-client]
 verify_jwt = false
 
+[functions.search-master]
+verify_jwt = false
+

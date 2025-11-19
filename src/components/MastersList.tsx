@@ -115,99 +115,34 @@ export const MastersList = ({
         );
       }
 
-      // const { data, error } = await query;
+      // Invocar edge function para búsqueda avanzada
       const { data, error } = await supabase.functions.invoke('search-master', {
-      body: { name: 'david' },
-    })
+        body: { 
+          searchQuery,
+          filters: {
+            priceRange: filters.priceRange,
+            minRating: filters.minRating,
+            city: filters.city,
+            verifiedOnly: filters.verifiedOnly,
+            category: filters.category,
+            maxDistance: filters.maxDistance
+          },
+          sortBy,
+          userLocation
+        },
+      });
 
-      if (error) throw error;
-      
-      let mastersWithDistance = JSON.parse(data) as Master[]
-
-      // Calcular distancias si hay ubicación del usuario
-      if (userLocation && mastersWithDistance.length > 0) {
-        mastersWithDistance = mastersWithDistance.map(master => {
-          if (master.latitude && master.longitude) {
-            // Fórmula de Haversine simplificada
-            const R = 6371; // Radio de la Tierra en km
-            const dLat = (master.latitude - userLocation.lat) * Math.PI / 180;
-            const dLon = (master.longitude - userLocation.lng) * Math.PI / 180;
-            const a = 
-              Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(userLocation.lat * Math.PI / 180) * 
-              Math.cos(master.latitude * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            const distance = R * c;
-            
-            return { ...master, distance };
-          }
-          return master;
-        });
-
-        // Filtrar por distancia máxima si está configurado
-        if (filters.maxDistance) {
-          mastersWithDistance = mastersWithDistance.filter(
-            master => master.distance !== undefined && master.distance <= filters.maxDistance!
-          );
-        }
-
-        // Ordenar según criterio seleccionado
-        switch (sortBy) {
-          case 'distance':
-            mastersWithDistance.sort((a, b) => {
-              if (a.distance === undefined) return 1;
-              if (b.distance === undefined) return -1;
-              return a.distance - b.distance;
-            });
-            break;
-          case 'rating':
-            mastersWithDistance.sort((a, b) => b.rating - a.rating);
-            break;
-          case 'price_asc':
-            mastersWithDistance.sort((a, b) => (a.hourly_rate || 0) - (b.hourly_rate || 0));
-            break;
-          case 'price_desc':
-            mastersWithDistance.sort((a, b) => (b.hourly_rate || 0) - (a.hourly_rate || 0));
-            break;
-          case 'relevance':
-          default:
-            // Ordenar por relevancia: verificados primero, luego por rating
-            mastersWithDistance.sort((a, b) => {
-              if (a.is_verified !== b.is_verified) {
-                return a.is_verified ? -1 : 1;
-              }
-              return b.rating - a.rating;
-            });
-            break;
-        }
-      } else {
-        // Si no hay ubicación, ordenar según criterio (sin distancia)
-        switch (sortBy) {
-          case 'rating':
-            mastersWithDistance.sort((a, b) => b.rating - a.rating);
-            break;
-          case 'price_asc':
-            mastersWithDistance.sort((a, b) => (a.hourly_rate || 0) - (b.hourly_rate || 0));
-            break;
-          case 'price_desc':
-            mastersWithDistance.sort((a, b) => (b.hourly_rate || 0) - (a.hourly_rate || 0));
-            break;
-          case 'relevance':
-          default:
-            mastersWithDistance.sort((a, b) => {
-              if (a.is_verified !== b.is_verified) {
-                return a.is_verified ? -1 : 1;
-              }
-              return b.rating - a.rating;
-            });
-            break;
-        }
+      if (error) {
+        console.error('Error searching masters:', error);
+        throw error;
       }
-
-      setMasters(mastersWithDistance);
+      
+      // La edge function ya devuelve los datos procesados y ordenados
+      const mastersData = data as Master[];
+      
+      setMasters(mastersData);
       if (onMastersChange) {
-        onMastersChange(mastersWithDistance);
+        onMastersChange(mastersData);
       }
     } catch (error) {
       console.error("Error fetching masters:", error);
