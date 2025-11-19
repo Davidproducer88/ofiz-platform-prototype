@@ -22,6 +22,7 @@ const Auth = () => {
   const [selectedUserType, setSelectedUserType] = useState<'client' | 'master' | 'business' | null>(typeParam as 'client' | 'master' | 'business' | null);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState(emailParam || '');
+  const [activeTab, setActiveTab] = useState<string>(typeParam ? "signup" : "login");
 
   useEffect(() => {
     if (typeParam) {
@@ -38,6 +39,7 @@ const Auth = () => {
   const handleUserTypeSelect = (type: 'client' | 'master' | 'business') => {
     setSelectedUserType(type);
     setShowUserTypeSelector(false);
+    setActiveTab("signup");
   };
 
   const handleSignUpClick = () => {
@@ -119,7 +121,7 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue={selectedUserType ? "signup" : "login"} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
               <TabsTrigger value="signup">Registrarse</TabsTrigger>
