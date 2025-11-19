@@ -87,27 +87,30 @@ serve(async (req) => {
 
     console.log('Auth user created:', authData.user.id);
 
-    // 2. Crear perfil en profiles
+    // 2. Actualizar perfil (el trigger handle_new_user ya lo creó)
+    // Esperar un momento para que el trigger se ejecute
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
-      .insert({
-        id: authData.user.id,
+      .update({
         user_type: 'master',
         full_name: requestData.full_name || requestData.email.split('@')[0],
         phone: requestData.phone || null,
         address: requestData.address || null,
         city: requestData.city || null,
         email_verified: false
-      });
+      })
+      .eq('id', authData.user.id);
 
     if (profileError) {
-      console.error('Error creating profile:', profileError);
+      console.error('Error updating profile:', profileError);
       // Rollback: eliminar usuario de auth
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      throw new Error('Error al crear perfil: ' + profileError.message);
+      throw new Error('Error al actualizar perfil: ' + profileError.message);
     }
 
-    console.log('Profile created for user:', authData.user.id);
+    console.log('Profile updated for user:', authData.user.id);
 
     // 3. Crear registro en masters
     const { error: masterError } = await supabaseAdmin
