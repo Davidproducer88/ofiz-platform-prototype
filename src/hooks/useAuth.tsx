@@ -155,9 +155,64 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signUpMaster = async (email: string, password: string, userData: any) => {
+    try {
+      // Call edge function to handle master registration
+      const { data, error } = await supabase.functions.invoke('register-master', {
+        body: {
+          email,
+          password,
+          full_name: userData.full_name,
+          phone: userData.phone,
+          address: userData.address,
+          city: userData.city,
+          referral_code: userData.referral_code
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Error en el registro",
+          description: error.message || 'Error al registrar maestro',
+          variant: "destructive"
+        });
+        return { error };
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Error en el registro",
+          description: data.error,
+          variant: "destructive"
+        });
+        return { error: new Error(data.error) };
+      }
+
+      toast({
+        title: "Registro exitoso",
+        description: "Por favor verifica tu email para activar tu cuenta"
+      });
+
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: "Error en el registro",
+        description: error.message,
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
+
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       const userType = userData.user_type || 'client';
+      
+      // Use edge function for master registration
+      if (userType === 'master') {
+        return await signUpMaster(email, password, userData);
+      }
+      
       const redirectUrl = `${window.location.origin}/auth/callback?type=signup&user_type=${userType}`;
       
       // Calculate founder benefits
