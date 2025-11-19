@@ -7,6 +7,7 @@ import { FeedBanner } from "@/components/FeedBanner";
 import { TopMastersRanking } from "@/components/TopMastersRanking";
 import { BetaAnnouncementDialog } from "@/components/BetaAnnouncementDialog";
 import { DemoBanner } from "@/components/DemoBanner";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 interface IndexProps {
   userType?: 'client' | 'master' | 'admin' | 'business' | null;
@@ -29,6 +30,7 @@ const Index = ({ userType, onShowOnboarding }: IndexProps) => {
         <HowItWorks />
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };
