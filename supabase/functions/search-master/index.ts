@@ -37,12 +37,21 @@ serve(async (req) => {
 
     console.log('Search params:', { searchQuery, filters, sortBy, userLocation });
 
-    // Construir query base
+    // Construir query base - usar left join para profiles y services
     let query = supabase
       .from("masters")
       .select(`
-        *,
-        profiles!inner (
+        id,
+        business_name,
+        description,
+        hourly_rate,
+        experience_years,
+        rating,
+        total_reviews,
+        is_verified,
+        latitude,
+        longitude,
+        profiles!masters_id_fkey (
           full_name,
           avatar_url,
           city,
@@ -66,24 +75,10 @@ serve(async (req) => {
       query = query.gte("rating", filters.minRating);
     }
 
-    if (filters.city && filters.city !== "all") {
-      query = query.eq("profiles.city", filters.city);
-    }
-
     if (filters.priceRange) {
       query = query
         .gte("hourly_rate", filters.priceRange[0])
         .lte("hourly_rate", filters.priceRange[1]);
-    }
-
-    // Búsqueda de texto en múltiples campos
-    if (searchQuery && searchQuery.trim()) {
-      const searchTerm = searchQuery.trim();
-      
-      // Buscar en business_name, description de masters
-      query = query.or(
-        `business_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`
-      );
     }
 
     const { data: mastersData, error } = await query;
@@ -96,13 +91,21 @@ serve(async (req) => {
     let masters = mastersData || [];
     console.log(`Found ${masters.length} masters before filtering`);
 
-    // Filtro adicional por nombre de perfil (no se puede hacer directamente en la query con inner join)
+    // Filtrar por ciudad si está especificado
+    if (filters.city && filters.city !== "all") {
+      masters = masters.filter(master => 
+        master.profiles?.city === filters.city
+      );
+    }
+
+    // Filtro adicional por búsqueda de texto
     if (searchQuery && searchQuery.trim()) {
       const searchTerm = searchQuery.trim().toLowerCase();
       masters = masters.filter(master => {
         const fullName = master.profiles?.full_name?.toLowerCase() || '';
         const businessName = master.business_name?.toLowerCase() || '';
         const description = master.description?.toLowerCase() || '';
+        const city = master.profiles?.city?.toLowerCase() || '';
         
         // Buscar en servicios
         const hasServiceMatch = master.services?.some((service: any) => 
@@ -114,6 +117,7 @@ serve(async (req) => {
         return fullName.includes(searchTerm) || 
                businessName.includes(searchTerm) || 
                description.includes(searchTerm) ||
+               city.includes(searchTerm) ||
                hasServiceMatch;
       });
     }
