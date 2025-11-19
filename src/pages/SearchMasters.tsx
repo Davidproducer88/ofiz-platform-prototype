@@ -122,12 +122,12 @@ const SearchMasters = () => {
           </div>
         </div>
 
-        {/* Recommended Masters */}
-        {!searchQuery && (
+        {/* Recommended Masters - mostrar solo si no hay búsqueda ni filtros aplicados */}
+        {!searchQuery && filters.city === "all" && filters.minRating === 0 && !filters.category && (
           <RecommendedMasters />
         )}
 
-        {/* Search Results with Map */}
+        {/* Search Results with Map - siempre mostrar */}
         <Tabs defaultValue="list" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
             <TabsTrigger value="list">Lista</TabsTrigger>
