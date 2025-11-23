@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useBusinessDashboard } from "@/hooks/useBusinessDashboard";
 import { Header } from "@/components/Header";
@@ -40,9 +40,16 @@ import { MarketplaceFeed } from "@/components/MarketplaceFeed";
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
   
-  // Get initial tab from URL query parameter
+  // Get initial tab from URL query parameter and sync with state
   const searchParams = new URLSearchParams(window.location.search);
-  const initialTab = searchParams.get('tab') || 'overview';
+  const urlTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(urlTab);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const newTab = new URLSearchParams(window.location.search).get('tab') || 'overview';
+    setActiveTab(newTab);
+  }, [window.location.search]);
   
   const {
     loading,
@@ -268,7 +275,7 @@ export default function BusinessDashboard() {
         )}
 
         {/* Main Tabs */}
-        <Tabs defaultValue={initialTab} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto p-1">
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
