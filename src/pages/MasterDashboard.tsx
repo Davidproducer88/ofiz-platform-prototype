@@ -120,9 +120,16 @@ interface MasterProfile {
 const MasterDashboard = () => {
   const { profile, refreshProfile } = useAuth();
   
-  // Get initial tab from URL query parameter
+  // Get initial tab from URL query parameter and sync with state
   const searchParams = new URLSearchParams(window.location.search);
-  const initialTab = searchParams.get('tab') || 'overview';
+  const urlTab = searchParams.get('tab') || 'services';
+  const [activeTab, setActiveTab] = useState(urlTab);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const newTab = new URLSearchParams(window.location.search).get('tab') || 'services';
+    setActiveTab(newTab);
+  }, [window.location.search]);
   
   const {
     services,
@@ -512,7 +519,7 @@ const MasterDashboard = () => {
         {/* Stats Cards - Now using DashboardStats component */}
         <DashboardStats stats={stats} />
 
-        <Tabs defaultValue={initialTab} className="w-full mt-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-8">
           <TabsList className="inline-flex flex-wrap w-full justify-start h-auto p-2 gap-2 bg-muted/50 rounded-xl">
             <TabsTrigger value="feed" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Home className="h-4 w-4" />

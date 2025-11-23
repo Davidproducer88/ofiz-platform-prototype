@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
@@ -65,9 +65,16 @@ const ClientDashboard = () => {
   const navigate = useNavigate();
   const { favorites, toggleFavorite, isFavorite } = useFavorites(profile?.id);
   
-  // Get initial tab from URL query parameter
+  // Get initial tab from URL query parameter and sync with state
   const searchParams = new URLSearchParams(window.location.search);
-  const initialTab = searchParams.get('tab') || 'overview';
+  const urlTab = searchParams.get('tab') || 'feed';
+  const [activeTab, setActiveTab] = useState(urlTab);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const newTab = new URLSearchParams(window.location.search).get('tab') || 'feed';
+    setActiveTab(newTab);
+  }, [window.location.search]);
   const { 
     services, 
     bookings, 
@@ -277,7 +284,7 @@ const ClientDashboard = () => {
         </div>
 
         {/* Tabs Section */}
-        <Tabs defaultValue={initialTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-2">
             <TabsTrigger value="feed" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
