@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { smoothScrollTo, scrollToTop } from "@/utils/smoothScroll";
+import { getDashboardRoute } from "@/utils/dashboardRedirect";
 import logoOfiz from "@/assets/logo-ofiz-new.png";
 interface HeaderProps {
   userType?: 'client' | 'master' | 'admin' | 'business' | null;
@@ -429,7 +430,8 @@ export const Header = ({
 
                 {isMenuOpen && <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-elegant py-1 z-10">
                     <button onClick={() => {
-                onProfileClick?.();
+                const dashboardRoute = getDashboardRoute(userType!);
+                navigate(`${dashboardRoute}?tab=profile`);
                 setIsMenuOpen(false);
               }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <User className="mr-2 h-4 w-4" />

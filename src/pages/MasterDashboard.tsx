@@ -119,6 +119,11 @@ interface MasterProfile {
 
 const MasterDashboard = () => {
   const { profile, refreshProfile } = useAuth();
+  
+  // Get initial tab from URL query parameter
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialTab = searchParams.get('tab') || 'overview';
+  
   const {
     services,
     bookings,
@@ -507,7 +512,7 @@ const MasterDashboard = () => {
         {/* Stats Cards - Now using DashboardStats component */}
         <DashboardStats stats={stats} />
 
-        <Tabs defaultValue="services" className="w-full mt-8">
+        <Tabs defaultValue={initialTab} className="w-full mt-8">
           <TabsList className="inline-flex flex-wrap w-full justify-start h-auto p-2 gap-2 bg-muted/50 rounded-xl">
             <TabsTrigger value="feed" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Home className="h-4 w-4" />
