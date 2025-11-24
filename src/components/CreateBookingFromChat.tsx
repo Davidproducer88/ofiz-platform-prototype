@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +46,7 @@ export function CreateBookingFromChat({
   clientId,
   onSuccess,
 }: CreateBookingFromChatProps) {
+  const { profile } = useAuth();
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scheduledDate, setScheduledDate] = useState<Date>();
@@ -60,15 +62,24 @@ export function CreateBookingFromChat({
       return;
     }
 
+    if (!profile?.id) {
+      toast({
+        title: "Error",
+        description: "Debes estar autenticado para crear un encargo",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // Crear el booking directamente (service_id puede ser null)
+      // Crear el booking usando el ID del usuario autenticado
       const { data: bookingData, error: bookingError } = await supabase
         .from("bookings")
         .insert({
-          client_id: clientId,
+          client_id: profile.id, // Usar el ID del usuario autenticado
           master_id: masterId,
-          service_id: null, // No viene de un servicio específico
+          service_id: "00000000-0000-0000-0000-000000000000", // UUID temporal
           total_price: data.price,
           scheduled_date: scheduledDate.toISOString(),
           client_address: data.address,
