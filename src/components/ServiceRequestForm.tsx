@@ -197,16 +197,24 @@ export function ServiceRequestForm({
           </div>
 
           <div>
-            <Label htmlFor="payment_method">Método de Pago Preferido *</Label>
+            <Label htmlFor="payment_method">Medio de pago (a través de Mercado Pago) *</Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Los pagos de Ofiz se realizan de forma segura a través de Mercado Pago. Elige el medio de pago que prefieras.
+            </p>
             <Select onValueChange={(value) => setValue("payment_method", value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona método de pago" />
+                <SelectValue placeholder="Selecciona medio de pago" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Efectivo">Efectivo</SelectItem>
-                <SelectItem value="Transferencia Bancaria">Transferencia Bancaria</SelectItem>
-                <SelectItem value="Tarjeta de Crédito/Débito">Tarjeta de Crédito/Débito</SelectItem>
-                <SelectItem value="Criptomonedas">Criptomonedas</SelectItem>
+                <SelectItem value="mp_cuenta_debito_prepaga_redes">
+                  Dinero en cuenta, Débito, Prepaga y Redes de cobranza
+                </SelectItem>
+                <SelectItem value="mp_credito_1_cuota">
+                  Tarjeta de crédito en una cuota
+                </SelectItem>
+                <SelectItem value="mp_credito_en_cuotas">
+                  Tarjeta de crédito en cuotas
+                </SelectItem>
               </SelectContent>
             </Select>
             {errors.payment_method && (
