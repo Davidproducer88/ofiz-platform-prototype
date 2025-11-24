@@ -81,6 +81,8 @@ export const useClientDashboard = (profileId?: string) => {
     }
 
     try {
+      console.log('Fetching bookings for client:', profileId);
+      
       const { data, error } = await supabase
         .from('bookings')
         .select(`
@@ -91,13 +93,18 @@ export const useClientDashboard = (profileId?: string) => {
         .eq('client_id', profileId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error from Supabase:', error);
+        throw error;
+      }
+      
+      console.log('Fetched bookings:', data);
       setBookings(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching bookings:', error);
       toast({
-        title: "Error",
-        description: "No se pudieron cargar tus encargos",
+        title: "Error al cargar encargos",
+        description: error?.message || "No se pudieron cargar tus encargos. Por favor intenta de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -114,8 +121,23 @@ export const useClientDashboard = (profileId?: string) => {
     photos: string[];
     totalPrice: number;
   }) => {
+    if (!profileId) {
+      toast({
+        title: "Error",
+        description: "Debes estar autenticado para crear una reserva",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     try {
-      const { error } = await supabase
+      console.log('Creating booking with data:', {
+        client_id: profileId,
+        service_id: bookingData.serviceId,
+        master_id: bookingData.masterId,
+      });
+
+      const { data, error } = await supabase
         .from('bookings')
         .insert({
           client_id: profileId,
@@ -127,9 +149,15 @@ export const useClientDashboard = (profileId?: string) => {
           client_photos: bookingData.photos,
           total_price: bookingData.totalPrice,
           status: 'pending',
-        });
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating booking:', error);
+        throw error;
+      }
+
+      console.log('Booking created successfully:', data);
 
       toast({
         title: "¡Reserva creada!",
@@ -141,8 +169,8 @@ export const useClientDashboard = (profileId?: string) => {
     } catch (error: any) {
       console.error('Error creating booking:', error);
       toast({
-        title: "Error",
-        description: error.message || "No se pudo crear la reserva",
+        title: "Error al crear reserva",
+        description: error.message || "No se pudo crear la reserva. Verifica que todos los campos estén completos.",
         variant: "destructive",
       });
       return false;
