@@ -98,6 +98,7 @@ const ClientDashboard = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [serviceRequestDialogOpen, setServiceRequestDialogOpen] = useState(false);
   const [newDate, setNewDate] = useState<Date>(new Date());
+  const [requestsRefreshTrigger, setRequestsRefreshTrigger] = useState(0);
   
   const [filters, setFilters] = useState({
     priceRange: [0, 500000] as [number, number],
@@ -431,7 +432,10 @@ const ClientDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <MyServiceRequests />
+                <MyServiceRequests 
+                  refreshTrigger={requestsRefreshTrigger}
+                  onNavigateToChat={() => setActiveTab('chat')}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -602,8 +606,8 @@ const ClientDashboard = () => {
         open={serviceRequestDialogOpen}
         onOpenChange={setServiceRequestDialogOpen}
         onSuccess={() => {
-          setServiceRequestDialogOpen(false);
-          // Refresh requests if needed
+          setRequestsRefreshTrigger(prev => prev + 1);
+          setActiveTab('requests');
         }}
       />
     </div>

@@ -45,6 +45,7 @@ interface ServiceRequest {
 
 interface MyServiceRequestsProps {
   onNavigateToChat?: () => void;
+  refreshTrigger?: number;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -64,7 +65,7 @@ const statusLabels: Record<string, string> = {
   cancelled: "Cancelada",
 };
 
-export function MyServiceRequests({ onNavigateToChat }: MyServiceRequestsProps = {}) {
+export function MyServiceRequests({ onNavigateToChat, refreshTrigger }: MyServiceRequestsProps = {}) {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -101,7 +102,7 @@ export function MyServiceRequests({ onNavigateToChat }: MyServiceRequestsProps =
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchMyRequests = async () => {
     try {

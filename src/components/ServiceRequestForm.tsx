@@ -115,14 +115,19 @@ export function ServiceRequestForm({
 
       toast({
         title: "¡Solicitud publicada!",
-        description: "Los maestros podrán ver tu solicitud y enviarte presupuestos",
+        description: "Tu solicitud se publicó correctamente y ya aparece en Mis Solicitudes de Servicio",
       });
 
+      // Cerrar modal y limpiar formulario
       reset();
       setPhotos([]);
       setPhotosPreviews([]);
       onOpenChange(false);
-      onSuccess?.();
+      
+      // Trigger callback to refresh list
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
       console.error("Error creating request:", error);
       toast({
