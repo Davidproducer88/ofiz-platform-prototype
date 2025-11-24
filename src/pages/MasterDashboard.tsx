@@ -77,7 +77,7 @@ interface Service {
 
 interface Booking {
   id: string;
-  service_id: string;
+  service_id: string | null;
   scheduled_date: string;
   status: string;
   total_price: number;
@@ -86,7 +86,7 @@ interface Booking {
   services: {
     title: string;
     category: string;
-  };
+  } | null;
   profiles: {
     full_name: string;
     phone?: string;
@@ -406,10 +406,11 @@ const MasterDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Header userType="master" />
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Cargando tu dashboard...</p>
+          <p className="text-foreground">Cargando tu dashboard...</p>
         </div>
       </div>
     );
@@ -420,8 +421,9 @@ const MasterDashboard = () => {
       <div className="min-h-screen bg-gradient-subtle">
         <Header userType="master" />
         <div className="container py-16 text-center space-y-4">
-          <h1 className="text-2xl font-semibold">Preparando tu perfil de Maestro</h1>
-          <p>Estamos creando tu perfil. Si tarda demasiado, pulsa Reintentar.</p>
+          <AlertCircle className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
+          <h1 className="text-2xl font-semibold text-foreground">Preparando tu perfil de Maestro</h1>
+          <p className="text-muted-foreground">Estamos creando tu perfil. Si tarda demasiado, pulsa Reintentar.</p>
           <Button onClick={refreshProfile}>Reintentar</Button>
         </div>
       </div>
@@ -874,17 +876,23 @@ const MasterDashboard = () => {
               <CardContent>
                 {bookings.length > 0 ? (
                   <div className="space-y-4">
-                    {bookings.map((booking) => (
+                     {bookings.map((booking) => (
                       <div key={booking.id} className="border border-border rounded-lg p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className="font-medium">{booking.services.title}</h3>
+                            <h3 className="font-medium">{booking.services?.title || 'Encargo sin servicio específico'}</h3>
                             <p className="text-sm text-muted-foreground">
                               Cliente: {booking.profiles?.full_name || 'No disponible'}
                             </p>
                             <div className="flex items-center mt-2 text-sm text-muted-foreground">
                               <Calendar className="h-4 w-4 mr-1" />
-                              {new Date(booking.scheduled_date).toLocaleDateString('es-ES')}
+                              {new Date(booking.scheduled_date).toLocaleDateString('es-ES', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
                               <MapPin className="h-4 w-4 ml-4 mr-1" />
                               {booking.client_address}
                             </div>
@@ -895,9 +903,11 @@ const MasterDashboard = () => {
                               </div>
                             )}
                             {booking.notes && (
-                              <p className="text-sm text-muted-foreground mt-2">
-                                Notas: {booking.notes}
-                              </p>
+                              <div className="mt-2 p-2 bg-muted/30 rounded">
+                                <p className="text-sm">
+                                  <strong>Notas:</strong> {booking.notes}
+                                </p>
+                              </div>
                             )}
                           </div>
                           <div className="text-right">
@@ -906,16 +916,17 @@ const MasterDashboard = () => {
                             >
                               {statusTranslations[booking.status as keyof typeof statusTranslations]?.label}
                             </Badge>
-                            <p className="text-lg font-bold mt-2">
-                              ${booking.total_price.toLocaleString()}
+                            <p className="text-lg font-bold mt-2 text-primary">
+                              $U {booking.total_price.toLocaleString()}
                             </p>
-                            <div className="mt-3 space-x-2">
+                            <div className="mt-3 flex flex-col gap-2">
                               {booking.status === 'pending' && (
                                 <>
                                   <Button
                                     size="sm"
                                     onClick={() => updateBookingStatus(booking.id, 'confirmed')}
                                   >
+                                    <CheckCircle className="h-4 w-4 mr-1" />
                                     Confirmar
                                   </Button>
                                   <Button
@@ -932,7 +943,7 @@ const MasterDashboard = () => {
                                   size="sm"
                                   onClick={() => updateBookingStatus(booking.id, 'in_progress')}
                                 >
-                                  Iniciar
+                                  Iniciar Trabajo
                                 </Button>
                               )}
                               {booking.status === 'in_progress' && (

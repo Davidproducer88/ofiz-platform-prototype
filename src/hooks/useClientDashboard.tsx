@@ -19,7 +19,7 @@ interface Service {
 
 interface Booking {
   id: string;
-  service_id: string;
+  service_id: string | null;
   scheduled_date: string;
   status: string;
   total_price: number;
@@ -28,7 +28,7 @@ interface Booking {
   services: {
     title: string;
     category: string;
-  };
+  } | null;
   masters: {
     business_name: string;
     rating: number;

@@ -5,7 +5,7 @@ import { BookingActions } from '@/components/BookingActions';
 
 interface Booking {
   id: string;
-  service_id: string;
+  service_id: string | null;
   scheduled_date: string;
   status: string;
   total_price: number;
@@ -14,7 +14,7 @@ interface Booking {
   services: {
     title: string;
     category: string;
-  };
+  } | null;
   masters: {
     business_name: string;
     rating: number;
@@ -58,7 +58,7 @@ export function ClientBookingsList({ bookings, onReview, onReschedule, onCancel 
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold">{booking.services.title}</h3>
+                    <h3 className="text-lg font-semibold">{booking.services?.title || 'Encargo sin servicio específico'}</h3>
                     <Badge className={status.className}>
                       {status.label}
                     </Badge>
