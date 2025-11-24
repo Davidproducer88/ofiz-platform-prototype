@@ -79,7 +79,7 @@ export function CreateBookingFromChat({
         .insert({
           client_id: profile.id, // Usar el ID del usuario autenticado
           master_id: masterId,
-          service_id: "00000000-0000-0000-0000-000000000000", // UUID temporal
+          service_id: null, // Bookings desde chat no tienen servicio específico
           total_price: data.price,
           scheduled_date: scheduledDate.toISOString(),
           client_address: data.address,
