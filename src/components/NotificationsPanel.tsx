@@ -9,6 +9,7 @@ import { useNotifications, Notification } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NotificationsPanelProps {
   isOpen?: boolean;
@@ -17,6 +18,7 @@ interface NotificationsPanelProps {
 
 export const NotificationsPanel = ({ isOpen, onOpenChange }: NotificationsPanelProps) => {
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead, clearReadNotifications } = useNotifications();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
   const getNotificationIcon = (type: Notification['type']) => {
@@ -40,13 +42,24 @@ export const NotificationsPanel = ({ isOpen, onOpenChange }: NotificationsPanelP
       await markAsRead(notification.id);
     }
 
-    // Navegar según el tipo
+    // Determinar la ruta del dashboard según el tipo de usuario
+    const dashboardRoute = profile?.user_type === 'master' 
+      ? '/master-dashboard'
+      : profile?.user_type === 'business'
+      ? '/business-dashboard'
+      : '/client-dashboard';
+
+    // Navegar según el tipo de notificación
     if (notification.booking_id) {
-      // Aquí podrías navegar a la página de detalles del booking
-      navigate('/client-dashboard');
+      // Navegar al dashboard con el tab de bookings/reservas activo
+      const tab = profile?.user_type === 'client' ? 'bookings' : 'bookings';
+      navigate(`${dashboardRoute}?tab=${tab}`);
     } else if (notification.conversation_id) {
-      // Navegar al chat
-      navigate('/client-dashboard'); // Luego implementaremos navegación al chat específico
+      // Navegar al dashboard con el tab de mensajes activo
+      navigate(`${dashboardRoute}?tab=messages`);
+    } else {
+      // Navegación por defecto al dashboard
+      navigate(dashboardRoute);
     }
 
     if (onOpenChange) {

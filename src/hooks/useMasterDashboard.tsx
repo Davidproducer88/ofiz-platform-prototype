@@ -88,7 +88,10 @@ export const useMasterDashboard = (profileId?: string) => {
   }, [profileId]);
 
   const fetchDashboardData = async () => {
-    if (!profileId) return;
+    if (!profileId) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -98,19 +101,22 @@ export const useMasterDashboard = (profileId?: string) => {
         fetchBookings(),
         fetchReviews(),
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los datos del dashboard',
+        title: 'Error al cargar el dashboard',
+        description: error?.message || 'No se pudieron cargar los datos del dashboard. Por favor intenta de nuevo.',
         variant: 'destructive',
       });
+      // No bloquear el dashboard si hay error, solo mostrar el toast
     } finally {
       setLoading(false);
     }
   };
 
   const fetchMasterProfile = async () => {
+    if (!profileId) return;
+
     try {
       const { data, error } = await supabase
         .from('masters')
@@ -118,7 +124,9 @@ export const useMasterDashboard = (profileId?: string) => {
         .eq('id', profileId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
 
       if (!data && profileId) {
         const { data: newMasterData, error: createError } = await supabase
@@ -132,18 +140,26 @@ export const useMasterDashboard = (profileId?: string) => {
 
         if (createError) {
           console.error('Error creating master profile:', createError);
+          throw createError;
         } else {
           setMasterProfile(newMasterData);
         }
       } else {
         setMasterProfile(data);
       }
-    } catch (error) {
-      console.error('Error fetching master profile:', error);
+    } catch (error: any) {
+      console.error('Error fetching/creating master profile:', error);
+      toast({
+        title: 'Error al cargar el perfil',
+        description: error?.message || 'No se pudo cargar el perfil de maestro',
+        variant: 'destructive',
+      });
     }
   };
 
   const fetchServices = async () => {
+    if (!profileId) return;
+
     try {
       const { data, error } = await supabase
         .from('services')
@@ -153,13 +169,22 @@ export const useMasterDashboard = (profileId?: string) => {
 
       if (error) throw error;
       setServices(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching services:', error);
+      toast({
+        title: 'Error al cargar servicios',
+        description: error?.message || 'No se pudieron cargar tus servicios',
+        variant: 'destructive',
+      });
     }
   };
 
   const fetchBookings = async () => {
+    if (!profileId) return;
+
     try {
+      console.log('Fetching bookings for master:', profileId);
+      
       const { data, error } = await supabase
         .from('bookings')
         .select(`
@@ -170,14 +195,26 @@ export const useMasterDashboard = (profileId?: string) => {
         .eq('master_id', profileId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error from Supabase:', error);
+        throw error;
+      }
+      
+      console.log('Fetched bookings for master:', data);
       setBookings(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching bookings:', error);
+      toast({
+        title: 'Error al cargar reservas',
+        description: error?.message || 'No se pudieron cargar tus reservas',
+        variant: 'destructive',
+      });
     }
   };
 
   const fetchReviews = async () => {
+    if (!profileId) return;
+
     try {
       const { data, error } = await supabase
         .from('reviews')
@@ -206,8 +243,13 @@ export const useMasterDashboard = (profileId?: string) => {
       );
 
       setReviews(reviewsWithServices);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching reviews:', error);
+      toast({
+        title: 'Error al cargar reseñas',
+        description: error?.message || 'No se pudieron cargar tus reseñas',
+        variant: 'destructive',
+      });
     }
   };
 
