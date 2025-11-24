@@ -40,7 +40,7 @@ export default function HelpCenter() {
       title: "Pagos y Facturación",
       description: "Información sobre pagos",
       articles: [
-        "Métodos de pago aceptados",
+        "Pagos seguros con Mercado Pago",
         "Cómo funciona el pago protegido",
         "Retiros y transferencias",
         "Facturación y comprobantes"
