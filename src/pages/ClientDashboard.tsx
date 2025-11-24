@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,18 +63,19 @@ import { AlertTriangle, Award } from 'lucide-react';
 const ClientDashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { favorites, toggleFavorite, isFavorite } = useFavorites(profile?.id);
   
   // Get initial tab from URL query parameter and sync with state
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(location.search);
   const urlTab = searchParams.get('tab') || 'feed';
   const [activeTab, setActiveTab] = useState(urlTab);
 
   // Update tab when URL changes
   useEffect(() => {
-    const newTab = new URLSearchParams(window.location.search).get('tab') || 'feed';
+    const newTab = new URLSearchParams(location.search).get('tab') || 'feed';
     setActiveTab(newTab);
-  }, [window.location.search]);
+  }, [location.search]);
   const { 
     services, 
     bookings, 

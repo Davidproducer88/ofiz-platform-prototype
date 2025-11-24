@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "react-router-dom";
 import { useBusinessDashboard } from "@/hooks/useBusinessDashboard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -39,17 +40,18 @@ import { MarketplaceFeed } from "@/components/MarketplaceFeed";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
+  const location = useLocation();
   
   // Get initial tab from URL query parameter and sync with state
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(location.search);
   const urlTab = searchParams.get('tab') || 'overview';
   const [activeTab, setActiveTab] = useState(urlTab);
 
   // Update tab when URL changes
   useEffect(() => {
-    const newTab = new URLSearchParams(window.location.search).get('tab') || 'overview';
+    const newTab = new URLSearchParams(location.search).get('tab') || 'overview';
     setActiveTab(newTab);
-  }, [window.location.search]);
+  }, [location.search]);
   
   const {
     loading,
