@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -119,17 +120,18 @@ interface MasterProfile {
 
 const MasterDashboard = () => {
   const { profile, refreshProfile } = useAuth();
+  const location = useLocation();
   
   // Get initial tab from URL query parameter and sync with state
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(location.search);
   const urlTab = searchParams.get('tab') || 'services';
   const [activeTab, setActiveTab] = useState(urlTab);
 
   // Update tab when URL changes
   useEffect(() => {
-    const newTab = new URLSearchParams(window.location.search).get('tab') || 'services';
+    const newTab = new URLSearchParams(location.search).get('tab') || 'services';
     setActiveTab(newTab);
-  }, [window.location.search]);
+  }, [location.search]);
   
   const {
     services,

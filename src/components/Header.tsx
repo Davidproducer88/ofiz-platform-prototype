@@ -431,14 +431,15 @@ export const Header = ({
                 {isMenuOpen && <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-elegant py-1 z-10">
                     <button onClick={() => {
                 const dashboardRoute = getDashboardRoute(userType!);
-                navigate(`${dashboardRoute}?tab=profile`);
+                navigate(`${dashboardRoute}?tab=profile`, { replace: false });
                 setIsMenuOpen(false);
               }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <User className="mr-2 h-4 w-4" />
                       Mi Perfil
                     </button>
                     <button onClick={() => {
-                if (userType === 'client') navigate('/client-dashboard');else if (userType === 'master') navigate('/master-dashboard');else if (userType === 'admin') navigate('/admin-dashboard');
+                const dashboardRoute = getDashboardRoute(userType!);
+                navigate(dashboardRoute, { replace: false });
                 setIsMenuOpen(false);
               }} className="flex items-center px-3 py-2 text-sm text-foreground hover:bg-muted w-full text-left">
                       <Settings className="mr-2 h-4 w-4" />
