@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { BookingCheckoutBrick } from "./BookingCheckoutBrick";
+import { calculatePayment, PaymentMethodType } from "@/utils/paymentCalculator";
 
 interface RemainingPaymentDialogProps {
   open: boolean;
@@ -40,6 +41,16 @@ export const RemainingPaymentDialog = ({
   const [error, setError] = useState<string | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [availableCredits, setAvailableCredits] = useState(0);
+  const [paymentMethod] = useState<PaymentMethodType>('mp_cuenta_debito_prepaga_redes');
+
+  // Calcular para pago parcial (50%)
+  const calculation = calculatePayment({
+    priceBase: remainingAmount * 2, // El remaining es la mitad
+    paymentType: 'partial',
+    paymentMethod,
+    accreditation: 'immediate',
+    creditsAvailable: availableCredits
+  });
 
   useEffect(() => {
     if (open && profile?.id) {
@@ -324,6 +335,8 @@ export const RemainingPaymentDialog = ({
               paymentPercentage={50}
               maxInstallments={3}
               incentiveDiscount={0}
+              paymentMethod={paymentMethod}
+              calculation={calculation}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />

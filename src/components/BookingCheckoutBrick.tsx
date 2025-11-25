@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { PaymentMethodType, PaymentCalculation } from '@/utils/paymentCalculator';
 
 interface BookingCheckoutBrickProps {
   amount: number;
@@ -8,6 +9,8 @@ interface BookingCheckoutBrickProps {
   paymentPercentage?: number;
   maxInstallments?: number;
   incentiveDiscount?: number;
+  paymentMethod: PaymentMethodType;
+  calculation: PaymentCalculation;
   onSuccess: (paymentData: any) => void;
   onError: (error: any) => void;
 }
@@ -18,6 +21,8 @@ export const BookingCheckoutBrick = ({
   paymentPercentage = 100,
   maxInstallments = 6,
   incentiveDiscount = 0,
+  paymentMethod,
+  calculation,
   onSuccess, 
   onError 
 }: BookingCheckoutBrickProps) => {
@@ -180,6 +185,12 @@ export const BookingCheckoutBrick = ({
                       payer,
                       paymentPercentage,
                       incentiveDiscount,
+                      paymentMethod,
+                      priceBase: calculation.priceBase,
+                      platformFee: calculation.platformFee,
+                      mpFee: calculation.mpFee,
+                      netoProfesional: calculation.netoProfesional,
+                      paymentType: calculation.paymentType
                     }
                   });
 

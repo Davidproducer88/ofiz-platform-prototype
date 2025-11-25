@@ -36,7 +36,13 @@ serve(async (req) => {
       installments = 1, 
       payer,
       paymentPercentage = 100,
-      incentiveDiscount = 0
+      incentiveDiscount = 0,
+      paymentMethod,
+      priceBase,
+      platformFee,
+      mpFee,
+      netoProfesional,
+      paymentType
     } = requestBody;
     
     console.log('Booking payment request:', { 
@@ -54,7 +60,7 @@ serve(async (req) => {
     // Get booking
     const { data: booking, error: bookingError } = await supabaseClient
       .from('bookings')
-      .select('id, client_id, master_id, total_price')
+      .select('id, client_id, master_id, total_price, price_base')
       .eq('id', bookingId)
       .single();
 
@@ -69,10 +75,12 @@ serve(async (req) => {
 
     // Calculate amounts
     const totalAmount = booking.total_price;
+    const basePrice = priceBase || booking.price_base || totalAmount;
     const paymentAmount = paymentPercentage === 50 ? totalAmount * 0.5 : totalAmount;
     const remainingAmount = paymentPercentage === 50 ? totalAmount * 0.5 : 0;
-    const commissionAmount = Math.round(paymentAmount * 0.05 * 100) / 100;
-    const masterAmount = paymentAmount - commissionAmount;
+    const commissionAmount = platformFee || Math.round(basePrice * 0.05 * 100) / 100;
+    const mpFeeAmount = mpFee || Math.round(basePrice * 0.025 * 100) / 100;
+    const masterAmount = netoProfesional || (basePrice - commissionAmount - mpFeeAmount);
 
     const mercadoPagoToken = Deno.env.get('MERCADO_PAGO_ACCESS_TOKEN');
     if (!mercadoPagoToken) {
@@ -147,7 +155,17 @@ serve(async (req) => {
 
     // Update booking if approved
     if (paymentResult.status === 'approved') {
-      await supabaseAdmin.from('bookings').update({ status: 'confirmed' }).eq('id', bookingId);
+      await supabaseAdmin.from('bookings').update({ 
+        status: 'confirmed',
+        price_base: basePrice,
+        platform_fee: commissionAmount,
+        mp_fee_estimated: mpFeeAmount,
+        payment_method_selected: paymentMethod,
+        payment_type: paymentType || (paymentPercentage === 100 ? 'total' : 'partial'),
+        upfront_amount: paymentAmount,
+        pending_amount: remainingAmount,
+        neto_profesional: masterAmount
+      }).eq('id', bookingId);
       
       await supabaseAdmin.from('notifications').insert([
         {
