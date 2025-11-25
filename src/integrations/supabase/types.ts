@@ -100,12 +100,20 @@ export type Database = {
           created_at: string
           id: string
           master_id: string
+          mp_fee_estimated: number | null
+          neto_profesional: number | null
           notes: string | null
+          payment_method_selected: string | null
+          payment_type: string | null
+          pending_amount: number | null
+          platform_fee: number | null
+          price_base: number | null
           scheduled_date: string
           service_id: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
           updated_at: string
+          upfront_amount: number | null
         }
         Insert: {
           client_address: string
@@ -115,12 +123,20 @@ export type Database = {
           created_at?: string
           id?: string
           master_id: string
+          mp_fee_estimated?: number | null
+          neto_profesional?: number | null
           notes?: string | null
+          payment_method_selected?: string | null
+          payment_type?: string | null
+          pending_amount?: number | null
+          platform_fee?: number | null
+          price_base?: number | null
           scheduled_date: string
           service_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
           updated_at?: string
+          upfront_amount?: number | null
         }
         Update: {
           client_address?: string
@@ -130,12 +146,20 @@ export type Database = {
           created_at?: string
           id?: string
           master_id?: string
+          mp_fee_estimated?: number | null
+          neto_profesional?: number | null
           notes?: string | null
+          payment_method_selected?: string | null
+          payment_type?: string | null
+          pending_amount?: number | null
+          platform_fee?: number | null
+          price_base?: number | null
           scheduled_date?: string
           service_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_price?: number
           updated_at?: string
+          upfront_amount?: number | null
         }
         Relationships: [
           {

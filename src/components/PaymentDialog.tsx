@@ -11,13 +11,16 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Gift, AlertCircle, CheckCircle2, Zap, Shield, CreditCard, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BookingCheckoutBrick } from "./BookingCheckoutBrick";
+import { PaymentCalculatorCard } from "./PaymentCalculatorCard";
 import { cn } from "@/lib/utils";
+import { calculatePayment, PaymentMethodType, formatPaymentMethod } from "@/utils/paymentCalculator";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -45,11 +48,19 @@ export const PaymentDialog = ({
   const [error, setError] = useState<string | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [paymentOption, setPaymentOption] = useState<'100' | '50'>('100');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('mp_cuenta_debito_prepaga_redes');
 
-  // Incentivo: 5% descuento por pago 100%
-  const fullPaymentDiscount = paymentOption === '100' ? amount * 0.05 : 0;
-  const finalAmount = Math.max(0, (paymentOption === '100' ? amount - fullPaymentDiscount : amount * 0.5) - availableCredits);
-  const discount = (paymentOption === '100' ? amount - fullPaymentDiscount : amount * 0.5) - finalAmount;
+  // Calcular todos los valores usando el calculador central
+  const calculation = calculatePayment({
+    priceBase: amount,
+    paymentType: paymentOption === '100' ? 'total' : 'partial',
+    paymentMethod,
+    accreditation: 'immediate',
+    creditsAvailable: availableCredits
+  });
+
+  const finalAmount = calculation.upfrontAmount;
+  const fullPaymentDiscount = calculation.fullPaymentDiscount;
 
   const handleStartPayment = async () => {
     if (!profile?.id) {
@@ -100,6 +111,24 @@ export const PaymentDialog = ({
         const commissionAmount = paymentAmount * 0.05;
         const masterAmount = paymentAmount - commissionAmount;
 
+        // Actualizar booking con información del pago
+        const { error: bookingUpdateError } = await supabase
+          .from('bookings')
+          .update({
+            status: 'confirmed',
+            price_base: amount,
+            platform_fee: calculation.platformFee,
+            mp_fee_estimated: calculation.mpFee,
+            payment_method_selected: paymentMethod,
+            payment_type: calculation.paymentType,
+            upfront_amount: calculation.upfrontAmount,
+            pending_amount: calculation.pendingAmount,
+            neto_profesional: calculation.netoProfesional
+          })
+          .eq('id', bookingId);
+
+        if (bookingUpdateError) throw bookingUpdateError;
+
         const { error: paymentError } = await supabase
           .from('payments')
           .insert({
@@ -118,16 +147,15 @@ export const PaymentDialog = ({
             metadata: {
               paid_with_credits: true,
               credits_used: availableCredits,
-              payment_option: paymentOption
+              payment_option: paymentOption,
+              payment_method_selected: paymentMethod,
+              platform_fee: calculation.platformFee,
+              mp_fee: calculation.mpFee,
+              neto_profesional: calculation.netoProfesional
             }
           });
 
         if (paymentError) throw paymentError;
-
-        await supabase
-          .from('bookings')
-          .update({ status: 'confirmed' })
-          .eq('id', bookingId);
 
         toast.success('¡Pago completado con créditos!');
         onOpenChange(false);
@@ -201,6 +229,34 @@ export const PaymentDialog = ({
 
         {!showPaymentForm ? (
           <div className="space-y-4 py-4">
+            {/* Selector de Método de Pago */}
+            <div className="space-y-2">
+              <Label htmlFor="payment-method" className="text-sm font-semibold">
+                Medio de pago (a través de Mercado Pago) *
+              </Label>
+              <Select value={paymentMethod} onValueChange={(value: PaymentMethodType) => setPaymentMethod(value)}>
+                <SelectTrigger id="payment-method">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mp_cuenta_debito_prepaga_redes">
+                    Dinero en cuenta, Débito, Prepaga y Redes de cobranza
+                  </SelectItem>
+                  <SelectItem value="mp_credito_1_cuota">
+                    Tarjeta de crédito en una cuota
+                  </SelectItem>
+                  <SelectItem value="mp_credito_en_cuotas">
+                    Tarjeta de crédito en cuotas
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Los pagos de Ofiz se realizan de forma segura a través de Mercado Pago
+              </p>
+            </div>
+
+            <Separator />
+
             {/* Opciones de Pago */}
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Selecciona tu modalidad de pago:</h4>
@@ -305,55 +361,17 @@ export const PaymentDialog = ({
 
             <Separator />
 
-            {/* Detalle del pago */}
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Monto base:</span>
-                <span className="font-medium">${amount.toLocaleString()}</span>
-              </div>
+            {/* Calculadora de pago detallada */}
+            <PaymentCalculatorCard calculation={calculation} showForClient={true} />
 
-              {paymentOption === '100' && fullPaymentDiscount > 0 && (
-                <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <TrendingDown className="h-4 w-4 text-secondary" />
-                    <span className="text-sm font-medium">Descuento pago total (5%):</span>
-                  </div>
-                  <span className="text-sm font-bold text-secondary">
-                    -${fullPaymentDiscount.toLocaleString()}
-                  </span>
-                </div>
-              )}
-
-              {availableCredits > 0 && (
-                <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Gift className="h-4 w-4 text-secondary" />
-                    <span className="text-sm font-medium">Créditos aplicados:</span>
-                  </div>
-                  <span className="text-sm font-bold text-secondary">
-                    -${availableCredits.toLocaleString()}
-                  </span>
-                </div>
-              )}
-
-              <Separator />
-
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold">Total a pagar ahora:</span>
-                <span className="text-2xl font-bold text-primary">
-                  ${finalAmount.toLocaleString()}
-                </span>
-              </div>
-
-              {paymentOption === '50' && (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-xs">
-                    Pagarás ${(amount * 0.5).toLocaleString()} adicionales al finalizar el servicio
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
+            {paymentOption === '50' && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  Pagarás ${calculation.pendingAmount.toLocaleString()} adicionales al finalizar el servicio
+                </AlertDescription>
+              </Alert>
+            )}
 
             {error && (
               <Alert variant="destructive">
@@ -407,6 +425,8 @@ export const PaymentDialog = ({
               paymentPercentage={paymentOption === '100' ? 100 : 50}
               maxInstallments={paymentOption === '100' ? 6 : 3}
               incentiveDiscount={fullPaymentDiscount}
+              paymentMethod={paymentMethod}
+              calculation={calculation}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
             />
