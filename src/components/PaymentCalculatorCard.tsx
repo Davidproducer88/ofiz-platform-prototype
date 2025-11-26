@@ -11,54 +11,54 @@ interface PaymentCalculatorCardProps {
 
 export function PaymentCalculatorCard({ calculation, showForClient = true }: PaymentCalculatorCardProps) {
   if (showForClient) {
-    // Vista para el cliente: solo ve los montos a pagar
+    // Vista mobile-first para el cliente
     return (
       <Card className="bg-muted/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Calculator className="h-4 w-4" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium flex items-center gap-1.5">
+            <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
             Detalle del pago
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between text-sm">
+        <CardContent className="space-y-2">
+          <div className="flex justify-between text-xs sm:text-sm">
             <span className="text-muted-foreground">Precio base:</span>
             <span className="font-medium">${calculation.priceBase.toLocaleString()}</span>
           </div>
 
           {calculation.fullPaymentDiscount > 0 && (
-            <div className="flex justify-between items-center p-2 bg-secondary/10 rounded">
-              <div className="flex items-center gap-2">
-                <TrendingDown className="h-4 w-4 text-secondary" />
-                <span className="text-sm font-medium">Descuento pago total (5%):</span>
+            <div className="flex justify-between items-center p-1.5 sm:p-2 bg-secondary/10 rounded text-xs sm:text-sm">
+              <div className="flex items-center gap-1.5">
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-secondary" />
+                <span className="font-medium">Descuento 5%:</span>
               </div>
-              <span className="text-sm font-bold text-secondary">
+              <span className="font-bold text-secondary">
                 -${calculation.fullPaymentDiscount.toLocaleString()}
               </span>
             </div>
           )}
 
           {calculation.creditsApplied > 0 && (
-            <div className="flex justify-between items-center p-2 bg-secondary/10 rounded">
-              <span className="text-sm font-medium">Créditos aplicados:</span>
-              <span className="text-sm font-bold text-secondary">
+            <div className="flex justify-between items-center p-1.5 sm:p-2 bg-secondary/10 rounded text-xs sm:text-sm">
+              <span className="font-medium">Créditos:</span>
+              <span className="font-bold text-secondary">
                 -${calculation.creditsApplied.toLocaleString()}
               </span>
             </div>
           )}
 
-          <Separator />
+          <Separator className="my-2" />
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Total ahora:</span>
-              <span className="font-bold text-lg">
+              <span className="text-xs sm:text-sm font-medium">Total ahora:</span>
+              <span className="font-bold text-base sm:text-lg">
                 ${calculation.upfrontAmount.toLocaleString()}
               </span>
             </div>
 
             {calculation.pendingAmount > 0 && (
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Al completar:</span>
                 <span className="font-medium">
                   ${calculation.pendingAmount.toLocaleString()}
@@ -67,9 +67,9 @@ export function PaymentCalculatorCard({ calculation, showForClient = true }: Pay
             )}
           </div>
 
-          <div className="pt-2 mt-2 border-t">
-            <div className="text-xs text-muted-foreground">
-              Método seleccionado: {formatPaymentMethod(calculation.paymentMethod)}
+          <div className="pt-1.5 mt-1.5 border-t">
+            <div className="text-[10px] sm:text-xs text-muted-foreground">
+              Método: {formatPaymentMethod(calculation.paymentMethod)}
             </div>
           </div>
         </CardContent>

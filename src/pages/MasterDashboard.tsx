@@ -64,6 +64,10 @@ import { TransactionsList } from '@/components/TransactionsList';
 import { MarketplaceFeed } from '@/components/MarketplaceFeed';
 import { useMasterDashboard } from '@/hooks/useMasterDashboard';
 import { DashboardStats } from '@/components/master/DashboardStats';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileMasterHome } from '@/components/mobile/MobileMasterHome';
+import { BottomNav } from '@/components/mobile/BottomNav';
+import { cn } from '@/lib/utils';
 
 interface Service {
   id: string;
@@ -121,10 +125,11 @@ interface MasterProfile {
 const MasterDashboard = () => {
   const { profile, refreshProfile } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   // Get initial tab from URL query parameter and sync with state
   const searchParams = new URLSearchParams(location.search);
-  const urlTab = searchParams.get('tab') || 'services';
+  const urlTab = searchParams.get('tab') || (isMobile ? 'home' : 'services');
   const [activeTab, setActiveTab] = useState(urlTab);
 
   // Update tab when URL changes
@@ -436,7 +441,7 @@ const MasterDashboard = () => {
     <div className="min-h-screen bg-gradient-subtle">
       <Header userType="master" />
       
-      <div className="container py-8">
+      <div className="container py-4 sm:py-8 px-3 sm:px-4">
         {/* Welcome Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -523,8 +528,17 @@ const MasterDashboard = () => {
         {/* Stats Cards - Now using DashboardStats component */}
         <DashboardStats stats={stats} />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-8">
-          <TabsList className="inline-flex flex-wrap w-full justify-start h-auto p-2 gap-2 bg-muted/50 rounded-xl">
+        {isMobile && <BottomNav userType="master" />}
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4 sm:mt-8">
+          <TabsList className={cn(
+            "inline-flex flex-wrap w-full justify-start h-auto p-2 gap-2 bg-muted/50 rounded-xl",
+            isMobile && "hidden"
+          )}>
+            <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:hidden">
+              <Home className="h-4 w-4" />
+              Inicio
+            </TabsTrigger>
             <TabsTrigger value="feed" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Feed</span>
@@ -606,6 +620,16 @@ const MasterDashboard = () => {
               <span className="hidden sm:inline">Perfil</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Home Tab (Mobile Only) */}
+          {isMobile && (
+            <TabsContent value="home">
+              <MobileMasterHome 
+                stats={stats} 
+                onNavigate={(tab) => setActiveTab(tab)}
+              />
+            </TabsContent>
+          )}
 
           {/* Feed Tab */}
           <TabsContent value="feed">

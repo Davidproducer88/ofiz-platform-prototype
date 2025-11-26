@@ -22,6 +22,10 @@ import { FounderCounter } from "@/components/admin/FounderCounter";
 import { ExecutiveCompensation } from "@/components/admin/ExecutiveCompensation";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileAdminHome } from "@/components/mobile/MobileAdminHome";
+import { BottomNav } from "@/components/mobile/BottomNav";
+import { cn } from "@/lib/utils";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -32,6 +36,8 @@ const AdminDashboard = () => {
     totalReviews: 0,
   });
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState(isMobile ? 'home' : 'overview');
 
   useEffect(() => {
     checkAuth();
@@ -493,9 +499,15 @@ const AdminDashboard = () => {
           <FounderCounter />
         </div>
 
+        {isMobile && <BottomNav userType="admin" />}
+
         {/* Main Content */}
-        <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-11">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className={cn(
+            "grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-11",
+            isMobile && "hidden"
+          )}>
+            <TabsTrigger value="home" className="md:hidden">Inicio</TabsTrigger>
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
@@ -508,6 +520,15 @@ const AdminDashboard = () => {
             <TabsTrigger value="security">Seguridad</TabsTrigger>
             <TabsTrigger value="executives">C-Level</TabsTrigger>
           </TabsList>
+
+          {isMobile && (
+            <TabsContent value="home">
+              <MobileAdminHome 
+                stats={stats}
+                onNavigate={(tab) => setActiveTab(tab)}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent value="feed">
             <Feed />

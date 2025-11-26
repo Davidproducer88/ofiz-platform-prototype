@@ -37,14 +37,19 @@ import { BusinessNotifications } from "@/components/business/BusinessNotificatio
 import { MasterSearch } from "@/components/business/MasterSearch";
 import { Feed } from "@/components/Feed";
 import { MarketplaceFeed } from "@/components/MarketplaceFeed";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileBusinessHome } from "@/components/mobile/MobileBusinessHome";
+import { BottomNav } from "@/components/mobile/BottomNav";
+import { cn } from "@/lib/utils";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   // Get initial tab from URL query parameter and sync with state
   const searchParams = new URLSearchParams(location.search);
-  const urlTab = searchParams.get('tab') || 'overview';
+  const urlTab = searchParams.get('tab') || (isMobile ? 'home' : 'overview');
   const [activeTab, setActiveTab] = useState(urlTab);
 
   // Update tab when URL changes
@@ -276,9 +281,15 @@ export default function BusinessDashboard() {
           </Card>
         )}
 
+        {isMobile && <BottomNav userType="business" />}
+
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto p-1">
+          <TabsList className={cn(
+            "grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto p-1",
+            isMobile && "hidden"
+          )}>
+            <TabsTrigger value="home" className="text-xs sm:text-sm md:hidden">Inicio</TabsTrigger>
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Resumen</TabsTrigger>
@@ -291,6 +302,20 @@ export default function BusinessDashboard() {
             <TabsTrigger value="subscription" id="subscription-tab" className="text-xs sm:text-sm">Plan</TabsTrigger>
             <TabsTrigger value="profile" className="text-xs sm:text-sm">Perfil</TabsTrigger>
           </TabsList>
+
+          {isMobile && (
+            <TabsContent value="home">
+              <MobileBusinessHome 
+                stats={{
+                  ...stats,
+                  activeProducts: stats.products || 0,
+                  totalOrders: stats.pendingOrders || 0
+                }}
+                subscription={subscription}
+                onNavigate={(tab) => setActiveTab(tab)}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent value="feed">
             <Feed />

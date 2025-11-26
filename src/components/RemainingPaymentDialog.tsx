@@ -233,11 +233,11 @@ export const RemainingPaymentDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
             {title}
           </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">{description}</DialogDescription>
         </DialogHeader>
 
         {!showPaymentForm ? (
