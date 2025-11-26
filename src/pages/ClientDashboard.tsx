@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,11 +60,17 @@ import { ServiceCard } from '@/components/client/ServiceCard';
 import { ClientBookingsList } from '@/components/client/ClientBookingsList';
 import { DemoModeIndicator } from '@/components/DemoModeIndicator';
 import { AlertTriangle, Award } from 'lucide-react';
+import { BottomNav } from '@/components/mobile/BottomNav';
+import { MobileClientHome } from '@/components/mobile/MobileClientHome';
+import { MobileServiceCard } from '@/components/mobile/MobileServiceCard';
+import { MobileBookingCard } from '@/components/mobile/MobileBookingCard';
+import { MobileServiceRequestWizard } from '@/components/mobile/MobileServiceRequestWizard';
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const { favorites, toggleFavorite, isFavorite } = useFavorites(profile?.id);
   
   // Get initial tab from URL query parameter and sync with state
@@ -217,6 +224,232 @@ const ClientDashboard = () => {
     );
   }
 
+  // Stats para mobile home
+  const mobileStats = {
+    activeRequests: 0,
+    completedBookings: completedBookings,
+    pendingBookings: bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length,
+  };
+
+  // MOBILE RENDERING
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header Mobile */}
+        <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-bold text-primary">OFIZ</h1>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setActiveTab('profile')}
+              className="relative"
+            >
+              <Bell className="h-5 w-5" />
+              {/* TODO: Badge de notificaciones no leídas */}
+            </Button>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="p-4 pb-20">
+          {activeTab === 'home' && (
+            <MobileClientHome
+              stats={mobileStats}
+              onNewRequest={() => setServiceRequestDialogOpen(true)}
+              onSearchServices={() => setActiveTab('services')}
+              onViewRequests={() => setActiveTab('bookings')}
+            />
+          )}
+
+          {activeTab === 'services' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Buscar servicios..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-11"
+                />
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => setFiltersOpen(true)}
+                >
+                  <Filter className="h-5 w-5" />
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {filteredServices.map((service) => (
+                  <MobileServiceCard
+                    key={service.id}
+                    service={service}
+                    isFavorite={isFavorite(service.master_id)}
+                    onBook={() => {
+                      setSelectedService(service);
+                      setBookingDialogOpen(true);
+                    }}
+                    onToggleFavorite={() => toggleFavorite(service.master_id)}
+                  />
+                ))}
+              </div>
+
+              {filteredServices.length === 0 && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">No se encontraron servicios</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'requests' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">Mis Reservas</h2>
+                <Button size="sm" onClick={() => setServiceRequestDialogOpen(true)}>
+                  Nueva
+                </Button>
+              </div>
+              
+              {bookings.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">
+                      No tienes reservas aún
+                    </p>
+                    <Button onClick={() => setActiveTab('services')}>
+                      Buscar servicios
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {bookings.map((booking) => (
+                    <MobileBookingCard
+                      key={booking.id}
+                      booking={booking}
+                      onReview={() => {
+                        setSelectedBooking(booking);
+                        setReviewDialogOpen(true);
+                      }}
+                      onReschedule={() => {
+                        setBookingToReschedule(booking);
+                        setRescheduleDialogOpen(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'chat' && (
+            <div>
+              <h2 className="text-xl font-bold mb-4">Mensajes</h2>
+              <ChatTab />
+            </div>
+          )}
+
+          {activeTab === 'profile' && (
+            <div>
+              <h2 className="text-xl font-bold mb-4">Mi Perfil</h2>
+              {profile && (
+                <ClientProfile 
+                  profile={{
+                    id: profile.id,
+                    full_name: profile.full_name,
+                    phone: profile.phone || '',
+                    address: profile.address || '',
+                    city: profile.city || '',
+                    avatar_url: profile.avatar_url || '',
+                    is_founder: profile.is_founder,
+                  }}
+                  onProfileUpdate={() => {}}
+                />
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* Bottom Navigation */}
+        <BottomNav userType="client" />
+
+        {/* Modales */}
+        <MobileServiceRequestWizard
+          open={serviceRequestDialogOpen}
+          onOpenChange={setServiceRequestDialogOpen}
+          onSuccess={() => {
+            setServiceRequestDialogOpen(false);
+            setRequestsRefreshTrigger(prev => prev + 1);
+            refetchBookings();
+          }}
+        />
+
+        <BookingDialog
+          open={bookingDialogOpen}
+          onOpenChange={setBookingDialogOpen}
+          service={selectedService}
+          onConfirm={handleBookingConfirm}
+        />
+
+        {selectedBooking && (
+          <ReviewDialog
+            open={reviewDialogOpen}
+            onOpenChange={setReviewDialogOpen}
+            booking={selectedBooking}
+            onSubmit={handleReviewSubmit}
+          />
+        )}
+
+        <FiltersSheet
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={filters}
+          onFiltersChange={setFilters}
+          onReset={() => setFilters({
+            priceRange: [0, 500000],
+            minRating: 0,
+            verifiedOnly: false,
+            city: 'all',
+          })}
+        />
+
+        <Dialog open={rescheduleDialogOpen} onOpenChange={setRescheduleDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reagendar Servicio</DialogTitle>
+              <DialogDescription>
+                Selecciona una nueva fecha para tu servicio
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Label>Nueva fecha</Label>
+              <Input
+                type="datetime-local"
+                value={newDate.toISOString().slice(0, 16)}
+                onChange={(e) => setNewDate(new Date(e.target.value))}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setRescheduleDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleRescheduleConfirm}>
+                Confirmar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // DESKTOP RENDERING (existente)
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
