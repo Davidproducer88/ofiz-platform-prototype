@@ -70,9 +70,9 @@ export const Hero = () => {
             </Badge>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-center lg:text-left">
-              ¿Necesitás un <span className="gradient-text">profesional de confianza</span>?
+              Encontrá el <span className="gradient-text">oficio que necesitás</span>.
               <br className="hidden lg:block" />
-              {" "}Encontralo en minutos con Ofiz
+              {" "}Tu profesional de confianza en minutos.
             </h1>
           </div>
 
