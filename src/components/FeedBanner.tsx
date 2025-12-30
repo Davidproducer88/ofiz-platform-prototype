@@ -70,7 +70,7 @@ export const FeedBanner = () => {
                 <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-hover rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-soft group-hover:scale-110 transition-transform">
                   <Users className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">🤝 +10,000 Miembros Activos</h3>
+                <h3 className="font-semibold text-lg mb-2">🫱🏻‍🫲🏼 +10,000 Miembros Activos</h3>
                 <p className="text-sm text-muted-foreground">
                   Conectate con profesionales certificados y clientes reales verificados en tu zona
                 </p>
