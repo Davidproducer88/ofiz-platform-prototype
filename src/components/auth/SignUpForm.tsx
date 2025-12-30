@@ -10,25 +10,22 @@ import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Eye, EyeOff, Gift, Building2 } from 'lucide-react';
 import { z } from 'zod';
 import { validateUruguayanRUT, formatRUT, isValidRUTFormat } from '@/utils/rutValidation';
-
 const baseSignUpSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   confirmPassword: z.string()
 });
-
 const signUpSchema = baseSignUpSchema.refine(data => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"]
 });
-
 const businessSignUpSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   confirmPassword: z.string(),
   companyName: z.string().min(2, 'El nombre de la empresa debe tener al menos 2 caracteres'),
   companyType: z.string().min(1, 'Selecciona el tipo de empresa'),
-  rut: z.string().refine((val) => validateUruguayanRUT(val), {
+  rut: z.string().refine(val => validateUruguayanRUT(val), {
     message: 'RUT inválido. Formato: 12345678-1234'
   })
 }).refine(data => data.password === data.confirmPassword, {
@@ -74,16 +71,12 @@ export const SignUpForm = ({
       setReferralValid(null);
     }
   }, [formData.referralCode, userType]);
-
   const validateReferralCode = async (code: string) => {
     try {
-      const { data, error } = await supabase
-        .from('referral_codes')
-        .select('code')
-        .eq('code', code.toUpperCase())
-        .eq('is_active', true)
-        .maybeSingle();
-
+      const {
+        data,
+        error
+      } = await supabase.from('referral_codes').select('code').eq('code', code.toUpperCase()).eq('is_active', true).maybeSingle();
       setReferralValid(!!data && !error);
     } catch (error) {
       setReferralValid(false);
@@ -94,19 +87,19 @@ export const SignUpForm = ({
     if (field === 'rut') {
       const cleanValue = value.replace(/[\s-]/g, '');
       if (cleanValue.length <= 12 && /^\d*$/.test(cleanValue)) {
-        const formatted = cleanValue.length > 8 
-          ? `${cleanValue.substring(0, 8)}-${cleanValue.substring(8, 12)}`
-          : cleanValue;
-        setFormData(prev => ({ ...prev, [field]: formatted }));
+        const formatted = cleanValue.length > 8 ? `${cleanValue.substring(0, 8)}-${cleanValue.substring(8, 12)}` : cleanValue;
+        setFormData(prev => ({
+          ...prev,
+          [field]: formatted
+        }));
       }
       return;
     }
-    
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
@@ -122,7 +115,6 @@ export const SignUpForm = ({
     // Validate form based on user type
     const schema = userType === 'business' ? businessSignUpSchema : signUpSchema;
     const validation = schema.safeParse(formData);
-    
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
       validation.error.errors.forEach(error => {
@@ -133,7 +125,6 @@ export const SignUpForm = ({
       setErrors(fieldErrors);
       return;
     }
-    
     setLoading(true);
     try {
       const userData: any = {
@@ -141,16 +132,16 @@ export const SignUpForm = ({
         full_name: userType === 'business' ? formData.companyName : formData.email.split('@')[0],
         referral_code: formData.referralCode || undefined
       };
-      
+
       // Agregar datos específicos de empresa
       if (userType === 'business') {
         userData.company_name = formData.companyName;
         userData.company_type = formData.companyType;
         userData.tax_id = formData.rut;
       }
-      
-      const { error } = await signUp(formData.email, formData.password, userData);
-      
+      const {
+        error
+      } = await signUp(formData.email, formData.password, userData);
       if (!error) {
         // Show email verification notice if callback provided
         if (onEmailVerification) {
@@ -171,7 +162,6 @@ export const SignUpForm = ({
       setLoading(false);
     }
   };
-
   return <div className="space-y-6">
       <Button type="button" variant="ghost" onClick={onBack} className="p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -180,32 +170,19 @@ export const SignUpForm = ({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Campos específicos para empresas */}
-        {userType === 'business' && (
-          <>
+        {userType === 'business' && <>
             <div className="space-y-2">
               <Label htmlFor="companyName">
                 <Building2 className="h-4 w-4 inline mr-1" />
                 Nombre de la Empresa
               </Label>
-              <Input 
-                id="companyName" 
-                type="text" 
-                placeholder="Ej: Constructora del Sur S.A." 
-                value={formData.companyName} 
-                onChange={e => handleInputChange('companyName', e.target.value)} 
-                disabled={loading}
-                required 
-              />
+              <Input id="companyName" type="text" placeholder="Ej: Constructora del Sur S.A." value={formData.companyName} onChange={e => handleInputChange('companyName', e.target.value)} disabled={loading} required />
               {errors.companyName && <p className="text-sm text-destructive">{errors.companyName}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="companyType">Tipo de Empresa</Label>
-              <Select 
-                value={formData.companyType} 
-                onValueChange={(value) => handleInputChange('companyType', value)}
-                disabled={loading}
-              >
+              <Select value={formData.companyType} onValueChange={value => handleInputChange('companyType', value)} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona el tipo" />
                 </SelectTrigger>
@@ -221,25 +198,8 @@ export const SignUpForm = ({
               {errors.companyType && <p className="text-sm text-destructive">{errors.companyType}</p>}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="rut">RUT (Registro Único Tributario)</Label>
-              <Input 
-                id="rut" 
-                type="text" 
-                placeholder="12345678-1234" 
-                value={formData.rut} 
-                onChange={e => handleInputChange('rut', e.target.value)} 
-                disabled={loading}
-                maxLength={13}
-                required 
-              />
-              <p className="text-xs text-muted-foreground">
-                Formato: 12345678-1234 (8 dígitos + guion + 4 dígitos)
-              </p>
-              {errors.rut && <p className="text-sm text-destructive">{errors.rut}</p>}
-            </div>
-          </>
-        )}
+            
+          </>}
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -251,11 +211,7 @@ export const SignUpForm = ({
           <Label htmlFor="password">Contraseña</Label>
           <div className="relative">
             <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mínimo 6 caracteres" value={formData.password} onChange={e => handleInputChange('password', e.target.value)} disabled={loading} className="pr-10" />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
@@ -266,44 +222,26 @@ export const SignUpForm = ({
           <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
           <div className="relative">
             <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Repite tu contraseña" value={formData.confirmPassword} onChange={e => handleInputChange('confirmPassword', e.target.value)} disabled={loading} className="pr-10" />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
         </div>
 
-        {userType === 'client' && (
-          <div className="space-y-2">
+        {userType === 'client' && <div className="space-y-2">
             <Label htmlFor="referralCode" className="flex items-center gap-2">
               <Gift className="h-4 w-4 text-primary" />
               Código de referido (opcional)
             </Label>
-            <Input 
-              id="referralCode" 
-              type="text" 
-              placeholder="Ingresa el código de tu amigo" 
-              value={formData.referralCode} 
-              onChange={e => handleInputChange('referralCode', e.target.value.toUpperCase())} 
-              disabled={loading}
-              className={referralValid === true ? 'border-green-500' : referralValid === false ? 'border-red-500' : ''}
-            />
-            {referralValid === true && (
-              <p className="text-sm text-green-600 flex items-center gap-1">
+            <Input id="referralCode" type="text" placeholder="Ingresa el código de tu amigo" value={formData.referralCode} onChange={e => handleInputChange('referralCode', e.target.value.toUpperCase())} disabled={loading} className={referralValid === true ? 'border-green-500' : referralValid === false ? 'border-red-500' : ''} />
+            {referralValid === true && <p className="text-sm text-green-600 flex items-center gap-1">
                 ✓ ¡Código válido! Recibirás $U 500 de bienvenida
-              </p>
-            )}
-            {referralValid === false && formData.referralCode && (
-              <p className="text-sm text-destructive">
+              </p>}
+            {referralValid === false && formData.referralCode && <p className="text-sm text-destructive">
                 Código inválido
-              </p>
-            )}
-          </div>
-        )}
+              </p>}
+          </div>}
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? 'Creando cuenta...' : 'Crear cuenta'}
