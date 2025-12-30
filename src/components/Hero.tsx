@@ -126,8 +126,10 @@ que necesitás</span>.
 
         {/* CTA Section - Centered Below Hero */}
         <div className={`flex flex-col items-center justify-center text-center mt-10 md:mt-16 mb-10 max-w-3xl mx-auto space-y-6 transition-all duration-1000 delay-300 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4">Electricistas, plomeros, pintores, albañiles y más.
-Miles de profesionales verificados listos para ayudarte. Comparás, elegís y contratás. Pagos seguros garantizados.<span className="text-foreground font-semibold">Electricistas, plomeros, pintores, albañiles y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4">
+            <span className="text-foreground font-semibold">Electricistas, plomeros, pintores, albañiles y más.</span>{" "}
+            Miles de profesionales verificados listos para ayudarte.{" "}
+            <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
           </p>
 
           {/* Quick Search Bar */}
