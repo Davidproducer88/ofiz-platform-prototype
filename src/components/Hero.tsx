@@ -150,7 +150,7 @@ Comparás, elegís y contratás. Pagos seguros garantizados</span>
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 px-4 w-full sm:w-auto justify-center">
             <Button size="lg" className="group shadow-elegant hover:shadow-soft transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto" onClick={handleServiceClick}>
-              🔍 Buscar Profesional Ahora
+               Soy Cliente - Publicar Ahora   
               <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button size="lg" variant="outline" className="group border-2 hover:bg-primary/10 text-sm sm:text-base w-full sm:w-auto" onClick={handleProfessionalClick}>
