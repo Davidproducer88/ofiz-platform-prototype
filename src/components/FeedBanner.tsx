@@ -100,7 +100,7 @@ export const FeedBanner = () => {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">📈 Actualizaciones en Vivo</h3>
                 <p className="text-sm text-muted-foreground">
-                  Las mejores ofertas, maestros destacados y trabajos disponibles ahora mismo
+                  Las mejores ofertas, profesionales destacados y trabajos disponibles ahora mismo
                 </p>
               </CardContent>
             </Card>
