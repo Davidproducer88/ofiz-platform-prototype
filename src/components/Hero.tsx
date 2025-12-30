@@ -130,8 +130,8 @@ que necesitás</span>.
             <span className="text-foreground font-semibold">Electricistas, plomeros, pintores, albañiles y más.
           </span>{" "}
             Miles de profesionales verificados listos para ayudarte.{" "}
-            <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados
-con Mercado Pago</span>
+            <span className="text-primary font-semibold">
+Comparás, elegís y contratás. Pagos seguros garantizados.</span>
           </p>
 
           {/* Quick Search Bar */}
