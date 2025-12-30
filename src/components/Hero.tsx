@@ -117,8 +117,8 @@ que necesitás</span>.
 
             {/* Floating badge */}
             <div className="absolute -top-6 -right-6 animate-float">
-              <Badge className="bg-gradient-hero text-white border-0 px-6 py-3 text-base font-semibold shadow-elegant">Sumate!<Sparkles className="h-4 w-4 mr-2 inline" />
-                Nuevo
+              <Badge className="bg-gradient-hero text-white border-0 px-6 py-3 text-base font-semibold shadow-elegant">​<Sparkles className="h-4 w-4 mr-2 inline" />
+                Sumate!
               </Badge>
             </div>
           </div>
