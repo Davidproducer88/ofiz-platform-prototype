@@ -129,7 +129,8 @@ que necesitás</span>.
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4">
             <span className="text-foreground font-semibold">Electricistas, plomeros, pintores, albañiles y más.</span>{" "}
             Miles de profesionales verificados listos para ayudarte.{" "}
-            <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
+            <span className="text-primary font-semibold">
+Comparás, elegís y contratás. Pagos seguros garantizados.</span>
           </p>
 
           {/* Quick Search Bar */}
