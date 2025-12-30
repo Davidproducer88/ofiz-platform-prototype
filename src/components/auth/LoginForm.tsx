@@ -9,30 +9,32 @@ import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { rateLimiter, RATE_LIMITS, formatRemainingTime } from '@/utils/rateLimit';
 import { toast } from '@/hooks/use-toast';
-
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
 });
-
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();
+  const {
+    signIn
+  } = useAuth();
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    
+
     // Validate form
-    const validation = loginSchema.safeParse({ email, password });
+    const validation = loginSchema.safeParse({
+      email,
+      password
+    });
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
-      validation.error.errors.forEach((error) => {
+      validation.error.errors.forEach(error => {
         if (error.path[0]) {
           fieldErrors[error.path[0] as string] = error.message;
         }
@@ -52,39 +54,49 @@ export const LoginForm = () => {
       });
       return;
     }
-
     setLoading(true);
-    
     try {
-      const { error } = await signIn(email, password);
+      const {
+        error
+      } = await signIn(email, password);
       if (!error) {
         // Reset rate limit on successful login
         rateLimiter.reset(rateLimitKey);
         // Wait a bit for session to be established
         await new Promise(resolve => setTimeout(resolve, 300));
-        
+
         // Check if user is admin first
         try {
-          const { data: isAdmin } = await supabase.rpc('is_admin');
-          
+          const {
+            data: isAdmin
+          } = await supabase.rpc('is_admin');
           if (isAdmin) {
-            navigate('/admin-dashboard', { replace: true });
+            navigate('/admin-dashboard', {
+              replace: true
+            });
             return;
           }
         } catch (err) {
           console.error('Error checking admin status:', err);
         }
-        
+
         // Otherwise redirect based on user type
-        const { data } = await supabase.auth.getSession();
+        const {
+          data
+        } = await supabase.auth.getSession();
         const userType = data.session?.user.user_metadata?.user_type || 'client';
-        
         if (userType === 'master') {
-          navigate('/master-dashboard', { replace: true });
+          navigate('/master-dashboard', {
+            replace: true
+          });
         } else if (userType === 'business') {
-          navigate('/business-dashboard', { replace: true });
+          navigate('/business-dashboard', {
+            replace: true
+          });
         } else {
-          navigate('/client-dashboard', { replace: true });
+          navigate('/client-dashboard', {
+            replace: true
+          });
         }
       }
     } catch (error) {
@@ -93,52 +105,26 @@ export const LoginForm = () => {
       setLoading(false);
     }
   };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+  return <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="tu@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={loading}
-        />
-        {errors.email && (
-          <p className="text-sm text-destructive">{errors.email}</p>
-        )}
+        <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} disabled={loading} placeholder="tu@gmail.com" />
+        {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
       </div>
       
       <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>
         <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Tu contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            className="pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <Input id="password" type={showPassword ? "text" : "password"} placeholder="Tu contraseña" value={password} onChange={e => setPassword(e.target.value)} disabled={loading} className="pr-10" />
+          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
-        {errors.password && (
-          <p className="text-sm text-destructive">{errors.password}</p>
-        )}
+        {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
       </div>
       
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
       </Button>
-    </form>
-  );
+    </form>;
 };
