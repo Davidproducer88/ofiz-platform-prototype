@@ -57,8 +57,7 @@ export const FeedBanner = () => {
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-fade-in" style={{
             animationDelay: '0.2s'
-          }}>Descubrí solicitudes de trabajo activas, profesionales disponibles
-y contenidos personalizados. ¡Todo en un solo lugar!<span className="text-primary font-semibold">solicitudes de trabajo activas</span>, maestros disponibles y contenido profesional personalizado. <span className="text-accent font-semibold">¡Todo en un solo lugar!</span>
+          }}>Descubrí        <span className="text-primary font-semibold">solicitudes de trabajo activas</span>, profesionales disponibles y contenidos personalizados. <span className="text-accent font-semibold">¡Todo en un solo lugar!</span>
             </p>
           </div>
 
