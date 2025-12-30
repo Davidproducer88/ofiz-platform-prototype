@@ -2,27 +2,15 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { 
-  User, 
-  Briefcase, 
-  ArrowRight,
-  CheckCircle,
-  Star,
-  Shield,
-  Clock,
-  Building2,
-  Megaphone
-} from "lucide-react";
-
+import { User, Briefcase, ArrowRight, CheckCircle, Star, Shield, Clock, Building2, Megaphone } from "lucide-react";
 interface UserTypeSelectorProps {
   onSelect: (type: 'client' | 'master' | 'business') => void;
 }
-
-export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
+export const UserTypeSelector = ({
+  onSelect
+}: UserTypeSelectorProps) => {
   const navigate = useNavigate();
-  
-  return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
       <div className="container max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -83,11 +71,7 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
                 </div>
               </div>
 
-              <Button 
-                size="lg" 
-                className="w-full group"
-                onClick={() => onSelect('client')}
-              >
+              <Button size="lg" className="w-full group" onClick={() => onSelect('client')}>
                 Registrarme como Cliente
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
@@ -141,13 +125,8 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
                 </div>
               </div>
 
-              <Button 
-                size="lg" 
-                variant="secondary"
-                className="w-full group"
-                onClick={() => onSelect('master')}
-              >
-                Registrarme como Maestro
+              <Button size="lg" variant="secondary" className="w-full group" onClick={() => onSelect('master')}>
+                Registrarme como Profesional
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
@@ -200,12 +179,7 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
                 </div>
               </div>
 
-              <Button 
-                size="lg" 
-                variant="accent"
-                className="w-full group"
-                onClick={() => onSelect('business')}
-              >
+              <Button size="lg" variant="accent" className="w-full group" onClick={() => onSelect('business')}>
                 Registrarme como Empresa
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
@@ -217,15 +191,11 @@ export const UserTypeSelector = ({ onSelect }: UserTypeSelectorProps) => {
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
             ¿Ya tenés cuenta?{" "}
-            <button 
-              onClick={() => navigate('/auth')} 
-              className="text-primary hover:underline font-medium"
-            >
+            <button onClick={() => navigate('/auth')} className="text-primary hover:underline font-medium">
               Iniciar sesión
             </button>
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
