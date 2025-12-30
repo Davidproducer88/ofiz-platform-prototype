@@ -139,7 +139,7 @@ Comparás, elegís y contratás. Pagos seguros garantizados.</span>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-12 text-base shadow-soft border-border/50 focus:border-primary" placeholder="Electricista, plomero, pintor, jardinero..." />
+                <Input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-12 text-base shadow-soft border-border/50 focus:border-primary" placeholder="Electricista, plomero, pintor, carpintero..." />
               </div>
               <Button type="submit" size="lg" className="h-12 px-6 shadow-soft">
                 Buscar
