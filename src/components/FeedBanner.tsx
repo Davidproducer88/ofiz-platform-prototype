@@ -123,7 +123,7 @@ export const FeedBanner = () => {
             <p className="text-sm text-muted-foreground animate-fade-in" style={{
             animationDelay: '0.6s'
           }}>
-              ✨ Más de <span className="text-primary font-semibold">10,000 profesionales y clientes</span> ya están conectados
+              🌐 Más de <span className="text-primary font-semibold">10,000 profesionales y clientes</span> ya están conectados
             </p>
           </div>
         </div>
