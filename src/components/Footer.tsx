@@ -69,11 +69,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <img 
-              src={logoFooter} 
-              alt="Ofiz" 
-              className="h-10 hover:scale-105 transition-transform cursor-pointer"
-            />
+            <img src={logoFooter} alt="Ofiz" className="h-10 hover:scale-105 transition-transform cursor-pointer" />
             <p className="text-muted-foreground leading-relaxed">
               Servicios profesionales para tu hogar & oficina. 
               Descubrí el oficio que necesitás.
@@ -192,7 +188,7 @@ export const Footer = () => {
                 Beta
               </Badge>
               <p className="text-sm text-muted-foreground text-center md:text-left">
-                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio</span>
+                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio SAS </span>
               </p>
             </div>
             
