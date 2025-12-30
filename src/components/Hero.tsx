@@ -70,7 +70,8 @@ export const Hero = () => {
             </Badge>
             
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight tracking-tight text-center lg:text-left lg:text-6xl">
-              Encontrá el <span className="gradient-text">oficio que necesitás</span>.
+              Encontrá el <span className="gradient-text">oficio
+que necesitás</span>.
               <br className="hidden lg:block" />
               {" "}Tu profesional de confianza en minutos.
             </h1>
@@ -116,8 +117,7 @@ export const Hero = () => {
 
             {/* Floating badge */}
             <div className="absolute -top-6 -right-6 animate-float">
-              <Badge className="bg-gradient-hero text-white border-0 px-6 py-3 text-base font-semibold shadow-elegant">
-                <Sparkles className="h-4 w-4 mr-2 inline" />
+              <Badge className="bg-gradient-hero text-white border-0 px-6 py-3 text-base font-semibold shadow-elegant">Sumate!<Sparkles className="h-4 w-4 mr-2 inline" />
                 Nuevo
               </Badge>
             </div>
@@ -126,8 +126,8 @@ export const Hero = () => {
 
         {/* CTA Section - Centered Below Hero */}
         <div className={`flex flex-col items-center justify-center text-center mt-10 md:mt-16 mb-10 max-w-3xl mx-auto space-y-6 transition-all duration-1000 delay-300 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4">
-            <span className="text-foreground font-semibold">Electricistas, plomeros, pintores y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4">Electricistas, plomeros, pintores, albañiles y más.
+Miles de profesionales verificados listos para ayudarte. Comparás, elegís y contratás. Pagos seguros garantizados.<span className="text-foreground font-semibold">Electricistas, plomeros, pintores, albañiles y más.</span> Miles de profesionales verificados listos para ayudarte. <span className="text-primary font-semibold">Comparás, elegís y contratás. Pagos seguros garantizados.</span>
           </p>
 
           {/* Quick Search Bar */}
