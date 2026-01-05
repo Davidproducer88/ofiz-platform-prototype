@@ -187,7 +187,8 @@ export const Footer = () => {
               <Badge className="bg-gradient-hero text-white border-0 shadow-soft">
                 Beta
               </Badge>
-              <p className="text-sm text-muted-foreground text-center md:text-left">© 2026 Ofiz. Todos los derechos reservados. | Orbital Estudio SAS<span className="gradient-text font-semibold">Orbital Estudio SAS </span>
+              <p className="text-sm text-muted-foreground text-center md:text-left">
+                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio SAS </span>
               </p>
             </div>
             
@@ -198,7 +199,9 @@ export const Footer = () => {
               <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Instagram")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Instagram className="h-5 w-5" />
               </Button>
-              
+              <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Twitter")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
+                <Twitter className="h-5 w-5" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => handleSocialClick("LinkedIn")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Linkedin className="h-5 w-5" />
               </Button>
