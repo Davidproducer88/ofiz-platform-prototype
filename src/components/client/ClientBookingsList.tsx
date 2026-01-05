@@ -10,12 +10,16 @@ interface Booking {
   status: string;
   total_price: number;
   client_address: string;
+  client_id: string;
+  master_id: string;
+  client_confirmed_at?: string | null;
   notes?: string;
   services: {
     title: string;
     category: string;
   } | null;
   masters: {
+    id: string;
     business_name: string;
     rating: number;
   };
@@ -100,16 +104,18 @@ export function ClientBookingsList({ bookings, onReview, onReschedule, onCancel 
                 booking={{
                   id: booking.id,
                   status: booking.status,
-                  client_id: '',
-                  master_id: '',
-                  service_id: booking.service_id,
+                  client_id: booking.client_id,
+                  master_id: booking.master_id,
+                  service_id: booking.service_id || '',
                   scheduled_date: booking.scheduled_date,
                   total_price: booking.total_price,
-                  services: {
+                  client_confirmed_at: booking.client_confirmed_at,
+                  services: booking.services ? {
                     title: booking.services.title,
-                  },
+                  } : undefined,
                 }}
                 userType="client"
+                otherUserName={booking.masters.business_name}
                 onReview={() => onReview(booking)}
                 onReschedule={() => onReschedule(booking)}
                 onUpdate={async () => {}}
