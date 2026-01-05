@@ -24,12 +24,16 @@ interface Booking {
   status: string;
   total_price: number;
   client_address: string;
+  client_id: string;
+  master_id: string;
+  client_confirmed_at?: string | null;
   notes?: string;
   services: {
     title: string;
     category: string;
   } | null;
   masters: {
+    id: string;
     business_name: string;
     rating: number;
   };
@@ -88,7 +92,7 @@ export const useClientDashboard = (profileId?: string) => {
         .select(`
           *,
           services (title, category),
-          masters (business_name, rating)
+          masters (id, business_name, rating)
         `)
         .eq('client_id', profileId)
         .order('created_at', { ascending: false });
