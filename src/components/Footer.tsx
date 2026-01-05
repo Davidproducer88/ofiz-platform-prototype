@@ -187,7 +187,8 @@ export const Footer = () => {
               <Badge className="bg-gradient-hero text-white border-0 shadow-soft">
                 Beta
               </Badge>
-              <p className="text-sm text-muted-foreground text-center md:text-left">© 2026 Ofiz. Todos los derechos reservados. | Orbital Estudio SAS<span className="gradient-text font-semibold">Orbital Estudio SAS </span>
+              <p className="text-sm text-muted-foreground text-center md:text-left">
+                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio SAS </span>
               </p>
             </div>
             
