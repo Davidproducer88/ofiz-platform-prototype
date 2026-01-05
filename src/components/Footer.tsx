@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logoFooter from "@/assets/logo-ofiz-new.png";
-import mercadopagoLogo from "@/assets/mercadopago-logo.png";
 export const Footer = () => {
   const navigate = useNavigate();
   const {
@@ -206,25 +205,6 @@ export const Footer = () => {
                 <Linkedin className="h-5 w-5" />
               </Button>
             </div>
-          </div>
-        </div>
-
-        {/* Mercado Pago Partner */}
-        <div className="border-t border-border/50 pt-6 mt-6">
-          <div className="flex flex-col items-center justify-center gap-2">
-            <a 
-              href="https://www.mercadopago.com.uy/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="opacity-70 hover:opacity-100 transition-opacity"
-            >
-              <img 
-                src={mercadopagoLogo} 
-                alt="Mercado Pago" 
-                className="h-6 object-contain"
-              />
-            </a>
-            <span className="text-xs text-muted-foreground">Partner Tecnológico</span>
           </div>
         </div>
       </div>
