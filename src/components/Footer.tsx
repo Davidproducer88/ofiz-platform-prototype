@@ -194,8 +194,18 @@ export const Footer = () => {
             
             <div className="flex items-center gap-4">
               {/* Mercado Pago Partner */}
-              <a href="https://www.mercadopago.com.uy/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity" aria-label="Mercado Pago - Partner Tecnológico">
-                <img src="/partners/mercadopago.png" alt="Mercado Pago" className="h-6 md:h-7 w-auto" />
+              <a 
+                href="https://www.mercadopago.com.uy/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity"
+                aria-label="Mercado Pago - Partner Tecnológico"
+              >
+                <img 
+                  src="/partners/mercadopago.png" 
+                  alt="Mercado Pago" 
+                  className="h-6 md:h-7 w-auto"
+                />
                 <span className="text-xs text-muted-foreground hidden sm:inline">Partner Tecnológico</span>
               </a>
               
@@ -206,7 +216,9 @@ export const Footer = () => {
                 <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Instagram")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                   <Instagram className="h-5 w-5" />
                 </Button>
-                
+                <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Twitter")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
+                  <Twitter className="h-5 w-5" />
+                </Button>
                 <Button variant="ghost" size="icon" onClick={() => handleSocialClick("LinkedIn")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                   <Linkedin className="h-5 w-5" />
                 </Button>
