@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 import { 
   Plus, 
   Star, 
@@ -68,6 +69,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileMasterHome } from '@/components/mobile/MobileMasterHome';
 import { BottomNav } from '@/components/mobile/BottomNav';
 import { cn } from '@/lib/utils';
+import { SERVICE_CATEGORIES } from '@/lib/categories';
 
 interface Service {
   id: string;
@@ -178,16 +180,7 @@ const MasterDashboard = () => {
     description: ''
   });
 
-  const categories = [
-    { id: 'plumbing', name: 'Plomería', icon: '🔧' },
-    { id: 'electricity', name: 'Electricidad', icon: '⚡' },
-    { id: 'cleaning', name: 'Limpieza', icon: '🧽' },
-    { id: 'computer_repair', name: 'Reparación PC', icon: '🛠️' },
-    { id: 'gardening', name: 'Jardinería', icon: '🌱' },
-    { id: 'painting', name: 'Pintura', icon: '🎨' },
-    { id: 'carpentry', name: 'Carpintería', icon: '🪚' },
-    { id: 'appliance_repair', name: 'Reparaciones', icon: '⚙️' },
-  ];
+  // Use all categories from the centralized list
 
   const statusTranslations = {
     'pending': { label: 'Pendiente', color: 'bg-yellow-100 text-yellow-800' },
@@ -229,7 +222,7 @@ const MasterDashboard = () => {
         title: serviceForm.title,
         description: serviceForm.description,
         price: parseFloat(serviceForm.price),
-        category: serviceForm.category as 'appliance_repair' | 'carpentry' | 'cleaning' | 'computer_repair' | 'electricity' | 'gardening' | 'painting' | 'plumbing',
+        category: serviceForm.category as Database['public']['Enums']['service_category'],
         duration_minutes: convertToMinutes(serviceForm.duration_value, serviceForm.duration_unit),
         master_id: profile?.id,
         status: 'active' as const
@@ -690,11 +683,13 @@ const MasterDashboard = () => {
                               <SelectTrigger>
                                 <SelectValue placeholder="Selecciona una categoría" />
                               </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((category) => (
-                                  <SelectItem key={category.id} value={category.id}>
-                                    <span className="mr-2">{category.icon}</span>
-                                    {category.name}
+                              <SelectContent className="max-h-60">
+                                {SERVICE_CATEGORIES.map((category) => (
+                                  <SelectItem key={category.value} value={category.value}>
+                                    <span className="flex items-center gap-2">
+                                      <category.icon className="h-4 w-4" />
+                                      {category.label}
+                                    </span>
                                   </SelectItem>
                                 ))}
                               </SelectContent>
