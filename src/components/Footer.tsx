@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -198,9 +198,7 @@ export const Footer = () => {
               <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Instagram")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Instagram className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleSocialClick("Twitter")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
-                <Twitter className="h-5 w-5" />
-              </Button>
+              
               <Button variant="ghost" size="icon" onClick={() => handleSocialClick("LinkedIn")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                 <Linkedin className="h-5 w-5" />
               </Button>
