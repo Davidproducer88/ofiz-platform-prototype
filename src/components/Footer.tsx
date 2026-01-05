@@ -187,25 +187,14 @@ export const Footer = () => {
               <Badge className="bg-gradient-hero text-white border-0 shadow-soft">
                 Beta
               </Badge>
-              <p className="text-sm text-muted-foreground text-center md:text-left">
-                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio SAS </span>
+              <p className="text-sm text-muted-foreground text-center md:text-left">© 2026 Ofiz. Todos los derechos reservados. | Orbital Estudio SAS<span className="gradient-text font-semibold">Orbital Estudio SAS </span>
               </p>
             </div>
             
             <div className="flex items-center gap-4">
               {/* Mercado Pago Partner */}
-              <a 
-                href="https://www.mercadopago.com.uy/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity"
-                aria-label="Mercado Pago - Partner Tecnológico"
-              >
-                <img 
-                  src="/partners/mercadopago.png" 
-                  alt="Mercado Pago" 
-                  className="h-6 md:h-7 w-auto"
-                />
+              <a href="https://www.mercadopago.com.uy/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity" aria-label="Mercado Pago - Partner Tecnológico">
+                <img src="/partners/mercadopago.png" alt="Mercado Pago" className="h-6 md:h-7 w-auto" />
                 <span className="text-xs text-muted-foreground hidden sm:inline">Partner Tecnológico</span>
               </a>
               
