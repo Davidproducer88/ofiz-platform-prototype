@@ -72,7 +72,7 @@ export const UserTypeSelector = ({
               </div>
 
               <Button size="lg" className="w-full group" onClick={() => onSelect('client')}>
-                Registrarme como Cliente
+                Registrar Cliente
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
@@ -126,7 +126,7 @@ export const UserTypeSelector = ({
               </div>
 
               <Button size="lg" variant="secondary" className="w-full group" onClick={() => onSelect('master')}>
-                Registrarme como Profesional
+                Registrar Profesional
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
@@ -180,7 +180,7 @@ export const UserTypeSelector = ({
               </div>
 
               <Button size="lg" variant="accent" className="w-full group" onClick={() => onSelect('business')}>
-                Registrarme como Empresa
+                Registrar Empresa
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
