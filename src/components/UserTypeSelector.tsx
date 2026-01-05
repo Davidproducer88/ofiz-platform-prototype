@@ -11,7 +11,7 @@ export const UserTypeSelector = ({
 }: UserTypeSelectorProps) => {
   const navigate = useNavigate();
   return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <div className="container max-w-4xl">
+      <div className="container max-w-7xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="text-3xl font-bold gradient-text mb-4">Ofiz</div>
