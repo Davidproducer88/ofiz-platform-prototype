@@ -2438,6 +2438,21 @@ export type Database = {
         | "gardening"
         | "appliance_repair"
         | "computer_repair"
+        | "construction"
+        | "hvac"
+        | "metalwork"
+        | "automotive"
+        | "industrial"
+        | "appliances"
+        | "computer"
+        | "textiles"
+        | "glass"
+        | "moving"
+        | "crafts"
+        | "security"
+        | "renewable"
+        | "marine"
+        | "emerging"
       service_status: "draft" | "active" | "paused" | "completed"
       subscription_plan: "free" | "premium" | "basic_plus"
       user_type: "client" | "master" | "admin" | "business"
@@ -2593,6 +2608,21 @@ export const Constants = {
         "gardening",
         "appliance_repair",
         "computer_repair",
+        "construction",
+        "hvac",
+        "metalwork",
+        "automotive",
+        "industrial",
+        "appliances",
+        "computer",
+        "textiles",
+        "glass",
+        "moving",
+        "crafts",
+        "security",
+        "renewable",
+        "marine",
+        "emerging",
       ],
       service_status: ["draft", "active", "paused", "completed"],
       subscription_plan: ["free", "premium", "basic_plus"],
