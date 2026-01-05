@@ -132,18 +132,41 @@ serve(async (req) => {
       }
     }
 
-    // 4. Enviar email de verificación
+    // 4. Generar link de verificación y enviar email
     try {
-      await supabaseAdmin.functions.invoke('send-verification-email', {
-        body: {
-          email: requestData.email,
-          userId: authData.user.id
+      // Generar link de verificación usando la API de Supabase
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'signup',
+        email: requestData.email,
+        options: {
+          redirectTo: 'https://ofiz.com.uy/auth/callback?type=signup'
         }
       });
-      console.log('Verification email sent to:', requestData.email);
+
+      if (linkError) {
+        console.error('Error generating verification link:', linkError);
+        throw linkError;
+      }
+
+      console.log('Verification link generated for:', requestData.email);
+
+      // Enviar email de verificación con el link
+      const { error: emailFnError } = await supabaseAdmin.functions.invoke('send-verification-email', {
+        body: {
+          email: requestData.email,
+          confirmation_url: linkData.properties?.action_link || `https://ofiz.com.uy/auth?message=verify-email&email=${encodeURIComponent(requestData.email)}`,
+          user_name: requestData.full_name || requestData.email.split('@')[0]
+        }
+      });
+
+      if (emailFnError) {
+        console.error('Error invoking send-verification-email:', emailFnError);
+      } else {
+        console.log('Verification email sent to:', requestData.email);
+      }
     } catch (emailError) {
       console.error('Error sending verification email:', emailError);
-      // No hacemos rollback por esto
+      // No hacemos rollback por esto, el usuario fue creado exitosamente
     }
 
     // 5. Respuesta exitosa
