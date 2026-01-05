@@ -71,9 +71,9 @@ export const UserTypeSelector = ({
                 </div>
               </div>
 
-              <Button size="lg" className="w-full group whitespace-normal h-auto py-3 text-left" onClick={() => onSelect('client')}>
-                <span className="flex-1">Registrarme como Cliente</span>
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
+              <Button size="lg" className="w-full group" onClick={() => onSelect('client')}>
+                Registrarme como Cliente
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
           </Card>
@@ -125,9 +125,9 @@ export const UserTypeSelector = ({
                 </div>
               </div>
 
-              <Button size="lg" variant="secondary" className="w-full group whitespace-normal h-auto py-3 text-left" onClick={() => onSelect('master')}>
-                <span className="flex-1">Registrarme como Profesional</span>
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
+              <Button size="lg" variant="secondary" className="w-full group" onClick={() => onSelect('master')}>
+                Registrarme como Profesional
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
           </Card>
@@ -179,9 +179,9 @@ export const UserTypeSelector = ({
                 </div>
               </div>
 
-              <Button size="lg" variant="accent" className="w-full group whitespace-normal h-auto py-3 text-left" onClick={() => onSelect('business')}>
-                <span className="flex-1">Registrarme como Empresa</span>
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
+              <Button size="lg" variant="accent" className="w-full group" onClick={() => onSelect('business')}>
+                Registrarme como Empresa
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </CardContent>
           </Card>
