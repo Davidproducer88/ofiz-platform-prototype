@@ -109,7 +109,7 @@ export const HowItWorks = () => {
                         {step.description}
                       </p>
                       
-                      <div className={`grid md:grid-cols-2 gap-3 ${isEven ? 'md:text-right' : ''}`}>
+                      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 ${isEven ? 'lg:text-left' : ''}`}>
                         {step.details.map((detail, detailIndex) => <div key={detailIndex} className={`flex items-center gap-2 text-sm text-muted-foreground ${isEven ? 'md:justify-end' : ''}`}>
                             <CheckCircle2 className={`h-4 w-4 text-secondary flex-shrink-0 ${isEven ? 'md:order-2' : ''}`} />
                             <span>{detail}</span>
