@@ -71,8 +71,8 @@ export const UserTypeSelector = ({
                 </div>
               </div>
 
-              <Button size="lg" className="w-full group whitespace-normal h-auto py-3 text-left" onClick={() => onSelect('client')}>
-                <span className="flex-1 px-0">​Registrar Cliente </span>
+              <Button size="lg" className="w-full group lg:whitespace-nowrap whitespace-normal h-auto py-3" onClick={() => onSelect('client')}>
+                <span className="flex-1 min-w-0">Registrar Cliente</span>
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
               </Button>
             </CardContent>
@@ -125,8 +125,8 @@ export const UserTypeSelector = ({
                 </div>
               </div>
 
-              <Button size="lg" variant="secondary" className="w-full group whitespace-normal h-auto py-3 text-left" onClick={() => onSelect('master')}>
-                <span className="flex-1">Registrar Profesional</span>
+              <Button size="lg" variant="secondary" className="w-full group lg:whitespace-nowrap whitespace-normal h-auto py-3" onClick={() => onSelect('master')}>
+                <span className="flex-1 min-w-0">Registrar Profesional</span>
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
               </Button>
             </CardContent>
@@ -179,8 +179,8 @@ export const UserTypeSelector = ({
                 </div>
               </div>
 
-              <Button size="lg" variant="accent" className="w-full group whitespace-normal h-auto py-3 text-left" onClick={() => onSelect('business')}>
-                <span className="flex-1">Registrar Empresa</span>
+              <Button size="lg" variant="accent" className="w-full group lg:whitespace-nowrap whitespace-normal h-auto py-3" onClick={() => onSelect('business')}>
+                <span className="flex-1 min-w-0">Registrar Empresa</span>
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 flex-shrink-0" />
               </Button>
             </CardContent>
