@@ -47,11 +47,59 @@ serve(async (req) => {
     }
 
     // Verificar si el email ya existe
-    const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
-    const userExists = existingUser.users.some(u => u.email === requestData.email);
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = existingUsers.users.find(u => u.email === requestData.email);
     
-    if (userExists) {
-      throw new Error('Este email ya está registrado');
+    if (existingUser) {
+      // Si el email ya existe pero NO está verificado, reenviar email de verificación
+      if (!existingUser.email_confirmed_at) {
+        console.log('User exists but not verified, resending verification email:', requestData.email);
+        
+        try {
+          // Generar nuevo link de verificación
+          const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            type: 'signup',
+            email: requestData.email,
+            options: {
+              redirectTo: 'https://ofiz.com.uy/auth/callback?type=signup'
+            }
+          });
+
+          if (!linkError && linkData.properties?.action_link) {
+            // Enviar email de verificación
+            await supabaseAdmin.functions.invoke('send-verification-email', {
+              body: {
+                email: requestData.email,
+                confirmation_url: linkData.properties.action_link,
+                user_name: existingUser.user_metadata?.full_name || requestData.email.split('@')[0]
+              }
+            });
+            console.log('Verification email resent to:', requestData.email);
+          }
+        } catch (resendError) {
+          console.error('Error resending verification email:', resendError);
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Ya tienes una cuenta pendiente de verificación. Te hemos reenviado el email de confirmación.',
+            resent_verification: true,
+            user: {
+              id: existingUser.id,
+              email: existingUser.email,
+              user_type: 'client'
+            }
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      }
+      
+      // Si el email está verificado, es un error real
+      throw new Error('Este email ya está registrado. Por favor inicia sesión.');
     }
 
     // Procesar código de referido si existe
