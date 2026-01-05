@@ -73,7 +73,7 @@ export function CreateBookingFromChat({
 
     setIsSubmitting(true);
     try {
-      // Crear el booking usando el ID del usuario autenticado
+      // Crear el booking usando el ID del usuario autenticado con estado "pending"
       const { data: bookingData, error: bookingError } = await supabase
         .from("bookings")
         .insert({
@@ -84,7 +84,7 @@ export function CreateBookingFromChat({
           scheduled_date: scheduledDate.toISOString(),
           client_address: data.address,
           notes: `${data.title}\n\n${data.description}`,
-          status: "confirmed",
+          status: "pending", // Cambio de "confirmed" a "pending" para que el profesional acepte
         })
         .select()
         .single();
@@ -99,12 +99,19 @@ export function CreateBookingFromChat({
 
       if (convError) throw convError;
 
+      // Enviar mensaje de sistema en el chat
+      await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender_id: profile.id,
+        content: `📋 Encargo enviado: "${data.title}" por $${Number(data.price).toLocaleString('es-CL')} - Esperando respuesta del profesional.`,
+      });
+
       // Crear notificación para el maestro
       await supabase.from("notifications").insert({
         user_id: masterId,
         type: "booking_new",
-        title: "Nuevo encargo confirmado",
-        message: `Se ha creado un encargo: ${data.title}`,
+        title: "Nuevo encargo recibido",
+        message: `Tienes un nuevo encargo: ${data.title} - $${Number(data.price).toLocaleString('es-CL')}`,
         booking_id: bookingData.id,
         metadata: {
           booking_id: bookingData.id,

@@ -1,19 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, X, Image as ImageIcon, FileCheck, Upload } from 'lucide-react';
+import { Send, Paperclip, X, Image as ImageIcon, FileCheck, Upload, Check, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useChat, Message } from '@/hooks/useChat';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CreateBookingFromChat } from './CreateBookingFromChat';
+import { BookingActionsInChat } from './BookingActionsInChat';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-
 interface ChatWindowProps {
   conversationId: string;
   otherUserName: string;
@@ -162,6 +163,32 @@ export const ChatWindow = ({
     }
   };
 
+  // Detect user role in this conversation
+  const isClient = conversationData?.client_id === profile?.id;
+  const isMaster = conversationData?.master_id === profile?.id;
+  
+  // Client can create booking if no booking exists yet
+  const canCreateBooking = isClient && conversationData && !conversationData.booking_id;
+  
+  // Check if there's a pending booking that the master can accept
+  const [pendingBooking, setPendingBooking] = useState<any>(null);
+  
+  useEffect(() => {
+    const loadPendingBooking = async () => {
+      if (conversationData?.booking_id) {
+        const { data } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('id', conversationData.booking_id)
+          .single();
+        setPendingBooking(data);
+      } else {
+        setPendingBooking(null);
+      }
+    };
+    loadPendingBooking();
+  }, [conversationData?.booking_id]);
+
   const formatTime = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), {
@@ -173,7 +200,7 @@ export const ChatWindow = ({
     }
   };
 
-  const canCreateBooking = conversationData && !conversationData.booking_id;
+  // Note: canCreateBooking is now defined above with proper role check
 
   const content = (
     <div className="flex flex-col h-full">
@@ -287,6 +314,22 @@ export const ChatWindow = ({
           <div ref={scrollRef} />
         </div>
       </ScrollArea>
+
+      {/* Booking Actions - Show if there's a pending booking */}
+      {pendingBooking && (pendingBooking.status === 'pending' || pendingBooking.status === 'confirmed') && (
+        <div className="border-t p-3">
+          <BookingActionsInChat
+            booking={pendingBooking}
+            isMaster={isMaster}
+            isClient={isClient}
+            conversationId={conversationId}
+            onUpdate={() => {
+              loadConversationData();
+              refreshConversations();
+            }}
+          />
+        </div>
+      )}
 
       {/* Input Area */}
       <div className="border-t p-4 bg-card">
