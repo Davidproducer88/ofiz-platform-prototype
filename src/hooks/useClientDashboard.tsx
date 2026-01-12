@@ -58,6 +58,7 @@ export const useClientDashboard = (profileId?: string) => {
         .select(`
           *,
           masters (
+            id,
             business_name,
             rating,
             total_reviews
@@ -67,7 +68,19 @@ export const useClientDashboard = (profileId?: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setServices(data || []);
+      
+      // Mapear para asegurar que masters siempre tenga valores por defecto
+      const mappedServices = (data || []).map(service => ({
+        ...service,
+        masters: service.masters || {
+          id: service.master_id,
+          business_name: 'Profesional',
+          rating: 0,
+          total_reviews: 0
+        }
+      }));
+      
+      setServices(mappedServices);
     } catch (error) {
       console.error('Error fetching services:', error);
       toast({
@@ -103,7 +116,19 @@ export const useClientDashboard = (profileId?: string) => {
       }
       
       console.log('Fetched bookings:', data);
-      setBookings(data || []);
+      
+      // Mapear para asegurar que masters siempre tenga valores por defecto
+      const mappedBookings = (data || []).map(booking => ({
+        ...booking,
+        masters: booking.masters || {
+          id: booking.master_id,
+          business_name: 'Profesional',
+          rating: 0
+        },
+        services: booking.services || null
+      }));
+      
+      setBookings(mappedBookings);
     } catch (error: any) {
       console.error('Error fetching bookings:', error);
       toast({

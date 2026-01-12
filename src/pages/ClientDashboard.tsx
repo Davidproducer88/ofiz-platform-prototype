@@ -128,12 +128,14 @@ const ClientDashboard = () => {
   ];
 
   const filteredServices = services.filter(service => {
+    const businessName = service.masters?.business_name || '';
     const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.masters.business_name.toLowerCase().includes(searchTerm.toLowerCase());
+                         businessName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
     const matchesPrice = service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1];
-    const matchesRating = service.masters.rating >= filters.minRating;
+    const masterRating = service.masters?.rating ?? 0;
+    const matchesRating = masterRating >= filters.minRating;
     
     return matchesSearch && matchesCategory && matchesPrice && matchesRating;
   });

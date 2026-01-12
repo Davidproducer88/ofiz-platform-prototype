@@ -87,20 +87,23 @@ export const useFeed = () => {
       // Cargar solicitudes de servicio abiertas
       const { data: serviceRequests, error: requestsError } = await supabase
         .from('service_requests')
-        .select(`
-          *,
-          profiles(
-            full_name,
-            avatar_url,
-            city,
-            address
-          )
-        `)
+        .select('*')
         .eq('status', 'open')
         .order('created_at', { ascending: false })
         .range(offset, offset + Math.floor(pageSize / 2) - 1);
       
       console.log('📋 Service requests loaded:', serviceRequests?.length || 0, requestsError);
+
+      // Enriquecer con datos de perfil del cliente
+      const enrichedRequests = await Promise.all((serviceRequests || []).map(async (request) => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url, city, address')
+          .eq('id', request.client_id)
+          .maybeSingle();
+        
+        return { ...request, profiles: profile };
+      }));
 
       // Cargar servicios destacados
       const { data: services, error: servicesError } = await supabase
@@ -182,7 +185,7 @@ export const useFeed = () => {
       const completedWorks: any[] = [];
 
       // Convertir a FeedItems con scoring
-      const requestItems: FeedItem[] = (serviceRequests || []).map(request => ({
+      const requestItems: FeedItem[] = (enrichedRequests || []).map(request => ({
         id: request.id,
         type: 'service_request' as const,
         score: calculateRelevanceScore(request, preferences, 'request') + 10, // Prioridad alta
