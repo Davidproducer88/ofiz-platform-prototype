@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { FeedBanner } from "@/components/FeedBanner";
 import { TopMastersRanking } from "@/components/TopMastersRanking";
 import { BetaAnnouncementDialog } from "@/components/BetaAnnouncementDialog";
-import { DemoBanner } from "@/components/DemoBanner";
+
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 interface IndexProps {
@@ -22,7 +22,7 @@ const Index = ({ userType, onShowOnboarding }: IndexProps) => {
       <main>
         <Hero />
         <ServiceCategories />
-        <DemoBanner />
+        
         <FeedBanner />
         <div className="container mx-auto px-4 py-8">
           <TopMastersRanking />
