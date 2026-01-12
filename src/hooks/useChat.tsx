@@ -403,8 +403,26 @@ export const useChat = (conversationId?: string) => {
               setMessages(prev =>
                 prev.map(m => m.id === newMessage.id ? { ...m, read: true } : m)
               );
+              
+              // Actualizar contador de no leídos en la lista
+              loadConversations();
             }, 500);
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          setMessages(prev =>
+            prev.map(m => m.id === updatedMessage.id ? { ...m, ...updatedMessage } : m)
+          );
         }
       )
       .subscribe();
@@ -412,7 +430,7 @@ export const useChat = (conversationId?: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, profile?.id, loadMessages, getUserName]);
+  }, [conversationId, profile?.id, loadMessages, getUserName, loadConversations]);
 
   // Suscribirse a nuevas conversaciones
   useEffect(() => {

@@ -10,7 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 export const ChatTab = () => {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const { conversations, loading, refreshConversations } = useChat();
+  const { conversations, loading, refreshConversations, refreshMessages } = useChat(selectedConversation?.id);
   const isMobile = useIsMobile();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -20,7 +20,17 @@ export const ChatTab = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     await refreshConversations();
+    if (selectedConversation && refreshMessages) {
+      await refreshMessages();
+    }
     setTimeout(() => setRefreshing(false), 500);
+  };
+  
+  // Cuando se selecciona una conversación, actualizar contador de no leídos
+  const handleConversationSelect = async (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    // Refrescar para actualizar contadores después de marcar como leídos
+    setTimeout(() => refreshConversations(), 1000);
   };
 
   // En mobile, si hay conversación seleccionada, mostrar solo el chat
@@ -87,7 +97,7 @@ export const ChatTab = () => {
           {/* Lista de conversaciones */}
           <div className="border-r bg-muted/20">
             <ConversationsList
-              onConversationSelect={setSelectedConversation}
+              onConversationSelect={handleConversationSelect}
               selectedConversationId={selectedConversation?.id}
             />
           </div>
