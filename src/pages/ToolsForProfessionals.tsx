@@ -42,7 +42,9 @@ const ToolsForProfessionals = () => {
         "Vista semanal y mensual de todos tus trabajos",
         "Reprogramación fácil con un clic"
       ],
-      highlight: "Reduce un 80% las cancelaciones"
+      highlight: "Reduce un 80% las cancelaciones",
+      tabLink: "calendar",
+      isActive: true
     },
     {
       icon: MessageSquare,
@@ -55,7 +57,9 @@ const ToolsForProfessionals = () => {
         "Negociación de presupuestos integrada",
         "Notificaciones push en tu celular"
       ],
-      highlight: "Responde 3x más rápido"
+      highlight: "Responde 3x más rápido",
+      tabLink: "messages",
+      isActive: true
     },
     {
       icon: CreditCard,
@@ -68,7 +72,9 @@ const ToolsForProfessionals = () => {
         "Historial detallado de transacciones",
         "Retiros a tu cuenta en 24-48 horas"
       ],
-      highlight: "0% riesgo de impago"
+      highlight: "0% riesgo de impago",
+      tabLink: "finances",
+      isActive: true
     },
     {
       icon: BarChart3,
@@ -81,7 +87,9 @@ const ToolsForProfessionals = () => {
         "Comparativa con otros profesionales",
         "Reportes descargables"
       ],
-      highlight: "Toma decisiones con datos"
+      highlight: "Toma decisiones con datos",
+      tabLink: "analytics",
+      isActive: true
     },
     {
       icon: Star,
@@ -94,7 +102,9 @@ const ToolsForProfessionals = () => {
         "Insignias por excelencia en servicio",
         "Ranking de mejores profesionales"
       ],
-      highlight: "Más reseñas = Más clientes"
+      highlight: "Más reseñas = Más clientes",
+      tabLink: "reviews",
+      isActive: true
     },
     {
       icon: Briefcase,
@@ -107,7 +117,9 @@ const ToolsForProfessionals = () => {
         "Antes y después de trabajos",
         "Compartir en redes sociales"
       ],
-      highlight: "Tu trabajo habla por ti"
+      highlight: "Tu trabajo habla por ti",
+      tabLink: "portfolio",
+      isActive: true
     }
   ];
 
@@ -244,14 +256,22 @@ const ToolsForProfessionals = () => {
                     <div className="w-14 h-14 rounded-2xl bg-gradient-hero flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <tool.icon className="w-7 h-7 text-white" />
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {tool.highlight}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {tool.highlight}
+                      </Badge>
+                      {tool.isActive && (
+                        <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Activo
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <CardTitle className="text-xl">{tool.title}</CardTitle>
                   <CardDescription>{tool.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <ul className="space-y-3">
                     {tool.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-3 text-sm">
@@ -260,6 +280,13 @@ const ToolsForProfessionals = () => {
                       </li>
                     ))}
                   </ul>
+                  <Button 
+                    className="w-full mt-4 group/btn"
+                    onClick={() => navigate(`/master-dashboard?tab=${tool.tabLink}`)}
+                  >
+                    Usar {tool.title}
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Button>
                 </CardContent>
               </Card>
             ))}
