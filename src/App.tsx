@@ -35,6 +35,7 @@ import PitchDeck from "./pages/PitchDeck";
 import Sitemap from "./pages/Sitemap";
 import Demo from "./pages/Demo";
 import ToolsForProfessionals from "./pages/ToolsForProfessionals";
+import HelpArticle from "./pages/HelpArticle";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -152,6 +153,7 @@ const AppContent = () => {
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/guarantees" element={<Guarantees />} />
       <Route path="/help-center" element={<HelpCenter />} />
+      <Route path="/ayuda/:slug" element={<HelpArticle />} />
       <Route path="/about" element={<About />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
