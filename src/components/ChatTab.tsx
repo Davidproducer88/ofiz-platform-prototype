@@ -26,11 +26,9 @@ export const ChatTab = () => {
     setTimeout(() => setRefreshing(false), 500);
   };
   
-  // Cuando se selecciona una conversación, actualizar contador de no leídos
-  const handleConversationSelect = async (conversation: Conversation) => {
+  // Cuando se selecciona una conversación
+  const handleConversationSelect = (conversation: Conversation) => {
     setSelectedConversation(conversation);
-    // Refrescar para actualizar contadores después de marcar como leídos
-    setTimeout(() => refreshConversations(), 1000);
   };
 
   // En mobile, si hay conversación seleccionada, mostrar solo el chat
