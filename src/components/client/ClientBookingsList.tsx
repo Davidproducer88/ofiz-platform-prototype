@@ -68,10 +68,10 @@ export function ClientBookingsList({ bookings, onReview, onReschedule, onCancel 
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
-                    {booking.masters.business_name}
+                    {booking.masters?.business_name || 'Profesional'}
                     <span className="inline-flex items-center ml-2">
                       <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                      {booking.masters.rating.toFixed(1)}
+                      {(booking.masters?.rating ?? 0).toFixed(1)}
                     </span>
                   </p>
                 </div>
@@ -115,7 +115,7 @@ export function ClientBookingsList({ bookings, onReview, onReschedule, onCancel 
                   } : undefined,
                 }}
                 userType="client"
-                otherUserName={booking.masters.business_name}
+                otherUserName={booking.masters?.business_name || 'Profesional'}
                 onReview={() => onReview(booking)}
                 onReschedule={() => onReschedule(booking)}
                 onUpdate={async () => {}}

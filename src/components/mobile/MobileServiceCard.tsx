@@ -66,12 +66,12 @@ export function MobileServiceCard({
         {/* Info del profesional */}
         <div className="flex items-center justify-between text-xs mb-3">
           <span className="text-muted-foreground truncate flex-1 mr-2">
-            {service.masters.business_name}
+            {service.masters?.business_name || 'Profesional'}
           </span>
           <div className="flex items-center gap-1 flex-shrink-0">
             <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="font-medium">{service.masters.rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({service.masters.total_reviews})</span>
+            <span className="font-medium">{(service.masters?.rating ?? 0).toFixed(1)}</span>
+            <span className="text-muted-foreground">({service.masters?.total_reviews ?? 0})</span>
           </div>
         </div>
 

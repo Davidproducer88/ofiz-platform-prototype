@@ -47,8 +47,20 @@ export const useFavorites = (clientId?: string) => {
 
       if (error) throw error;
 
-      setFavorites(data || []);
-      setFavoriteIds(new Set((data || []).map(f => f.master_id)));
+      // Mapear para asegurar que masters siempre tenga valores por defecto
+      const mappedFavorites = (data || []).map(fav => ({
+        ...fav,
+        masters: fav.masters || {
+          id: fav.master_id,
+          business_name: 'Profesional',
+          rating: 0,
+          total_reviews: 0,
+          hourly_rate: null
+        }
+      }));
+
+      setFavorites(mappedFavorites);
+      setFavoriteIds(new Set(mappedFavorites.map(f => f.master_id)));
     } catch (error) {
       console.error('Error fetching favorites:', error);
     } finally {

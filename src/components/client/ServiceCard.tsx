@@ -57,15 +57,15 @@ export function ServiceCard({ service, isFavorite, onBook, onToggleFavorite }: S
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
-              {service.masters.business_name}
+              {service.masters?.business_name || 'Profesional'}
             </span>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <span className="text-sm font-medium">
-                {service.masters.rating.toFixed(1)}
+                {(service.masters?.rating ?? 0).toFixed(1)}
               </span>
               <span className="text-xs text-muted-foreground">
-                ({service.masters.total_reviews})
+                ({service.masters?.total_reviews ?? 0})
               </span>
             </div>
           </div>

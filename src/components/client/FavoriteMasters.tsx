@@ -51,13 +51,13 @@ export const FavoriteMasters = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{favorite.masters.business_name}</CardTitle>
+                    <CardTitle className="text-lg">{favorite.masters?.business_name || 'Profesional'}</CardTitle>
                     <CardDescription className="mt-1">
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{favorite.masters.rating}</span>
+                        <span className="font-medium">{favorite.masters?.rating ?? 0}</span>
                         <span className="text-muted-foreground">
-                          ({favorite.masters.total_reviews})
+                          ({favorite.masters?.total_reviews ?? 0})
                         </span>
                       </div>
                     </CardDescription>
@@ -72,7 +72,7 @@ export const FavoriteMasters = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {favorite.masters.hourly_rate && (
+                {favorite.masters?.hourly_rate && (
                   <div className="flex items-center text-sm">
                     <DollarSign className="h-4 w-4 mr-1 text-muted-foreground" />
                     <span className="font-medium">${favorite.masters.hourly_rate}/hora</span>
