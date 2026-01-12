@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useChat, Conversation } from '@/hooks/useChat';
+import { Conversation } from '@/hooks/useChat';
 import { useState, useMemo } from 'react';
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -13,13 +13,16 @@ import { es } from 'date-fns/locale';
 interface ConversationsListProps {
   onConversationSelect: (conversation: Conversation) => void;
   selectedConversationId?: string;
+  conversations: Conversation[];
+  loading: boolean;
 }
 
 export const ConversationsList = ({ 
   onConversationSelect, 
-  selectedConversationId 
+  selectedConversationId,
+  conversations,
+  loading
 }: ConversationsListProps) => {
-  const { conversations, loading } = useChat();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredConversations = useMemo(() => {
