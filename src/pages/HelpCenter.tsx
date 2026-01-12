@@ -4,10 +4,10 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, MessageSquare, Book, FileText, Mail, Phone, Download } from "lucide-react";
+import { Search, MessageSquare, Book, FileText, Mail, Phone } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { generateClientGuidePDF, generateProfessionalManualPDF, generateBestPracticesPDF } from "@/utils/pdfGenerators";
+
 // Slug generator helper
 const toSlug = (text: string) => {
   return text
@@ -95,27 +95,6 @@ export default function HelpCenter() {
     {
       question: "¿Cómo me verifico como profesional?",
       answer: "Desde tu perfil, en la sección 'Verificación', cargá una foto de tu documento de identidad. El proceso toma 24-48 horas."
-    }
-  ];
-
-  const resources = [
-    {
-      title: "Guía Completa para Clientes",
-      type: "PDF",
-      description: "Todo lo que necesitás saber como cliente en un solo documento",
-      action: generateClientGuidePDF
-    },
-    {
-      title: "Manual del Profesional",
-      type: "PDF",
-      description: "Cómo maximizar tus oportunidades en Ofiz",
-      action: generateProfessionalManualPDF
-    },
-    {
-      title: "Mejores Prácticas",
-      type: "PDF",
-      description: "Tips y consejos de nuestra comunidad",
-      action: generateBestPracticesPDF
     }
   ];
 
@@ -236,34 +215,6 @@ export default function HelpCenter() {
           </div>
         </section>
 
-        {/* Recursos */}
-        <section className="py-16 md:py-24">
-          <div className="container">
-            <div className="text-center space-y-4 mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Recursos Descargables</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {resources.map((resource, index) => (
-                <Card key={index} className="border-border/50 hover:shadow-elegant transition-all cursor-pointer">
-                  <CardContent className="p-6 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{resource.title}</h3>
-                      <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-                        {resource.type}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{resource.description}</p>
-                    <Button variant="outline" size="sm" className="w-full" onClick={resource.action}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar PDF
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Contacto */}
         <section className="py-16 md:py-24 bg-muted/30">
