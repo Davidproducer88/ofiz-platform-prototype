@@ -638,28 +638,6 @@ export const DossierMaestros = () => {
             </Card>
           </div>
 
-          <Card className="p-6 md:p-8 bg-gradient-to-r from-green-500/10 to-green-500/5 border-green-500/20">
-            <div className="text-center space-y-3">
-              <h3 className="text-xl md:text-2xl font-bold">🎉 Oferta de Lanzamiento: FUNDADORES</h3>
-              <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-                Los primeros <strong>100 profesionales</strong> obtienen <strong>30% de descuento de por vida</strong> + badge especial "Miembro Fundador"
-              </p>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="font-semibold">Sin compromiso</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="font-semibold">Cancela cuando quieras</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="font-semibold">Sin costos ocultos</span>
-                </div>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
 
