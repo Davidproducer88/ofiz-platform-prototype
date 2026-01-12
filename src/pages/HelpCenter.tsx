@@ -6,7 +6,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, MessageSquare, Book, Video, FileText, Mail, Phone } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+
+// Slug generator helper
+const toSlug = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+};
 
 export default function HelpCenter() {
   const navigate = useNavigate();
@@ -18,10 +30,10 @@ export default function HelpCenter() {
       title: "Primeros Pasos",
       description: "Guías para comenzar a usar Ofiz",
       articles: [
-        "Cómo crear una cuenta",
-        "Completar tu perfil",
-        "Publicar tu primer encargo",
-        "Postularte a un trabajo"
+        { title: "Cómo crear una cuenta", slug: "como-crear-una-cuenta" },
+        { title: "Completar tu perfil", slug: "completar-tu-perfil" },
+        { title: "Publicar tu primer encargo", slug: "publicar-tu-primer-encargo" },
+        { title: "Postularte a un trabajo", slug: "postularte-a-un-trabajo" }
       ]
     },
     {
@@ -29,10 +41,10 @@ export default function HelpCenter() {
       title: "Comunicación",
       description: "Todo sobre chat y mensajes",
       articles: [
-        "Usar el chat integrado",
-        "Notificaciones y alertas",
-        "Compartir archivos y fotos",
-        "Etiqueta de comunicación"
+        { title: "Usar el chat integrado", slug: "usar-el-chat-integrado" },
+        { title: "Notificaciones y alertas", slug: "notificaciones-y-alertas" },
+        { title: "Compartir archivos y fotos", slug: "compartir-archivos-y-fotos" },
+        { title: "Etiqueta de comunicación", slug: "etiqueta-de-comunicacion" }
       ]
     },
     {
@@ -40,10 +52,10 @@ export default function HelpCenter() {
       title: "Pagos y Facturación",
       description: "Información sobre pagos",
       articles: [
-        "Pagos seguros con Mercado Pago",
-        "Cómo funciona el pago protegido",
-        "Retiros y transferencias",
-        "Facturación y comprobantes"
+        { title: "Pagos seguros con Mercado Pago", slug: "pagos-seguros-mercado-pago" },
+        { title: "Cómo funciona el pago protegido", slug: "como-funciona-pago-protegido" },
+        { title: "Retiros y transferencias", slug: "retiros-y-transferencias" },
+        { title: "Facturación y comprobantes", slug: "facturacion-y-comprobantes" }
       ]
     },
     {
@@ -51,10 +63,10 @@ export default function HelpCenter() {
       title: "Cuenta y Perfil",
       description: "Gestión de tu cuenta",
       articles: [
-        "Editar información personal",
-        "Verificación de identidad",
-        "Configuración de privacidad",
-        "Cambiar contraseña"
+        { title: "Editar información personal", slug: "editar-informacion-personal" },
+        { title: "Verificación de identidad", slug: "verificacion-de-identidad" },
+        { title: "Configuración de privacidad", slug: "configuracion-de-privacidad" },
+        { title: "Cambiar contraseña", slug: "cambiar-contrasena" }
       ]
     }
   ];
@@ -186,8 +198,13 @@ export default function HelpCenter() {
                     <p className="text-sm text-muted-foreground">{category.description}</p>
                     <ul className="space-y-2 pt-2">
                       {category.articles.map((article, aIndex) => (
-                        <li key={aIndex} className="text-sm text-primary hover:underline cursor-pointer">
-                          {article}
+                        <li key={aIndex}>
+                          <Link 
+                            to={`/ayuda/${article.slug}`}
+                            className="text-sm text-primary hover:underline cursor-pointer block"
+                          >
+                            {article.title}
+                          </Link>
                         </li>
                       ))}
                     </ul>
