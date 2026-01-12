@@ -175,12 +175,24 @@ export const useChat = (conversationId?: string) => {
 
       // Marcar mensajes como leídos
       if (profile?.id) {
-        await supabase
+        const { error: updateError } = await supabase
           .from('messages')
           .update({ read: true })
           .eq('conversation_id', convId)
           .neq('sender_id', profile.id)
           .eq('read', false);
+
+        if (!updateError) {
+          // Actualizar estado local de mensajes
+          setMessages(prev => prev.map(m => 
+            m.sender_id !== profile.id ? { ...m, read: true } : m
+          ));
+          
+          // Actualizar contador de no leídos en la conversación actual
+          setConversations(prev => prev.map(conv => 
+            conv.id === convId ? { ...conv, unread_count: 0 } : conv
+          ));
+        }
       }
     } catch (error) {
       console.error('Error loading messages:', error);
