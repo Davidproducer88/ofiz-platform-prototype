@@ -4,10 +4,10 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, MessageSquare, Book, Video, FileText, Mail, Phone } from "lucide-react";
+import { Search, MessageSquare, Book, FileText, Mail, Phone, Download } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
+import { generateClientGuidePDF, generateProfessionalManualPDF, generateBestPracticesPDF } from "@/utils/pdfGenerators";
 // Slug generator helper
 const toSlug = (text: string) => {
   return text
@@ -59,7 +59,7 @@ export default function HelpCenter() {
       ]
     },
     {
-      icon: <Video className="h-8 w-8 text-primary" />,
+      icon: <FileText className="h-8 w-8 text-primary" />,
       title: "Cuenta y Perfil",
       description: "Gestión de tu cuenta",
       articles: [
@@ -102,22 +102,20 @@ export default function HelpCenter() {
     {
       title: "Guía Completa para Clientes",
       type: "PDF",
-      description: "Todo lo que necesitás saber como cliente en un solo documento"
+      description: "Todo lo que necesitás saber como cliente en un solo documento",
+      action: generateClientGuidePDF
     },
     {
       title: "Manual del Profesional",
       type: "PDF",
-      description: "Cómo maximizar tus oportunidades en Ofiz"
-    },
-    {
-      title: "Videos Tutoriales",
-      type: "Video",
-      description: "Aprende visualmente con nuestros tutoriales paso a paso"
+      description: "Cómo maximizar tus oportunidades en Ofiz",
+      action: generateProfessionalManualPDF
     },
     {
       title: "Mejores Prácticas",
-      type: "Artículo",
-      description: "Tips y consejos de nuestra comunidad"
+      type: "PDF",
+      description: "Tips y consejos de nuestra comunidad",
+      action: generateBestPracticesPDF
     }
   ];
 
@@ -256,8 +254,9 @@ export default function HelpCenter() {
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground">{resource.description}</p>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Descargar
+                    <Button variant="outline" size="sm" className="w-full" onClick={resource.action}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Descargar PDF
                     </Button>
                   </CardContent>
                 </Card>
