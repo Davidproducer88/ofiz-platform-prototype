@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
@@ -31,6 +31,9 @@ export interface Conversation {
   unread_count?: number;
 }
 
+// Cache para nombres de usuario para evitar llamadas duplicadas
+const userNameCache = new Map<string, string>();
+
 export const useChat = (conversationId?: string) => {
   const { profile } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -38,11 +41,43 @@ export const useChat = (conversationId?: string) => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
 
-  // Cargar conversaciones del usuario
-  const loadConversations = async () => {
-    if (!profile?.id) return;
+  // Obtener nombre de usuario con cache
+  const getUserName = useCallback(async (userId: string): Promise<string> => {
+    if (userNameCache.has(userId)) {
+      return userNameCache.get(userId)!;
+    }
 
     try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching user name:', error);
+        return 'Usuario';
+      }
+
+      const name = data?.full_name || 'Usuario';
+      userNameCache.set(userId, name);
+      return name;
+    } catch (error) {
+      console.error('Error fetching user name:', error);
+      return 'Usuario';
+    }
+  }, []);
+
+  // Cargar conversaciones del usuario
+  const loadConversations = useCallback(async () => {
+    if (!profile?.id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -57,58 +92,66 @@ export const useChat = (conversationId?: string) => {
 
       if (error) throw error;
 
+      if (!data || data.length === 0) {
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
+
       // Enriquecer con información del otro usuario
-      const enriched = await Promise.all(
-        (data || []).map(async (conv) => {
-          const otherUserId = conv.client_id === profile.id ? conv.master_id : conv.client_id;
-          
-          const { data: userData } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', otherUserId)
-            .single();
+      const enrichedPromises = data.map(async (conv) => {
+        const otherUserId = conv.client_id === profile.id ? conv.master_id : conv.client_id;
+        
+        // Obtener nombre del otro usuario con cache
+        const otherUserName = await getUserName(otherUserId);
 
-          // Contar mensajes no leídos
-          const { count } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id)
-            .eq('read', false)
-            .neq('sender_id', profile.id);
+        // Contar mensajes no leídos
+        const { count } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('conversation_id', conv.id)
+          .eq('read', false)
+          .neq('sender_id', profile.id);
 
-          // Obtener título del encargo si existe
-          let bookingTitle = 'Conversación';
-          if (conv.booking_id && conv.bookings) {
-            const booking = conv.bookings as any;
-            if (booking.services?.title) {
-              bookingTitle = booking.services.title;
-            } else if (booking.notes) {
-              // Si no hay servicio, extraer título de las notas
-              const firstLine = booking.notes.split('\n')[0];
-              bookingTitle = firstLine || 'Encargo';
-            }
+        // Obtener título del encargo si existe
+        let bookingTitle = 'Conversación';
+        if (conv.booking_id && conv.bookings) {
+          const booking = conv.bookings as any;
+          if (booking.services?.title) {
+            bookingTitle = booking.services.title;
+          } else if (booking.notes) {
+            const firstLine = booking.notes.split('\n')[0];
+            bookingTitle = firstLine.substring(0, 50) || 'Encargo';
           }
+        }
 
-          return {
-            ...conv,
-            other_user_name: userData?.full_name || 'Usuario',
-            other_user_id: otherUserId,
-            booking_title: bookingTitle,
-            unread_count: count || 0
-          };
-        })
-      );
+        return {
+          ...conv,
+          other_user_name: otherUserName,
+          other_user_id: otherUserId,
+          booking_title: bookingTitle,
+          unread_count: count || 0
+        };
+      });
 
+      const enriched = await Promise.all(enrichedPromises);
       setConversations(enriched);
     } catch (error) {
       console.error('Error loading conversations:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar las conversaciones',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile?.id, getUserName]);
 
   // Cargar mensajes de una conversación
-  const loadMessages = async (convId: string) => {
+  const loadMessages = useCallback(async (convId: string) => {
+    if (!convId) return;
+
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -119,21 +162,15 @@ export const useChat = (conversationId?: string) => {
       if (error) throw error;
 
       // Enriquecer con nombres de usuarios
-      const enriched = await Promise.all(
-        (data || []).map(async (msg) => {
-          const { data: userData } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', msg.sender_id)
-            .single();
+      const enrichedPromises = (data || []).map(async (msg) => {
+        const senderName = await getUserName(msg.sender_id);
+        return {
+          ...msg,
+          sender_name: senderName
+        };
+      });
 
-          return {
-            ...msg,
-            sender_name: userData?.full_name || 'Usuario'
-          };
-        })
-      );
-
+      const enriched = await Promise.all(enrichedPromises);
       setMessages(enriched);
 
       // Marcar mensajes como leídos
@@ -148,30 +185,31 @@ export const useChat = (conversationId?: string) => {
     } catch (error) {
       console.error('Error loading messages:', error);
     }
-  };
+  }, [profile?.id, getUserName]);
 
   // Enviar mensaje con filtrado de seguridad
-  const sendMessage = async (content: string, attachmentUrl?: string, attachmentType?: string) => {
-    if (!conversationId || !profile?.id || !content.trim()) return;
+  const sendMessage = useCallback(async (content: string, attachmentUrl?: string, attachmentType?: string) => {
+    if (!conversationId || !profile?.id || (!content.trim() && !attachmentUrl)) return;
 
     setSending(true);
     try {
       // Filtrar mensaje antes de enviarlo
-      const { data: filterResult, error: filterError } = await supabase.functions.invoke('filter-chat-message', {
-        body: {
-          content: content.trim(),
-          conversationId,
-          senderId: profile.id
-        }
-      });
-
-      if (filterError) {
-        console.error('Filter error:', filterError);
-        toast({
-          title: 'Advertencia',
-          description: 'No se pudo verificar el mensaje completamente',
-          variant: 'destructive'
+      let filterResult = null;
+      try {
+        const { data, error } = await supabase.functions.invoke('filter-chat-message', {
+          body: {
+            content: content.trim(),
+            conversationId,
+            senderId: profile.id
+          }
         });
+        
+        if (!error) {
+          filterResult = data;
+        }
+      } catch (filterError) {
+        console.error('Filter error:', filterError);
+        // Continuar sin filtro si falla
       }
 
       // Si el mensaje fue bloqueado
@@ -196,7 +234,7 @@ export const useChat = (conversationId?: string) => {
         .insert({
           conversation_id: conversationId,
           sender_id: profile.id,
-          content: finalContent,
+          content: finalContent || '📎 Archivo adjunto',
           attachment_url: attachmentUrl,
           attachment_type: attachmentType,
           blocked: isBlocked,
@@ -205,6 +243,12 @@ export const useChat = (conversationId?: string) => {
         });
 
       if (error) throw error;
+
+      // Actualizar last_message_at de la conversación
+      await supabase
+        .from('conversations')
+        .update({ last_message_at: new Date().toISOString() })
+        .eq('id', conversationId);
 
       if (isCensored) {
         toast({
@@ -223,10 +267,10 @@ export const useChat = (conversationId?: string) => {
     } finally {
       setSending(false);
     }
-  };
+  }, [conversationId, profile?.id]);
 
   // Crear o obtener conversación existente para un booking
-  const getOrCreateConversation = async (bookingId: string, clientId: string, masterId: string) => {
+  const getOrCreateConversation = useCallback(async (bookingId: string, clientId: string, masterId: string) => {
     try {
       // Verificar si ya existe
       const { data: existing, error: fetchError } = await supabase
@@ -254,6 +298,9 @@ export const useChat = (conversationId?: string) => {
 
       if (createError) throw createError;
 
+      // Refrescar conversaciones
+      await loadConversations();
+
       return newConv.id;
     } catch (error) {
       console.error('Error getting/creating conversation:', error);
@@ -264,7 +311,53 @@ export const useChat = (conversationId?: string) => {
       });
       return null;
     }
-  };
+  }, [loadConversations]);
+
+  // Crear conversación sin booking (directa)
+  const createDirectConversation = useCallback(async (masterId: string) => {
+    if (!profile?.id) return null;
+
+    try {
+      // Verificar si ya existe una conversación directa
+      const { data: existing, error: fetchError } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('client_id', profile.id)
+        .eq('master_id', masterId)
+        .is('booking_id', null)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      if (existing) {
+        return existing.id;
+      }
+
+      // Crear nueva conversación
+      const { data: newConv, error: createError } = await supabase
+        .from('conversations')
+        .insert({
+          client_id: profile.id,
+          master_id: masterId
+        })
+        .select('id')
+        .single();
+
+      if (createError) throw createError;
+
+      await loadConversations();
+
+      return newConv.id;
+    } catch (error) {
+      console.error('Error creating direct conversation:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo iniciar la conversación',
+        variant: 'destructive'
+      });
+      return null;
+    }
+  }, [profile?.id, loadConversations]);
 
   // Suscribirse a mensajes en tiempo real
   useEffect(() => {
@@ -286,30 +379,31 @@ export const useChat = (conversationId?: string) => {
           const newMessage = payload.new as Message;
           
           // Obtener nombre del remitente
-          const { data: userData } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', newMessage.sender_id)
-            .single();
+          const senderName = await getUserName(newMessage.sender_id);
 
-          setMessages(prev => [...prev, {
-            ...newMessage,
-            sender_name: userData?.full_name || 'Usuario'
-          }]);
+          setMessages(prev => {
+            // Evitar duplicados
+            if (prev.some(m => m.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, {
+              ...newMessage,
+              sender_name: senderName
+            }];
+          });
 
           // Si no es mensaje propio, marcarlo como leído
           if (newMessage.sender_id !== profile.id) {
-            setTimeout(() => {
-              supabase
+            setTimeout(async () => {
+              await supabase
                 .from('messages')
                 .update({ read: true })
-                .eq('id', newMessage.id)
-                .then(() => {
-                  setMessages(prev =>
-                    prev.map(m => m.id === newMessage.id ? { ...m, read: true } : m)
-                  );
-                });
-            }, 1000);
+                .eq('id', newMessage.id);
+
+              setMessages(prev =>
+                prev.map(m => m.id === newMessage.id ? { ...m, read: true } : m)
+              );
+            }, 500);
           }
         }
       )
@@ -318,14 +412,38 @@ export const useChat = (conversationId?: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, profile?.id]);
+  }, [conversationId, profile?.id, loadMessages, getUserName]);
+
+  // Suscribirse a nuevas conversaciones
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const channel = supabase
+      .channel('conversations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, loadConversations]);
 
   // Cargar conversaciones al inicio
   useEffect(() => {
     if (profile?.id) {
       loadConversations();
     }
-  }, [profile?.id]);
+  }, [profile?.id, loadConversations]);
 
   return {
     conversations,
@@ -334,6 +452,7 @@ export const useChat = (conversationId?: string) => {
     sending,
     sendMessage,
     getOrCreateConversation,
+    createDirectConversation,
     refreshConversations: loadConversations,
     refreshMessages: conversationId ? () => loadMessages(conversationId) : undefined
   };
