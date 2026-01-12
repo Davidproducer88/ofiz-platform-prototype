@@ -34,6 +34,7 @@ import { DossierEmpresas } from "./pages/DossierEmpresas";
 import PitchDeck from "./pages/PitchDeck";
 import Sitemap from "./pages/Sitemap";
 import Demo from "./pages/Demo";
+import ToolsForProfessionals from "./pages/ToolsForProfessionals";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -162,6 +163,7 @@ const AppContent = () => {
       <Route path="/pitch-deck" element={<PitchDeck />} />
       <Route path="/demo" element={<Demo />} />
       <Route path="/sitemap" element={<Sitemap />} />
+      <Route path="/herramientas-profesionales" element={<ToolsForProfessionals />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -128,7 +128,7 @@ export const Footer = () => {
               <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Verificación de Perfil
               </button>
-              <button onClick={() => navigate('/auth?type=master')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
+              <button onClick={() => navigate('/herramientas-profesionales')} className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left w-full">
                 Herramientas
               </button>
             </div>
