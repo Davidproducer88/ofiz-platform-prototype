@@ -36,6 +36,7 @@ import Sitemap from "./pages/Sitemap";
 import Demo from "./pages/Demo";
 import ToolsForProfessionals from "./pages/ToolsForProfessionals";
 import HelpArticle from "./pages/HelpArticle";
+import PlanesPremium from "./pages/PlanesPremium";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -166,6 +167,7 @@ const AppContent = () => {
       <Route path="/demo" element={<Demo />} />
       <Route path="/sitemap" element={<Sitemap />} />
       <Route path="/herramientas-profesionales" element={<ToolsForProfessionals />} />
+      <Route path="/planes-premium" element={<PlanesPremium />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
