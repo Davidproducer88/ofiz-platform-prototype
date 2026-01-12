@@ -99,6 +99,8 @@ export const ChatTab = () => {
             <ConversationsList
               onConversationSelect={handleConversationSelect}
               selectedConversationId={selectedConversation?.id}
+              conversations={conversations}
+              loading={loading}
             />
           </div>
 
