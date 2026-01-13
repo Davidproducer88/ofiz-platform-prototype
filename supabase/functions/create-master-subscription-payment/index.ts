@@ -82,19 +82,22 @@ serve(async (req) => {
     // Convert price from cents to UYU (divide by 100)
     const transactionAmount = price / 100;
     
+    console.log('Transaction amount (UYU):', transactionAmount);
+    
     const paymentData = {
       transaction_amount: transactionAmount,
+      currency_id: 'UYU',
       token: token,
       description: `Suscripción ${planName}`,
       installments: installments || 1,
       payment_method_id: paymentMethodId,
-      issuer_id: issuerId,
+      issuer_id: issuerId ? String(issuerId) : undefined,
       payer: {
         email: payer?.email || user.email,
         identification: payer?.identification,
       },
-      external_reference: `${user.id}-${planId}`,
-      statement_descriptor: 'OFIZ SUSCRIPCION',
+      external_reference: `sub-${user.id}-${planId}`,
+      statement_descriptor: 'OFIZ',
       notification_url: `https://dexrrbbpeidcxoynkyrt.supabase.co/functions/v1/mercadopago-webhook`,
       metadata: {
         master_id: user.id,
@@ -104,7 +107,7 @@ serve(async (req) => {
       }
     };
 
-    console.log('Creating subscription payment with Bricks API');
+    console.log('Payment data to send:', JSON.stringify(paymentData, null, 2));
 
     const mpResponse = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
