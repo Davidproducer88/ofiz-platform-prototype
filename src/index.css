@@ -289,9 +289,9 @@
     @apply scale-[0.98] shadow-card;
   }
 
-  /* FAB styles */
+  /* FAB styles - z-30 para que modales (z-100) lo cubran */
   .fab {
-    @apply fixed bottom-24 right-4 z-40 h-14 w-14 rounded-full bg-gradient-primary shadow-fab flex items-center justify-center;
+    @apply fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-gradient-primary shadow-fab flex items-center justify-center;
     transition: var(--transition-bounce);
   }
 
@@ -299,9 +299,9 @@
     transform: scale(0.9);
   }
 
-  /* Bottom nav iOS style */
+  /* Bottom nav iOS style - z-40 para que modales (z-100) lo cubran */
   .bottom-nav-ios {
-    @apply fixed bottom-0 left-0 right-0 z-50 glass-ios border-t border-border/50;
+    @apply fixed bottom-0 left-0 right-0 z-40 glass-ios border-t border-border/50;
     padding-bottom: var(--safe-area-bottom);
   }
 
