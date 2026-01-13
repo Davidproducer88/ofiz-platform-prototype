@@ -1,6 +1,10 @@
-import { useEffect, useRef, useState, useId } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+
+// Variable global para prevenir inicialización duplicada
+let globalBrickInstance: any = null;
+let globalContainerId: string | null = null;
 
 interface MasterSubscriptionCheckoutBrickProps {
   amount: number;
@@ -21,16 +25,29 @@ export const MasterSubscriptionCheckoutBrick = ({
   onSuccess, 
   onError 
 }: MasterSubscriptionCheckoutBrickProps) => {
-  const brickRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mountedRef = useRef(false);
-  const uniqueId = useId().replace(/:/g, '');
-  const containerId = `mp-brick-${uniqueId}`;
+  const containerId = 'master-subscription-brick-container';
+  const initStartedRef = useRef(false);
 
   useEffect(() => {
-    // Prevenir doble montaje en StrictMode
-    if (mountedRef.current) return;
-    mountedRef.current = true;
+    // Si ya se inició la inicialización, no hacer nada
+    if (initStartedRef.current) return;
+    initStartedRef.current = true;
+
+    // Si hay un brick existente para otro contenedor, limpiarlo
+    if (globalBrickInstance && globalContainerId !== containerId) {
+      try {
+        globalBrickInstance.unmount?.();
+      } catch (e) {}
+      globalBrickInstance = null;
+      globalContainerId = null;
+    }
+
+    // Si ya existe un brick para este contenedor, no crear otro
+    if (globalBrickInstance && globalContainerId === containerId) {
+      setIsLoading(false);
+      return;
+    }
     
     const loadMercadoPago = async () => {
       try {
@@ -42,10 +59,17 @@ export const MasterSubscriptionCheckoutBrick = ({
           return;
         }
 
-        // Verificar si el script ya está cargando
-        const existingScript = document.querySelector('script[src*="mercadopago"]');
+        // Verificar si el script ya existe
+        const existingScript = document.querySelector('script[src*="sdk.mercadopago"]');
         if (existingScript) {
-          existingScript.addEventListener('load', () => initializeBrick());
+          // Esperar a que cargue
+          const checkLoaded = setInterval(() => {
+            // @ts-ignore
+            if (window.MercadoPago) {
+              clearInterval(checkLoaded);
+              initializeBrick();
+            }
+          }, 100);
           return;
         }
 
@@ -53,10 +77,7 @@ export const MasterSubscriptionCheckoutBrick = ({
         scriptElement.src = 'https://sdk.mercadopago.com/js/v2';
         scriptElement.async = true;
         
-        scriptElement.onload = () => {
-          initializeBrick();
-        };
-
+        scriptElement.onload = () => initializeBrick();
         scriptElement.onerror = () => {
           toast.error('Error al cargar MercadoPago');
           onError(new Error('Failed to load MercadoPago SDK'));
@@ -72,24 +93,24 @@ export const MasterSubscriptionCheckoutBrick = ({
     };
 
     const initializeBrick = async () => {
+      // Doble verificación antes de crear
+      if (globalBrickInstance) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const container = document.getElementById(containerId);
         if (!container) {
-          console.error('Container not found:', containerId);
           setIsLoading(false);
           return;
         }
 
-        // Verificar si ya hay un brick en el contenedor
-        if (container.children.length > 0) {
-          console.log('Brick already exists in container');
-          setIsLoading(false);
-          return;
-        }
+        // Limpiar contenedor
+        container.innerHTML = '';
         
         // @ts-ignore
         if (!window.MercadoPago) {
-          console.error('MercadoPago SDK not loaded!');
           setIsLoading(false);
           return;
         }
@@ -102,7 +123,7 @@ export const MasterSubscriptionCheckoutBrick = ({
 
         const bricksBuilder = mp.bricks();
         
-        brickRef.current = await bricksBuilder.create('payment', containerId, {
+        globalBrickInstance = await bricksBuilder.create('payment', containerId, {
           initialization: {
             amount: amount,
             payer: { email: '' }
@@ -116,9 +137,7 @@ export const MasterSubscriptionCheckoutBrick = ({
             },
           },
           callbacks: {
-            onReady: () => {
-              setIsLoading(false);
-            },
+            onReady: () => setIsLoading(false),
             onSubmit: async (formData: any) => {
               return new Promise<void>(async (resolve, reject) => {
                 try {
@@ -176,6 +195,8 @@ export const MasterSubscriptionCheckoutBrick = ({
             },
           },
         });
+        
+        globalContainerId = containerId;
       } catch (error) {
         console.error('Error initializing brick:', error);
         onError(error);
@@ -186,17 +207,17 @@ export const MasterSubscriptionCheckoutBrick = ({
     loadMercadoPago();
 
     return () => {
-      if (brickRef.current) {
+      // Limpiar al desmontar
+      if (globalBrickInstance) {
         try {
-          brickRef.current.unmount?.();
-        } catch (err) {
-          console.warn('Error unmounting brick:', err);
-        }
-        brickRef.current = null;
+          globalBrickInstance.unmount?.();
+        } catch (err) {}
+        globalBrickInstance = null;
+        globalContainerId = null;
       }
-      mountedRef.current = false;
+      initStartedRef.current = false;
     };
-  }, [containerId]);
+  }, []);
 
   return (
     <div className="w-full space-y-4">
