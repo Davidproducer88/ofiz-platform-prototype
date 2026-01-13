@@ -500,7 +500,7 @@ const MasterDashboard = () => {
                   onClick={() => window.open('/dossier-maestros', '_blank')}
                 >
                   <FileText className="h-5 w-5 mr-2" />
-                  Ver Dossier Completo
+                  Ver Guía del Profesional
                 </Button>
               </div>
             </div>
