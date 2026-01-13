@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ContractPaymentCheckoutBrickProps {
@@ -16,6 +17,8 @@ declare global {
   }
 }
 
+const MERCADOPAGO_PUBLIC_KEY = 'TEST-e3eeddeb-6fd7-4a45-ba8d-a487720f7fc1';
+
 export const ContractPaymentCheckoutBrick = ({
   amount,
   applicationId,
@@ -25,129 +28,204 @@ export const ContractPaymentCheckoutBrick = ({
   onError,
 }: ContractPaymentCheckoutBrickProps) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [sdkReady, setSdkReady] = useState(false);
+  const brickRef = useRef<any>(null);
+  const mountedRef = useRef(true);
+  const initializingRef = useRef(false);
+  const containerIdRef = useRef(`contract-brick-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
+  // Load SDK
   useEffect(() => {
-    const loadMercadoPago = async () => {
-      // Check if script is already loaded
+    mountedRef.current = true;
+    
+    const loadSdk = () => {
       if (window.MercadoPago) {
-        initializeBrick();
+        setSdkReady(true);
         return;
       }
 
-      // Load MercadoPago SDK
+      const existingScript = document.querySelector('script[src*="sdk.mercadopago.com"]');
+      if (existingScript) {
+        const checkReady = setInterval(() => {
+          if (window.MercadoPago) {
+            clearInterval(checkReady);
+            if (mountedRef.current) setSdkReady(true);
+          }
+        }, 100);
+        
+        setTimeout(() => clearInterval(checkReady), 10000);
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = 'https://sdk.mercadopago.com/js/v2';
       script.async = true;
-      script.onload = () => initializeBrick();
+      script.onload = () => {
+        if (mountedRef.current) setSdkReady(true);
+      };
       script.onerror = () => {
-        console.error('Failed to load MercadoPago SDK');
-        onError({ message: 'No se pudo cargar el sistema de pagos' });
+        if (mountedRef.current) {
+          toast.error('Error al cargar MercadoPago SDK');
+          setIsLoading(false);
+        }
       };
       document.body.appendChild(script);
     };
 
-    const initializeBrick = async () => {
-      try {
-        const mp = new window.MercadoPago('APP_USR-8e0a6aa2-8ebc-48a6-84cd-c1f8f8abf63a', {
-          locale: 'es-UY'
-        });
-
-        const bricksBuilder = mp.bricks();
-
-        const renderPaymentBrick = async () => {
-          const settings = {
-            initialization: {
-              amount: amount / 100,
-              payer: {
-                email: '',
-              },
-            },
-            customization: {
-              visual: {
-                style: {
-                  theme: 'default',
-                },
-              },
-              paymentMethods: {
-                maxInstallments: 12,
-              },
-            },
-            callbacks: {
-              onReady: () => {
-                console.log('Payment Brick ready');
-                setIsLoading(false);
-              },
-              onSubmit: async (formData: any) => {
-                console.log('Payment form submitted', formData);
-                setIsLoading(true);
-
-                try {
-                  const { data, error } = await supabase.functions.invoke('create-contract-payment', {
-                    body: {
-                      applicationId,
-                      paymentMethodId: formData.payment_method_id,
-                      token: formData.token,
-                      issuerId: formData.issuer_id,
-                      installments: formData.installments,
-                      payer: formData.payer,
-                    },
-                  });
-
-                  if (error) {
-                    console.error('Edge function error:', error);
-                    throw new Error(error.message);
-                  }
-
-                  if (data?.error) {
-                    console.error('Payment error:', data.error);
-                    throw new Error(data.error);
-                  }
-
-                  console.log('Payment successful:', data);
-                  onSuccess(data);
-                } catch (err: any) {
-                  console.error('Error processing payment:', err);
-                  onError(err);
-                } finally {
-                  setIsLoading(false);
-                }
-              },
-              onError: (error: any) => {
-                console.error('Payment Brick error:', error);
-                onError(error);
-              },
-            },
-          };
-
-          await bricksBuilder.create('payment', 'paymentBrick_container', settings);
-        };
-
-        renderPaymentBrick();
-      } catch (error) {
-        console.error('Error initializing Payment Brick:', error);
-        onError(error);
-        setIsLoading(false);
-      }
-    };
-
-    loadMercadoPago();
+    loadSdk();
 
     return () => {
-      const brickContainer = document.getElementById('paymentBrick_container');
-      if (brickContainer) {
-        brickContainer.innerHTML = '';
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Initialize brick when SDK is ready
+  useEffect(() => {
+    if (!sdkReady || initializingRef.current || brickRef.current) return;
+
+    const initBrick = async () => {
+      const containerId = containerIdRef.current;
+      const container = document.getElementById(containerId);
+      
+      if (!container || !mountedRef.current) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Clear container
+      container.innerHTML = '';
+      initializingRef.current = true;
+
+      try {
+        const mp = new window.MercadoPago(MERCADOPAGO_PUBLIC_KEY, {
+          locale: 'es-UY',
+          advancedFraudPrevention: false
+        });
+
+        const bricks = mp.bricks();
+        
+        // Amount comes in cents, convert to currency
+        const displayAmount = amount / 100;
+        
+        brickRef.current = await bricks.create('payment', containerId, {
+          initialization: {
+            amount: displayAmount,
+            payer: { email: '' }
+          },
+          customization: {
+            visual: { 
+              style: { theme: 'default' },
+              hideFormTitle: false,
+              hidePaymentButton: false
+            },
+            paymentMethods: {
+              creditCard: 'all',
+              debitCard: 'all',
+              maxInstallments: 12,
+            },
+          },
+          callbacks: {
+            onReady: () => {
+              if (mountedRef.current) {
+                setIsLoading(false);
+                initializingRef.current = false;
+                toast.success('Formulario de pago listo');
+              }
+            },
+            onSubmit: async (formData: any) => {
+              try {
+                const paymentData = formData.formData || formData;
+                
+                const token = paymentData.token || paymentData.card_token_id;
+                const paymentMethodId = paymentData.payment_method_id || paymentData.paymentMethodId;
+                
+                if (!token && !paymentMethodId) {
+                  toast.error('Por favor completa todos los datos de pago');
+                  throw new Error('Datos incompletos');
+                }
+
+                toast('Procesando pago...', {
+                  description: 'Espera mientras procesamos tu pago'
+                });
+
+                const { data, error } = await supabase.functions.invoke('create-contract-payment', {
+                  body: {
+                    applicationId,
+                    paymentMethodId: paymentMethodId,
+                    token: token,
+                    issuerId: paymentData.issuer_id || paymentData.issuerId,
+                    installments: paymentData.installments || 1,
+                    payer: paymentData.payer
+                  }
+                });
+
+                if (error) throw new Error(error.message || 'Error al procesar el pago');
+                if (data?.error) throw new Error(data.error);
+
+                await onSuccess(data);
+              } catch (error: any) {
+                console.error('Payment error:', error);
+                toast.error(error.message || 'Error al procesar el pago');
+                onError(error);
+                throw error;
+              }
+            },
+            onError: (error: any) => {
+              console.error('Brick error:', error);
+              if (mountedRef.current) {
+                toast.error('Error al cargar el formulario de pago');
+                onError(error);
+                setIsLoading(false);
+                initializingRef.current = false;
+              }
+            },
+          },
+        });
+      } catch (error) {
+        console.error('Error initializing brick:', error);
+        if (mountedRef.current) {
+          onError(error);
+          setIsLoading(false);
+          initializingRef.current = false;
+        }
       }
     };
-  }, [amount, applicationId, onSuccess, onError]);
+
+    // Small delay to ensure container is in DOM
+    const timer = setTimeout(initBrick, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [sdkReady, amount, applicationId, onSuccess, onError]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (brickRef.current) {
+        try {
+          brickRef.current.unmount?.();
+        } catch (e) {
+          // Ignore unmount errors
+        }
+        brickRef.current = null;
+      }
+      initializingRef.current = false;
+    };
+  }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-4">
       {isLoading && (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Cargando formulario de pago...</p>
         </div>
       )}
-      <div id="paymentBrick_container" className="min-h-[400px]"></div>
+      <div 
+        id={containerIdRef.current}
+        className={`min-h-[400px] ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}`}
+      />
     </div>
   );
 };

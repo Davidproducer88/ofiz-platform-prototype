@@ -8,110 +8,102 @@ interface CheckoutBrickProps {
   onError: (error: any) => void;
 }
 
+declare global {
+  interface Window {
+    MercadoPago: any;
+  }
+}
+
+const MERCADOPAGO_PUBLIC_KEY = 'TEST-e3eeddeb-6fd7-4a45-ba8d-a487720f7fc1';
+
 export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutBrickProps) => {
-  const brickRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sdkReady, setSdkReady] = useState(false);
+  const brickRef = useRef<any>(null);
+  const mountedRef = useRef(true);
+  const initializingRef = useRef(false);
+  const containerIdRef = useRef(`marketplace-brick-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
+  // Load SDK
   useEffect(() => {
-    let scriptElement: HTMLScriptElement | null = null;
+    mountedRef.current = true;
     
-    const loadMercadoPago = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Check if SDK is already loaded
-        // @ts-ignore
-        if (window.MercadoPago) {
-          console.log('MercadoPago SDK already loaded');
-          initializeBrick();
-          return;
-        }
-
-        // Load MercadoPago SDK
-        console.log('Loading MercadoPago SDK...');
-        scriptElement = document.createElement('script');
-        scriptElement.src = 'https://sdk.mercadopago.com/js/v2';
-        scriptElement.async = true;
-        
-        scriptElement.onload = () => {
-          console.log('MercadoPago SDK loaded successfully');
-          initializeBrick();
-        };
-
-        scriptElement.onerror = () => {
-          console.error('Failed to load MercadoPago SDK');
-          toast.error('Error al cargar MercadoPago');
-          onError(new Error('Failed to load MercadoPago SDK'));
-          setIsLoading(false);
-        };
-
-        document.body.appendChild(scriptElement);
-      } catch (error) {
-        console.error('Error loading MercadoPago:', error);
-        toast.error('Error al inicializar el pago');
-        onError(error);
-        setIsLoading(false);
+    const loadSdk = () => {
+      if (window.MercadoPago) {
+        setSdkReady(true);
+        return;
       }
+
+      const existingScript = document.querySelector('script[src*="sdk.mercadopago.com"]');
+      if (existingScript) {
+        const checkReady = setInterval(() => {
+          if (window.MercadoPago) {
+            clearInterval(checkReady);
+            if (mountedRef.current) setSdkReady(true);
+          }
+        }, 100);
+        
+        setTimeout(() => clearInterval(checkReady), 10000);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://sdk.mercadopago.com/js/v2';
+      script.async = true;
+      script.onload = () => {
+        if (mountedRef.current) setSdkReady(true);
+      };
+      script.onerror = () => {
+        if (mountedRef.current) {
+          toast.error('Error al cargar MercadoPago SDK');
+          setIsLoading(false);
+        }
+      };
+      document.body.appendChild(script);
     };
 
-    const initializeBrick = async () => {
+    loadSdk();
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Initialize brick when SDK is ready
+  useEffect(() => {
+    if (!sdkReady || initializingRef.current || brickRef.current) return;
+
+    const initBrick = async () => {
+      const containerId = containerIdRef.current;
+      const container = document.getElementById(containerId);
+      
+      if (!container || !mountedRef.current) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Clear container
+      container.innerHTML = '';
+      initializingRef.current = true;
+
       try {
-        console.log('Initializing Payment Brick for order:', orderId);
-        
-        // Verificar que el contenedor existe
-        const container = document.getElementById('mercadopago-brick-container');
-        if (!container) {
-          console.error('Container not found!');
-          toast.error('Error: contenedor no encontrado');
-          setIsLoading(false);
-          return;
-        }
-        
-        console.log('Container found, creating MercadoPago instance...');
-        
-        // @ts-ignore - MercadoPago SDK
-        if (!window.MercadoPago) {
-          console.error('MercadoPago SDK not loaded!');
-          toast.error('SDK de MercadoPago no disponible');
-          setIsLoading(false);
-          return;
-        }
-        
-        // @ts-ignore - MercadoPago SDK
-        const mp = new window.MercadoPago('TEST-e3eeddeb-6fd7-4a45-ba8d-a487720f7fc1', {
+        const mp = new window.MercadoPago(MERCADOPAGO_PUBLIC_KEY, {
           locale: 'es-UY',
-          advancedFraudPrevention: false // Disable to prevent unwanted behaviors
+          advancedFraudPrevention: false
         });
 
-        console.log('MercadoPago instance created, getting bricks builder...');
-        const bricksBuilder = mp.bricks();
-
-        // Destroy previous brick if exists
-        if (brickRef.current) {
-          console.log('Unmounting previous brick');
-          try {
-            await brickRef.current.unmount();
-          } catch (unmountError) {
-            console.warn('Error unmounting previous brick:', unmountError);
-          }
-        }
-
-        console.log('Creating payment brick with amount:', amount);
+        const bricks = mp.bricks();
         
-        // Create payment brick with settings to prevent navigation
-        brickRef.current = await bricksBuilder.create('payment', 'mercadopago-brick-container', {
+        brickRef.current = await bricks.create('payment', containerId, {
           initialization: {
             amount: amount,
-            payer: {
-              email: ''
-            }
+            payer: { email: '' }
           },
           customization: {
-            visual: {
-              style: {
-                theme: 'default',
-              },
-              hideFormTitle: false
+            visual: { 
+              style: { theme: 'default' },
+              hideFormTitle: false,
+              hidePaymentButton: false
             },
             paymentMethods: {
               creditCard: 'all',
@@ -121,95 +113,75 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
           },
           callbacks: {
             onReady: () => {
-              console.log('Payment Brick ready');
-              setIsLoading(false);
-              toast.success('Formulario de pago listo');
+              if (mountedRef.current) {
+                setIsLoading(false);
+                initializingRef.current = false;
+                toast.success('Formulario de pago listo');
+              }
             },
             onSubmit: async (formData: any) => {
-              // CRITICAL: MUST return a Promise to prevent redirects
-              return new Promise<void>(async (resolve, reject) => {
-                console.log('=== PAYMENT FORM SUBMITTED ===');
-                console.log('Form data received:', formData);
+              try {
+                const paymentData = formData.formData || formData;
                 
-                try {
-                  // MercadoPago puede enviar los datos en diferentes estructuras
-                  let paymentData = formData;
-                  
-                  // Si formData tiene formData dentro (estructura anidada)
-                  if (formData.formData) {
-                    paymentData = formData.formData;
-                  }
-                  
-                  // Si hay selectedPaymentMethod
-                  if (formData.selectedPaymentMethod) {
-                    paymentData = { ...paymentData, ...formData };
-                  }
-                  
-                  console.log('Processed payment data:', paymentData);
-                  
-                  // Validación
-                  const hasToken = paymentData.token || paymentData.card_token_id;
-                  const hasPaymentMethod = paymentData.payment_method_id || paymentData.paymentMethodId;
-                  
-                  if (!hasToken && !hasPaymentMethod) {
-                    console.error('Missing required payment data!', paymentData);
-                    toast.error('Por favor completa todos los datos de pago');
-                    reject(new Error('Datos incompletos'));
-                    return;
-                  }
-                  
-                  console.log('Payment data valid, calling onSuccess callback...');
-                  await onSuccess(paymentData);
-                  console.log('Payment processed successfully - resolving promise');
-                  
-                  // CRITICAL: Must call resolve() to indicate success
-                  // This prevents MercadoPago from redirecting
-                  resolve();
-                } catch (error) {
-                  console.error('Payment error:', error);
-                  toast.error('Error al procesar el pago');
-                  onError(error);
-                  // Reject to indicate error but prevent redirect
-                  reject(error);
+                const token = paymentData.token || paymentData.card_token_id;
+                const paymentMethodId = paymentData.payment_method_id || paymentData.paymentMethodId;
+                
+                if (!token && !paymentMethodId) {
+                  toast.error('Por favor completa todos los datos de pago');
+                  throw new Error('Datos incompletos');
                 }
-              });
+
+                await onSuccess(paymentData);
+              } catch (error: any) {
+                console.error('Payment error:', error);
+                toast.error(error.message || 'Error al procesar el pago');
+                onError(error);
+                throw error;
+              }
             },
             onError: (error: any) => {
               console.error('Brick error:', error);
-              toast.error('Error al cargar el formulario de pago');
-              onError(error);
-              setIsLoading(false);
+              if (mountedRef.current) {
+                toast.error('Error al cargar el formulario de pago');
+                onError(error);
+                setIsLoading(false);
+                initializingRef.current = false;
+              }
             },
           },
         });
       } catch (error) {
         console.error('Error initializing brick:', error);
-        toast.error('Error al inicializar el formulario de pago');
-        onError(error);
-        setIsLoading(false);
+        if (mountedRef.current) {
+          onError(error);
+          setIsLoading(false);
+          initializingRef.current = false;
+        }
       }
     };
 
-    loadMercadoPago();
+    // Small delay to ensure container is in DOM
+    const timer = setTimeout(initBrick, 100);
 
     return () => {
+      clearTimeout(timer);
+    };
+  }, [sdkReady, amount, orderId, onSuccess, onError]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (brickRef.current) {
-        console.log('Cleaning up Payment Brick');
         try {
-          // Unmount without waiting for the promise to prevent errors during navigation
-          const unmountPromise = brickRef.current.unmount();
-          if (unmountPromise && typeof unmountPromise.catch === 'function') {
-            unmountPromise.catch((err: any) => {
-              console.warn('Error unmounting brick (safe to ignore during navigation):', err);
-            });
-          }
-        } catch (err) {
-          console.warn('Error during brick cleanup (safe to ignore during navigation):', err);
+          brickRef.current.unmount?.();
+        } catch (e) {
+          // Ignore unmount errors
         }
         brickRef.current = null;
       }
+      initializingRef.current = false;
     };
-  }, [amount, orderId]);
+  }, []);
 
   return (
     <div className="w-full space-y-4">
@@ -220,8 +192,8 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
         </div>
       )}
       <div 
-        id="mercadopago-brick-container" 
-        className={`min-h-[400px] ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity'}`}
+        id={containerIdRef.current}
+        className={`min-h-[400px] ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}`}
       />
     </div>
   );
