@@ -140,13 +140,17 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
               }
             },
             onError: (error: any) => {
-              console.error('Brick error:', error);
-              if (mountedRef.current) {
-                toast.error('Error al cargar el formulario de pago');
-                onError(error);
-                setIsLoading(false);
-                initializingRef.current = false;
+              console.warn('Brick error:', error);
+              // Only treat critical errors as failures
+              if (error?.type === 'critical') {
+                if (mountedRef.current) {
+                  toast.error('Error al cargar el formulario de pago');
+                  onError(error);
+                  setIsLoading(false);
+                  initializingRef.current = false;
+                }
               }
+              // Non-critical errors (like empty_installments) are expected during form interaction
             },
           },
         });
