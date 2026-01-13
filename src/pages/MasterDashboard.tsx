@@ -502,17 +502,6 @@ const MasterDashboard = () => {
                   <FileText className="h-5 w-5 mr-2" />
                   Ver Dossier Completo
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    window.open('/dossier-maestros', '_blank');
-                    setTimeout(() => window.print(), 1000);
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar PDF
-                </Button>
               </div>
             </div>
           </CardContent>
