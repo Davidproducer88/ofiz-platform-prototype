@@ -66,8 +66,11 @@ import { MarketplaceFeed } from '@/components/MarketplaceFeed';
 import { useMasterDashboard } from '@/hooks/useMasterDashboard';
 import { DashboardStats } from '@/components/master/DashboardStats';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { MobileMasterHome } from '@/components/mobile/MobileMasterHome';
-import { BottomNav } from '@/components/mobile/BottomNav';
+import { AppMasterHome } from '@/components/mobile/AppMasterHome';
+import { AppBottomNav } from '@/components/mobile/AppBottomNav';
+import { AppHeader } from '@/components/mobile/AppHeader';
+import { StoriesBar } from '@/components/mobile/StoriesBar';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import { cn } from '@/lib/utils';
 import { SERVICE_CATEGORIES } from '@/lib/categories';
 
@@ -510,7 +513,7 @@ const MasterDashboard = () => {
         {/* Stats Cards - Now using DashboardStats component */}
         <DashboardStats stats={stats} />
 
-        {isMobile && <BottomNav userType="master" />}
+        {isMobile && <AppBottomNav userType="master" userName={profile?.full_name} />}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4 sm:mt-8">
           <TabsList className={cn(
@@ -606,8 +609,9 @@ const MasterDashboard = () => {
           {/* Home Tab (Mobile Only) */}
           {isMobile && (
             <TabsContent value="home">
-              <MobileMasterHome 
+              <AppMasterHome 
                 stats={stats} 
+                userName={profile?.full_name}
                 onNavigate={(tab) => setActiveTab(tab)}
               />
             </TabsContent>
