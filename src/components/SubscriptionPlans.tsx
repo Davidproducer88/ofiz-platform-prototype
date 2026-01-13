@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Check, Star, Zap } from "lucide-react";
+import { Check, Star, Zap, Crown, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { MasterSubscriptionCheckoutBrick } from "./MasterSubscriptionCheckoutBrick";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Subscription {
   id: string;
@@ -15,41 +16,73 @@ interface Subscription {
   applications_used: number;
   is_featured: boolean;
   current_period_end: string;
+  has_founder_discount?: boolean;
 }
+
+interface Profile {
+  is_founder: boolean;
+  founder_discount_percentage: number | null;
+}
+
+// Límite de maestros fundadores
+const FOUNDER_LIMIT = 1000;
 
 export const SubscriptionPlans = () => {
   const [currentPlan, setCurrentPlan] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<{
     id: 'free' | 'basic_plus' | 'premium';
     name: string;
     price: number;
+    originalPrice: number;
     applicationsLimit: number;
     isFeatured: boolean;
   } | null>(null);
+  const [isFounder, setIsFounder] = useState(false);
+  const [founderCount, setFounderCount] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchSubscription();
+    fetchData();
   }, []);
 
-  const fetchSubscription = async () => {
+  const fetchData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      // Fetch profile to check founder status
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_founder, founder_discount_percentage')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        setIsFounder(profile.is_founder || false);
+      }
+
+      // Fetch current subscription
+      const { data: subscription, error } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('master_id', user.id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
+      setCurrentPlan(subscription);
 
-      setCurrentPlan(data);
+      // Fetch founder count
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_founder', true)
+        .eq('user_type', 'master');
+
+      setFounderCount(count || 0);
+
     } catch (error: any) {
-      console.error('Error fetching subscription:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
@@ -60,24 +93,27 @@ export const SubscriptionPlans = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
-      const isAnnual = billingPeriod === 'annual';
-      // Precios en centavos: mensual vs anual (10 meses = 2 meses gratis)
+      // Configuración de planes - precios en centavos
+      // Fundadores: Premium GRATIS de por vida
       const planConfig = {
         free: {
           price: 0,
+          originalPrice: 0,
           applicationsLimit: 5,
           isFeatured: false,
           name: 'Gratuito',
         },
         basic_plus: {
-          price: isAnnual ? 49900 * 10 : 49900, // $499/mes o $4,990/año (2 meses gratis)
+          price: isFounder ? 0 : 49900, // Fundadores: Gratis
+          originalPrice: 49900,
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: isAnnual ? 99900 * 10 : 99900, // $999/mes o $9,990/año (2 meses gratis)
-          applicationsLimit: 50,
+          price: isFounder ? 0 : 99900, // Fundadores: Gratis
+          originalPrice: 99900,
+          applicationsLimit: isFounder ? 999 : 50, // Fundadores: Ilimitado
           isFeatured: true,
           name: 'Premium',
         },
@@ -85,20 +121,21 @@ export const SubscriptionPlans = () => {
 
       const config = planConfig[plan];
 
-      // For free plan, create directly
-      if (plan === 'free') {
+      // Para fundadores o plan gratuito, activar directamente
+      if (plan === 'free' || (isFounder && config.price === 0)) {
         toast({
           title: "Procesando...",
-          description: "Activando plan gratuito...",
+          description: isFounder ? "Activando beneficios de fundador..." : "Activando plan gratuito...",
         });
 
         const { data, error } = await supabase.functions.invoke('create-master-subscription', {
           body: {
             planId: plan,
-            planName: config.name,
+            planName: isFounder && plan !== 'free' ? `${config.name} (Fundador)` : config.name,
             price: config.price,
             applicationsLimit: config.applicationsLimit,
             isFeatured: config.isFeatured,
+            hasFounderDiscount: isFounder,
           }
         });
 
@@ -106,18 +143,21 @@ export const SubscriptionPlans = () => {
         if (data?.error) throw new Error(data.error);
 
         toast({
-          title: "Plan actualizado",
-          description: "Ahora estás en el plan Gratuito",
+          title: isFounder ? "🎉 ¡Beneficio de Fundador Activado!" : "Plan actualizado",
+          description: isFounder 
+            ? `Tu plan ${config.name} está activo de por vida` 
+            : `Ahora estás en el plan ${config.name}`,
         });
-        fetchSubscription();
+        fetchData();
         return;
       }
 
-      // For paid plans, show payment dialog
+      // Para planes pagos (usuarios no fundadores)
       setSelectedPlan({
         id: plan,
         name: config.name,
         price: config.price,
+        originalPrice: config.originalPrice,
         applicationsLimit: config.applicationsLimit,
         isFeatured: config.isFeatured,
       });
@@ -141,38 +181,43 @@ export const SubscriptionPlans = () => {
     });
     setShowPaymentDialog(false);
     setSelectedPlan(null);
-    await fetchSubscription();
+    await fetchData();
   };
 
   const handlePaymentError = (error: any) => {
     console.error('Payment error:', error);
-    toast({
-      variant: "destructive",
-      title: "Error en el pago",
-      description: "No se pudo procesar el pago. Intenta nuevamente.",
-    });
+    // Don't show error for non-critical errors
+    if (error?.type !== 'non_critical') {
+      toast({
+        variant: "destructive",
+        title: "Error en el pago",
+        description: "No se pudo procesar el pago. Intenta nuevamente.",
+      });
+    }
   };
 
-  const isAnnual = billingPeriod === 'annual';
+  const remainingSlots = founderCount !== null ? FOUNDER_LIMIT - founderCount : null;
   
   const plans = [
     {
       name: "Gratuito",
       value: "free" as const,
       price: "$0",
+      priceNote: null,
       features: [
         "5 propuestas por mes",
         "Perfil básico",
         "Notificaciones por email",
       ],
       icon: Check,
+      founderBenefit: null,
     },
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: isAnnual ? "$4,990" : "$499",
-      period: isAnnual ? "/año" : "/mes",
-      savings: isAnnual ? "Ahorrás $998" : null,
+      price: isFounder ? "$0" : "$499",
+      priceNote: isFounder ? "Gratis de por vida" : "/mes",
+      originalPrice: isFounder ? "$499/mes" : null,
       features: [
         "20 propuestas por mes",
         "Perfil mejorado",
@@ -182,14 +227,24 @@ export const SubscriptionPlans = () => {
       ],
       icon: Zap,
       popular: false,
+      founderBenefit: "¡Gratis para Fundadores!",
     },
     {
       name: "Premium",
       value: "premium" as const,
-      price: isAnnual ? "$9,990" : "$999",
-      period: isAnnual ? "/año" : "/mes",
-      savings: isAnnual ? "Ahorrás $1,998" : null,
-      features: [
+      price: isFounder ? "$0" : "$999",
+      priceNote: isFounder ? "Gratis de por vida" : "/mes",
+      originalPrice: isFounder ? "$999/mes" : null,
+      features: isFounder ? [
+        "Propuestas ILIMITADAS",
+        "Perfil destacado con badge",
+        "Aparece primero en búsquedas",
+        "Notificaciones prioritarias",
+        "Soporte VIP prioritario",
+        "Badge de Fundador exclusivo",
+        "Analíticas avanzadas",
+        "Acceso anticipado a nuevas funciones",
+      ] : [
         "50 propuestas por mes",
         "Perfil destacado",
         "Aparece primero en búsquedas",
@@ -200,54 +255,69 @@ export const SubscriptionPlans = () => {
       ],
       icon: Star,
       popular: true,
+      founderBenefit: "¡GRATIS de por vida para Fundadores!",
     },
   ];
 
   if (loading) {
-    return <div>Cargando planes...</div>;
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      {/* Billing Period Toggle */}
-      <div className="flex justify-center mb-8">
-        <div className="inline-flex items-center gap-2 p-1 rounded-lg bg-muted">
-          <button
-            onClick={() => setBillingPeriod('monthly')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              billingPeriod === 'monthly'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Mensual
-          </button>
-          <button
-            onClick={() => setBillingPeriod('annual')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              billingPeriod === 'annual'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Anual
-            <Badge variant="secondary" className="ml-2 text-xs">-17%</Badge>
-          </button>
-        </div>
-      </div>
+      {/* Founder Banner */}
+      {isFounder && (
+        <Alert className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50">
+          <Crown className="h-5 w-5 text-amber-500" />
+          <AlertDescription className="text-base">
+            <span className="font-bold text-amber-600 dark:text-amber-400">
+              🎉 ¡Eres un Maestro Fundador!
+            </span>
+            <span className="ml-2">
+              Tienes acceso <strong>Premium GRATIS de por vida</strong> como parte de los primeros {FOUNDER_LIMIT.toLocaleString()} maestros.
+            </span>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Founder Slots Counter - Solo para no fundadores */}
+      {!isFounder && remainingSlots !== null && remainingSlots > 0 && (
+        <Alert className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
+          <Gift className="h-5 w-5 text-primary" />
+          <AlertDescription className="text-base">
+            <span className="font-bold">¡Quedan solo {remainingSlots.toLocaleString()} lugares!</span>
+            <span className="ml-2">
+              Los primeros {FOUNDER_LIMIT.toLocaleString()} maestros obtienen <strong>Premium GRATIS de por vida</strong>.
+            </span>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {currentPlan && (
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
+              {isFounder ? (
+                <Crown className="h-5 w-5 text-amber-500" />
+              ) : (
+                <Zap className="h-5 w-5 text-primary" />
+              )}
               Tu Plan Actual
+              {currentPlan.has_founder_discount && (
+                <Badge variant="secondary" className="bg-amber-500/20 text-amber-600">
+                  Fundador
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-lg font-semibold">
-                Plan {currentPlan.plan === 'free' ? 'Gratuito' : 'Premium'}
+                Plan {currentPlan.plan === 'free' ? 'Gratuito' : currentPlan.plan === 'basic_plus' ? 'Basic Plus' : 'Premium'}
               </span>
               {currentPlan.is_featured && (
                 <Badge variant="default">Destacado</Badge>
@@ -257,13 +327,15 @@ export const SubscriptionPlans = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Propuestas usadas</p>
                 <p className="text-2xl font-bold">
-                  {currentPlan.applications_used} / {currentPlan.monthly_applications_limit}
+                  {currentPlan.applications_used} / {currentPlan.monthly_applications_limit >= 999 ? '∞' : currentPlan.monthly_applications_limit}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Renovación</p>
+                <p className="text-sm text-muted-foreground">
+                  {isFounder ? 'Válido' : 'Renovación'}
+                </p>
                 <p className="text-sm font-medium">
-                  {new Date(currentPlan.current_period_end).toLocaleDateString('es-AR')}
+                  {isFounder ? 'De por vida ✨' : new Date(currentPlan.current_period_end).toLocaleDateString('es-CL')}
                 </p>
               </div>
             </div>
@@ -275,13 +347,27 @@ export const SubscriptionPlans = () => {
         {plans.map((plan) => {
           const Icon = plan.icon;
           const isCurrentPlan = currentPlan?.plan === plan.value;
+          const showFounderHighlight = isFounder && plan.value !== 'free';
 
           return (
-            <Card key={plan.value} className={`${plan.popular ? "border-primary shadow-lg" : ""} flex flex-col`}>
+            <Card 
+              key={plan.value} 
+              className={`
+                ${plan.popular ? "border-primary shadow-lg" : ""} 
+                ${showFounderHighlight ? "border-amber-500 bg-gradient-to-b from-amber-500/5 to-transparent" : ""}
+                flex flex-col relative
+              `}
+            >
               <CardHeader>
-                {plan.popular && (
+                {plan.popular && !isFounder && (
                   <Badge className="w-fit mb-2" variant="default">
                     Más Popular
+                  </Badge>
+                )}
+                {showFounderHighlight && plan.founderBenefit && (
+                  <Badge className="w-fit mb-2 bg-amber-500 hover:bg-amber-600">
+                    <Crown className="h-3 w-3 mr-1" />
+                    {plan.value === 'premium' ? 'Recomendado' : 'Disponible'}
                   </Badge>
                 )}
                 <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
@@ -290,23 +376,34 @@ export const SubscriptionPlans = () => {
                 </CardTitle>
                 <CardDescription>
                   <div className="flex flex-col gap-1">
-                    <div>
-                      <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
-                      {plan.period && <span className="text-sm">{plan.period}</span>}
+                    <div className="flex items-baseline gap-2">
+                      {plan.originalPrice && (
+                        <span className="text-lg line-through text-muted-foreground">
+                          {plan.originalPrice}
+                        </span>
+                      )}
+                      <span className={`text-2xl sm:text-3xl font-bold ${showFounderHighlight ? 'text-amber-600 dark:text-amber-400' : ''}`}>
+                        {plan.price}
+                      </span>
+                      {plan.priceNote && (
+                        <span className={`text-sm ${showFounderHighlight ? 'text-amber-600 dark:text-amber-400 font-medium' : ''}`}>
+                          {plan.priceNote}
+                        </span>
+                      )}
                     </div>
-                    {plan.savings && (
-                      <Badge variant="secondary" className="w-fit text-xs">
-                        {plan.savings}
+                    {showFounderHighlight && plan.founderBenefit && (
+                      <Badge variant="outline" className="w-fit text-xs border-amber-500 text-amber-600">
+                        {plan.founderBenefit}
                       </Badge>
                     )}
                   </div>
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <ul className="space-y-2">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                      <Check className={`h-4 w-4 flex-shrink-0 ${showFounderHighlight ? 'text-amber-500' : 'text-primary'}`} />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
@@ -314,12 +411,17 @@ export const SubscriptionPlans = () => {
               </CardContent>
               <CardFooter>
                 <Button
-                  className="w-full"
-                  variant={isCurrentPlan ? "outline" : plan.popular ? "default" : "outline"}
+                  className={`w-full ${showFounderHighlight && plan.value === 'premium' ? 'bg-amber-500 hover:bg-amber-600' : ''}`}
+                  variant={isCurrentPlan ? "outline" : plan.popular || showFounderHighlight ? "default" : "outline"}
                   onClick={() => handlePlanSelection(plan.value)}
                   disabled={isCurrentPlan}
                 >
-                  {isCurrentPlan ? "Plan Actual" : `Cambiar a ${plan.name}`}
+                  {isCurrentPlan 
+                    ? "Plan Actual" 
+                    : isFounder && plan.value !== 'free'
+                      ? `Activar ${plan.name} Gratis`
+                      : `Cambiar a ${plan.name}`
+                  }
                 </Button>
               </CardFooter>
             </Card>
@@ -341,17 +443,12 @@ export const SubscriptionPlans = () => {
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Plan:</span>
-                  <span className="font-semibold">{selectedPlan.name} ({billingPeriod === 'annual' ? 'Anual' : 'Mensual'})</span>
+                  <span className="font-semibold">{selectedPlan.name} (Mensual)</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
-                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString('es-UY')} UYU</span>
+                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString('es-CL')} CLP</span>
                 </div>
-                {billingPeriod === 'annual' && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-green-600 dark:text-green-400">💰 2 meses gratis incluidos</span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Propuestas mensuales:</span>
                   <span className="font-medium">{selectedPlan.applicationsLimit}</span>
