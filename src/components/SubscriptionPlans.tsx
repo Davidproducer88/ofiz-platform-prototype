@@ -24,8 +24,9 @@ interface Profile {
   founder_discount_percentage: number | null;
 }
 
-// Límite de maestros fundadores
+// Límite de maestros fundadores y descuento
 const FOUNDER_LIMIT = 1000;
+const FOUNDER_DISCOUNT_PERCENT = 30; // 30% de descuento permanente
 
 export const SubscriptionPlans = () => {
   const [currentPlan, setCurrentPlan] = useState<Subscription | null>(null);
@@ -94,7 +95,10 @@ export const SubscriptionPlans = () => {
       if (!user) throw new Error('No autenticado');
 
       // Configuración de planes - precios en centavos
-      // Fundadores: Premium GRATIS de por vida
+      // Fundadores: 30% de descuento permanente
+      const calculateFounderPrice = (originalPrice: number) => 
+        Math.round(originalPrice * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
+
       const planConfig = {
         free: {
           price: 0,
@@ -104,16 +108,16 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: isFounder ? 0 : 49900, // Fundadores: Gratis
+          price: isFounder ? calculateFounderPrice(49900) : 49900, // Fundadores: 30% descuento
           originalPrice: 49900,
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: isFounder ? 0 : 99900, // Fundadores: Gratis
+          price: isFounder ? calculateFounderPrice(99900) : 99900, // Fundadores: 30% descuento
           originalPrice: 99900,
-          applicationsLimit: isFounder ? 999 : 50, // Fundadores: Ilimitado
+          applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
         },
@@ -121,21 +125,21 @@ export const SubscriptionPlans = () => {
 
       const config = planConfig[plan];
 
-      // Para fundadores o plan gratuito, activar directamente
-      if (plan === 'free' || (isFounder && config.price === 0)) {
+      // Para plan gratuito, activar directamente sin pago
+      if (plan === 'free') {
         toast({
           title: "Procesando...",
-          description: isFounder ? "Activando beneficios de fundador..." : "Activando plan gratuito...",
+          description: "Activando plan gratuito...",
         });
 
         const { data, error } = await supabase.functions.invoke('create-master-subscription', {
           body: {
             planId: plan,
-            planName: isFounder && plan !== 'free' ? `${config.name} (Fundador)` : config.name,
-            price: config.price,
+            planName: config.name,
+            price: 0,
             applicationsLimit: config.applicationsLimit,
             isFeatured: config.isFeatured,
-            hasFounderDiscount: isFounder,
+            hasFounderDiscount: false,
           }
         });
 
@@ -143,10 +147,8 @@ export const SubscriptionPlans = () => {
         if (data?.error) throw new Error(data.error);
 
         toast({
-          title: isFounder ? "🎉 ¡Beneficio de Fundador Activado!" : "Plan actualizado",
-          description: isFounder 
-            ? `Tu plan ${config.name} está activo de por vida` 
-            : `Ahora estás en el plan ${config.name}`,
+          title: "Plan actualizado",
+          description: `Ahora estás en el plan ${config.name}`,
         });
         fetchData();
         return;
@@ -198,6 +200,10 @@ export const SubscriptionPlans = () => {
 
   const remainingSlots = founderCount !== null ? FOUNDER_LIMIT - founderCount : null;
   
+  // Calcular precios con descuento de fundador
+  const founderBasicPrice = Math.round(499 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
+  const founderPremiumPrice = Math.round(999 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
+
   const plans = [
     {
       name: "Gratuito",
@@ -215,8 +221,8 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: isFounder ? "$0" : "$499",
-      priceNote: isFounder ? "Gratis de por vida" : "/mes",
+      price: isFounder ? `$${founderBasicPrice.toLocaleString('es-CL')}` : "$499",
+      priceNote: "/mes",
       originalPrice: isFounder ? "$499/mes" : null,
       features: [
         "20 propuestas por mes",
@@ -227,26 +233,17 @@ export const SubscriptionPlans = () => {
       ],
       icon: Zap,
       popular: false,
-      founderBenefit: "¡Gratis para Fundadores!",
+      founderBenefit: `${FOUNDER_DISCOUNT_PERCENT}% descuento`,
     },
     {
       name: "Premium",
       value: "premium" as const,
-      price: isFounder ? "$0" : "$999",
-      priceNote: isFounder ? "Gratis de por vida" : "/mes",
+      price: isFounder ? `$${founderPremiumPrice.toLocaleString('es-CL')}` : "$999",
+      priceNote: "/mes",
       originalPrice: isFounder ? "$999/mes" : null,
-      features: isFounder ? [
-        "Propuestas ILIMITADAS",
-        "Perfil destacado con badge",
-        "Aparece primero en búsquedas",
-        "Notificaciones prioritarias",
-        "Soporte VIP prioritario",
-        "Badge de Fundador exclusivo",
-        "Analíticas avanzadas",
-        "Acceso anticipado a nuevas funciones",
-      ] : [
+      features: [
         "50 propuestas por mes",
-        "Perfil destacado",
+        "Perfil destacado con badge",
         "Aparece primero en búsquedas",
         "Notificaciones prioritarias",
         "Soporte prioritario",
@@ -255,7 +252,7 @@ export const SubscriptionPlans = () => {
       ],
       icon: Star,
       popular: true,
-      founderBenefit: "¡GRATIS de por vida para Fundadores!",
+      founderBenefit: `${FOUNDER_DISCOUNT_PERCENT}% descuento permanente`,
     },
   ];
 
@@ -278,7 +275,7 @@ export const SubscriptionPlans = () => {
               🎉 ¡Eres un Maestro Fundador!
             </span>
             <span className="ml-2">
-              Tienes acceso <strong>Premium GRATIS de por vida</strong> como parte de los primeros {FOUNDER_LIMIT.toLocaleString()} maestros.
+              Tienes <strong>{FOUNDER_DISCOUNT_PERCENT}% de descuento permanente</strong> en todos los planes como parte de los primeros {FOUNDER_LIMIT.toLocaleString()} maestros.
             </span>
           </AlertDescription>
         </Alert>
@@ -289,9 +286,9 @@ export const SubscriptionPlans = () => {
         <Alert className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
           <Gift className="h-5 w-5 text-primary" />
           <AlertDescription className="text-base">
-            <span className="font-bold">¡Quedan solo {remainingSlots.toLocaleString()} lugares!</span>
+            <span className="font-bold">¡Quedan {remainingSlots.toLocaleString()} lugares de fundador!</span>
             <span className="ml-2">
-              Los primeros {FOUNDER_LIMIT.toLocaleString()} maestros obtienen <strong>Premium GRATIS de por vida</strong>.
+              Los primeros {FOUNDER_LIMIT.toLocaleString()} maestros obtienen <strong>{FOUNDER_DISCOUNT_PERCENT}% de descuento permanente</strong>.
             </span>
           </AlertDescription>
         </Alert>
@@ -419,8 +416,10 @@ export const SubscriptionPlans = () => {
                   {isCurrentPlan 
                     ? "Plan Actual" 
                     : isFounder && plan.value !== 'free'
-                      ? `Activar ${plan.name} Gratis`
-                      : `Cambiar a ${plan.name}`
+                      ? `Suscribirse con ${FOUNDER_DISCOUNT_PERCENT}% dto.`
+                      : plan.value === 'free' 
+                        ? 'Usar plan gratuito'
+                        : `Suscribirse a ${plan.name}`
                   }
                 </Button>
               </CardFooter>

@@ -68,8 +68,8 @@ serve(async (req) => {
 
     const displayName = master?.business_name || user.email?.split('@')[0] || 'Profesional';
 
-    // For free plan or founder benefit (price = 0), activate directly
-    if (planId === 'free' || price === 0) {
+    // For free plan only, activate directly without payment
+    if (planId === 'free') {
       const supabaseAdmin = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -81,11 +81,6 @@ serve(async (req) => {
         .eq('master_id', user.id)
         .maybeSingle();
 
-      // For founders, set a very long period (10 years = "de por vida")
-      const periodEnd = isFounder && planId !== 'free'
-        ? new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toISOString() // 10 years
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
-
       const subscriptionData = {
         plan: planId,
         price: 0,
@@ -93,8 +88,8 @@ serve(async (req) => {
         is_featured: isFeatured,
         applications_used: 0,
         current_period_start: new Date().toISOString(),
-        current_period_end: periodEnd,
-        has_founder_discount: isFounder && planId !== 'free',
+        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        has_founder_discount: false,
       };
 
       if (existingSubscription) {
@@ -115,32 +110,12 @@ serve(async (req) => {
         if (insertError) throw insertError;
       }
 
-      // Create notification for founder benefit activation
-      if (isFounder && planId !== 'free') {
-        await supabaseAdmin
-          .from('notifications')
-          .insert({
-            user_id: user.id,
-            type: 'founder_benefit',
-            title: '🎉 ¡Beneficio de Fundador Activado!',
-            message: `Tu plan ${planName} está activo de por vida como Maestro Fundador`,
-            metadata: {
-              plan_id: planId,
-              plan_name: planName,
-              is_founder: true
-            }
-          });
-      }
-
-      console.log('Subscription activated:', { planId, isFounder, hasFounderDiscount });
+      console.log('Free subscription activated:', { planId });
 
       return new Response(
         JSON.stringify({ 
           success: true,
-          message: isFounder && planId !== 'free' 
-            ? `¡${planName} activado como Maestro Fundador!` 
-            : 'Plan gratuito activado correctamente',
-          isFounder: isFounder && planId !== 'free',
+          message: 'Plan gratuito activado correctamente',
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
