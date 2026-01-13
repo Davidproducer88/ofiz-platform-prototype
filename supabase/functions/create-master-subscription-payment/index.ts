@@ -78,6 +78,11 @@ serve(async (req) => {
       throw new Error('MercadoPago no está configurado');
     }
 
+    // Log token type for debugging (first 20 chars only for security)
+    const tokenPrefix = mercadoPagoToken.substring(0, 20);
+    console.log('Access Token prefix:', tokenPrefix, '...');
+    console.log('Token type:', mercadoPagoToken.startsWith('TEST-') ? 'SANDBOX' : mercadoPagoToken.startsWith('APP_USR-') ? 'PRODUCTION' : 'UNKNOWN');
+
     // Create payment using Bricks API
     // Convert price from cents to UYU (divide by 100)
     const transactionAmount = price / 100;
