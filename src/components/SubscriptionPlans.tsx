@@ -341,12 +341,17 @@ export const SubscriptionPlans = () => {
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Plan:</span>
-                  <span className="font-semibold">{selectedPlan.name}</span>
+                  <span className="font-semibold">{selectedPlan.name} ({billingPeriod === 'annual' ? 'Anual' : 'Mensual'})</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
-                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString()}</span>
+                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString('es-UY')} UYU</span>
                 </div>
+                {billingPeriod === 'annual' && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-green-600 dark:text-green-400">💰 2 meses gratis incluidos</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Propuestas mensuales:</span>
                   <span className="font-medium">{selectedPlan.applicationsLimit}</span>
