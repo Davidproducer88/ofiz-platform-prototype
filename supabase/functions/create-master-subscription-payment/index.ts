@@ -79,8 +79,11 @@ serve(async (req) => {
     }
 
     // Create payment using Bricks API
+    // Convert price from cents to UYU (divide by 100)
+    const transactionAmount = price / 100;
+    
     const paymentData = {
-      transaction_amount: price,
+      transaction_amount: transactionAmount,
       token: token,
       description: `Suscripción ${planName}`,
       installments: installments || 1,
