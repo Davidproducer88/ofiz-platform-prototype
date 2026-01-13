@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-const MERCADOPAGO_PUBLIC_KEY = 'TEST-4910547105338620-042517-0c339fc54f26a0a904dcea9ceac74dee-1744831279';
+const MERCADOPAGO_PUBLIC_KEY = 'APP_USR-41f544dd-2fd9-4fa0-a92b-f4440bd039f1';
 
 export const BusinessSubscriptionCheckoutBrick = ({ 
   amount, 
