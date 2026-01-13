@@ -23,8 +23,8 @@ export const MasterSubscriptionCheckoutBrick = ({
 }: MasterSubscriptionCheckoutBrickProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const brickRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const initializingRef = useRef(false);
+  const containerId = 'master-subscription-brick-container';
 
   const initializeBrick = useCallback(async () => {
     // Prevent multiple initializations
@@ -33,7 +33,7 @@ export const MasterSubscriptionCheckoutBrick = ({
       return;
     }
     
-    const container = containerRef.current;
+    const container = document.getElementById(containerId);
     if (!container) {
       setIsLoading(false);
       return;
@@ -63,7 +63,7 @@ export const MasterSubscriptionCheckoutBrick = ({
 
       const bricksBuilder = mp.bricks();
       
-      brickRef.current = await bricksBuilder.create('payment', container, {
+      brickRef.current = await bricksBuilder.create('payment', containerId, {
         initialization: {
           amount: amount,
           payer: { email: '' }
@@ -209,7 +209,7 @@ export const MasterSubscriptionCheckoutBrick = ({
         </div>
       )}
       <div 
-        ref={containerRef}
+        id={containerId}
         className={`min-h-[400px] ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity'}`}
       />
     </div>
