@@ -82,7 +82,7 @@ serve(async (req) => {
     // Convert price from cents to UYU (divide by 100)
     const transactionAmount = price / 100;
     
-    console.log('Transaction amount:', transactionAmount);
+    console.log('Transaction amount (NO currency_id):', transactionAmount);
     
     // Note: currency_id is NOT a valid parameter for v1/payments API
     // MercadoPago determines currency based on the account's country
