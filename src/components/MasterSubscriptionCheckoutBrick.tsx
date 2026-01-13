@@ -23,8 +23,12 @@ export const MasterSubscriptionCheckoutBrick = ({
 }: MasterSubscriptionCheckoutBrickProps) => {
   const brickRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
+    // Evitar inicialización duplicada
+    if (isInitializedRef.current) return;
+    
     let scriptElement: HTMLScriptElement | null = null;
     
     const loadMercadoPago = async () => {
@@ -34,7 +38,7 @@ export const MasterSubscriptionCheckoutBrick = ({
         // @ts-ignore
         if (window.MercadoPago) {
           console.log('MercadoPago SDK already loaded');
-          initializeBrick();
+          await initializeBrick();
           return;
         }
 
@@ -66,6 +70,12 @@ export const MasterSubscriptionCheckoutBrick = ({
 
     const initializeBrick = async () => {
       try {
+        // Verificar si ya está inicializado
+        if (brickRef.current) {
+          console.log('Brick already exists, skipping initialization');
+          return;
+        }
+        
         console.log('Initializing Payment Brick for subscription:', planId);
         
         const container = document.getElementById('master-subscription-mercadopago-brick');
@@ -75,6 +85,9 @@ export const MasterSubscriptionCheckoutBrick = ({
           setIsLoading(false);
           return;
         }
+
+        // Limpiar el contenedor antes de crear el brick
+        container.innerHTML = '';
         
         // @ts-ignore
         if (!window.MercadoPago) {
@@ -92,15 +105,9 @@ export const MasterSubscriptionCheckoutBrick = ({
 
         const bricksBuilder = mp.bricks();
 
-        if (brickRef.current) {
-          try {
-            await brickRef.current.unmount();
-          } catch (unmountError) {
-            console.warn('Error unmounting previous brick:', unmountError);
-          }
-        }
-
         console.log('Creating payment brick with amount:', amount);
+        
+        isInitializedRef.current = true;
         
         brickRef.current = await bricksBuilder.create('payment', 'master-subscription-mercadopago-brick', {
           initialization: {
@@ -125,7 +132,6 @@ export const MasterSubscriptionCheckoutBrick = ({
             onReady: () => {
               console.log('Payment Brick ready');
               setIsLoading(false);
-              toast.success('Formulario de pago listo');
             },
             onSubmit: async (formData: any) => {
               return new Promise<void>(async (resolve, reject) => {
@@ -210,6 +216,7 @@ export const MasterSubscriptionCheckoutBrick = ({
         toast.error('Error al inicializar el formulario de pago');
         onError(error);
         setIsLoading(false);
+        isInitializedRef.current = false;
       }
     };
 
@@ -230,8 +237,9 @@ export const MasterSubscriptionCheckoutBrick = ({
         }
         brickRef.current = null;
       }
+      isInitializedRef.current = false;
     };
-  }, [amount, planId]);
+  }, []);
 
   return (
     <div className="w-full space-y-4">
