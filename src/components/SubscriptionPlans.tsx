@@ -200,9 +200,12 @@ export const SubscriptionPlans = () => {
 
   const remainingSlots = founderCount !== null ? FOUNDER_LIMIT - founderCount : null;
   
-  // Calcular precios con descuento de fundador
+  // Calcular precios con descuento de fundador (precios en UYU)
   const founderBasicPrice = Math.round(499 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
   const founderPremiumPrice = Math.round(999 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
+
+  // Formatear precio en UYU
+  const formatPrice = (price: number) => `$${price.toLocaleString('es-UY')} UYU`;
 
   const plans = [
     {
@@ -221,9 +224,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: isFounder ? `$${founderBasicPrice.toLocaleString('es-CL')}` : "$499",
-      priceNote: "/mes",
-      originalPrice: isFounder ? "$499/mes" : null,
+      price: isFounder ? `$${founderBasicPrice}` : "$499",
+      priceNote: "UYU/mes",
+      originalPrice: isFounder ? "$499 UYU/mes" : null,
       features: [
         "20 propuestas por mes",
         "Perfil mejorado",
@@ -238,9 +241,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: isFounder ? `$${founderPremiumPrice.toLocaleString('es-CL')}` : "$999",
-      priceNote: "/mes",
-      originalPrice: isFounder ? "$999/mes" : null,
+      price: isFounder ? `$${founderPremiumPrice}` : "$999",
+      priceNote: "UYU/mes",
+      originalPrice: isFounder ? "$999 UYU/mes" : null,
       features: [
         "50 propuestas por mes",
         "Perfil destacado con badge",
@@ -446,7 +449,7 @@ export const SubscriptionPlans = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
-                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString('es-CL')} CLP</span>
+                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString('es-UY')} UYU</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Propuestas mensuales:</span>
