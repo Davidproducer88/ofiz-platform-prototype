@@ -463,6 +463,7 @@ export const SubscriptionPlans = () => {
                 planName={selectedPlan.name}
                 applicationsLimit={selectedPlan.applicationsLimit}
                 isFeatured={selectedPlan.isFeatured}
+                hasFounderDiscount={isFounder}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
               />

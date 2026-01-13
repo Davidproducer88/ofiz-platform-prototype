@@ -8,6 +8,7 @@ interface MasterSubscriptionCheckoutBrickProps {
   planName: string;
   applicationsLimit: number;
   isFeatured: boolean;
+  hasFounderDiscount?: boolean;
   onSuccess: (paymentData: any) => void;
   onError: (error: any) => void;
 }
@@ -26,6 +27,7 @@ export const MasterSubscriptionCheckoutBrick = ({
   planName, 
   applicationsLimit, 
   isFeatured,
+  hasFounderDiscount = false,
   onSuccess, 
   onError 
 }: MasterSubscriptionCheckoutBrickProps) => {
@@ -108,7 +110,7 @@ export const MasterSubscriptionCheckoutBrick = ({
         
         brickRef.current = await bricks.create('payment', containerId, {
           initialization: {
-            amount: amount,
+            amount: amount / 100, // Convert from cents to UYU
             payer: { email: '' }
           },
           customization: {
@@ -150,9 +152,10 @@ export const MasterSubscriptionCheckoutBrick = ({
                   body: {
                     planId,
                     planName,
-                    price: amount,
+                    price: amount, // Send in cents, edge function will convert
                     applicationsLimit,
                     isFeatured,
+                    hasFounderDiscount,
                     paymentMethodId: paymentMethodId,
                     token: token,
                     issuerId: paymentData.issuer_id || paymentData.issuerId,
@@ -202,7 +205,7 @@ export const MasterSubscriptionCheckoutBrick = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [sdkReady, amount, planId, planName, applicationsLimit, isFeatured, onSuccess, onError]);
+  }, [sdkReady, amount, planId, planName, applicationsLimit, isFeatured, hasFounderDiscount, onSuccess, onError]);
 
   // Cleanup on unmount
   useEffect(() => {
