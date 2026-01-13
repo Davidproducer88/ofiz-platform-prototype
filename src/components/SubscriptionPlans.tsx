@@ -70,13 +70,13 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: isAnnual ? 29900 * 10 : 29900, // $299/mes o $2,990/año (2 meses gratis)
+          price: isAnnual ? 49900 * 10 : 49900, // $499/mes o $4,990/año (2 meses gratis)
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: isAnnual ? 59900 * 10 : 59900, // $599/mes o $5,990/año (2 meses gratis)
+          price: isAnnual ? 99900 * 10 : 99900, // $999/mes o $9,990/año (2 meses gratis)
           applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
@@ -170,9 +170,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: isAnnual ? "$2,990" : "$299",
+      price: isAnnual ? "$4,990" : "$499",
       period: isAnnual ? "/año" : "/mes",
-      savings: isAnnual ? "Ahorrás $598" : null,
+      savings: isAnnual ? "Ahorrás $998" : null,
       features: [
         "20 propuestas por mes",
         "Perfil mejorado",
@@ -186,9 +186,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: isAnnual ? "$5,990" : "$599",
+      price: isAnnual ? "$9,990" : "$999",
       period: isAnnual ? "/año" : "/mes",
-      savings: isAnnual ? "Ahorrás $1,198" : null,
+      savings: isAnnual ? "Ahorrás $1,998" : null,
       features: [
         "50 propuestas por mes",
         "Perfil destacado",
