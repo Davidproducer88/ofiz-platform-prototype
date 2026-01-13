@@ -374,7 +374,7 @@ export const SubscriptionPlans = () => {
                   <Icon className="h-5 w-5" />
                   {plan.name}
                 </CardTitle>
-                <CardDescription>
+                <div className="mt-2">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-baseline gap-2">
                       {plan.originalPrice && (
@@ -397,7 +397,7 @@ export const SubscriptionPlans = () => {
                       </Badge>
                     )}
                   </div>
-                </CardDescription>
+                </div>
               </CardHeader>
               <CardContent className="flex-1">
                 <ul className="space-y-2">
