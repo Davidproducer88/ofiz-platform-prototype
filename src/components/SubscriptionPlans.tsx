@@ -61,6 +61,7 @@ export const SubscriptionPlans = () => {
       if (!user) throw new Error('No autenticado');
 
       const isAnnual = billingPeriod === 'annual';
+      // Precios en centavos: mensual vs anual (10 meses = 2 meses gratis)
       const planConfig = {
         free: {
           price: 0,
@@ -69,13 +70,13 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: isAnnual ? 299000 * 10 : 299000, // 2 meses gratis en anual
+          price: isAnnual ? 29900 * 10 : 29900, // $299/mes o $2,990/año (2 meses gratis)
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: isAnnual ? 599000 * 10 : 599000, // 2 meses gratis en anual
+          price: isAnnual ? 59900 * 10 : 59900, // $599/mes o $5,990/año (2 meses gratis)
           applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
@@ -169,9 +170,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: isAnnual ? "$29,900" : "$2,990",
+      price: isAnnual ? "$2,990" : "$299",
       period: isAnnual ? "/año" : "/mes",
-      savings: isAnnual ? "Ahorrás $5,980" : null,
+      savings: isAnnual ? "Ahorrás $598" : null,
       features: [
         "20 propuestas por mes",
         "Perfil mejorado",
@@ -185,9 +186,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: isAnnual ? "$59,900" : "$5,990",
+      price: isAnnual ? "$5,990" : "$599",
       period: isAnnual ? "/año" : "/mes",
-      savings: isAnnual ? "Ahorrás $11,980" : null,
+      savings: isAnnual ? "Ahorrás $1,198" : null,
       features: [
         "50 propuestas por mes",
         "Perfil destacado",
