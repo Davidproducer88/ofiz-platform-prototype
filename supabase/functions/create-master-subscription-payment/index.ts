@@ -6,6 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to get user-friendly error messages
+function getPaymentErrorMessage(statusDetail: string): string {
+  const errorMessages: Record<string, string> = {
+    'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta',
+    'cc_rejected_bad_filled_card_number': 'Número de tarjeta incorrecto',
+    'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta',
+    'cc_rejected_bad_filled_security_code': 'Código de seguridad incorrecto',
+    'cc_rejected_card_disabled': 'Tarjeta deshabilitada - contacta a tu banco',
+    'cc_rejected_max_attempts': 'Límite de intentos alcanzado - intenta más tarde',
+    'cc_rejected_duplicated_payment': 'Ya procesaste este pago recientemente',
+    'cc_rejected_call_for_authorize': 'Debes autorizar el pago con tu banco',
+    'cc_rejected_high_risk': 'Pago rechazado por seguridad',
+    'cc_rejected_blacklist': 'Tarjeta no permitida',
+    'cc_rejected_other_reason': 'El pago fue rechazado - intenta con otra tarjeta',
+  };
+  
+  return errorMessages[statusDetail] || 'El pago fue rechazado. Por favor intenta con otra tarjeta.';
+}
+
 interface SubscriptionPaymentRequest {
   planId: string;
   planName: string;
@@ -155,67 +174,100 @@ serve(async (req) => {
       .eq('master_id', user.id)
       .maybeSingle();
 
-    // If payment is approved, update subscription
-    if (paymentResult.status === 'approved') {
-      console.log('Payment approved - updating subscription...');
-
-      if (existingSubscription) {
-        const { error: updateError } = await supabaseAdmin
-          .from('subscriptions')
-          .update({
-            plan: planId,
-            price: price,
-            monthly_applications_limit: applicationsLimit,
-            is_featured: isFeatured,
-            applications_used: 0,
-            current_period_start: new Date().toISOString(),
-            current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active',
-            mercadopago_payment_id: paymentResult.id.toString(),
-          })
-          .eq('id', existingSubscription.id);
-
-        if (updateError) {
-          console.error('Error updating subscription:', updateError);
-          throw updateError;
-        }
-      } else {
-        const { error: insertError } = await supabaseAdmin
-          .from('subscriptions')
-          .insert({
-            master_id: user.id,
-            plan: planId,
-            price: price,
-            monthly_applications_limit: applicationsLimit,
-            is_featured: isFeatured,
-            applications_used: 0,
-            status: 'active',
-            mercadopago_payment_id: paymentResult.id.toString(),
-          });
-
-        if (insertError) {
-          console.error('Error creating subscription:', insertError);
-          throw insertError;
-        }
-      }
-
-      console.log('Subscription updated to active');
-
-      // Create notification for master
+    // CRITICAL: Only process if payment is approved
+    if (paymentResult.status !== 'approved') {
+      console.log('Payment NOT approved:', paymentResult.status, paymentResult.status_detail);
+      
+      // Create notification for rejected payment
       await supabaseAdmin
         .from('notifications')
         .insert({
           user_id: user.id,
-          type: 'subscription_activated',
-          title: '✅ Suscripción activada',
-          message: `Tu plan ${planName} está activo`,
+          type: 'payment_rejected',
+          title: '❌ Pago rechazado',
+          message: getPaymentErrorMessage(paymentResult.status_detail),
           metadata: {
             plan_id: planId,
-            payment_id: paymentResult.id.toString(),
-            amount: price
+            payment_id: paymentResult.id?.toString(),
+            status: paymentResult.status,
+            status_detail: paymentResult.status_detail
           }
         });
+
+      // Return error response for rejected payments
+      return new Response(
+        JSON.stringify({ 
+          error: getPaymentErrorMessage(paymentResult.status_detail),
+          paymentId: paymentResult.id,
+          status: paymentResult.status,
+          statusDetail: paymentResult.status_detail,
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
     }
+
+    // Payment approved - update subscription
+    console.log('Payment approved - updating subscription...');
+
+    if (existingSubscription) {
+      const { error: updateError } = await supabaseAdmin
+        .from('subscriptions')
+        .update({
+          plan: planId,
+          price: price,
+          monthly_applications_limit: applicationsLimit,
+          is_featured: isFeatured,
+          applications_used: 0,
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'active',
+          mercadopago_payment_id: paymentResult.id.toString(),
+        })
+        .eq('id', existingSubscription.id);
+
+      if (updateError) {
+        console.error('Error updating subscription:', updateError);
+        throw updateError;
+      }
+    } else {
+      const { error: insertError } = await supabaseAdmin
+        .from('subscriptions')
+        .insert({
+          master_id: user.id,
+          plan: planId,
+          price: price,
+          monthly_applications_limit: applicationsLimit,
+          is_featured: isFeatured,
+          applications_used: 0,
+          status: 'active',
+          mercadopago_payment_id: paymentResult.id.toString(),
+        });
+
+      if (insertError) {
+        console.error('Error creating subscription:', insertError);
+        throw insertError;
+      }
+    }
+
+    console.log('Subscription updated to active');
+
+    // Create notification for master
+    await supabaseAdmin
+      .from('notifications')
+      .insert({
+        user_id: user.id,
+        type: 'subscription_activated',
+        title: '✅ Suscripción activada',
+        message: `Tu plan ${planName} está activo`,
+        metadata: {
+          plan_id: planId,
+          payment_id: paymentResult.id.toString(),
+          amount: price
+        }
+      });
 
     return new Response(
       JSON.stringify({ 
