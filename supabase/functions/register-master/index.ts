@@ -8,7 +8,7 @@ const corsHeaders = {
 
 // Founder program constants
 const FOUNDER_LIMIT = 1000;
-const FOUNDER_DISCOUNT_PERCENT = 30;
+const FOUNDER_DISCOUNT_PERCENT = 20;
 
 interface RegisterMasterRequest {
   email: string;
