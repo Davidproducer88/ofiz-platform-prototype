@@ -218,7 +218,7 @@ const ClientDashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-subtle">
-        <Header />
+        <Header userType="client" />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">Cargando...</div>
         </div>
@@ -454,7 +454,7 @@ const ClientDashboard = () => {
   // DESKTOP RENDERING (existente)
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <Header />
+      <Header userType="client" />
       
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
