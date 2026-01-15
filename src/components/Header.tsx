@@ -96,6 +96,34 @@ export const Header = ({
           <SheetContent side="left" className="w-80 overflow-y-auto">
             <div className="flex flex-col space-y-4 mt-8">
               
+              {/* User Info & Logout for Mobile */}
+              {profile && (
+                <div className="p-4 bg-muted rounded-lg mb-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{profile.full_name}</p>
+                      <Badge variant="secondary" className="text-xs">
+                        {getUserTypeLabel()}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Cerrar Sesión
+                  </Button>
+                </div>
+              )}
 
               <Accordion type="single" collapsible className="w-full">
                 {/* Clientes */}
@@ -420,6 +448,17 @@ export const Header = ({
           {userType ? <>
               {/* Notifications */}
               <NotificationsPanel isOpen={notificationsOpen} onOpenChange={setNotificationsOpen} />
+
+              {/* Visible Logout Button for Desktop */}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleSignOut}
+                className="hidden md:flex items-center text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Salir
+              </Button>
 
               {/* User menu */}
               <div className="relative">
