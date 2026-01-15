@@ -6,6 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Founder program constants
+const FOUNDER_LIMIT = 1000;
+const FOUNDER_DISCOUNT_PERCENT = 30;
+
 interface RegisterClientRequest {
   email: string;
   password: string;
@@ -135,7 +139,17 @@ serve(async (req) => {
 
     console.log('Auth user created:', authData.user.id);
 
-    // 2. Actualizar perfil (el trigger handle_new_user ya lo creó)
+    // 2. Check if user qualifies as founder (first 1000 clients)
+    const { count: founderCount } = await supabaseAdmin
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_founder', true)
+      .eq('user_type', 'client');
+
+    const isFounder = (founderCount || 0) < FOUNDER_LIMIT;
+    console.log('Founder check:', { currentFounders: founderCount, limit: FOUNDER_LIMIT, willBeFounder: isFounder });
+
+    // 3. Actualizar perfil (el trigger handle_new_user ya lo creó)
     // Esperar un momento para que el trigger se ejecute
     await new Promise(resolve => setTimeout(resolve, 100));
     
@@ -147,7 +161,10 @@ serve(async (req) => {
         phone: requestData.phone || null,
         address: requestData.address || null,
         city: requestData.city || null,
-        email_verified: false
+        email_verified: false,
+        is_founder: isFounder,
+        founder_registered_at: isFounder ? new Date().toISOString() : null,
+        founder_discount_percentage: isFounder ? FOUNDER_DISCOUNT_PERCENT : null
       })
       .eq('id', authData.user.id);
 
@@ -158,7 +175,45 @@ serve(async (req) => {
       throw new Error('Error al actualizar perfil: ' + profileError.message);
     }
 
-    console.log('Profile updated for user:', authData.user.id);
+    console.log('Profile updated for user:', authData.user.id, '- Founder:', isFounder);
+
+    // 4. Create founder discount code if user is a founder
+    if (isFounder) {
+      const founderCode = `CLIENTE${authData.user.id.substring(0, 6).toUpperCase()}`;
+      
+      const { error: codeError } = await supabaseAdmin
+        .from('founder_discount_codes')
+        .insert({
+          user_id: authData.user.id,
+          code: founderCode,
+          discount_percentage: FOUNDER_DISCOUNT_PERCENT,
+          description: `Código de descuento fundador cliente - ${FOUNDER_DISCOUNT_PERCENT}% OFF`,
+          is_active: true,
+          max_uses: 10,
+          times_used: 0,
+          valid_from: new Date().toISOString()
+        });
+
+      if (codeError) {
+        console.error('Error creating founder discount code:', codeError);
+      } else {
+        console.log('Founder discount code created:', founderCode);
+      }
+
+      // Create notification for new founder
+      await supabaseAdmin
+        .from('notifications')
+        .insert({
+          user_id: authData.user.id,
+          type: 'founder_welcome',
+          title: '🎉 ¡Bienvenido Cliente Fundador!',
+          message: `Eres uno de los primeros ${FOUNDER_LIMIT} clientes. Tienes ${FOUNDER_DISCOUNT_PERCENT}% de descuento en servicios y tu código para compartir es: ${founderCode}`,
+          metadata: {
+            founder_code: founderCode,
+            discount_percentage: FOUNDER_DISCOUNT_PERCENT
+          }
+        });
+    }
 
     // 3. Procesar referidos si aplica
     if (referrerUserId) {
