@@ -125,6 +125,7 @@ export const BookingCheckoutBrick = ({
             paymentMethods: {
               creditCard: 'all',
               debitCard: 'all',
+              prepaidCard: 'all',
               maxInstallments: maxInstallments,
             },
           },

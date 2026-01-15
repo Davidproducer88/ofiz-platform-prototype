@@ -122,6 +122,7 @@ export const MasterSubscriptionCheckoutBrick = ({
             paymentMethods: {
               creditCard: 'all',
               debitCard: 'all',
+              prepaidCard: 'all',
               maxInstallments: 12,
             },
           },
