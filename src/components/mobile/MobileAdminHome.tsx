@@ -8,7 +8,12 @@ import {
   Shield,
   DollarSign,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  CreditCard,
+  Settings,
+  MessageSquare,
+  BarChart3,
+  Megaphone
 } from "lucide-react";
 
 interface MobileAdminHomeProps {
@@ -127,6 +132,22 @@ export function MobileAdminHome({ stats, onNavigate }: MobileAdminHomeProps) {
           <Button 
             variant="outline" 
             className="w-full justify-start"
+            onClick={() => onNavigate?.('subscriptions')}
+          >
+            <CreditCard className="h-4 w-4 mr-2" />
+            Suscripciones
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => onNavigate?.('ads')}
+          >
+            <Megaphone className="h-4 w-4 mr-2" />
+            Anuncios
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
             onClick={() => onNavigate?.('financial')}
           >
             <DollarSign className="h-4 w-4 mr-2" />
@@ -165,8 +186,52 @@ export function MobileAdminHome({ stats, onNavigate }: MobileAdminHomeProps) {
             className="w-full justify-start"
             onClick={() => onNavigate?.('rankings')}
           >
-            <Star className="h-4 w-4 mr-2" />
+            <BarChart3 className="h-4 w-4 mr-2" />
             Rankings
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => onNavigate?.('transactions')}
+          >
+            <DollarSign className="h-4 w-4 mr-2" />
+            Transacciones
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Configuración */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Sistema
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => onNavigate?.('config')}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Configuración Plataforma
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => onNavigate?.('feed')}
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Feed
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => onNavigate?.('executives')}
+          >
+            <Star className="h-4 w-4 mr-2" />
+            C-Level
           </Button>
         </CardContent>
       </Card>
