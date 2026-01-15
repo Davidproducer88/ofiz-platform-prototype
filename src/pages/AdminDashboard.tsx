@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Users, UserCheck, Calendar, Star, Download, FileText, CreditCard } from "lucide-react";
+import { LogOut, Users, UserCheck, Calendar, Star, Download, FileText, CreditCard, Settings } from "lucide-react";
 import jsPDF from "jspdf";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
@@ -18,6 +18,7 @@ import { RankingsTable } from "@/components/admin/RankingsTable";
 import { DisputesManagement } from "@/components/admin/DisputesManagement";
 import { SecurityViolationsTable } from "@/components/admin/SecurityViolationsTable";
 import { SubscriptionsManagement } from "@/components/admin/SubscriptionsManagement";
+import { PlatformConfiguration } from "@/components/admin/PlatformConfiguration";
 import { Feed } from "@/components/Feed";
 import { FounderCounter } from "@/components/admin/FounderCounter";
 import { ExecutiveCompensation } from "@/components/admin/ExecutiveCompensation";
@@ -505,7 +506,7 @@ const AdminDashboard = () => {
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className={cn(
-            "grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-12",
+            "grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-13 overflow-x-auto",
             isMobile && "hidden"
           )}>
             <TabsTrigger value="home" className="md:hidden">Inicio</TabsTrigger>
@@ -520,6 +521,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="rankings">Rankings</TabsTrigger>
             <TabsTrigger value="financial">Financiero</TabsTrigger>
             <TabsTrigger value="security">Seguridad</TabsTrigger>
+            <TabsTrigger value="config">Configuración</TabsTrigger>
             <TabsTrigger value="executives">C-Level</TabsTrigger>
           </TabsList>
 
@@ -637,6 +639,23 @@ const AdminDashboard = () => {
 
           <TabsContent value="security">
             <SecurityViolationsTable />
+          </TabsContent>
+
+          <TabsContent value="config">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Configuración de Plataforma
+                </CardTitle>
+                <CardDescription>
+                  Administra configuraciones del sistema, edge functions y base de datos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PlatformConfiguration />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="executives">
