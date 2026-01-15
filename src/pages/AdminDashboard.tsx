@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Users, UserCheck, Calendar, Star, Download, FileText } from "lucide-react";
+import { LogOut, Users, UserCheck, Calendar, Star, Download, FileText, CreditCard } from "lucide-react";
 import jsPDF from "jspdf";
 import { UsersTableEnhanced } from "@/components/admin/UsersTableEnhanced";
 import { MastersTableEnhanced } from "@/components/admin/MastersTableEnhanced";
@@ -17,6 +17,7 @@ import { TransactionsTable } from "@/components/admin/TransactionsTable";
 import { RankingsTable } from "@/components/admin/RankingsTable";
 import { DisputesManagement } from "@/components/admin/DisputesManagement";
 import { SecurityViolationsTable } from "@/components/admin/SecurityViolationsTable";
+import { SubscriptionsManagement } from "@/components/admin/SubscriptionsManagement";
 import { Feed } from "@/components/Feed";
 import { FounderCounter } from "@/components/admin/FounderCounter";
 import { ExecutiveCompensation } from "@/components/admin/ExecutiveCompensation";
@@ -504,7 +505,7 @@ const AdminDashboard = () => {
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className={cn(
-            "grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-11",
+            "grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-12",
             isMobile && "hidden"
           )}>
             <TabsTrigger value="home" className="md:hidden">Inicio</TabsTrigger>
@@ -513,6 +514,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="masters">Maestros</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
+            <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
             <TabsTrigger value="disputes">Disputas</TabsTrigger>
             <TabsTrigger value="transactions">Transacciones</TabsTrigger>
             <TabsTrigger value="rankings">Rankings</TabsTrigger>
@@ -586,6 +588,23 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <ReviewsTableEnhanced onStatsUpdate={loadStats} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="subscriptions">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Gestión de Suscripciones
+                </CardTitle>
+                <CardDescription>
+                  Administra, cancela y reembolsa suscripciones de maestros y empresas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SubscriptionsManagement />
               </CardContent>
             </Card>
           </TabsContent>
