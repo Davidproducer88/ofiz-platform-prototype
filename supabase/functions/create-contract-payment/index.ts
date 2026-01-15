@@ -6,6 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to get user-friendly error messages
+function getPaymentErrorMessage(statusDetail: string): string {
+  const errorMessages: Record<string, string> = {
+    'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta',
+    'cc_rejected_bad_filled_card_number': 'Número de tarjeta incorrecto',
+    'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta',
+    'cc_rejected_bad_filled_security_code': 'Código de seguridad incorrecto',
+    'cc_rejected_card_disabled': 'Tarjeta deshabilitada - contacta a tu banco',
+    'cc_rejected_max_attempts': 'Límite de intentos alcanzado - intenta más tarde',
+    'cc_rejected_duplicated_payment': 'Ya procesaste este pago recientemente',
+    'cc_rejected_call_for_authorize': 'Debes autorizar el pago con tu banco',
+    'cc_rejected_high_risk': 'Pago rechazado por seguridad',
+    'cc_rejected_blacklist': 'Tarjeta no permitida',
+    'cc_rejected_other_reason': 'El pago fue rechazado - intenta con otra tarjeta',
+  };
+  
+  return errorMessages[statusDetail] || 'El pago fue rechazado. Por favor intenta con otra tarjeta.';
+}
+
 interface ContractPaymentRequest {
   applicationId: string;
   paymentMethodId?: string;
@@ -163,17 +182,54 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Create payment record in payments table
+    // CRITICAL: Only process if payment is approved
+    if (paymentResult.status !== 'approved') {
+      console.log('Payment NOT approved:', paymentResult.status, paymentResult.status_detail);
+      
+      // Create notification for rejected payment
+      await supabaseAdmin
+        .from('notifications')
+        .insert({
+          user_id: application.contract.business_id,
+          type: 'payment_rejected',
+          title: '❌ Pago rechazado',
+          message: getPaymentErrorMessage(paymentResult.status_detail),
+          metadata: {
+            application_id: applicationId,
+            payment_id: paymentResult.id?.toString(),
+            status: paymentResult.status,
+            status_detail: paymentResult.status_detail
+          }
+        });
+
+      // Return error response for rejected payments
+      return new Response(
+        JSON.stringify({ 
+          error: getPaymentErrorMessage(paymentResult.status_detail),
+          paymentId: paymentResult.id,
+          status: paymentResult.status,
+          statusDetail: paymentResult.status_detail,
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    // Payment approved - create payment record
+    console.log('Payment approved - processing post-payment updates...');
+
     const { data: payment, error: paymentError } = await supabaseAdmin
       .from('payments')
       .insert({
-        client_id: application.contract.business_id, // Business is the "client" here
+        client_id: application.contract.business_id,
         master_id: application.master_id,
-        booking_id: null, // No booking for contracts
+        booking_id: null,
         amount: finalAmount,
         commission_amount: commissionAmount,
         master_amount: masterAmount,
-        status: paymentResult.status === 'approved' ? 'approved' : 'pending',
+        status: 'approved',
         payment_method: paymentResult.payment_method_id,
         mercadopago_payment_id: paymentResult.id.toString(),
         mercadopago_preference_id: null,
@@ -194,93 +250,80 @@ serve(async (req) => {
 
     console.log('Payment record created:', payment.id);
 
-    // If payment is approved, update application and create notifications
-    if (paymentResult.status === 'approved') {
-      console.log('Payment approved - processing post-payment updates...');
+    // Update application status to 'accepted'
+    const { error: updateAppError } = await supabaseAdmin
+      .from('business_contract_applications')
+      .update({ 
+        status: 'accepted',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', applicationId);
 
-      // Update application status to 'paid'
-      const { error: updateAppError } = await supabaseAdmin
-        .from('business_contract_applications')
-        .update({ 
-          status: 'accepted',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', applicationId);
-
-      if (updateAppError) {
-        console.error('Error updating application:', updateAppError);
-      }
-
-      // Update contract status
-      const { error: updateContractError } = await supabaseAdmin
-        .from('business_contracts')
-        .update({ 
-          status: 'in_progress',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', application.contract_id);
-
-      if (updateContractError) {
-        console.error('Error updating contract:', updateContractError);
-      }
-
-      // Create commission record
-      const { error: commissionError } = await supabaseAdmin
-        .from('commissions')
-        .insert({
-          payment_id: payment.id,
-          master_id: application.master_id,
-          amount: commissionAmount,
-          percentage: 5.00,
-          status: 'pending'
-        });
-
-      if (commissionError) {
-        console.error('Error creating commission:', commissionError);
-      }
-
-      // Notify business
-      const { error: businessNotifError } = await supabaseAdmin
-        .from('notifications')
-        .insert({
-          user_id: application.contract.business_id,
-          type: 'contract_payment_confirmed',
-          title: '✅ Pago confirmado',
-          message: `Tu pago de $${finalAmount.toLocaleString()} ha sido aprobado. El proyecto está en progreso.`,
-          metadata: {
-            application_id: applicationId,
-            contract_id: application.contract_id,
-            payment_id: paymentResult.id.toString(),
-            amount: finalAmount
-          }
-        });
-
-      if (businessNotifError) {
-        console.error('Error creating business notification:', businessNotifError);
-      }
-
-      // Notify master
-      const { error: masterNotifError } = await supabaseAdmin
-        .from('notifications')
-        .insert({
-          user_id: application.master_id,
-          type: 'contract_awarded',
-          title: '🎉 Contrato asignado',
-          message: `Te han seleccionado para "${application.contract.title}". Recibirás $${masterAmount.toLocaleString()} al completar.`,
-          metadata: {
-            application_id: applicationId,
-            contract_id: application.contract_id,
-            payment_id: paymentResult.id.toString(),
-            amount: masterAmount
-          }
-        });
-
-      if (masterNotifError) {
-        console.error('Error creating master notification:', masterNotifError);
-      }
-
-      console.log('All post-payment updates completed');
+    if (updateAppError) {
+      console.error('Error updating application:', updateAppError);
     }
+
+    // Update contract status
+    const { error: updateContractError } = await supabaseAdmin
+      .from('business_contracts')
+      .update({ 
+        status: 'in_progress',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', application.contract_id);
+
+    if (updateContractError) {
+      console.error('Error updating contract:', updateContractError);
+    }
+
+    // Create commission record
+    const { error: commissionError } = await supabaseAdmin
+      .from('commissions')
+      .insert({
+        payment_id: payment.id,
+        master_id: application.master_id,
+        amount: commissionAmount,
+        percentage: 5.00,
+        status: 'pending'
+      });
+
+    if (commissionError) {
+      console.error('Error creating commission:', commissionError);
+    }
+
+    // Notify business
+    await supabaseAdmin
+      .from('notifications')
+      .insert({
+        user_id: application.contract.business_id,
+        type: 'contract_payment_confirmed',
+        title: '✅ Pago confirmado',
+        message: `Tu pago de $${finalAmount.toLocaleString()} ha sido aprobado. El proyecto está en progreso.`,
+        metadata: {
+          application_id: applicationId,
+          contract_id: application.contract_id,
+          payment_id: paymentResult.id.toString(),
+          amount: finalAmount
+        }
+      });
+
+    // Notify master
+    await supabaseAdmin
+      .from('notifications')
+      .insert({
+        user_id: application.master_id,
+        type: 'contract_awarded',
+        title: '🎉 Contrato asignado',
+        message: `Te han seleccionado para "${application.contract.title}". Recibirás $${masterAmount.toLocaleString()} al completar.`,
+        metadata: {
+          application_id: applicationId,
+          contract_id: application.contract_id,
+          payment_id: paymentResult.id.toString(),
+          amount: masterAmount
+        }
+      });
+
+    console.log('All post-payment updates completed');
 
     return new Response(
       JSON.stringify({ 
