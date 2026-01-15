@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { rateLimiter, RATE_LIMITS, formatRemainingTime } from '@/utils/rateLimit';
 import { toast } from '@/hooks/use-toast';
+import { getDashboardRoute } from '@/utils/dashboardRedirect';
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
@@ -80,24 +81,22 @@ export const LoginForm = () => {
           console.error('Error checking admin status:', err);
         }
 
-        // Otherwise redirect based on user type
-        const {
-          data
-        } = await supabase.auth.getSession();
-        const userType = data.session?.user.user_metadata?.user_type || 'client';
-        if (userType === 'master') {
-          navigate('/master-dashboard', {
-            replace: true
-          });
-        } else if (userType === 'business') {
-          navigate('/business-dashboard', {
-            replace: true
-          });
-        } else {
-          navigate('/client-dashboard', {
-            replace: true
-          });
-        }
+        // Get session and redirect based on user type from profile
+        const { data: sessionData } = await supabase.auth.getSession();
+        
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', sessionData.session?.user.id)
+          .maybeSingle();
+
+        const userType = profileData?.user_type || 
+                        sessionData.session?.user.user_metadata?.user_type || 
+                        'client';
+        
+        navigate(getDashboardRoute(userType as 'client' | 'master' | 'admin' | 'business'), {
+          replace: true
+        });
       }
     } catch (error) {
       console.error('Login error:', error);

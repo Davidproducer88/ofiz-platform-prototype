@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { getDashboardRoute } from "@/utils/dashboardRedirect";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { RoleProtectedRoute } from "@/components/RoleProtectedRoute";
@@ -90,11 +91,17 @@ const AppContent = () => {
     );
   }
 
+  // Get the correct dashboard route for authenticated users
+  const getAuthenticatedRedirect = () => {
+    if (!user || !profile) return '/';
+    return getDashboardRoute(profile.user_type);
+  };
+
   return (
     <Routes>
       <Route 
         path="/auth" 
-        element={user ? <Navigate to="/" replace /> : <Auth />} 
+        element={user ? <Navigate to={getAuthenticatedRedirect()} replace /> : <Auth />}
       />
       <Route 
         path="/auth/callback" 
