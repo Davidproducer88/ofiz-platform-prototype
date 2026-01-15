@@ -68,3 +68,6 @@ verify_jwt = false
 [functions.search-master]
 verify_jwt = false
 
+[functions.manage-subscription]
+verify_jwt = true
+
