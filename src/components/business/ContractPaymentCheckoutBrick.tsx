@@ -121,6 +121,7 @@ export const ContractPaymentCheckoutBrick = ({
             paymentMethods: {
               creditCard: 'all',
               debitCard: 'all',
+              prepaidCard: 'all',
               maxInstallments: 12,
             },
           },

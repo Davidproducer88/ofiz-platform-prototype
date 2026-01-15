@@ -108,6 +108,7 @@ export const CheckoutBrick = ({ amount, orderId, onSuccess, onError }: CheckoutB
             paymentMethods: {
               creditCard: 'all',
               debitCard: 'all',
+              prepaidCard: 'all',
               maxInstallments: 12,
             },
           },
