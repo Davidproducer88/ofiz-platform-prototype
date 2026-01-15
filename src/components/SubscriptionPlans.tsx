@@ -26,7 +26,7 @@ interface Profile {
 
 // Límite de maestros fundadores y descuento
 const FOUNDER_LIMIT = 1000;
-const FOUNDER_DISCOUNT_PERCENT = 30; // 30% de descuento permanente
+const FOUNDER_DISCOUNT_PERCENT = 20; // 20% de descuento permanente
 
 export const SubscriptionPlans = () => {
   const [currentPlan, setCurrentPlan] = useState<Subscription | null>(null);
