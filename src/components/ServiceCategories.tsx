@@ -131,7 +131,7 @@ de servicio?</h3>
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm border-0 rounded-sm">
                   Respuesta en 24hs
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
                   100% Gratis
                 </Badge>
               </div>
