@@ -2269,10 +2269,12 @@ export type Database = {
           id: string
           is_featured: boolean
           master_id: string
+          mercadopago_payment_id: string | null
           mercadopago_subscription_id: string | null
           monthly_applications_limit: number
           plan: Database["public"]["Enums"]["subscription_plan"]
           price: number
+          status: string | null
           updated_at: string
         }
         Insert: {
@@ -2285,10 +2287,12 @@ export type Database = {
           id?: string
           is_featured?: boolean
           master_id: string
+          mercadopago_payment_id?: string | null
           mercadopago_subscription_id?: string | null
           monthly_applications_limit?: number
           plan?: Database["public"]["Enums"]["subscription_plan"]
           price?: number
+          status?: string | null
           updated_at?: string
         }
         Update: {
@@ -2301,10 +2305,12 @@ export type Database = {
           id?: string
           is_featured?: boolean
           master_id?: string
+          mercadopago_payment_id?: string | null
           mercadopago_subscription_id?: string | null
           monthly_applications_limit?: number
           plan?: Database["public"]["Enums"]["subscription_plan"]
           price?: number
+          status?: string | null
           updated_at?: string
         }
         Relationships: []
