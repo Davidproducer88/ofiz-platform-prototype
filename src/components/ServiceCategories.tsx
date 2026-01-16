@@ -128,7 +128,7 @@ de servicio?</h3>
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
                   +50 especialidades
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm border-0 rounded-sm">
+                <Badge className="bg-white/20 text-white border-white backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
                   Respuesta en 24hs
                 </Badge>
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
