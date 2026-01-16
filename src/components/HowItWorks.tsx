@@ -144,9 +144,9 @@ export const HowItWorks = () => {
             </p>
             
             <div className="sm:flex-row pt-4 py-0 px-0 mx-0 items-center justify-center flex flex-col gap-[7px]">
-              <Button size="xl" onClick={handlePublishClick} className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group text-base px-0">
-                📝 Publicar Encargo GRATIS
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <Button size="xl" onClick={handlePublishClick} className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group text-base text-center mx-0 px-[18px]">
+                                                                 Publicar Encargo GRATIS
+                <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1 w-[24px] h-[19px] mx-0 px-0 py-0" />
               </Button>
               <Button size="xl" variant="outline" onClick={handleViewProfessionalsClick} className="border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm font-semibold">
                 Ver Profesionales
