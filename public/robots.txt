@@ -12,3 +12,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Canonical domain
+Host: https://www.ofiz.com.uy
+
+Sitemap: https://www.ofiz.com.uy/sitemap.xml
