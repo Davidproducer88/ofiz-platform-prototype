@@ -145,7 +145,7 @@ export const BetaAnnouncementDialog = () => {
             </ul>
             <div className="mt-3 md:mt-4 p-2 md:p-3 bg-primary/10 rounded-lg border border-primary/30">
               <p className="text-center text-xs md:text-sm font-semibold">
-                ⏰ Oferta limitada: Solo para los primeros 100 usuarios registrados
+                ⏰ Oferta limitada: Solo para los primeros 500 usuarios registrados
               </p>
             </div>
           </div>
