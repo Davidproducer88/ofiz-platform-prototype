@@ -180,6 +180,13 @@ export type Database = {
             foreignKeyName: "bookings_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -236,6 +243,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_contract_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_public"
             referencedColumns: ["id"]
           },
           {
@@ -678,6 +692,13 @@ export type Database = {
             foreignKeyName: "favorite_masters_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_masters_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -732,6 +753,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_posts_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_public"
             referencedColumns: ["id"]
           },
           {
@@ -1300,6 +1328,13 @@ export type Database = {
             foreignKeyName: "master_portfolio_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_portfolio_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -1348,6 +1383,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: true
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_rankings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: true
+            referencedRelation: "masters_public"
             referencedColumns: ["id"]
           },
           {
@@ -1898,6 +1940,13 @@ export type Database = {
             foreignKeyName: "reviews_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -1970,6 +2019,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_public"
             referencedColumns: ["id"]
           },
           {
@@ -2111,6 +2167,13 @@ export type Database = {
             foreignKeyName: "services_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -2177,6 +2240,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsored_content_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_public"
             referencedColumns: ["id"]
           },
           {
@@ -2328,6 +2398,32 @@ export type Database = {
       }
     }
     Views: {
+      masters_public: {
+        Row: {
+          availability_schedule: Json | null
+          avatar_url: string | null
+          business_name: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          experience_years: number | null
+          full_name: string | null
+          hourly_rate: number | null
+          id: string | null
+          is_verified: boolean | null
+          rating: number | null
+          total_reviews: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "masters_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       masters_with_profile_and_services: {
         Row: {
           business_name: string | null
@@ -2412,6 +2508,13 @@ export type Database = {
       validate_founder_code: {
         Args: { code_to_validate: string; user_id_param: string }
         Returns: Json
+      }
+      validate_referral_code: {
+        Args: { code_to_validate: string }
+        Returns: {
+          discount_percentage: number
+          is_valid: boolean
+        }[]
       }
     }
     Enums: {
