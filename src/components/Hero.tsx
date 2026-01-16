@@ -64,7 +64,7 @@ export const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Content */}
           <div className={`space-y-6 transition-all duration-1000 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <Badge className="bg-gradient-hero text-white border-0 px-4 py-1.5 text-sm font-medium shadow-elegant animate-scale-in">
+            <Badge className="bg-gradient-hero text-white border-0 py-1.5 text-sm font-medium shadow-elegant animate-scale-in px-[35px]">
               <Sparkles className="h-3.5 w-3.5 mr-1.5 inline" />
               La plataforma uruguaya de servicios profesionales
             </Badge>
