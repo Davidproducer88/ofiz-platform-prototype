@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Search, MessageSquare, Calendar, CreditCard, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { SEOHead } from "@/components/seo/SEOHead";
+import { HOW_IT_WORKS_SEO } from "@/lib/seoData";
+import { generateFAQJsonLd } from "@/components/seo/JsonLd";
 export default function HowItWorks() {
   const navigate = useNavigate();
 
@@ -75,10 +77,27 @@ export default function HowItWorks() {
     }
   ];
 
+  // FAQ Schema for SEO
+  const faqJsonLd = generateFAQJsonLd({
+    questions: [
+      { question: '¿Cómo funciona Ofiz para clientes?', answer: 'Publicás tu encargo gratis, recibís presupuestos de profesionales verificados, elegís el mejor, coordinás el servicio, pagás de forma segura y dejás tu opinión.' },
+      { question: '¿Cuánto cuesta usar Ofiz?', answer: 'Para clientes es gratis publicar encargos. Solo se cobra una comisión del 5% cuando el trabajo se completa exitosamente.' },
+      { question: '¿Los profesionales están verificados?', answer: 'Sí, todos los profesionales pasan por un proceso de verificación de identidad y credenciales antes de poder ofrecer sus servicios.' },
+      { question: '¿El pago es seguro?', answer: 'Sí, utilizamos un sistema de escrow donde el dinero se retiene hasta que confirmes que el trabajo está completo.' },
+    ],
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title={HOW_IT_WORKS_SEO.title}
+        description={HOW_IT_WORKS_SEO.description}
+        canonical={HOW_IT_WORKS_SEO.canonical}
+        keywords={HOW_IT_WORKS_SEO.keywords}
+        breadcrumbs={[{ label: 'Cómo Funciona' }]}
+        jsonLd={faqJsonLd}
+      />
       <Header />
-      
       <main className="flex-1">
         {/* Breadcrumbs */}
         <div className="container pt-8">
