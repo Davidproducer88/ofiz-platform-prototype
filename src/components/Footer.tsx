@@ -188,24 +188,14 @@ export const Footer = () => {
                 Beta
               </Badge>
               <p className="text-sm text-muted-foreground text-center md:text-left">
-                © 2025 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio SAS </span>
+                © 2026 Ofiz. Todos los derechos reservados. | <span className="gradient-text font-semibold">Orbital Estudio SAS </span>
               </p>
             </div>
             
             <div className="flex items-center gap-4">
               {/* Mercado Pago Partner */}
-              <a 
-                href="https://www.mercadopago.com.uy/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity"
-                aria-label="Mercado Pago - Partner Tecnológico"
-              >
-                <img 
-                  src="/partners/mercadopago.png" 
-                  alt="Mercado Pago" 
-                  className="h-6 md:h-7 w-auto"
-                />
+              <a href="https://www.mercadopago.com.uy/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity" aria-label="Mercado Pago - Partner Tecnológico">
+                <img src="/partners/mercadopago.png" alt="Mercado Pago" className="h-6 md:h-7 w-auto" />
                 <span className="text-xs text-muted-foreground hidden sm:inline">Partner Tecnológico</span>
               </a>
               
@@ -218,7 +208,7 @@ export const Footer = () => {
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => handleSocialClick("TikTok")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                   </svg>
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => handleSocialClick("LinkedIn")} className="text-secondary hover:text-secondary-hover hover:bg-secondary/10 hover:scale-110 transition-all rounded-full">
