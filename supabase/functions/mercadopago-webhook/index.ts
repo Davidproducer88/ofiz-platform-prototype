@@ -357,12 +357,13 @@ serve(async (req) => {
           nextMonth.setMonth(nextMonth.getMonth() + 1);
           
           if (existingSub) {
-            // Update existing subscription
+            // Update existing subscription - clear cancelled_at to reactivate
             const { error: updateError } = await supabaseClient
               .from('subscriptions')
               .update({
                 plan: planId,
                 status: 'active',
+                cancelled_at: null,
                 current_period_start: now.toISOString(),
                 current_period_end: nextMonth.toISOString(),
                 mercadopago_payment_id: paymentId.toString(),
