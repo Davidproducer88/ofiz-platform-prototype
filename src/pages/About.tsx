@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Heart, Zap, Users, Shield, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { ABOUT_SEO } from "@/lib/seoData";
 export default function About() {
   const navigate = useNavigate();
   const values = [{
@@ -55,8 +57,15 @@ export default function About() {
     bio: "Diseñador UX/UI apasionado por crear experiencias intuitivas"
   }];
   return <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title={ABOUT_SEO.title}
+        description={ABOUT_SEO.description}
+        canonical={ABOUT_SEO.canonical}
+        keywords={ABOUT_SEO.keywords}
+        breadcrumbs={[{ label: 'Sobre Nosotros' }]}
+        includeOrganization
+      />
       <Header />
-      
       <main className="flex-1">
         {/* Breadcrumbs */}
         <div className="container pt-8">

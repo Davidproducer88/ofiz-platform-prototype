@@ -1,8 +1,14 @@
+# Ofiz - Robots.txt
+# https://www.ofiz.com.uy
+
+# Allow all major crawlers
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
 
 User-agent: Twitterbot
 Allow: /
@@ -10,10 +16,39 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 2
+
+# Default rule for all other crawlers
 User-agent: *
 Allow: /
+Crawl-delay: 5
+
+# Disallow admin and private areas
+Disallow: /admin-dashboard
+Disallow: /admin/
+Disallow: /client-dashboard
+Disallow: /master-dashboard
+Disallow: /business-dashboard
+Disallow: /profile-setup
+Disallow: /auth/callback
+
+# Allow important static resources
+Allow: /og-image.jpg
+Allow: /favicon.png
+Allow: /apple-touch-icon.png
+Allow: /manifest.json
 
 # Canonical domain
 Host: https://www.ofiz.com.uy
 
+# Sitemaps
 Sitemap: https://www.ofiz.com.uy/sitemap.xml
