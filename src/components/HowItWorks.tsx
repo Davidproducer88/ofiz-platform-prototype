@@ -143,8 +143,8 @@ export const HowItWorks = () => {
               Más de <span className="font-bold">10,000 clientes satisfechos</span> encontraron a su maestro ideal en Ofiz. <span className="font-bold">¡Es tu turno!</span>
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button size="xl" onClick={handlePublishClick} className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group text-base px-8">
+            <div className="sm:flex-row pt-4 py-0 px-0 mx-0 items-center justify-center flex flex-col gap-[7px]">
+              <Button size="xl" onClick={handlePublishClick} className="bg-white text-primary hover:bg-white/90 shadow-elegant font-semibold group text-base px-0">
                 📝 Publicar Encargo GRATIS
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
