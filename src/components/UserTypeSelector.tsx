@@ -5,11 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { User, Briefcase, ArrowRight, CheckCircle, Star, Shield, Clock, Building2, Megaphone } from "lucide-react";
 interface UserTypeSelectorProps {
   onSelect: (type: 'client' | 'master' | 'business') => void;
+  onLoginClick?: () => void;
 }
 export const UserTypeSelector = ({
-  onSelect
+  onSelect,
+  onLoginClick
 }: UserTypeSelectorProps) => {
   const navigate = useNavigate();
+  
+  const handleLoginClick = () => {
+    if (onLoginClick) {
+      onLoginClick();
+    } else {
+      navigate('/auth?tab=login');
+    }
+  };
   return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
       <div className="container max-w-7xl w-full">
         {/* Header */}
@@ -191,7 +201,7 @@ export const UserTypeSelector = ({
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
             ¿Ya tenés cuenta?{" "}
-            <button onClick={() => navigate('/auth')} className="text-primary hover:underline font-medium">
+            <button onClick={handleLoginClick} className="text-primary hover:underline font-medium">
               Iniciar sesión
             </button>
           </p>

@@ -46,6 +46,11 @@ const Auth = () => {
     setShowUserTypeSelector(true);
   };
 
+  const handleLoginFromSelector = () => {
+    setShowUserTypeSelector(false);
+    setActiveTab("login");
+  };
+
   const handleEmailVerificationShow = (email: string) => {
     setShowEmailVerification(true);
     setPendingEmail(email);
@@ -96,7 +101,7 @@ const Auth = () => {
             <h1 className="text-3xl font-bold text-foreground mb-2">Únete a Ofiz</h1>
             <p className="text-muted-foreground">Elige cómo quieres usar nuestra plataforma</p>
           </div>
-          <UserTypeSelector onSelect={handleUserTypeSelect} />
+          <UserTypeSelector onSelect={handleUserTypeSelect} onLoginClick={handleLoginFromSelector} />
         </div>
       </div>
     );
