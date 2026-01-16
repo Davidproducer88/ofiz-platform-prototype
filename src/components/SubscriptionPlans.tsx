@@ -3,12 +3,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Check, Star, Zap, Crown, Gift, XCircle, AlertTriangle, Calendar, CreditCard, ArrowDownCircle } from "lucide-react";
+import { Check, Star, Zap, Crown, Gift, XCircle, AlertTriangle, Calendar, CreditCard, ArrowDownCircle, RefreshCw, DollarSign, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { MasterSubscriptionCheckoutBrick } from "./MasterSubscriptionCheckoutBrick";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface Subscription {
   id: string;
@@ -16,10 +18,18 @@ interface Subscription {
   monthly_applications_limit: number;
   applications_used: number;
   is_featured: boolean;
+  current_period_start: string;
   current_period_end: string;
   has_founder_discount?: boolean;
   cancelled_at?: string;
   mercadopago_payment_id?: string;
+  price?: number;
+}
+
+interface PotentialRefund {
+  amount: number;
+  days_remaining: number;
+  total_days: number;
 }
 
 interface Profile {
@@ -31,12 +41,15 @@ interface Profile {
 const FOUNDER_LIMIT = 1000;
 const FOUNDER_DISCOUNT_PERCENT = 20; // 20% de descuento permanente
 
+type CancelOption = 'end_of_period' | 'with_refund' | 'immediate';
+
 export const SubscriptionPlans = () => {
   const [currentPlan, setCurrentPlan] = useState<Subscription | null>(null);
+  const [potentialRefund, setPotentialRefund] = useState<PotentialRefund | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [showDowngradeDialog, setShowDowngradeDialog] = useState(false);
+  const [cancelOption, setCancelOption] = useState<CancelOption>('end_of_period');
   const [cancelLoading, setCancelLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{
     id: 'free' | 'basic_plus' | 'premium';
@@ -184,57 +197,84 @@ export const SubscriptionPlans = () => {
   const handleCancelSubscription = async () => {
     setCancelLoading(true);
     try {
+      let action: string;
+      let successMessage: string;
+      
+      switch (cancelOption) {
+        case 'with_refund':
+          action = 'cancel_with_refund';
+          successMessage = 'Tu suscripción ha sido cancelada y el reembolso está en proceso.';
+          break;
+        case 'immediate':
+          action = 'downgrade';
+          successMessage = 'Tu plan ha sido cambiado a gratuito inmediatamente.';
+          break;
+        case 'end_of_period':
+        default:
+          action = 'cancel';
+          successMessage = 'Tu suscripción se cancelará al final del período actual.';
+          break;
+      }
+
       const { data, error } = await supabase.functions.invoke('manage-user-subscription', {
-        body: { action: 'cancel' }
+        body: { action }
       });
 
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
 
-      toast({
-        title: "Suscripción cancelada",
-        description: data?.message || "Tu suscripción ha sido cancelada. Seguirás disfrutando los beneficios hasta el fin del período.",
-      });
+      // Show specific message based on result
+      if (data?.refund) {
+        toast({
+          title: "💰 Reembolso procesado",
+          description: `Se reembolsaron $${data.refund.amount?.toLocaleString('es-UY')} UYU por ${data.refund.days_remaining} días restantes.`,
+        });
+      } else {
+        toast({
+          title: "Suscripción actualizada",
+          description: data?.message || successMessage,
+        });
+      }
       
       setShowCancelDialog(false);
+      setCancelOption('end_of_period');
       await fetchData();
 
     } catch (error: any) {
-      console.error('Error cancelling subscription:', error);
+      console.error('Error managing subscription:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message || "No se pudo cancelar la suscripción",
+        description: error?.message || "No se pudo procesar la solicitud",
       });
     } finally {
       setCancelLoading(false);
     }
   };
 
-  const handleDowngradeSubscription = async () => {
+  const handleReactivateSubscription = async () => {
     setCancelLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('manage-user-subscription', {
-        body: { action: 'downgrade' }
+        body: { action: 'reactivate' }
       });
 
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
 
       toast({
-        title: "Plan cambiado",
-        description: data?.message || "Tu suscripción ha sido cambiada al plan gratuito.",
+        title: "✅ Suscripción reactivada",
+        description: data?.message || "Tu suscripción ha sido reactivada exitosamente.",
       });
       
-      setShowDowngradeDialog(false);
       await fetchData();
 
     } catch (error: any) {
-      console.error('Error downgrading subscription:', error);
+      console.error('Error reactivating subscription:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message || "No se pudo cambiar el plan",
+        description: error?.message || "No se pudo reactivar la suscripción",
       });
     } finally {
       setCancelLoading(false);
@@ -420,39 +460,47 @@ export const SubscriptionPlans = () => {
                 <Separator className="my-4" />
                 <div className="space-y-3">
                   <p className="text-sm font-medium text-muted-foreground">Gestionar suscripción</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowCancelDialog(true)}
-                      className="text-amber-600 border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Cancelar al final del período
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowDowngradeDialog(true)}
-                      className="text-destructive border-destructive hover:bg-destructive/10"
-                    >
-                      <ArrowDownCircle className="h-4 w-4 mr-2" />
-                      Cambiar a plan gratuito ahora
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCancelOption('end_of_period');
+                      setShowCancelDialog(true);
+                    }}
+                    className="text-amber-600 border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Cancelar suscripción
+                  </Button>
                 </div>
               </>
             )}
 
             {isCancelled && (
-              <Alert className="bg-amber-500/10 border-amber-500/30">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="text-sm">
-                  Tu suscripción está cancelada. Seguirás disfrutando de los beneficios hasta el{' '}
-                  <strong>{new Date(currentPlan.current_period_end).toLocaleDateString('es-CL')}</strong>.
-                  Después de esa fecha, cambiarás al plan gratuito.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-3">
+                <Alert className="bg-amber-500/10 border-amber-500/30">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-sm">
+                    Tu suscripción está cancelada. Seguirás disfrutando de los beneficios hasta el{' '}
+                    <strong>{new Date(currentPlan.current_period_end).toLocaleDateString('es-CL')}</strong>.
+                    Después de esa fecha, cambiarás al plan gratuito.
+                  </AlertDescription>
+                </Alert>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReactivateSubscription}
+                  disabled={cancelLoading}
+                  className="text-green-600 border-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+                >
+                  {cancelLoading ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                  )}
+                  Reactivar suscripción
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -588,28 +636,117 @@ export const SubscriptionPlans = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog de cancelación */}
-      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <DialogContent>
+      {/* Dialog unificado de cancelación */}
+      <Dialog open={showCancelDialog} onOpenChange={(open) => {
+        setShowCancelDialog(open);
+        if (!open) setCancelOption('end_of_period');
+      }}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <XCircle className="h-5 w-5 text-amber-500" />
               Cancelar suscripción
             </DialogTitle>
             <DialogDescription>
-              ¿Estás seguro que deseas cancelar tu suscripción?
+              Selecciona cómo deseas cancelar tu suscripción
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
-            <Alert className="bg-amber-500/10 border-amber-500/30">
-              <Calendar className="h-4 w-4 text-amber-600" />
-              <AlertDescription>
-                Tu suscripción permanecerá activa hasta el final del período actual ({currentPlan ? new Date(currentPlan.current_period_end).toLocaleDateString('es-CL') : ''}). 
-                Después de esa fecha, cambiarás automáticamente al plan gratuito.
-              </AlertDescription>
-            </Alert>
+            {/* Plan actual info */}
+            <div className="bg-muted/50 rounded-lg p-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-muted-foreground">Plan actual:</span>
+                <span className="font-semibold">{currentPlan?.plan === 'basic_plus' ? 'Basic Plus' : 'Premium'}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Activo hasta:</span>
+                <span className="font-medium">{currentPlan ? new Date(currentPlan.current_period_end).toLocaleDateString('es-CL') : ''}</span>
+              </div>
+            </div>
 
+            {/* Opciones de cancelación */}
+            <RadioGroup 
+              value={cancelOption} 
+              onValueChange={(value) => setCancelOption(value as CancelOption)}
+              className="space-y-3"
+            >
+              {/* Opción 1: Cancelar al final del período */}
+              <div className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors ${
+                cancelOption === 'end_of_period' ? 'border-primary bg-primary/5' : 'border-border'
+              }`}>
+                <RadioGroupItem value="end_of_period" id="end_of_period" className="mt-1" />
+                <Label htmlFor="end_of_period" className="flex-1 cursor-pointer">
+                  <div className="flex items-center gap-2 font-medium">
+                    <Calendar className="h-4 w-4 text-amber-600" />
+                    Cancelar al final del período
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Mantén tus beneficios hasta el {currentPlan ? new Date(currentPlan.current_period_end).toLocaleDateString('es-CL') : ''}.
+                    No se te cobrará el próximo mes.
+                  </p>
+                </Label>
+              </div>
+
+              {/* Opción 2: Cancelar con reembolso (solo si hay pago) */}
+              {currentPlan?.mercadopago_payment_id && (
+                <div className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors ${
+                  cancelOption === 'with_refund' ? 'border-green-500 bg-green-500/5' : 'border-border'
+                }`}>
+                  <RadioGroupItem value="with_refund" id="with_refund" className="mt-1" />
+                  <Label htmlFor="with_refund" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2 font-medium">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                      Cancelar con reembolso proporcional
+                      <Badge variant="outline" className="text-green-600 border-green-600">
+                        Recomendado
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Cancela ahora y recibe un reembolso proporcional por los días no utilizados.
+                      El reembolso se procesa automáticamente en MercadoPago.
+                    </p>
+                  </Label>
+                </div>
+              )}
+
+              {/* Opción 3: Cancelar inmediatamente sin reembolso */}
+              <div className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors ${
+                cancelOption === 'immediate' ? 'border-destructive bg-destructive/5' : 'border-border'
+              }`}>
+                <RadioGroupItem value="immediate" id="immediate" className="mt-1" />
+                <Label htmlFor="immediate" className="flex-1 cursor-pointer">
+                  <div className="flex items-center gap-2 font-medium text-destructive">
+                    <ArrowDownCircle className="h-4 w-4" />
+                    Cambiar a gratuito inmediatamente
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Pierdes acceso inmediato a todos los beneficios sin reembolso.
+                  </p>
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {/* Advertencia según opción seleccionada */}
+            {cancelOption === 'immediate' && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Atención:</strong> Perderás inmediatamente acceso a todos los beneficios de tu plan actual, incluyendo el tiempo restante de tu suscripción.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {cancelOption === 'with_refund' && (
+              <Alert className="bg-green-500/10 border-green-500/30">
+                <DollarSign className="h-4 w-4 text-green-600" />
+                <AlertDescription>
+                  El reembolso será calculado proporcionalmente según los días restantes de tu suscripción y se acreditará en tu cuenta de MercadoPago.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Beneficios que se pierden */}
             <div className="text-sm text-muted-foreground">
               <p className="font-medium mb-2">Al cancelar perderás acceso a:</p>
               <ul className="list-disc list-inside space-y-1">
@@ -637,69 +774,20 @@ export const SubscriptionPlans = () => {
               Mantener suscripción
             </Button>
             <Button 
-              variant="destructive" 
+              variant={cancelOption === 'with_refund' ? 'default' : 'destructive'}
               onClick={handleCancelSubscription}
               disabled={cancelLoading}
+              className={cancelOption === 'with_refund' ? 'bg-green-600 hover:bg-green-700' : ''}
             >
               {cancelLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Cancelando...
-                </>
-              ) : (
-                'Confirmar cancelación'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog de downgrade inmediato */}
-      <Dialog open={showDowngradeDialog} onOpenChange={setShowDowngradeDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <XCircle className="h-5 w-5 text-destructive" />
-              Cambiar a plan gratuito
-            </DialogTitle>
-            <DialogDescription>
-              Esta acción es inmediata y no se puede deshacer.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Atención:</strong> Si cambias ahora al plan gratuito, perderás inmediatamente acceso a todos los beneficios de tu plan actual, incluyendo el tiempo restante de tu suscripción.
-              </AlertDescription>
-            </Alert>
-
-            <div className="bg-muted/50 rounded-lg p-4">
-              <p className="text-sm text-muted-foreground mb-2">Tu plan actual:</p>
-              <p className="font-semibold">{currentPlan?.plan === 'basic_plus' ? 'Basic Plus' : 'Premium'}</p>
-              <p className="text-sm text-muted-foreground">
-                Tiempo restante: hasta {currentPlan ? new Date(currentPlan.current_period_end).toLocaleDateString('es-CL') : ''}
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowDowngradeDialog(false)} disabled={cancelLoading}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDowngradeSubscription}
-              disabled={cancelLoading}
-            >
-              {cancelLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Procesando...
                 </>
               ) : (
-                'Cambiar a plan gratuito'
+                cancelOption === 'end_of_period' ? 'Cancelar al final del período' :
+                cancelOption === 'with_refund' ? 'Cancelar y solicitar reembolso' :
+                'Cambiar a gratuito ahora'
               )}
             </Button>
           </DialogFooter>
