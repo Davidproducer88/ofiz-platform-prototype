@@ -81,7 +81,7 @@ export const ServiceCategories = () => {
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent pointer-events-none" />
       
-      <div className="container">
+      <div className="container px-[33px] py-[45px]">
         {/* Header */}
         <div ref={headerRef as any} className={`text-center mb-16 space-y-4 transition-all duration-1000 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <Badge className="bg-secondary/10 text-secondary border-secondary/20 mb-2 shadow-soft">
@@ -96,7 +96,7 @@ export const ServiceCategories = () => {
         </div>
 
         {/* Categories Carousel - 21+ categories with horizontal scroll */}
-        <div className="mb-16 px-12">
+        <div className="mb-16 px-0">
           <Carousel opts={{
           align: "start",
           loop: true
