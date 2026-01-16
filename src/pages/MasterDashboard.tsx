@@ -433,6 +433,310 @@ const MasterDashboard = () => {
     );
   }
 
+  // Mobile-optimized view
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        {/* Mobile Header */}
+        <AppHeader 
+          userName={profile?.full_name || 'Profesional'}
+          avatarUrl={profile?.avatar_url}
+          showSearch={true}
+          showNotifications={true}
+          onSearchClick={() => setActiveTab('job-requests')}
+          onNotificationClick={() => setActiveTab('notifications')}
+          onAvatarClick={() => setActiveTab('profile')}
+        />
+        
+        {/* Mobile Content */}
+        <main className="p-4">
+          {activeTab === 'home' && (
+            <AppMasterHome 
+              stats={stats} 
+              userName={profile?.full_name}
+              onNavigate={(tab) => setActiveTab(tab)}
+            />
+          )}
+          
+          {activeTab === 'services' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold">Mis Servicios</h2>
+                <Button size="sm" onClick={() => setShowServiceDialog(true)}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Nuevo
+                </Button>
+              </div>
+              
+              {services.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">No tienes servicios aún</p>
+                    <Button onClick={() => setShowServiceDialog(true)}>
+                      Crear mi primer servicio
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {services.map((service) => (
+                    <Card key={service.id} className="overflow-hidden">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold">{service.title}</h3>
+                          <Badge variant="secondary">
+                            ${service.price.toLocaleString()}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          {service.description}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEditService(service)}>
+                            <Edit className="h-3 w-3 mr-1" />
+                            Editar
+                          </Button>
+                          <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteService(service.id)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'bookings' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Mis Reservas</h2>
+              {bookings.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">No tienes reservas aún</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {bookings.map((booking) => (
+                    <Card key={booking.id}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold">{booking.services?.title || 'Servicio'}</h3>
+                          <Badge className={statusTranslations[booking.status as keyof typeof statusTranslations]?.color || ''}>
+                            {statusTranslations[booking.status as keyof typeof statusTranslations]?.label || booking.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {booking.profiles?.full_name || 'Cliente'}
+                        </p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(booking.scheduled_date).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <DollarSign className="h-3 w-3" />
+                            ${booking.total_price.toLocaleString()}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'messages' && <ChatTab />}
+          
+          {activeTab === 'job-requests' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Solicitudes de Trabajo</h2>
+              <ServiceRequestsList 
+                onApply={(requestId) => {
+                  setSelectedRequestId(requestId);
+                  setApplicationDialogOpen(true);
+                }}
+              />
+            </div>
+          )}
+          
+          {activeTab === 'finances' && <FinancialDashboard />}
+          
+          {activeTab === 'notifications' && <MasterNotifications />}
+          
+          {activeTab === 'profile' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Mi Perfil</h2>
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarFallback className="bg-gradient-primary text-white text-xl font-bold">
+                        {profile?.full_name?.charAt(0) || 'M'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold text-lg">{profile?.full_name}</h3>
+                      <p className="text-sm text-muted-foreground">{userEmail}</p>
+                      {masterProfile?.is_verified && (
+                        <Badge variant="secondary" className="mt-1 bg-blue-100 text-blue-700">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Verificado
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-muted/50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-primary">{stats.totalServices}</p>
+                      <p className="text-xs text-muted-foreground">Servicios</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-primary">{stats.completedBookings}</p>
+                      <p className="text-xs text-muted-foreground">Completados</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-primary">{stats.averageRating.toFixed(1)}</p>
+                      <p className="text-xs text-muted-foreground">Rating</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-primary">{stats.totalReviews}</p>
+                      <p className="text-xs text-muted-foreground">Reseñas</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          
+          {activeTab === 'subscription' && <SubscriptionPlans />}
+          
+          {activeTab === 'reviews' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Mis Reseñas</h2>
+              {reviews.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Star className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Aún no tienes reseñas</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {reviews.map((review) => (
+                    <Card key={review.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={cn("h-4 w-4", i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
+                          ))}
+                        </div>
+                        <p className="text-sm mb-2">{review.comment || 'Sin comentario'}</p>
+                        <p className="text-xs text-muted-foreground">{review.profiles?.full_name}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </main>
+        
+        {/* Bottom Navigation */}
+        <AppBottomNav 
+          userType="master" 
+          userName={profile?.full_name}
+          onFabClick={() => setShowServiceDialog(true)}
+        />
+        
+        {/* Dialogs */}
+        <Dialog open={showServiceDialog} onOpenChange={setShowServiceDialog}>
+          <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingService ? 'Editar Servicio' : 'Nuevo Servicio'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleServiceSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="m-title">Título</Label>
+                <Input
+                  id="m-title"
+                  value={serviceForm.title}
+                  onChange={(e) => setServiceForm({...serviceForm, title: e.target.value})}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="m-category">Categoría</Label>
+                <Select value={serviceForm.category} onValueChange={(v) => setServiceForm({...serviceForm, category: v})}>
+                  <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="m-description">Descripción</Label>
+                <Textarea
+                  id="m-description"
+                  value={serviceForm.description}
+                  onChange={(e) => setServiceForm({...serviceForm, description: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="m-price">Precio ($)</Label>
+                  <Input
+                    id="m-price"
+                    type="number"
+                    value={serviceForm.price}
+                    onChange={(e) => setServiceForm({...serviceForm, price: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="m-duration">Duración (hrs)</Label>
+                  <Input
+                    id="m-duration"
+                    type="number"
+                    value={serviceForm.duration_value}
+                    onChange={(e) => setServiceForm({...serviceForm, duration_value: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setShowServiceDialog(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit">Guardar</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+        
+        <ApplicationDialog
+          open={applicationDialogOpen}
+          onOpenChange={setApplicationDialogOpen}
+          requestId={selectedRequestId || ''}
+          onSuccess={() => {
+            setApplicationDialogOpen(false);
+            refetch();
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header userType="master" />

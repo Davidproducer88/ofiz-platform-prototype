@@ -404,6 +404,85 @@ const AdminDashboard = () => {
     return <div>Cargando...</div>;
   }
 
+  // Mobile-optimized view
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        {/* Mobile Header */}
+        <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button onClick={() => navigate('/')} className="text-xl font-bold gradient-text">
+                Ofiz Admin
+              </button>
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </header>
+        
+        <main className="p-4">
+          {activeTab === 'home' && (
+            <MobileAdminHome 
+              stats={stats} 
+              onNavigate={(tab) => setActiveTab(tab)}
+            />
+          )}
+          
+          {activeTab === 'overview' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Resumen</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.totalUsers}</p>
+                    <p className="text-xs text-muted-foreground">Usuarios</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <UserCheck className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.totalMasters}</p>
+                    <p className="text-xs text-muted-foreground">Maestros</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <Calendar className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.totalBookings}</p>
+                    <p className="text-xs text-muted-foreground">Reservas</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <Star className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.totalReviews}</p>
+                    <p className="text-xs text-muted-foreground">Reseñas</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'users' && <UsersTableEnhanced onStatsUpdate={loadStats} />}
+          {activeTab === 'masters' && <MastersTableEnhanced onStatsUpdate={loadStats} />}
+          {activeTab === 'bookings' && <BookingsTableEnhanced onStatsUpdate={loadStats} />}
+          {activeTab === 'reviews' && <ReviewsTableEnhanced onStatsUpdate={loadStats} />}
+          {activeTab === 'disputes' && <DisputesManagement />}
+          {activeTab === 'subscriptions' && <SubscriptionsManagement />}
+          {activeTab === 'ads' && <AdvertisementsManagement />}
+          {activeTab === 'finances' && <FinancialDashboardTab />}
+          {activeTab === 'config' && <PlatformConfiguration />}
+        </main>
+        
+        <BottomNav userType="admin" />
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">

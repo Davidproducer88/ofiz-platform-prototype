@@ -92,6 +92,122 @@ export default function BusinessDashboard() {
   // Show profile setup if no business profile exists
   const showProfileSetup = !loading && !businessProfile;
 
+  // Mobile-optimized view
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        {/* Mobile Header */}
+        <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-6 w-6 text-primary" />
+              <h1 className="text-lg font-bold">OFIZ Business</h1>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setActiveTab('notifications')}
+            >
+              <Bell className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
+        
+        <main className="p-4">
+          {activeTab === 'home' && (
+            <MobileBusinessHome 
+              stats={{
+                ...stats,
+                activeProducts: stats.products || 0,
+                totalOrders: stats.pendingOrders || 0
+              }}
+              subscription={subscription}
+              onNavigate={(tab) => setActiveTab(tab)}
+            />
+          )}
+          
+          {activeTab === 'overview' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Resumen</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <Megaphone className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.activeAds}</p>
+                    <p className="text-xs text-muted-foreground">Anuncios</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <TrendingUp className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.totalImpressions.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Impresiones</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <BarChart3 className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.totalClicks.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Clics</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <FileText className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{stats.openContracts}</p>
+                    <p className="text-xs text-muted-foreground">Contratos</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'ads' && <AdvertisementManager businessId={user?.id || ''} subscription={subscription} onUpdate={refetch} />}
+          
+          {activeTab === 'contracts' && <ContractsManager businessId={user?.id || ''} subscription={subscription} onUpdate={refetch} />}
+          
+          {activeTab === 'analytics' && <AnalyticsDashboard businessId={user?.id || ''} subscription={subscription} />}
+          
+          {activeTab === 'search' && <MasterSearch businessId={user?.id || ''} />}
+          
+          {activeTab === 'notifications' && <BusinessNotifications businessId={user?.id || ''} />}
+          
+          {activeTab === 'subscription' && (
+            <BusinessSubscriptionPlans 
+              businessId={user?.id || ''}
+              currentSubscription={subscription}
+              onUpdate={refetch}
+            />
+          )}
+          
+          {activeTab === 'profile' && <BusinessProfile businessId={user?.id || ''} businessProfile={businessProfile} onUpdate={refetch} />}
+          
+          {activeTab === 'marketplace' && (
+            subscription?.status === 'active' ? (
+              <MarketplaceFeed />
+            ) : (
+              <Card className="border-amber-500/20 bg-amber-500/5">
+                <CardContent className="p-6 text-center">
+                  <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-amber-500" />
+                  <h3 className="font-semibold mb-2">Suscripción Requerida</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Necesitas una suscripción activa para acceder al marketplace
+                  </p>
+                  <Button onClick={() => setActiveTab('subscription')}>
+                    Ver planes
+                  </Button>
+                </CardContent>
+              </Card>
+            )
+          )}
+        </main>
+        
+        <BottomNav userType="business" />
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
     <div className="min-h-screen bg-background">
       <Header userType="business" />
