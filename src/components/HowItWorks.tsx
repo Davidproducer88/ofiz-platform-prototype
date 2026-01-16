@@ -119,10 +119,6 @@ export const HowItWorks = () => {
                   </Card>
                 </div>
 
-                {/* Connector line */}
-                {index < steps.length - 1 && <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-0.5 h-24 bg-gradient-to-b from-primary via-accent to-secondary opacity-30" style={{
-              top: `${(index + 1) * 280}px`
-            }} />}
               </div>;
         })}
         </div>
