@@ -1,12 +1,11 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // useEffect to avoid hydration mismatch
@@ -16,23 +15,32 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon">
-        <Sun className="h-4 w-4" />
-      </Button>
+      <div className="flex items-center space-x-2">
+        <Sun className="h-4 w-4 text-muted-foreground" />
+        <Switch disabled className="data-[state=unchecked]:bg-muted" />
+        <Moon className="h-4 w-4 text-muted-foreground" />
+      </div>
     );
   }
 
-  const isDark = theme === "dark";
+  // Use resolvedTheme to get the actual theme (handles "system" theme)
+  const isDark = resolvedTheme === "dark";
+
+  const handleToggle = (checked: boolean) => {
+    // Set explicit theme (light or dark), not system
+    setTheme(checked ? "dark" : "light");
+  };
 
   return (
     <div className="flex items-center space-x-2">
-      <Sun className="h-4 w-4 text-muted-foreground" />
+      <Sun className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       <Switch
         checked={isDark}
-        onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+        onCheckedChange={handleToggle}
         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
+        aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       />
-      <Moon className="h-4 w-4 text-muted-foreground" />
+      <Moon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
     </div>
   );
 }
