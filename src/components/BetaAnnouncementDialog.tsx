@@ -7,7 +7,7 @@ export const BetaAnnouncementDialog = () => {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     // Check if user has already seen the announcement
-    const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen-v3");
+    const hasSeenAnnouncement = localStorage.getItem("beta-announcement-seen-v4");
     if (!hasSeenAnnouncement) {
       // Show dialog after a short delay for better UX
       const timer = setTimeout(() => {
@@ -17,7 +17,7 @@ export const BetaAnnouncementDialog = () => {
     }
   }, []);
   const handleClose = () => {
-    localStorage.setItem("beta-announcement-seen-v3", "true");
+    localStorage.setItem("beta-announcement-seen-v4", "true");
     setOpen(false);
   };
   return <Dialog open={open} onOpenChange={setOpen}>
@@ -115,17 +115,10 @@ export const BetaAnnouncementDialog = () => {
             </h4>
             <ul className="space-y-2 md:space-y-3 text-xs md:text-sm">
               <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
-                <span className="text-primary text-base md:text-lg flex-shrink-0">🎁</span>
-                <div>
-                  <span className="font-bold text-sm md:text-base">1 MES GRATIS</span>
-                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Prueba cualquier plan Premium sin costo durante 30 días desde el lanzamiento oficial</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
                 <span className="text-primary text-base md:text-lg flex-shrink-0">💰</span>
                 <div>
-                  <span className="font-bold text-sm md:text-base">10% DE DESCUENTO TEMPORAL</span>
-                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Después del mes gratis, obtén 10% de descuento por 3 meses en todos los planes</p>
+                  <span className="font-bold text-sm md:text-base">20% DE DESCUENTO PERMANENTE</span>
+                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Descuento exclusivo en todos tus servicios de por vida como usuario fundador</p>
                 </div>
               </li>
               <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
@@ -142,11 +135,17 @@ export const BetaAnnouncementDialog = () => {
                   <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Sé el primero en probar nuevas funcionalidades antes del lanzamiento público</p>
                 </div>
               </li>
-              
+              <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
+                <span className="text-primary text-base md:text-lg flex-shrink-0">🎯</span>
+                <div>
+                  <span className="font-bold text-sm md:text-base">SOPORTE PRIORITARIO</span>
+                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Atención preferencial y canal directo con el equipo de Ofiz</p>
+                </div>
+              </li>
             </ul>
             <div className="mt-3 md:mt-4 p-2 md:p-3 bg-primary/10 rounded-lg border border-primary/30">
               <p className="text-center text-xs md:text-sm font-semibold">
-                ⏰ Oferta limitada: Solo para los primeros 1,000 usuarios registrados
+                ⏰ Oferta limitada: Solo para los primeros 100 usuarios registrados
               </p>
             </div>
           </div>

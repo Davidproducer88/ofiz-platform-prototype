@@ -185,8 +185,8 @@ export const demoPayments = [
     id: 'pay-1',
     service: 'Instalación de Luces LED',
     amount: 3500,
-    commission: 420,
-    master_amount: 3080,
+    commission: 175, // 5% de comisión Ofiz
+    master_amount: 3325,
     status: 'approved',
     date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
     method: 'credit_card',
@@ -195,8 +195,8 @@ export const demoPayments = [
     id: 'pay-2',
     service: 'Reparación de Plomería',
     amount: 2800,
-    commission: 336,
-    master_amount: 2464,
+    commission: 140, // 5% de comisión Ofiz
+    master_amount: 2660,
     status: 'approved',
     date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
     method: 'debit_card',
@@ -205,8 +205,8 @@ export const demoPayments = [
     id: 'pay-3',
     service: 'Biblioteca a Medida',
     amount: 15000,
-    commission: 1800,
-    master_amount: 13200,
+    commission: 750, // 5% de comisión Ofiz
+    master_amount: 14250,
     status: 'approved',
     date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
     method: 'mercadopago',
