@@ -81,7 +81,7 @@ export const ServiceCategories = () => {
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent pointer-events-none" />
       
-      <div className="container py-[34px] px-[34px]">
+      <div className="container">
         {/* Header */}
         <div ref={headerRef as any} className={`text-center mb-16 space-y-4 transition-all duration-1000 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <Badge className="bg-secondary/10 text-secondary border-secondary/20 mb-2 shadow-soft">
@@ -115,21 +115,20 @@ export const ServiceCategories = () => {
         <div ref={bannerRef as any} className={`relative rounded-2xl overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-1000 group ${bannerVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
           <img src={servicesGrid} alt="Servicios disponibles en Ofiz" className="w-full h-64 md:h-80 object-cover transition-transform duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-secondary/90 flex items-center justify-center">
-            <div className="text-center text-white space-y-6 p-8 py-0 px-[29px] my-0 mx-0">
-              <div className="inline-block">
+            <div className="text-center text-white space-y-6 p-8">
+              <div className="inline-block px-0 py-0 my-0 mx-0">
                 <Edit className="h-12 w-12 mb-4 animate-float" />
               </div>
-              <h3 className="text-3xl md:text-4xl font-bold drop-shadow-lg">
-                ¿Necesitás otro tipo de servicio?
-              </h3>
-              <p className="md:text-xl opacity-90 max-w-xl mx-auto text-base">
+              <h3 className="md:text-4xl font-bold drop-shadow-lg text-xl py-0 text-center px-px my-0 mx-0">¿Necesitás otro tipo
+de servicio?</h3>
+              <p className="md:text-xl opacity-90 max-w-xl text-sm text-center px-0 py-0 my-[2px] mx-0">
                 Publicá tu solicitud GRATIS y recibí hasta <span className="font-bold">5 presupuestos</span> de profesionales especializados
               </p>
-              <div className="flex-wrap pt-2 flex-row flex items-center justify-center gap-[23px] my-0 mx-[26px]">
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm text-sm px-[20px] py-[6px] my-0 rounded-md mx-0">
+              <div className="flex-wrap pt-2 items-start justify-center flex flex-row gap-[11px] px-0 my-0 mx-0">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
                   +50 especialidades
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm border-0 rounded-sm">
                   Respuesta en 24hs
                 </Badge>
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
