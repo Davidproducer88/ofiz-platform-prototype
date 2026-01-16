@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { User, Briefcase, ArrowRight, CheckCircle, Star, Shield, Clock, Building2, Megaphone } from "lucide-react";
+import logoOfiz from "@/assets/logo-ofiz-new.png";
+
 interface UserTypeSelectorProps {
   onSelect: (type: 'client' | 'master' | 'business') => void;
   onLoginClick?: () => void;
@@ -24,7 +26,7 @@ export const UserTypeSelector = ({
       <div className="container max-w-7xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="text-3xl font-bold gradient-text mb-4">Ofiz</div>
+          <img src={logoOfiz} alt="Ofiz" className="h-12 mx-auto mb-4" />
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             ¿Cómo querés usar Ofiz?
           </h1>
