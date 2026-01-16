@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { User, Briefcase, ArrowRight, CheckCircle, Star, Shield, Clock, Building2, Megaphone } from "lucide-react";
 import logoOfiz from "@/assets/logo-ofiz-new.png";
-
 interface UserTypeSelectorProps {
   onSelect: (type: 'client' | 'master' | 'business') => void;
   onLoginClick?: () => void;
@@ -14,7 +13,6 @@ export const UserTypeSelector = ({
   onLoginClick
 }: UserTypeSelectorProps) => {
   const navigate = useNavigate();
-  
   const handleLoginClick = () => {
     if (onLoginClick) {
       onLoginClick();
@@ -36,7 +34,7 @@ export const UserTypeSelector = ({
         </div>
 
         {/* Options */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 my-0 mx-0 px-0 py-0">
           {/* Client Option */}
           <Card className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 hover:border-primary/50">
             <CardHeader className="text-center pb-4">
