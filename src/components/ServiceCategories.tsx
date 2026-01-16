@@ -114,12 +114,12 @@ export const ServiceCategories = () => {
         {/* Banner Image - Enhanced */}
         <div ref={bannerRef as any} className={`relative rounded-2xl overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-1000 group ${bannerVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
           <img src={servicesGrid} alt="Servicios disponibles en Ofiz" className="w-full h-64 md:h-80 object-cover transition-transform duration-700 group-hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-secondary/90 flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-secondary/90 items-center justify-center flex flex-row gap-0">
             <div className="text-center text-white space-y-6 p-8">
               <div className="inline-block px-0 py-0 my-0 mx-0">
                 <Edit className="h-12 w-12 mb-4 animate-float" />
               </div>
-              <h3 className="md:text-4xl font-bold drop-shadow-lg text-xl py-0 text-center px-px my-0 mx-0">¿Necesitás otro tipo
+              <h3 className="md:text-4xl font-bold drop-shadow-lg text-xl text-center mx-0 px-0 py-px my-[3px]">¿Necesitás otro tipo
 de servicio?</h3>
               <p className="md:text-xl opacity-90 max-w-xl text-sm text-center px-0 py-0 my-[2px] mx-0">
                 Publicá tu solicitud GRATIS y recibí hasta <span className="font-bold">5 presupuestos</span> de profesionales especializados
@@ -128,10 +128,10 @@ de servicio?</h3>
                 <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
                   +50 especialidades
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm border-0 rounded-sm">
                   Respuesta en 24hs
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
                   100% Gratis
                 </Badge>
               </div>
