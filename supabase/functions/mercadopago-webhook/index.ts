@@ -334,6 +334,83 @@ serve(async (req) => {
           paymentStatus = 'pending';
       }
 
+      // Check if it's a master subscription payment
+      if (metadata.type === 'master_subscription') {
+        console.log('Processing master subscription payment for:', externalReference);
+        
+        const masterId = metadata.master_id || externalReference.replace('sub-', '').replace(/-basic_plus|-basic|-pro|-premium/g, '');
+        const planId = metadata.plan_id || 'basic_plus';
+        const planName = metadata.plan_name || 'Basic Plus';
+        
+        console.log('Master ID:', masterId, 'Plan:', planId);
+        
+        if (status === 'approved') {
+          // Check if subscription already exists
+          const { data: existingSub } = await supabaseClient
+            .from('subscriptions')
+            .select('id')
+            .eq('master_id', masterId)
+            .maybeSingle();
+          
+          const now = new Date();
+          const nextMonth = new Date(now);
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          
+          if (existingSub) {
+            // Update existing subscription
+            const { error: updateError } = await supabaseClient
+              .from('subscriptions')
+              .update({
+                plan: planId,
+                status: 'active',
+                current_period_start: now.toISOString(),
+                current_period_end: nextMonth.toISOString(),
+                mercadopago_payment_id: paymentId.toString(),
+                updated_at: now.toISOString()
+              })
+              .eq('master_id', masterId);
+            
+            if (updateError) {
+              console.error('Error updating master subscription:', updateError);
+              throw updateError;
+            }
+            console.log('Master subscription updated successfully:', masterId, planId);
+          } else {
+            // Create new subscription
+            const { error: insertError } = await supabaseClient
+              .from('subscriptions')
+              .insert({
+                master_id: masterId,
+                plan: planId,
+                status: 'active',
+                current_period_start: now.toISOString(),
+                current_period_end: nextMonth.toISOString(),
+                mercadopago_payment_id: paymentId.toString()
+              });
+            
+            if (insertError) {
+              console.error('Error creating master subscription:', insertError);
+              throw insertError;
+            }
+            console.log('Master subscription created successfully:', masterId, planId);
+          }
+          
+          // Create notification
+          await supabaseClient.from('notifications').insert({
+            user_id: masterId,
+            type: 'subscription_activated',
+            title: '🎉 ¡Suscripción activada!',
+            message: `Tu plan ${planName} ha sido activado exitosamente.`,
+            metadata: { plan_id: planId, payment_id: paymentId.toString() }
+          });
+        }
+        
+        return new Response(
+          JSON.stringify({ received: true, type: 'master_subscription' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+      
       // Check if it's a marketplace payment or booking payment
       if (metadata.type === 'marketplace') {
         console.log('Processing marketplace payment for order:', externalReference);
