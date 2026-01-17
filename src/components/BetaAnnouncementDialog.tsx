@@ -132,7 +132,7 @@ export const BetaAnnouncementDialog = () => {
                 <span className="text-primary text-base md:text-lg flex-shrink-0">🚀</span>
                 <div>
                   <span className="font-bold text-sm md:text-base">ACCESO ANTICIPADO</span>
-                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Sé el primero en probar nuevas funcionalidades antes del lanzamiento público</p>
+                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Sé el primero en probar nuevas funcionalidades antes del lanzamiento oficial</p>
                 </div>
               </li>
               <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
