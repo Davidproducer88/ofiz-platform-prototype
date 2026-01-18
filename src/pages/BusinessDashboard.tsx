@@ -20,7 +20,6 @@ import {
   Settings,
   Package,
   AlertTriangle,
-  Download,
   Sparkles,
   Target,
   Zap,
@@ -272,27 +271,14 @@ export default function BusinessDashboard() {
                   </Badge>
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
-                  onClick={() => window.open('/dossier-empresas', '_blank')}
-                >
-                  <FileText className="h-5 w-5 mr-2" />
-                  Ver Dossier Empresarial
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    window.open('/dossier-empresas', '_blank');
-                    setTimeout(() => window.print(), 1000);
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar PDF
-                </Button>
-              </div>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
+                onClick={() => window.open('/dossier-empresas', '_blank')}
+              >
+                <FileText className="h-5 w-5 mr-2" />
+                Conoce Ofiz Business
+              </Button>
             </div>
           </CardContent>
         </Card>
