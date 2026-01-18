@@ -65,6 +65,7 @@ import { MobileClientHome } from '@/components/mobile/MobileClientHome';
 import { MobileServiceCard } from '@/components/mobile/MobileServiceCard';
 import { MobileBookingCard } from '@/components/mobile/MobileBookingCard';
 import { MobileServiceRequestWizard } from '@/components/mobile/MobileServiceRequestWizard';
+import { PostServiceFeedback } from '@/components/client/PostServiceFeedback';
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
@@ -237,6 +238,9 @@ const ClientDashboard = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
+        {/* Post-service feedback (rating + tip) */}
+        {profile?.id && <PostServiceFeedback clientId={profile.id} />}
+        
         {/* Header Mobile */}
         <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 shadow-sm">
           <div className="flex items-center justify-between">
@@ -455,6 +459,9 @@ const ClientDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header userType="client" />
+      
+      {/* Post-service feedback (rating + tip) */}
+      {profile?.id && <PostServiceFeedback clientId={profile.id} />}
       
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}

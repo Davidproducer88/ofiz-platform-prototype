@@ -108,6 +108,7 @@ export type Database = {
           pending_amount: number | null
           platform_fee: number | null
           price_base: number | null
+          quick_rating_shown: boolean | null
           scheduled_date: string
           service_id: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
@@ -131,6 +132,7 @@ export type Database = {
           pending_amount?: number | null
           platform_fee?: number | null
           price_base?: number | null
+          quick_rating_shown?: boolean | null
           scheduled_date: string
           service_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
@@ -154,6 +156,7 @@ export type Database = {
           pending_amount?: number | null
           platform_fee?: number | null
           price_base?: number | null
+          quick_rating_shown?: boolean | null
           scheduled_date?: string
           service_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
@@ -1656,6 +1659,7 @@ export type Database = {
           remaining_amount: number | null
           remaining_payment_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
+          tip_amount: number | null
           updated_at: string
         }
         Insert: {
@@ -1679,6 +1683,7 @@ export type Database = {
           remaining_amount?: number | null
           remaining_payment_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          tip_amount?: number | null
           updated_at?: string
         }
         Update: {
@@ -1702,6 +1707,7 @@ export type Database = {
           remaining_amount?: number | null
           remaining_payment_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          tip_amount?: number | null
           updated_at?: string
         }
         Relationships: [
