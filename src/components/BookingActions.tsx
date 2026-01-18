@@ -8,6 +8,7 @@ import { PaymentButton } from '@/components/PaymentButton';
 import { RemainingPaymentDialog } from '@/components/RemainingPaymentDialog';
 import { DisputeDialog } from '@/components/DisputeDialog';
 import { supabase } from '@/integrations/supabase/client';
+import { sendWorkCompletedEmail } from '@/services/emailService';
 
 interface BookingActionsProps {
   booking: {
@@ -101,6 +102,11 @@ export const BookingActions = ({
         .eq('id', booking.id);
 
       if (error) throw error;
+
+      // Send work completed email to client
+      sendWorkCompletedEmail(booking.id).catch(err => 
+        console.error('Failed to send work completed email:', err)
+      );
 
       toast({
         title: "Trabajo confirmado",
