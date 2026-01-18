@@ -11,20 +11,18 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Building2, 
   TrendingUp, 
-  Users, 
+  Users,
   DollarSign,
   Calendar,
   BarChart3,
   Megaphone,
   FileText,
-  Settings,
-  Package,
   AlertTriangle,
   Sparkles,
   Target,
   Zap,
-  Store,
-  Bell
+  Bell,
+  MessageSquare
 } from "lucide-react";
 import { BusinessProfile } from "@/components/business/BusinessProfile";
 import { BusinessSubscriptionPlans } from "@/components/business/BusinessSubscriptionPlans";
@@ -34,6 +32,7 @@ import { AnalyticsDashboard } from "@/components/business/AnalyticsDashboard";
 import { BillingCenter } from "@/components/business/BillingCenter";
 import { BusinessNotifications } from "@/components/business/BusinessNotifications";
 import { MasterSearch } from "@/components/business/MasterSearch";
+import { BusinessChatTab } from "@/components/business/BusinessChatTab";
 import { Feed } from "@/components/Feed";
 import { MarketplaceFeed } from "@/components/MarketplaceFeed";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -168,6 +167,8 @@ export default function BusinessDashboard() {
           {activeTab === 'analytics' && <AnalyticsDashboard businessId={user?.id || ''} subscription={subscription} />}
           
           {activeTab === 'search' && <MasterSearch businessId={user?.id || ''} />}
+          
+          {activeTab === 'chat' && <BusinessChatTab businessId={user?.id || ''} />}
           
           {activeTab === 'notifications' && <BusinessNotifications businessId={user?.id || ''} />}
           
@@ -388,12 +389,16 @@ export default function BusinessDashboard() {
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className={cn(
-            "grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto p-1",
+            "grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 xl:grid-cols-12 gap-1 h-auto p-1",
             isMobile && "hidden"
           )}>
             <TabsTrigger value="home" className="text-xs sm:text-sm md:hidden">Inicio</TabsTrigger>
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
+            <TabsTrigger value="chat" className="text-xs sm:text-sm gap-1">
+              <MessageSquare className="h-3 w-3" />
+              Chat
+            </TabsTrigger>
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Resumen</TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analíticas</TabsTrigger>
             <TabsTrigger value="ads" className="text-xs sm:text-sm">Publicidad</TabsTrigger>
@@ -453,6 +458,10 @@ export default function BusinessDashboard() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <BusinessChatTab businessId={user?.id || ''} />
           </TabsContent>
 
           <TabsContent value="overview">
