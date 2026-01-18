@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Users, Calendar, DollarSign, MapPin, FileText } from "lucide-react";
+import { Plus, Users, Calendar, DollarSign, MapPin, FileText, MessageCircle } from "lucide-react";
 import { ContractPaymentCheckoutBrick } from "./ContractPaymentCheckoutBrick";
+import { useNavigate } from "react-router-dom";
 
 interface ContractsManagerProps {
   businessId: string;
@@ -20,6 +21,7 @@ interface ContractsManagerProps {
 
 export const ContractsManager = ({ businessId, subscription, onUpdate }: ContractsManagerProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -177,10 +179,50 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
 
   const handlePaymentSuccess = async (paymentData: any) => {
     console.log('Payment successful:', paymentData);
-    toast({
-      title: "¡Pago exitoso!",
-      description: "El contrato ha sido asignado al profesional",
-    });
+    
+    // Create or find conversation with the master
+    if (selectedApplication) {
+      try {
+        // Check if conversation exists
+        const { data: existingConvo } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('client_id', businessId)
+          .eq('master_id', selectedApplication.master_id)
+          .maybeSingle();
+
+        if (!existingConvo) {
+          // Create new conversation
+          const { data: newConvo, error: convoError } = await supabase
+            .from('conversations')
+            .insert({
+              client_id: businessId,
+              master_id: selectedApplication.master_id
+            })
+            .select('id')
+            .single();
+
+          if (convoError) throw convoError;
+
+          // Send initial message
+          if (newConvo) {
+            await supabase.from('messages').insert({
+              conversation_id: newConvo.id,
+              sender_id: businessId,
+              content: `¡Hola! Te he seleccionado para el contrato. Estoy emocionado de trabajar contigo. ¿Podemos coordinar los detalles?`
+            });
+          }
+        }
+
+        toast({
+          title: "¡Contrato asignado!",
+          description: "Se ha creado un chat con el profesional. Puedes contactarlo desde tu dashboard.",
+        });
+      } catch (error) {
+        console.error('Error creating conversation:', error);
+      }
+    }
+
     setShowPaymentDialog(false);
     setSelectedApplication(null);
     if (selectedContract) {
@@ -188,6 +230,44 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
     }
     fetchContracts();
     onUpdate();
+  };
+
+  const startChatWithMaster = async (masterId: string) => {
+    try {
+      // Check if conversation exists
+      const { data: existingConvo } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('client_id', businessId)
+        .eq('master_id', masterId)
+        .maybeSingle();
+
+      if (existingConvo) {
+        navigate(`/business-dashboard?tab=chat&conversation=${existingConvo.id}`);
+      } else {
+        // Create new conversation
+        const { data: newConvo, error } = await supabase
+          .from('conversations')
+          .insert({
+            client_id: businessId,
+            master_id: masterId
+          })
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        if (newConvo) {
+          navigate(`/business-dashboard?tab=chat&conversation=${newConvo.id}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error starting chat:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo iniciar el chat",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePaymentError = (error: any) => {
@@ -524,6 +604,16 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
                           Rechazar
                         </Button>
                       </div>
+                    )}
+                    {app.status === 'accepted' && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => startChatWithMaster(app.master_id)}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Chatear con Profesional
+                      </Button>
                     )}
                   </CardContent>
                 </Card>

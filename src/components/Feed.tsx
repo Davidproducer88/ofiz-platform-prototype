@@ -8,6 +8,7 @@ import { RefreshCw, Briefcase, Search, Plus, Store, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { MarketplaceFeed } from './MarketplaceFeed';
+import { SponsoredAdBanner } from './business/SponsoredAdBanner';
 
 export const Feed = () => {
   const navigate = useNavigate();
@@ -99,56 +100,71 @@ export const Feed = () => {
               </div>
             </div>
 
+            {/* Sponsored Ad Banner at top */}
+            <SponsoredAdBanner 
+              targetAudience={user ? 'clients' : 'all'} 
+              variant="banner" 
+            />
+
             <div className="space-y-4 max-w-4xl mx-auto">
-          {feedItems.map((item, index) => (
-            <div 
-              key={`${item.type}-${item.id}-${index}`} 
-              id={`feed-item-${index}`}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <FeedCard item={item} onInteraction={trackInteraction} />
-            </div>
-          ))}
-
-          {loading && (
-            <>
-              {[1, 2, 3].map(i => (
-                <Skeleton key={`skeleton-${i}`} className="h-64 w-full rounded-lg" />
+              {feedItems.map((item, index) => (
+                <div 
+                  key={`${item.type}-${item.id}-${index}`} 
+                  id={`feed-item-${index}`}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* Insert sponsored ad every 5 items */}
+                  {index > 0 && index % 5 === 0 && (
+                    <div className="mb-4">
+                      <SponsoredAdBanner 
+                        targetAudience={user ? 'clients' : 'all'} 
+                        variant="feed" 
+                      />
+                    </div>
+                  )}
+                  <FeedCard item={item} onInteraction={trackInteraction} />
+                </div>
               ))}
-            </>
-          )}
 
-          <div ref={observerTarget} className="h-20 flex items-center justify-center">
-            {!loading && hasMore && (
-              <p className="text-sm text-muted-foreground">Cargando más contenido...</p>
-            )}
-            {!loading && !hasMore && feedItems.length > 0 && (
-              <p className="text-sm text-muted-foreground">Has visto todo el contenido</p>
-            )}
-          </div>
+              {loading && (
+                <>
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={`skeleton-${i}`} className="h-64 w-full rounded-lg" />
+                  ))}
+                </>
+              )}
 
-          {!loading && feedItems.length === 0 && (
-            <div className="text-center py-12">
-              <Briefcase className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No hay contenido disponible</h3>
-              <p className="text-muted-foreground mb-4">
-                {user ? 'Empieza creando una solicitud de servicio o busca profesionales' : 'Inicia sesión para ver servicios y solicitudes'}
-              </p>
-              <div className="flex gap-2 justify-center">
-                <Button onClick={() => navigate('/search-masters')}>
-                  <Search className="mr-2 h-4 w-4" />
-                  Buscar Profesionales
-                </Button>
-                {user && (
-                  <Button variant="outline" onClick={() => navigate('/client-dashboard?tab=requests')}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Crear Solicitud
-                  </Button>
+              <div ref={observerTarget} className="h-20 flex items-center justify-center">
+                {!loading && hasMore && (
+                  <p className="text-sm text-muted-foreground">Cargando más contenido...</p>
+                )}
+                {!loading && !hasMore && feedItems.length > 0 && (
+                  <p className="text-sm text-muted-foreground">Has visto todo el contenido</p>
                 )}
               </div>
-            </div>
-          )}
+
+              {!loading && feedItems.length === 0 && (
+                <div className="text-center py-12">
+                  <Briefcase className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No hay contenido disponible</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {user ? 'Empieza creando una solicitud de servicio o busca profesionales' : 'Inicia sesión para ver servicios y solicitudes'}
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <Button onClick={() => navigate('/search-masters')}>
+                      <Search className="mr-2 h-4 w-4" />
+                      Buscar Profesionales
+                    </Button>
+                    {user && (
+                      <Button variant="outline" onClick={() => navigate('/client-dashboard?tab=requests')}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Crear Solicitud
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 

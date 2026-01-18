@@ -55,6 +55,7 @@ import { MobileBookingCard } from '@/components/mobile/MobileBookingCard';
 import { MobileServiceRequestWizard } from '@/components/mobile/MobileServiceRequestWizard';
 import { PostServiceFeedback } from '@/components/client/PostServiceFeedback';
 import { BadgesDisplay } from '@/components/gamification/BadgesDisplay';
+import { SponsoredAdBanner } from '@/components/business/SponsoredAdBanner';
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
