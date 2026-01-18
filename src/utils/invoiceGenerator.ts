@@ -23,10 +23,10 @@ export const generateInvoicePDF = (data: InvoiceData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   
-  // Colors - using tuple types for TypeScript
-  const primaryColor: [number, number, number] = [16, 185, 129]; // Emerald
-  const textColor: [number, number, number] = [31, 41, 55];
-  const mutedColor: [number, number, number] = [107, 114, 128];
+  // Colors
+  const primaryColor = [16, 185, 129] as const;
+  const textColor = [31, 41, 55] as const;
+  const mutedColor = [107, 114, 128] as const;
 
   // Header with logo
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -48,7 +48,7 @@ export const generateInvoicePDF = (data: InvoiceData) => {
   doc.text(format(data.date, "d 'de' MMMM, yyyy", { locale: es }), pageWidth - 20, 28, { align: 'right' });
 
   // Status badge
-  const statusColor: [number, number, number] = data.paymentStatus === 'completed' ? [34, 197, 94] : [234, 179, 8];
+  const statusColor = data.paymentStatus === 'completed' ? [34, 197, 94] as const : [234, 179, 8] as const;
   const statusText = data.paymentStatus === 'completed' ? 'PAGADO' : 'PENDIENTE';
   doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
   doc.roundedRect(pageWidth - 50, 32, 35, 8, 2, 2, 'F');
@@ -260,6 +260,20 @@ export const generateServiceHistoryPDF = (
   yPos += 12;
   doc.setFont('helvetica', 'normal');
   
+  const statusColors: Record<string, readonly [number, number, number]> = {
+    completed: [34, 197, 94] as const,
+    pending: [234, 179, 8] as const,
+    cancelled: [239, 68, 68] as const,
+    confirmed: [59, 130, 246] as const
+  };
+  
+  const statusLabels: Record<string, string> = {
+    completed: 'Completado',
+    pending: 'Pendiente',
+    cancelled: 'Cancelado',
+    confirmed: 'Confirmado'
+  };
+
   bookings.forEach((booking, index) => {
     if (yPos > 270) {
       doc.addPage();
@@ -277,20 +291,7 @@ export const generateServiceHistoryPDF = (
     doc.text(booking.service_name.substring(0, 20), 55, yPos + 2);
     doc.text(booking.master_name.substring(0, 15), 110, yPos + 2);
     
-    const statusColors: Record<string, [number, number, number]> = {
-      completed: [34, 197, 94],
-      pending: [234, 179, 8],
-      cancelled: [239, 68, 68],
-      confirmed: [59, 130, 246]
-    };
-    const statusLabels: Record<string, string> = {
-      completed: 'Completado',
-      pending: 'Pendiente',
-      cancelled: 'Cancelado',
-      confirmed: 'Confirmado'
-    };
-    
-    const statusClr = statusColors[booking.status] || [107, 114, 128] as [number, number, number];
+    const statusClr = statusColors[booking.status] || ([107, 114, 128] as const);
     doc.setTextColor(statusClr[0], statusClr[1], statusClr[2]);
     doc.text(statusLabels[booking.status] || booking.status, 150, yPos + 2);
     
