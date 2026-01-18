@@ -788,15 +788,15 @@ const MasterDashboard = () => {
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                     <Award className="h-3 w-3 mr-1" />
-                    Planes Premium desde $2,990 UYU
+                    Plan Básico Gratis
                   </Badge>
                   <Badge variant="secondary" className="bg-secondary/10 text-secondary border-secondary/20">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    ROI de +4,900%
+                    Aumenta tu Visibilidad
                   </Badge>
                   <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/20">
                     <Star className="h-3 w-3 mr-1" />
-                    Casos de Éxito Reales
+                    Sin Comisiones Ocultas
                   </Badge>
                 </div>
               </div>
