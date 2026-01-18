@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Receipt, CreditCard, Calendar, DollarSign, FileText, ExternalLink } from "lucide-react";
+import { Download, Receipt, CreditCard, Calendar, DollarSign, FileText, ExternalLink, Printer } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import jsPDF from 'jspdf';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface BillingCenterProps {
   businessId: string;
@@ -102,6 +105,123 @@ export const BillingCenter = ({ businessId, subscription }: BillingCenterProps) 
     };
 
     return <Badge variant={variants[status] || 'outline'}>{labels[status] || status}</Badge>;
+  };
+
+  const generatePDFInvoice = (transaction: any) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFillColor(16, 185, 129);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(28);
+    doc.setFont('helvetica', 'bold');
+    doc.text('OFIZ', 20, 25);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Factura Empresarial', 20, 33);
+    
+    // Invoice number and date
+    doc.setFontSize(12);
+    doc.text(`N° ${transaction.id.slice(0, 8).toUpperCase()}`, pageWidth - 20, 20, { align: 'right' });
+    doc.setFontSize(10);
+    doc.text(format(new Date(transaction.date), "d 'de' MMMM, yyyy", { locale: es }), pageWidth - 20, 28, { align: 'right' });
+
+    // Status badge
+    const statusColor = transaction.status === 'active' ? [34, 197, 94] as const : [234, 179, 8] as const;
+    const statusText = transaction.status === 'active' ? 'PAGADO' : 'PENDIENTE';
+    doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+    doc.roundedRect(pageWidth - 50, 32, 35, 8, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.text(statusText, pageWidth - 32.5, 37.5, { align: 'center' });
+
+    // Business info section
+    let yPos = 55;
+    doc.setTextColor(107, 114, 128);
+    doc.setFontSize(9);
+    doc.text('EMPRESA', 20, yPos);
+    
+    doc.setTextColor(31, 41, 55);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Tu Empresa', 20, yPos + 7);
+
+    // Divider
+    yPos += 30;
+    doc.setDrawColor(16, 185, 129);
+    doc.setLineWidth(0.5);
+    doc.line(20, yPos, pageWidth - 20, yPos);
+
+    // Transaction details table
+    yPos += 15;
+    doc.setFillColor(249, 250, 251);
+    doc.rect(20, yPos, pageWidth - 40, 10, 'F');
+    
+    doc.setTextColor(107, 114, 128);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONCEPTO', 25, yPos + 7);
+    doc.text('TIPO', 100, yPos + 7);
+    doc.text('MONTO', pageWidth - 40, yPos + 7, { align: 'right' });
+
+    yPos += 15;
+    doc.setTextColor(31, 41, 55);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(transaction.description, 25, yPos + 5);
+    doc.text(transaction.type === 'subscription' ? 'Suscripción' : 'Publicidad', 100, yPos + 5);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`$${transaction.amount.toLocaleString('es-CL')}`, pageWidth - 40, yPos + 5, { align: 'right' });
+
+    // Totals
+    yPos += 30;
+    doc.setDrawColor(229, 231, 235);
+    doc.line(pageWidth - 100, yPos, pageWidth - 20, yPos);
+    
+    yPos += 10;
+    doc.setFillColor(16, 185, 129);
+    doc.rect(pageWidth - 100, yPos - 5, 80, 12, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TOTAL:', pageWidth - 95, yPos + 3);
+    doc.text(`$${transaction.amount.toLocaleString('es-CL')}`, pageWidth - 25, yPos + 3, { align: 'right' });
+
+    // Additional info
+    yPos += 25;
+    if (transaction.type === 'advertisement' && transaction.impressions > 0) {
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Impresiones: ${transaction.impressions.toLocaleString()}`, 20, yPos);
+    }
+    if (transaction.recurring) {
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(9);
+      doc.text('Tipo: Pago recurrente', 20, yPos + 10);
+    }
+
+    // Footer
+    const footerY = doc.internal.pageSize.getHeight() - 30;
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, footerY - 10, pageWidth - 20, footerY - 10);
+    
+    doc.setTextColor(107, 114, 128);
+    doc.setFontSize(8);
+    doc.text('Este documento es una factura generada por Ofiz Business.', pageWidth / 2, footerY, { align: 'center' });
+    doc.text('Para consultas: soporte@ofiz.cl | www.ofiz.com.uy', pageWidth / 2, footerY + 6, { align: 'center' });
+    doc.text(`Generado el ${format(new Date(), "d/MM/yyyy 'a las' HH:mm", { locale: es })}`, pageWidth / 2, footerY + 12, { align: 'center' });
+
+    doc.save(`factura-ofiz-${transaction.id.slice(0, 8)}.pdf`);
+    
+    toast({
+      title: "Factura descargada",
+      description: "La factura PDF ha sido generada correctamente",
+    });
   };
 
   if (loading) {
@@ -280,41 +400,10 @@ export const BillingCenter = ({ businessId, subscription }: BillingCenterProps) 
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          // Generate simple receipt
-                          const receiptText = `
-COMPROBANTE DE TRANSACCIÓN - OFIZ BUSINESS
-==========================================
-
-Fecha: ${new Date(transaction.date).toLocaleDateString()}
-Descripción: ${transaction.description}
-Tipo: ${transaction.type === 'subscription' ? 'Suscripción' : 'Publicidad'}
-Estado: ${transaction.status}
-Monto: $${transaction.amount.toLocaleString()}
-
-${transaction.type === 'advertisement' && transaction.impressions > 0 ? `Impresiones: ${transaction.impressions.toLocaleString()}\n` : ''}
-${transaction.recurring ? 'Pago recurrente\n' : ''}
-==========================================
-Generado el ${new Date().toLocaleString()}
-                          `.trim();
-
-                          const blob = new Blob([receiptText], { type: 'text/plain' });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `comprobante-${transaction.id}.txt`;
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          URL.revokeObjectURL(url);
-
-                          toast({
-                            title: "Comprobante descargado",
-                            description: "El comprobante ha sido descargado exitosamente",
-                          });
-                        }}
+                        onClick={() => generatePDFInvoice(transaction)}
+                        title="Descargar factura PDF"
                       >
-                        <Download className="h-4 w-4" />
+                        <Printer className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
