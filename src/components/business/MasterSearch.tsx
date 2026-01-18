@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Search, MapPin, Star, Award, DollarSign, Calendar, Mail } from "lucide-react";
+import { useBusinessSubscriptionLimits } from "@/hooks/useBusinessSubscriptionLimits";
+import { Search, MapPin, Star, Award, DollarSign, Calendar, Mail, Crown, Lock, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MasterSearchProps {
@@ -16,6 +20,7 @@ interface MasterSearchProps {
 
 export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
   const { toast } = useToast();
+  const { limits, checkAndConsumeContact } = useBusinessSubscriptionLimits(businessId);
   const [masters, setMasters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +28,12 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
     category: 'all',
     minRating: 0,
     maxHourlyRate: 10000,
-    verified: false
+    verified: false,
+    // Filtros premium
+    topRated: false,
+    fastResponse: false,
+    featured: false,
+    minExperience: 0,
   });
 
   useEffect(() => {
@@ -39,7 +49,8 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
         .select(`
           *,
           profile:profiles!inner(full_name, avatar_url, city),
-          services:services(category, price)
+          services:services(category, price),
+          rankings:master_rankings(ranking_score, response_time_hours)
         `)
         .gte('rating', filters.minRating);
 
@@ -76,6 +87,35 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
         );
       }
 
+      // Filtros premium (solo si tiene acceso)
+      if (limits.hasPremiumFilters) {
+        // Top rated: rating >= 4.5
+        if (filters.topRated) {
+          filteredData = filteredData.filter(master => master.rating >= 4.5);
+        }
+        
+        // Fast response: response_time_hours <= 2
+        if (filters.fastResponse) {
+          filteredData = filteredData.filter(master => 
+            master.rankings?.[0]?.response_time_hours <= 2
+          );
+        }
+
+        // Featured masters (destacados) - usando ranking score alto
+        if (filters.featured) {
+          filteredData = filteredData.filter(master => 
+            master.rankings?.[0]?.ranking_score >= 80
+          );
+        }
+
+        // Minimum experience
+        if (filters.minExperience > 0) {
+          filteredData = filteredData.filter(master => 
+            master.experience_years >= filters.minExperience
+          );
+        }
+      }
+
       setMasters(filteredData);
     } catch (error: any) {
       console.error('Error searching masters:', error);
@@ -94,14 +134,28 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
   };
 
   const handleInvite = async (masterId: string, masterName: string) => {
+    // Verificar límite de contactos
+    if (!limits.canContactMaster) {
+      toast({
+        title: "Límite de contactos alcanzado",
+        description: `Has usado ${limits.contactsUsed} de ${limits.contactsLimit} contactos este mes. Actualiza tu plan para más contactos.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Consumir un contacto
+    const consumed = await checkAndConsumeContact();
+    if (!consumed) return;
+
     if (onInvite) {
       onInvite(masterId);
-    } else {
-      toast({
-        title: "Invitación enviada",
-        description: `Se ha enviado una invitación a ${masterName}`,
-      });
     }
+    
+    toast({
+      title: "Invitación enviada",
+      description: `Se ha enviado una invitación a ${masterName}. Te quedan ${limits.contactsRemaining - 1} contactos este mes.`,
+    });
   };
 
   const getInitials = (name: string) => {
@@ -115,17 +169,44 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Búsqueda de Profesionales</h2>
-        <p className="text-muted-foreground">
-          Encuentra y conecta con los mejores profesionales
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Búsqueda de Profesionales</h2>
+          <p className="text-muted-foreground">
+            Encuentra y conecta con los mejores profesionales
+          </p>
+        </div>
+        {limits.isActive && (
+          <Badge variant="outline" className="text-sm">
+            {limits.contactsRemaining === 999999 
+              ? 'Contactos ilimitados' 
+              : `${limits.contactsRemaining} contactos disponibles`}
+          </Badge>
+        )}
       </div>
+
+      {/* Alerta de límite bajo */}
+      {limits.contactsRemaining > 0 && limits.contactsRemaining <= 5 && limits.contactsLimit < 999999 && (
+        <Alert>
+          <AlertDescription className="flex items-center justify-between">
+            <span>Te quedan solo {limits.contactsRemaining} contactos este mes.</span>
+            <Button variant="link" size="sm" className="p-0 h-auto">Actualizar plan</Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Filtros de Búsqueda</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Filtros de Búsqueda
+            {limits.hasPremiumFilters && (
+              <Badge variant="secondary" className="gap-1">
+                <Crown className="h-3 w-3" />
+                Premium
+              </Badge>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -201,6 +282,71 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
                   <SelectItem value="5000">Hasta $5,000</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          {/* Filtros Premium */}
+          <div className="border-t pt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Filtros Avanzados</span>
+              {!limits.hasPremiumFilters && (
+                <Badge variant="outline" className="text-xs gap-1">
+                  <Lock className="h-3 w-3" />
+                  Plan Professional+
+                </Badge>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className={`flex items-center space-x-2 ${!limits.hasPremiumFilters ? 'opacity-50' : ''}`}>
+                <Switch
+                  id="topRated"
+                  checked={filters.topRated}
+                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, topRated: checked }))}
+                  disabled={!limits.hasPremiumFilters}
+                />
+                <Label htmlFor="topRated" className="text-sm">Top Rated (4.5+)</Label>
+              </div>
+
+              <div className={`flex items-center space-x-2 ${!limits.hasPremiumFilters ? 'opacity-50' : ''}`}>
+                <Switch
+                  id="fastResponse"
+                  checked={filters.fastResponse}
+                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, fastResponse: checked }))}
+                  disabled={!limits.hasPremiumFilters}
+                />
+                <Label htmlFor="fastResponse" className="text-sm">Respuesta Rápida</Label>
+              </div>
+
+              <div className={`flex items-center space-x-2 ${!limits.hasPremiumFilters ? 'opacity-50' : ''}`}>
+                <Switch
+                  id="featured"
+                  checked={filters.featured}
+                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, featured: checked }))}
+                  disabled={!limits.hasPremiumFilters}
+                />
+                <Label htmlFor="featured" className="text-sm">Destacados</Label>
+              </div>
+
+              <div className={`space-y-2 ${!limits.hasPremiumFilters ? 'opacity-50' : ''}`}>
+                <Label className="text-sm">Experiencia Mínima</Label>
+                <Select
+                  value={filters.minExperience.toString()}
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, minExperience: parseInt(value) }))}
+                  disabled={!limits.hasPremiumFilters}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Cualquiera</SelectItem>
+                    <SelectItem value="2">2+ años</SelectItem>
+                    <SelectItem value="5">5+ años</SelectItem>
+                    <SelectItem value="10">10+ años</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </CardContent>

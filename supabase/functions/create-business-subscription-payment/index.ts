@@ -253,9 +253,18 @@ serve(async (req) => {
         metadata: {
           plan_id: planId,
           payment_id: paymentResult.id.toString(),
-          amount: price
+          amount: price,
+          invoice_ready: true
         }
       });
+
+    // Store invoice data for automated generation
+    await supabaseAdmin
+      .from('business_subscriptions')
+      .update({
+        mercadopago_payment_id: paymentResult.id.toString()
+      })
+      .eq('business_id', user.id);
 
     return new Response(
       JSON.stringify({ 
