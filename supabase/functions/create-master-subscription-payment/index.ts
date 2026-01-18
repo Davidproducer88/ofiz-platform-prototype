@@ -103,10 +103,10 @@ serve(async (req) => {
     console.log('Token type:', mercadoPagoToken.startsWith('TEST-') ? 'SANDBOX' : mercadoPagoToken.startsWith('APP_USR-') ? 'PRODUCTION' : 'UNKNOWN');
 
     // Create payment using Bricks API
-    // Convert price from cents to UYU (divide by 100)
-    const transactionAmount = price / 100;
+    // Price is already in UYU (no conversion needed)
+    const transactionAmount = price;
     
-    console.log('Transaction amount (NO currency_id):', transactionAmount);
+    console.log('Transaction amount (UYU):', transactionAmount);
     
     // Note: currency_id is NOT a valid parameter for v1/payments API
     // MercadoPago determines currency based on the account's country

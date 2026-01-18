@@ -118,7 +118,7 @@ export const SubscriptionPlans = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
-      // Configuración de planes - precios en UYU (centavos)
+      // Configuración de planes - precios en UYU (enteros, sin centavos)
       // Fundadores: 20% de descuento permanente
       const calculateFounderPrice = (originalPrice: number) => 
         Math.round(originalPrice * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
@@ -132,15 +132,15 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: isFounder ? calculateFounderPrice(99900) : 99900, // $999 UYU - Fundadores: 20% descuento
-          originalPrice: 99900,
+          price: isFounder ? calculateFounderPrice(999) : 999, // $999 UYU - Fundadores: 20% descuento
+          originalPrice: 999,
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: isFounder ? calculateFounderPrice(199900) : 199900, // $1.999 UYU - Fundadores: 20% descuento
-          originalPrice: 199900,
+          price: isFounder ? calculateFounderPrice(1999) : 1999, // $1.999 UYU - Fundadores: 20% descuento
+          originalPrice: 1999,
           applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
@@ -618,7 +618,7 @@ export const SubscriptionPlans = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
-                  <span className="text-2xl font-bold">${(selectedPlan.price / 100).toLocaleString('es-UY')} UYU</span>
+                  <span className="text-2xl font-bold">${formatPriceUY(selectedPlan.price)} UYU</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Propuestas mensuales:</span>

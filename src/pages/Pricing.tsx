@@ -49,9 +49,9 @@ export default function Pricing() {
     },
     {
       name: "Basic Plus",
-      price: "299",
+      price: "999",
       period: "mes",
-      description: "Para profesionales nuevos",
+      description: "Para profesionales activos",
       icon: Wrench,
       features: [
         { text: "20 postulaciones mensuales", included: true },
@@ -60,18 +60,18 @@ export default function Pricing() {
         { text: "Visibilidad aumentada", included: true },
         { text: "Notificaciones en tiempo real", included: true },
         { text: "Soporte estándar", included: true },
-        { text: "Estadísticas básicas", included: false }
+        { text: "Estadísticas básicas", included: true }
       ],
       cta: "Elegir Basic Plus",
       highlighted: false
     },
     {
-      name: "Profesional",
-      price: "599",
+      name: "Premium",
+      price: "1.999",
       period: "mes",
-      description: "Para profesionales activos",
+      description: "Máxima visibilidad y herramientas",
       badge: "Más Popular",
-      icon: Zap,
+      icon: Crown,
       features: [
         { text: "50 postulaciones mensuales", included: true },
         { text: "Perfil destacado", included: true },
@@ -82,44 +82,24 @@ export default function Pricing() {
         { text: "Soporte prioritario", included: true },
         { text: "Badge verificado", included: true }
       ],
-      cta: "Elegir Profesional",
+      cta: "Elegir Premium",
       highlighted: true,
       roi: "ROI 4,900% promedio"
-    },
-    {
-      name: "Elite",
-      price: "990",
-      period: "mes",
-      description: "Para profesionales de alto nivel",
-      icon: Crown,
-      features: [
-        { text: "Postulaciones ILIMITADAS", included: true },
-        { text: "Portfolio ilimitado", included: true },
-        { text: "Comisión mínima del 5%", included: true },
-        { text: "Top 3 garantizado", included: true },
-        { text: "Badge Elite Verificado", included: true },
-        { text: "Estadísticas avanzadas + IA", included: true },
-        { text: "Facturación automática DGI", included: true },
-        { text: "Soporte 24/7 + Account Manager", included: true },
-        { text: "Contratos empresariales", included: true }
-      ],
-      cta: "Elegir Elite",
-      highlighted: false
     }
   ];
 
   const businessPlans = [
     {
-      name: "Básico",
-      price: "4,500",
+      name: "Basic",
+      price: "4.990",
       period: "mes",
       description: "Para pequeñas empresas",
       icon: Building2,
       features: [
-        { text: "50 contactos mensuales", included: true },
-        { text: "5 contratos simultáneos", included: true },
-        { text: "2 campañas publicitarias", included: true },
-        { text: "5,000 impresiones incluidas", included: true },
+        { text: "30 contactos mensuales", included: true },
+        { text: "3 anuncios activos", included: true },
+        { text: "5.000 impresiones incluidas", included: true },
+        { text: "Gestión de contratos básica", included: true },
         { text: "Analytics básico", included: true },
         { text: "Soporte email", included: true },
         { text: "Account Manager", included: false },
@@ -129,43 +109,40 @@ export default function Pricing() {
       highlighted: false
     },
     {
-      name: "Profesional",
-      price: "8,500",
+      name: "Professional",
+      price: "9.990",
       period: "mes",
       description: "Para empresas en crecimiento",
       badge: "Recomendado",
       icon: Zap,
       features: [
-        { text: "150 contactos mensuales", included: true },
-        { text: "15 contratos simultáneos", included: true },
-        { text: "5 campañas publicitarias", included: true },
-        { text: "20,000 impresiones incluidas", included: true },
-        { text: "Analytics avanzado + ROI", included: true },
-        { text: "CRM integrado", included: true },
-        { text: "Account Manager dedicado", included: true },
-        { text: "API Access", included: true },
-        { text: "Hasta 5 usuarios", included: true }
+        { text: "100 contactos mensuales", included: true },
+        { text: "10 anuncios activos", included: true },
+        { text: "25.000 impresiones incluidas", included: true },
+        { text: "Gestión avanzada de contratos", included: true },
+        { text: "Facturación automatizada", included: true },
+        { text: "Analytics avanzado", included: true },
+        { text: "Soporte prioritario", included: true },
+        { text: "API para integraciones", included: true }
       ],
-      cta: "Elegir Profesional",
+      cta: "Elegir Professional",
       highlighted: true
     },
     {
       name: "Enterprise",
-      price: "15,000",
+      price: "24.990",
       period: "mes",
-      description: "Para grandes corporaciones",
+      description: "Para grandes organizaciones",
       icon: Sparkles,
       features: [
         { text: "Contactos ILIMITADOS", included: true },
-        { text: "Contratos ILIMITADOS", included: true },
-        { text: "10 campañas publicitarias", included: true },
-        { text: "100,000 impresiones incluidas", included: true },
-        { text: "Dashboard personalizado", included: true },
-        { text: "Whitelabel incluido", included: true },
-        { text: "Soporte 24/7 dedicado", included: true },
-        { text: "SLA 99.9% uptime", included: true },
-        { text: "Usuarios ilimitados", included: true },
-        { text: "Custom integrations", included: true }
+        { text: "Anuncios ILIMITADOS", included: true },
+        { text: "Impresiones ILIMITADAS", included: true },
+        { text: "Gestor de cuenta dedicado", included: true },
+        { text: "Facturación centralizada", included: true },
+        { text: "Soporte 24/7", included: true },
+        { text: "API completa y webhooks", included: true },
+        { text: "Personalización de marca", included: true }
       ],
       cta: "Contactar",
       highlighted: false
@@ -269,7 +246,7 @@ export default function Pricing() {
               </TabsList>
 
               <TabsContent value="professionals" className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
                   {masterPlans.map((plan, index) => {
                     const Icon = plan.icon;
                     return (
