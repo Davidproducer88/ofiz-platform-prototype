@@ -25,7 +25,7 @@ import { VerificationManagement } from "@/components/admin/VerificationManagemen
 import { FounderCounter } from "@/components/admin/FounderCounter";
 import { ExecutiveCompensation } from "@/components/admin/ExecutiveCompensation";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
-import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
+import { Document, Packer, Paragraph, HeadingLevel, AlignmentType } from "docx";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileAdminHome } from "@/components/mobile/MobileAdminHome";
 import { BottomNav } from "@/components/mobile/BottomNav";

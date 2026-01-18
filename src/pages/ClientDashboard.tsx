@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { 
   Search, 
   Heart,
@@ -18,18 +17,13 @@ import {
   Bell,
   Home,
   MessageSquare,
-  Calendar,
-  Star,
   ShoppingBag,
   ClipboardList,
   FileText,
-  MapPin,
-  Gift,
-  Users,
-  AlertCircle,
   Filter,
   DollarSign,
-  CheckCircle
+  CheckCircle,
+  Award
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { BookingDialog } from '@/components/BookingDialog';
@@ -48,19 +42,12 @@ import { ClientCalendar } from '@/components/client/ClientCalendar';
 import { MyReviews } from '@/components/client/MyReviews';
 import { AddressBook } from '@/components/client/AddressBook';
 import { MyDisputes } from '@/components/MyDisputes';
-import { FounderDiscountCode } from '@/components/client/FounderDiscountCode';
-import { EscrowReleaseManager } from '@/components/client/EscrowReleaseManager';
-import { QuickActions } from '@/components/client/QuickActions';
-import { DashboardAlerts } from '@/components/client/DashboardAlerts';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useClientDashboard } from '@/hooks/useClientDashboard';
 import { Feed } from '@/components/Feed';
-import { TransactionsList } from '@/components/TransactionsList';
 import { MarketplaceFeed } from '@/components/MarketplaceFeed';
 import { ServiceCard } from '@/components/client/ServiceCard';
 import { ClientBookingsList } from '@/components/client/ClientBookingsList';
-import { DemoModeIndicator } from '@/components/DemoModeIndicator';
-import { AlertTriangle, Award } from 'lucide-react';
 import { BottomNav } from '@/components/mobile/BottomNav';
 import { MobileClientHome } from '@/components/mobile/MobileClientHome';
 import { MobileServiceCard } from '@/components/mobile/MobileServiceCard';
