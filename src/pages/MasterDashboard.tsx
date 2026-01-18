@@ -61,6 +61,7 @@ import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 import { EscrowPayments } from '@/components/master/EscrowPayments';
 import { VerificationDocuments } from '@/components/master/VerificationDocuments';
+import { BadgesDisplay } from '@/components/gamification/BadgesDisplay';
 import { MyDisputes } from '@/components/MyDisputes';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
@@ -910,6 +911,10 @@ const MasterDashboard = () => {
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Verificación</span>
             </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">Logros</span>
+            </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Perfil</span>
@@ -1688,6 +1693,11 @@ const MasterDashboard = () => {
           {/* Withdrawals Tab */}
           <TabsContent value="withdrawals" className="space-y-6">
             <PaymentsWithdrawal />
+          </TabsContent>
+
+          {/* Achievements Tab */}
+          <TabsContent value="achievements" className="space-y-6">
+            <BadgesDisplay />
           </TabsContent>
         </Tabs>
 

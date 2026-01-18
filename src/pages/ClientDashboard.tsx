@@ -67,6 +67,7 @@ import { MobileServiceCard } from '@/components/mobile/MobileServiceCard';
 import { MobileBookingCard } from '@/components/mobile/MobileBookingCard';
 import { MobileServiceRequestWizard } from '@/components/mobile/MobileServiceRequestWizard';
 import { PostServiceFeedback } from '@/components/client/PostServiceFeedback';
+import { BadgesDisplay } from '@/components/gamification/BadgesDisplay';
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
@@ -530,7 +531,7 @@ const ClientDashboard = () => {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-2">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 gap-2">
             <TabsTrigger value="feed" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Feed</span>
@@ -562,6 +563,10 @@ const ClientDashboard = () => {
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Perfil</span>
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              <span className="hidden sm:inline">Logros</span>
             </TabsTrigger>
           </TabsList>
 
@@ -785,6 +790,10 @@ const ClientDashboard = () => {
                 <ClientNotifications />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="achievements">
+            <BadgesDisplay />
           </TabsContent>
         </Tabs>
       </main>
