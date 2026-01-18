@@ -110,7 +110,7 @@ export const MasterSubscriptionCheckoutBrick = ({
         
         brickRef.current = await bricks.create('payment', containerId, {
           initialization: {
-            amount: amount / 100, // Convert from cents to UYU
+            amount: amount, // Amount is already in UYU (no cents conversion)
             payer: { email: '' }
           },
           customization: {

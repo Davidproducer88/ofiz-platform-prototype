@@ -236,16 +236,16 @@ export default function PitchDeck() {
                       </Card>
                       <Card className="p-6">
                         <h5 className="font-bold mb-3">2️⃣ Suscripciones Maestros</h5>
-                        <p className="text-2xl font-bold text-primary mb-2">$0 - $999</p>
+                        <p className="text-2xl font-bold text-primary mb-2">$0 - $1.999</p>
                         <p className="text-sm text-muted-foreground">
-                          3 planes: Gratis, Profesional ($599/mes), Elite ($999/mes)
+                          3 planes: Gratis, Basic Plus ($999/mes), Premium ($1.999/mes)
                         </p>
                       </Card>
                       <Card className="p-6">
                         <h5 className="font-bold mb-3">3️⃣ Suscripciones Empresas</h5>
-                        <p className="text-2xl font-bold text-primary mb-2">$4.5K - $15K</p>
+                        <p className="text-2xl font-bold text-primary mb-2">$4.990 - $24.990</p>
                         <p className="text-sm text-muted-foreground">
-                          Gestión de equipos, facturación masiva, analytics
+                          3 planes: Basic, Professional, Enterprise (UYU/mes)
                         </p>
                       </Card>
                       <Card className="p-6">
@@ -443,8 +443,8 @@ export default function PitchDeck() {
                   <h3 className="text-xl font-bold mb-3">💰 Modelo de Negocio</h3>
                   <ul>
                     <li>5% comisión por transacción</li>
-                    <li>Suscripciones profesionales: $0 - $999/mes</li>
-                    <li>Suscripciones empresas: $4,500 - $15,000/mes</li>
+                    <li>Suscripciones profesionales: $0 - $1.999 UYU/mes</li>
+                    <li>Suscripciones empresas: $4.990 - $24.990 UYU/mes</li>
                     <li>Marketplace: 5% comisión</li>
                     <li>Publicidad y patrocinios</li>
                   </ul>

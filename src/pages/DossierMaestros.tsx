@@ -543,7 +543,7 @@ export const DossierMaestros = () => {
                 <div>
                   <h3 className="text-xl md:text-2xl font-bold mb-2">Basic Plus</h3>
                   <div className="text-3xl md:text-4xl font-bold mb-2">
-                    $499<span className="text-base md:text-lg text-muted-foreground"> UYU/mes</span>
+                    $999<span className="text-base md:text-lg text-muted-foreground"> UYU/mes</span>
                   </div>
                   <p className="text-xs md:text-sm text-primary font-semibold">4x más oportunidades</p>
                 </div>
@@ -592,7 +592,7 @@ export const DossierMaestros = () => {
                     Premium <Star className="w-5 h-5 md:w-6 md:h-6 text-primary fill-primary" />
                   </h3>
                   <div className="text-3xl md:text-4xl font-bold mb-2">
-                    $999<span className="text-base md:text-lg text-muted-foreground"> UYU/mes</span>
+                    $1.999<span className="text-base md:text-lg text-muted-foreground"> UYU/mes</span>
                   </div>
                   <p className="text-xs md:text-sm text-primary font-semibold">Máxima visibilidad y conversión</p>
                 </div>
