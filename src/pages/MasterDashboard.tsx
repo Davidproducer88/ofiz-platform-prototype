@@ -27,14 +27,12 @@ import {
   Trash2,
   Eye,
   DollarSign,
-  Users,
   TrendingUp,
   Bell,
   Settings,
   Award,
   BarChart3,
   FileText,
-  Download,
   Sparkles,
   Briefcase,
   MessageSquare,
@@ -72,8 +70,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { AppMasterHome } from '@/components/mobile/AppMasterHome';
 import { AppBottomNav } from '@/components/mobile/AppBottomNav';
 import { AppHeader } from '@/components/mobile/AppHeader';
-import { StoriesBar } from '@/components/mobile/StoriesBar';
-import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import { cn } from '@/lib/utils';
 import { SERVICE_CATEGORIES } from '@/lib/categories';
 
