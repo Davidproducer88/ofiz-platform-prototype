@@ -14,37 +14,42 @@ interface BusinessSubscriptionPlansProps {
   onUpdate: () => void;
 }
 
+// Helper para formatear precios en formato uruguayo (con punto como separador de miles)
+const formatPriceUY = (price: number): string => {
+  return price.toLocaleString('es-UY').replace(/,/g, '.');
+};
+
 const plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 49990, // UYU por mes
+    price: 4990, // UYU por mes - $4.990
     icon: Building,
     description: 'Ideal para pequeñas empresas',
     features: [
-      'Hasta 50 contactos con profesionales/mes',
-      '5 anuncios activos simultáneos',
-      '10,000 impresiones publicitarias/mes',
+      'Hasta 30 contactos con profesionales/mes',
+      '3 anuncios activos simultáneos',
+      '5.000 impresiones publicitarias/mes',
       'Gestión de contratos básica',
       'Soporte por email',
       'Panel de analíticas básico',
       'Búsqueda avanzada de profesionales'
     ],
-    contacts: 50,
+    contacts: 30,
     canPostAds: true,
-    adImpressions: 10000
+    adImpressions: 5000
   },
   {
     id: 'professional',
     name: 'Professional',
-    price: 99990, // UYU por mes
+    price: 9990, // UYU por mes - $9.990
     icon: Zap,
     popular: true,
     description: 'Para empresas en crecimiento',
     features: [
-      'Hasta 150 contactos con profesionales/mes',
-      '15 anuncios activos simultáneos',
-      '50,000 impresiones publicitarias/mes',
+      'Hasta 100 contactos con profesionales/mes',
+      '10 anuncios activos simultáneos',
+      '25.000 impresiones publicitarias/mes',
       'Gestión avanzada de contratos',
       'Facturación automatizada',
       'Soporte prioritario',
@@ -52,14 +57,14 @@ const plans = [
       'API para integraciones',
       'Filtros de búsqueda premium'
     ],
-    contacts: 150,
+    contacts: 100,
     canPostAds: true,
-    adImpressions: 50000
+    adImpressions: 25000
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 199990, // UYU por mes
+    price: 24990, // UYU por mes - $24.990
     icon: Crown,
     description: 'Para grandes organizaciones',
     features: [
@@ -147,9 +152,9 @@ export const BusinessSubscriptionPlans = ({
     return {
       ...plan,
       displayPrice: isAnnual ? annualPrice : plan.price,
-      actualPrice: isAnnual ? annualPrice : plan.price, // Precio real para el pago
+      actualPrice: isAnnual ? annualPrice : plan.price,
       period: isAnnual ? ' UYU/año' : ' UYU/mes',
-      savings: isAnnual ? `Ahorrás $${monthlySavings.toLocaleString()} UYU` : null
+      savings: isAnnual ? `Ahorrás $${formatPriceUY(monthlySavings)} UYU` : null
     };
   });
 
@@ -215,7 +220,7 @@ export const BusinessSubscriptionPlans = ({
                 <CardDescription className="text-xs sm:text-sm">{originalPlan.description}</CardDescription>
                 <div className="mt-4">
                   <div>
-                    <span className="text-3xl sm:text-4xl font-bold">${plan.displayPrice.toLocaleString()}</span>
+                    <span className="text-3xl sm:text-4xl font-bold">${formatPriceUY(plan.displayPrice)}</span>
                     <span className="text-sm sm:text-base text-muted-foreground">{plan.period}</span>
                   </div>
                   {plan.savings && (
@@ -315,7 +320,7 @@ export const BusinessSubscriptionPlans = ({
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Monto:</span>
                   <span className="text-2xl font-bold">
-                    ${((selectedPlan as any).actualPrice || selectedPlan.price).toLocaleString()} UYU
+                    ${formatPriceUY((selectedPlan as any).actualPrice || selectedPlan.price)} UYU
                   </span>
                 </div>
                 {(selectedPlan as any).savings && (

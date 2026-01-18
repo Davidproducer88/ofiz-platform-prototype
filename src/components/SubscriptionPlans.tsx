@@ -41,6 +41,11 @@ interface Profile {
 const FOUNDER_LIMIT = 1000;
 const FOUNDER_DISCOUNT_PERCENT = 20; // 20% de descuento permanente
 
+// Helper para formatear precios en formato uruguayo (con punto como separador de miles)
+const formatPriceUY = (price: number): string => {
+  return price.toLocaleString('es-UY').replace(/,/g, '.');
+};
+
 type CancelOption = 'end_of_period' | 'with_refund' | 'immediate';
 
 export const SubscriptionPlans = () => {
@@ -113,8 +118,8 @@ export const SubscriptionPlans = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No autenticado');
 
-      // Configuración de planes - precios en centavos
-      // Fundadores: 30% de descuento permanente
+      // Configuración de planes - precios en UYU (centavos)
+      // Fundadores: 20% de descuento permanente
       const calculateFounderPrice = (originalPrice: number) => 
         Math.round(originalPrice * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
 
@@ -127,15 +132,15 @@ export const SubscriptionPlans = () => {
           name: 'Gratuito',
         },
         basic_plus: {
-          price: isFounder ? calculateFounderPrice(49900) : 49900, // Fundadores: 30% descuento
-          originalPrice: 49900,
+          price: isFounder ? calculateFounderPrice(99900) : 99900, // $999 UYU - Fundadores: 20% descuento
+          originalPrice: 99900,
           applicationsLimit: 20,
           isFeatured: false,
           name: 'Basic Plus',
         },
         premium: {
-          price: isFounder ? calculateFounderPrice(99900) : 99900, // Fundadores: 30% descuento
-          originalPrice: 99900,
+          price: isFounder ? calculateFounderPrice(199900) : 199900, // $1.999 UYU - Fundadores: 20% descuento
+          originalPrice: 199900,
           applicationsLimit: 50,
           isFeatured: true,
           name: 'Premium',
@@ -307,8 +312,8 @@ export const SubscriptionPlans = () => {
   const remainingSlots = founderCount !== null ? FOUNDER_LIMIT - founderCount : null;
   
   // Calcular precios con descuento de fundador (precios en UYU)
-  const founderBasicPrice = Math.round(499 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
-  const founderPremiumPrice = Math.round(999 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
+  const founderBasicPrice = Math.round(999 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
+  const founderPremiumPrice = Math.round(1999 * (1 - FOUNDER_DISCOUNT_PERCENT / 100));
 
   // Formatear precio en UYU
   const formatPrice = (price: number) => `$${price.toLocaleString('es-UY')} UYU`;
@@ -330,9 +335,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Basic Plus",
       value: "basic_plus" as const,
-      price: isFounder ? `$${founderBasicPrice}` : "$499",
+      price: isFounder ? `$${formatPriceUY(founderBasicPrice)}` : "$999",
       priceNote: "UYU/mes",
-      originalPrice: isFounder ? "$499 UYU/mes" : null,
+      originalPrice: isFounder ? "$999 UYU/mes" : null,
       features: [
         "20 propuestas por mes",
         "Perfil mejorado",
@@ -347,9 +352,9 @@ export const SubscriptionPlans = () => {
     {
       name: "Premium",
       value: "premium" as const,
-      price: isFounder ? `$${founderPremiumPrice}` : "$999",
+      price: isFounder ? `$${formatPriceUY(founderPremiumPrice)}` : "$1.999",
       priceNote: "UYU/mes",
-      originalPrice: isFounder ? "$999 UYU/mes" : null,
+      originalPrice: isFounder ? "$1.999 UYU/mes" : null,
       features: [
         "50 propuestas por mes",
         "Perfil destacado con badge",
