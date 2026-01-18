@@ -109,12 +109,15 @@ export type Database = {
           platform_fee: number | null
           price_base: number | null
           quick_rating_shown: boolean | null
+          review_requested_at: string | null
           scheduled_date: string
           service_id: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
           updated_at: string
           upfront_amount: number | null
+          work_completed_at: string | null
+          work_started_at: string | null
         }
         Insert: {
           client_address: string
@@ -133,12 +136,15 @@ export type Database = {
           platform_fee?: number | null
           price_base?: number | null
           quick_rating_shown?: boolean | null
+          review_requested_at?: string | null
           scheduled_date: string
           service_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
           updated_at?: string
           upfront_amount?: number | null
+          work_completed_at?: string | null
+          work_started_at?: string | null
         }
         Update: {
           client_address?: string
@@ -157,12 +163,15 @@ export type Database = {
           platform_fee?: number | null
           price_base?: number | null
           quick_rating_shown?: boolean | null
+          review_requested_at?: string | null
           scheduled_date?: string
           service_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_price?: number
           updated_at?: string
           upfront_amount?: number | null
+          work_completed_at?: string | null
+          work_started_at?: string | null
         }
         Relationships: [
           {
@@ -1790,6 +1799,108 @@ export type Database = {
         }
         Relationships: []
       }
+      quick_messages: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          sort_order: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          message: string
+          sort_order?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          sort_order?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quotations: {
+        Row: {
+          accepted_at: string | null
+          booking_id: string | null
+          client_id: string
+          conversation_id: string | null
+          created_at: string
+          description: string | null
+          discount: number | null
+          id: string
+          items: Json
+          master_id: string
+          rejected_at: string | null
+          status: string
+          subtotal: number
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          booking_id?: string | null
+          client_id: string
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          discount?: number | null
+          id?: string
+          items?: Json
+          master_id: string
+          rejected_at?: string | null
+          status?: string
+          subtotal?: number
+          title: string
+          total: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          booking_id?: string | null
+          client_id?: string
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          discount?: number | null
+          id?: string
+          items?: Json
+          master_id?: string
+          rejected_at?: string | null
+          status?: string
+          subtotal?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_codes: {
         Row: {
           code: string
@@ -2537,6 +2648,7 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+        | "pending_review"
       payment_status:
         | "pending"
         | "approved"
@@ -2705,6 +2817,7 @@ export const Constants = {
         "in_progress",
         "completed",
         "cancelled",
+        "pending_review",
       ],
       payment_status: [
         "pending",

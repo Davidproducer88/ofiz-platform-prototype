@@ -10,8 +10,25 @@ import {
   DollarSign, 
   MapPin, 
   Calendar,
-  MessageSquare
+  MessageSquare,
+  PlayCircle,
+  FileSearch
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -56,12 +73,113 @@ export function BookingActionsInChat({
     pending: { label: 'Pendiente de aceptación', variant: 'secondary' },
     confirmed: { label: 'Confirmado', variant: 'default' },
     in_progress: { label: 'En progreso', variant: 'default' },
+    pending_review: { label: 'Esperando revisión', variant: 'outline' },
     completed: { label: 'Completado', variant: 'default' },
     cancelled: { label: 'Cancelado', variant: 'destructive' },
     negotiating: { label: 'En negociación', variant: 'outline' }
   };
 
   const status = statusLabels[booking.status] || { label: booking.status, variant: 'secondary' };
+
+  // Actions for starting/completing work
+  const handleStartWork = async () => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ 
+          status: 'in_progress',
+          work_started_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      await supabase.from('messages').insert({
+        conversation_id: conversationId,
+        sender_id: booking.master_id,
+        content: '🔨 El profesional ha iniciado el trabajo.',
+      });
+
+      await supabase.from('notifications').insert({
+        user_id: booking.client_id,
+        type: 'booking_started',
+        title: 'Trabajo iniciado',
+        message: 'El profesional ha comenzado a trabajar en tu encargo',
+        booking_id: booking.id
+      });
+
+      toast({ title: '¡Trabajo iniciado!', description: 'El cliente ha sido notificado' });
+      onUpdate();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleRequestReview = async () => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ 
+          status: 'pending_review' as any,
+          review_requested_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      await supabase.from('messages').insert({
+        conversation_id: conversationId,
+        sender_id: booking.master_id,
+        content: '✅ El profesional ha terminado el trabajo. Por favor, revisa y confirma.',
+      });
+
+      await supabase.from('notifications').insert({
+        user_id: booking.client_id,
+        type: 'booking_review',
+        title: 'Trabajo terminado',
+        message: 'El profesional ha terminado. Revisa y confirma el trabajo.',
+        booking_id: booking.id
+      });
+
+      toast({ title: 'Solicitud enviada', description: 'Esperando confirmación del cliente' });
+      onUpdate();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleApproveWork = async () => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ 
+          status: 'completed',
+          work_completed_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      await supabase.from('messages').insert({
+        conversation_id: conversationId,
+        sender_id: booking.client_id,
+        content: '🎉 El cliente ha aprobado el trabajo. ¡Encargo completado!',
+      });
+
+      await supabase.from('notifications').insert({
+        user_id: booking.master_id,
+        type: 'booking_completed',
+        title: '¡Trabajo aprobado!',
+        message: 'El cliente ha aprobado tu trabajo. ¡Felicitaciones!',
+        booking_id: booking.id
+      });
+
+      toast({ title: '¡Trabajo aprobado!', description: 'El encargo ha sido completado' });
+      onUpdate();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
 
   const handleAccept = async () => {
     setIsAccepting(true);
@@ -339,11 +457,41 @@ export function BookingActionsInChat({
             </div>
           )}
 
+          {/* Actions for Master when confirmed - Start Work */}
+          {isMaster && booking.status === 'confirmed' && (
+            <div className="flex gap-2 pt-2">
+              <Button size="sm" onClick={handleStartWork} className="flex-1 gap-1">
+                <PlayCircle className="h-3 w-3" />
+                Iniciar Trabajo
+              </Button>
+            </div>
+          )}
+
+          {/* Actions for Master when in progress - Request Review */}
+          {isMaster && booking.status === 'in_progress' && (
+            <div className="flex gap-2 pt-2">
+              <Button size="sm" onClick={handleRequestReview} className="flex-1 gap-1">
+                <FileSearch className="h-3 w-3" />
+                Solicitar Revisión
+              </Button>
+            </div>
+          )}
+
+          {/* Actions for Client when pending review - Approve */}
+          {isClient && booking.status === 'pending_review' && (
+            <div className="flex gap-2 pt-2">
+              <Button size="sm" onClick={handleApproveWork} className="flex-1 gap-1">
+                <Check className="h-3 w-3" />
+                Aprobar Trabajo
+              </Button>
+            </div>
+          )}
+
           {/* Status indicators */}
-          {booking.status === 'confirmed' && (
+          {booking.status === 'confirmed' && isMaster && (
             <div className="flex items-center gap-2 text-xs text-green-600 pt-2">
               <Check className="h-3 w-3" />
-              Encargo confirmado - Listo para comenzar
+              Encargo confirmado - Puedes iniciar el trabajo
             </div>
           )}
         </div>
