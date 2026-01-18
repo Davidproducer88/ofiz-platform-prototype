@@ -43,7 +43,8 @@ import {
   TrendingDown,
   User,
   Home,
-  ShoppingBag
+  ShoppingBag,
+  Shield
 } from 'lucide-react';
 import { ServiceRequestsList } from '@/components/ServiceRequestsList';
 import { ApplicationDialog } from '@/components/ApplicationDialog';
@@ -59,6 +60,7 @@ import { EnhancedWorkCalendar } from '@/components/master/EnhancedWorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 import { EscrowPayments } from '@/components/master/EscrowPayments';
+import { VerificationDocuments } from '@/components/master/VerificationDocuments';
 import { MyDisputes } from '@/components/MyDisputes';
 import { Feed } from '@/components/Feed';
 import { TransactionsList } from '@/components/TransactionsList';
@@ -904,6 +906,10 @@ const MasterDashboard = () => {
               <TrendingDown className="h-4 w-4" />
               <span className="hidden sm:inline">Retiros</span>
             </TabsTrigger>
+            <TabsTrigger value="verification" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Verificación</span>
+            </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Perfil</span>
@@ -1607,6 +1613,11 @@ const MasterDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Verification Tab */}
+          <TabsContent value="verification" className="space-y-6">
+            <VerificationDocuments />
           </TabsContent>
 
           {/* Subscription Tab */}

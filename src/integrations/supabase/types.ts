@@ -1413,6 +1413,73 @@ export type Database = {
           },
         ]
       }
+      master_verification_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          document_url: string
+          file_name: string | null
+          file_size: number | null
+          id: string
+          master_id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          document_url: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          master_id: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          document_url?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          master_id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_verification_documents_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_verification_documents_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_verification_documents_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_with_profile_and_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       masters: {
         Row: {
           availability_schedule: Json | null
@@ -1428,6 +1495,9 @@ export type Database = {
           rating: number | null
           total_reviews: number | null
           updated_at: string
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           availability_schedule?: Json | null
@@ -1443,6 +1513,9 @@ export type Database = {
           rating?: number | null
           total_reviews?: number | null
           updated_at?: string
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           availability_schedule?: Json | null
@@ -1458,6 +1531,9 @@ export type Database = {
           rating?: number | null
           total_reviews?: number | null
           updated_at?: string
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
