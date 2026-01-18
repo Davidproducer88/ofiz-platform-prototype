@@ -587,6 +587,44 @@ serve(async (req) => {
                 percentage: 5.00,
                 status: 'pending',
               });
+
+            // Send confirmation email and payment receipt
+            try {
+              const emailFunctionUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-email`;
+              const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+
+              // Send booking confirmation
+              await fetch(emailFunctionUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${anonKey}`,
+                },
+                body: JSON.stringify({
+                  type: 'booking_confirmation',
+                  bookingId: externalReference,
+                  recipientRole: 'both',
+                }),
+              });
+
+              // Send payment receipt
+              await fetch(emailFunctionUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${anonKey}`,
+                },
+                body: JSON.stringify({
+                  type: 'payment_receipt',
+                  bookingId: externalReference,
+                  paymentId: payment.id,
+                }),
+              });
+
+              console.log('Confirmation and receipt emails sent');
+            } catch (emailError) {
+              console.error('Error sending emails:', emailError);
+            }
           }
 
           console.log('Payment approved and booking confirmed:', externalReference);
