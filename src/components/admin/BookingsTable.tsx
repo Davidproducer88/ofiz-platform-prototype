@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
 
-type BookingStatus = "pending" | "confirmed" | "in_progress" | "completed" | "cancelled";
+type BookingStatus = "pending" | "confirmed" | "in_progress" | "completed" | "cancelled" | "pending_review" | "negotiating";
 
   interface Booking {
     id: string;
@@ -29,20 +29,24 @@ interface BookingsTableProps {
   onStatsUpdate: () => void;
 }
 
-const statusLabels = {
+const statusLabels: Record<BookingStatus, string> = {
   pending: "Pendiente",
   confirmed: "Confirmada",
   in_progress: "En progreso",
   completed: "Completada",
   cancelled: "Cancelada",
+  pending_review: "En revisión",
+  negotiating: "Negociando",
 };
 
-const statusVariants = {
-  pending: "secondary" as const,
-  confirmed: "default" as const,
-  in_progress: "outline" as const,
-  completed: "default" as const,
-  cancelled: "destructive" as const,
+const statusVariants: Record<BookingStatus, "secondary" | "default" | "outline" | "destructive"> = {
+  pending: "secondary",
+  confirmed: "default",
+  in_progress: "outline",
+  completed: "default",
+  cancelled: "destructive",
+  pending_review: "outline",
+  negotiating: "secondary",
 };
 
 export const BookingsTable = ({ onStatsUpdate }: BookingsTableProps) => {
@@ -95,9 +99,10 @@ export const BookingsTable = ({ onStatsUpdate }: BookingsTableProps) => {
 
   const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
     try {
+      // Cast to any to allow all statuses including local-only ones
       const { error } = await supabase
         .from("bookings")
-        .update({ status: newStatus })
+        .update({ status: newStatus as any })
         .eq("id", bookingId);
 
       if (error) throw error;
