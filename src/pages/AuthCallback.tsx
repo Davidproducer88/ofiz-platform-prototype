@@ -13,12 +13,21 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Extract URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken = urlParams.get('access_token');
-        const refreshToken = urlParams.get('refresh_token');
+        // Check for tokens in hash fragment (OAuth providers like Google use this)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const hashAccessToken = hashParams.get('access_token');
+        const hashRefreshToken = hashParams.get('refresh_token');
         
-        // If we have tokens in URL (email confirmation link), set session manually
+        // Also check query parameters (email confirmation uses this)
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryAccessToken = urlParams.get('access_token');
+        const queryRefreshToken = urlParams.get('refresh_token');
+        
+        // Use hash tokens if available, otherwise use query params
+        const accessToken = hashAccessToken || queryAccessToken;
+        const refreshToken = hashRefreshToken || queryRefreshToken;
+        
+        // If we have tokens in URL, set session manually
         if (accessToken && refreshToken) {
           const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
