@@ -7,9 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Eye, MousePointer, Calendar, TrendingUp, Pause, Play, Trash2 } from "lucide-react";
+import { useBusinessSubscriptionLimits } from "@/hooks/useBusinessSubscriptionLimits";
+import { Plus, Eye, MousePointer, Calendar, TrendingUp, Pause, Play, Trash2, AlertTriangle, Info } from "lucide-react";
 
 interface AdvertisementManagerProps {
   businessId: string;
@@ -19,6 +22,7 @@ interface AdvertisementManagerProps {
 
 export const AdvertisementManager = ({ businessId, subscription, onUpdate }: AdvertisementManagerProps) => {
   const { toast } = useToast();
+  const { limits, refreshLimits, checkCanCreateAd } = useBusinessSubscriptionLimits(businessId);
   const [ads, setAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -61,13 +65,30 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
     }
   };
 
+  const handleOpenCreateDialog = () => {
+    const { canCreate, reason } = checkCanCreateAd();
+    
+    if (!canCreate) {
+      toast({
+        title: "Límite alcanzado",
+        description: reason,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setDialogOpen(true);
+  };
+
   const handleCreateAd = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!subscription || subscription.status !== 'active' || !subscription.can_post_ads) {
+    // Verificar límites antes de crear
+    const { canCreate, reason } = checkCanCreateAd();
+    if (!canCreate) {
       toast({
-        title: "Función no disponible",
-        description: "Necesitas una suscripción activa con publicidad habilitada para crear anuncios",
+        title: "No puedes crear más anuncios",
+        description: reason,
         variant: "destructive",
       });
       return;
@@ -104,6 +125,7 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
         end_date: ''
       });
       fetchAds();
+      refreshLimits();
       onUpdate();
     } catch (error: any) {
       const errorMessage = error?.message || "No se pudo crear el anuncio";
@@ -117,6 +139,19 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
   };
 
   const toggleAdStatus = async (adId: string, currentStatus: boolean) => {
+    // Si está intentando activar, verificar límites
+    if (!currentStatus) {
+      const { canCreate, reason } = checkCanCreateAd();
+      if (!canCreate && !reason?.includes('impresiones')) {
+        toast({
+          title: "Límite de anuncios activos alcanzado",
+          description: `Tu plan permite máximo ${limits.maxActiveAds} anuncios activos. Pausa uno para activar otro.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     try {
       const { error } = await supabase
         .from('advertisements')
@@ -131,6 +166,7 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
       });
 
       fetchAds();
+      refreshLimits();
       onUpdate();
     } catch (error: any) {
       console.error('Error toggling ad status:', error);
@@ -170,8 +206,84 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
     }
   };
 
+  // Calcular porcentajes para las barras de progreso
+  const adsUsagePercent = limits.maxActiveAds > 0 && limits.maxActiveAds < 999999
+    ? (limits.activeAdsCount / limits.maxActiveAds) * 100
+    : 0;
+  const impressionsUsagePercent = limits.impressionsLimit > 0 && limits.impressionsLimit < 999999
+    ? (limits.impressionsUsed / limits.impressionsLimit) * 100
+    : 0;
+
   return (
     <div className="space-y-6">
+      {/* Límites del Plan */}
+      {limits.isActive && limits.canPostAds && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Anuncios Activos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-2xl font-bold">{limits.activeAdsCount}</span>
+                <span className="text-sm text-muted-foreground">
+                  de {limits.maxActiveAds === 999999 ? '∞' : limits.maxActiveAds}
+                </span>
+              </div>
+              {limits.maxActiveAds < 999999 && (
+                <Progress value={adsUsagePercent} className="h-2" />
+              )}
+              {limits.adsRemaining === 0 && limits.maxActiveAds < 999999 && (
+                <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Límite alcanzado
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                Impresiones Mensuales
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-2xl font-bold">{limits.impressionsUsed.toLocaleString()}</span>
+                <span className="text-sm text-muted-foreground">
+                  de {limits.impressionsLimit === 999999 ? '∞' : limits.impressionsLimit.toLocaleString()}
+                </span>
+              </div>
+              {limits.impressionsLimit < 999999 && (
+                <Progress value={impressionsUsagePercent} className="h-2" />
+              )}
+              {limits.hasReachedImpressionLimit && limits.impressionsLimit < 999999 && (
+                <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Límite alcanzado - los anuncios no se mostrarán
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Alertas de límites */}
+      {limits.hasReachedImpressionLimit && limits.impressionsLimit < 999999 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Has alcanzado el límite de impresiones de tu plan. Tus anuncios no se mostrarán hasta el próximo período de facturación.
+            <Button variant="link" className="p-0 h-auto ml-2">Actualizar plan</Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Gestión de Publicidad</h2>
@@ -181,12 +293,16 @@ export const AdvertisementManager = ({ businessId, subscription, onUpdate }: Adv
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button disabled={!subscription || subscription.status !== 'active' || !subscription.can_post_ads}>
-              <Plus className="h-4 w-4 mr-2" />
-              Crear Anuncio
-            </Button>
-          </DialogTrigger>
+          <Button 
+            onClick={handleOpenCreateDialog}
+            disabled={!limits.isActive || !limits.canPostAds}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Crear Anuncio
+            {limits.adsRemaining > 0 && limits.maxActiveAds < 999999 && (
+              <Badge variant="secondary" className="ml-2">{limits.adsRemaining} disponibles</Badge>
+            )}
+          </Button>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleCreateAd}>
               <DialogHeader>
