@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Paperclip, X, Image as ImageIcon, FileCheck, Upload, AlertCircle, RefreshCw } from 'lucide-react';
+import { Send, Paperclip, X, Image as ImageIcon, FileCheck, Upload, AlertCircle, RefreshCw, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,13 +9,18 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useChat, Message } from '@/hooks/useChat';
 import { useAuth } from '@/hooks/useAuth';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { CreateBookingFromChat } from './CreateBookingFromChat';
 import { BookingActionsInChat } from './BookingActionsInChat';
+import { TypingIndicator } from './chat/TypingIndicator';
+import { QuickMessages } from './chat/QuickMessages';
+import { QuotationDialog } from './chat/QuotationDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { AnimatePresence } from 'framer-motion';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -34,8 +39,10 @@ export const ChatWindow = ({
 }: ChatWindowProps) => {
   const { profile } = useAuth();
   const { messages, sending, sendMessage, refreshConversations } = useChat(conversationId);
+  const { typingUsers, startTyping, stopTyping, isAnyoneTyping } = useTypingIndicator(conversationId);
   const [messageText, setMessageText] = useState('');
   const [showCreateBooking, setShowCreateBooking] = useState(false);
+  const [showQuotation, setShowQuotation] = useState(false);
   const [conversationData, setConversationData] = useState<any>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -380,12 +387,20 @@ export const ChatWindow = ({
               );
             })
           )}
+          
+          {/* Typing Indicator */}
+          <AnimatePresence>
+            {isAnyoneTyping && typingUsers.length > 0 && (
+              <TypingIndicator userName={typingUsers[0]?.name} />
+            )}
+          </AnimatePresence>
+          
           <div ref={scrollRef} />
         </div>
       </ScrollArea>
 
       {/* Booking Actions */}
-      {pendingBooking && (pendingBooking.status === 'pending' || pendingBooking.status === 'confirmed') && (
+      {pendingBooking && ['pending', 'confirmed', 'in_progress', 'pending_review'].includes(pendingBooking.status) && (
         <div className="border-t p-3 bg-muted/30">
           <BookingActionsInChat
             booking={pendingBooking}
@@ -445,10 +460,34 @@ export const ChatWindow = ({
           >
             <Paperclip className="h-4 w-4" />
           </Button>
+          
+          {/* Quick Messages */}
+          <QuickMessages 
+            userType={isMaster ? 'master' : 'client'} 
+            onSelect={(msg) => setMessageText(msg)} 
+          />
+          
+          {/* Quotation Button - Only for Master */}
+          {isMaster && conversationData && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowQuotation(true)}
+              title="Enviar cotización"
+              className="shrink-0"
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
+          )}
+          
           <Input
             value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
+            onChange={(e) => {
+              setMessageText(e.target.value);
+              startTyping();
+            }}
             onKeyPress={handleKeyPress}
+            onBlur={stopTyping}
             placeholder="Escribe un mensaje..."
             disabled={sending || uploading}
             className="flex-1"
@@ -480,6 +519,40 @@ export const ChatWindow = ({
           </DialogContent>
         </Dialog>
         {conversationData && (
+          <>
+            <CreateBookingFromChat
+              open={showCreateBooking}
+              onOpenChange={setShowCreateBooking}
+              conversationId={conversationId}
+              masterId={conversationData.master_id}
+              clientId={conversationData.client_id}
+              onSuccess={() => {
+                refreshConversations();
+                loadConversationData();
+              }}
+            />
+            <QuotationDialog
+              open={showQuotation}
+              onOpenChange={setShowQuotation}
+              conversationId={conversationId}
+              masterId={conversationData.master_id}
+              clientId={conversationData.client_id}
+              bookingId={conversationData.booking_id}
+              onSuccess={() => {
+                refreshConversations();
+              }}
+            />
+          </>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="h-full">{content}</div>
+      {conversationData && (
+        <>
           <CreateBookingFromChat
             open={showCreateBooking}
             onOpenChange={setShowCreateBooking}
@@ -491,26 +564,18 @@ export const ChatWindow = ({
               loadConversationData();
             }}
           />
-        )}
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div className="h-full">{content}</div>
-      {conversationData && (
-        <CreateBookingFromChat
-          open={showCreateBooking}
-          onOpenChange={setShowCreateBooking}
-          conversationId={conversationId}
-          masterId={conversationData.master_id}
-          clientId={conversationData.client_id}
-          onSuccess={() => {
-            refreshConversations();
-            loadConversationData();
-          }}
-        />
+          <QuotationDialog
+            open={showQuotation}
+            onOpenChange={setShowQuotation}
+            conversationId={conversationId}
+            masterId={conversationData.master_id}
+            clientId={conversationData.client_id}
+            bookingId={conversationData.booking_id}
+            onSuccess={() => {
+              refreshConversations();
+            }}
+          />
+        </>
       )}
     </>
   );
