@@ -55,7 +55,7 @@ import { FinancialDashboard } from '@/components/FinancialDashboard';
 import { MasterAnalytics } from '@/components/master/MasterAnalytics';
 import { MyApplications } from '@/components/master/MyApplications';
 import { AvailableContracts } from '@/components/master/AvailableContracts';
-import { WorkCalendar } from '@/components/master/WorkCalendar';
+import { EnhancedWorkCalendar } from '@/components/master/EnhancedWorkCalendar';
 import { MasterNotifications } from '@/components/master/MasterNotifications';
 import { PaymentsWithdrawal } from '@/components/master/PaymentsWithdrawal';
 import { EscrowPayments } from '@/components/master/EscrowPayments';
@@ -1656,7 +1656,7 @@ const MasterDashboard = () => {
 
           {/* Calendar Tab */}
           <TabsContent value="calendar" className="space-y-6">
-            <WorkCalendar />
+            <EnhancedWorkCalendar />
           </TabsContent>
 
           {/* Notifications Tab */}

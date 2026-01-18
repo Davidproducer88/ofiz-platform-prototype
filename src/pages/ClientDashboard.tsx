@@ -34,6 +34,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { BookingDialog } from '@/components/BookingDialog';
 import { ReviewDialog } from '@/components/ReviewDialog';
+import { EnhancedReviewDialog } from '@/components/EnhancedReviewDialog';
 import { FiltersSheet } from '@/components/FiltersSheet';
 import { ClientProfile } from '@/components/ClientProfile';
 import { ClientNotifications } from '@/components/ClientNotifications';
