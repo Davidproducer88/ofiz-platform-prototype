@@ -21,6 +21,7 @@ import { SubscriptionsManagement } from "@/components/admin/SubscriptionsManagem
 import { PlatformConfiguration } from "@/components/admin/PlatformConfiguration";
 import { AdvertisementsManagement } from "@/components/admin/AdvertisementsManagement";
 import { Feed } from "@/components/Feed";
+import { VerificationManagement } from "@/components/admin/VerificationManagement";
 import { FounderCounter } from "@/components/admin/FounderCounter";
 import { ExecutiveCompensation } from "@/components/admin/ExecutiveCompensation";
 import dossierMd from "../../DOSSIER_EJECUTIVO_C_LEVEL.md?raw";
@@ -593,6 +594,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
             <TabsTrigger value="masters">Maestros</TabsTrigger>
+            <TabsTrigger value="verification">Verificaciones</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="reviews">Reseñas</TabsTrigger>
             <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
@@ -645,6 +647,10 @@ const AdminDashboard = () => {
                 <MastersTableEnhanced onStatsUpdate={loadStats} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="verification">
+            <VerificationManagement />
           </TabsContent>
 
           <TabsContent value="bookings">
