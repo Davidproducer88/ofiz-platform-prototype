@@ -96,16 +96,24 @@ export const MasterSearch = ({ businessId, onInvite }: MasterSearchProps) => {
         
         // Fast response: response_time_hours <= 2
         if (filters.fastResponse) {
-          filteredData = filteredData.filter(master => 
-            master.rankings?.[0]?.response_time_hours <= 2
-          );
+          filteredData = filteredData.filter(master => {
+            const rankings = master.rankings;
+            const responseTime = Array.isArray(rankings) 
+              ? rankings[0]?.response_time_hours 
+              : rankings?.response_time_hours;
+            return responseTime && responseTime <= 2;
+          });
         }
 
         // Featured masters (destacados) - usando ranking score alto
         if (filters.featured) {
-          filteredData = filteredData.filter(master => 
-            master.rankings?.[0]?.ranking_score >= 80
-          );
+          filteredData = filteredData.filter(master => {
+            const rankings = master.rankings;
+            const rankingScore = Array.isArray(rankings) 
+              ? rankings[0]?.ranking_score 
+              : rankings?.ranking_score;
+            return rankingScore && rankingScore >= 80;
+          });
         }
 
         // Minimum experience

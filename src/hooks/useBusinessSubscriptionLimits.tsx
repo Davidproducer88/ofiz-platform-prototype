@@ -89,8 +89,8 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
 
 export const useBusinessSubscriptionLimits = (businessId?: string) => {
   const [subscription, setSubscription] = useState<BusinessSubscription | null>(null);
-  const [adStats, setAdStats] = useState<AdStats>({ activeAdsCount: 0, totalImpressionsUsed: 0 });
   const [loading, setLoading] = useState(true);
+  const [adStats, setAdStats] = useState<AdStats>({ activeAdsCount: 0, totalImpressionsUsed: 0 });
   const [limits, setLimits] = useState<SubscriptionLimitsState>({
     canContactMaster: false,
     contactsRemaining: 0,
@@ -267,7 +267,7 @@ export const useBusinessSubscriptionLimits = (businessId?: string) => {
   };
 
   // Verificar antes de mostrar un anuncio (para controlar impresiones)
-  const checkAdImpression = async (adId: string): Promise<boolean> => {
+  const checkAdImpression = async (_adId: string): Promise<boolean> => {
     if (limits.hasReachedImpressionLimit && limits.planType !== 'enterprise') {
       return false;
     }

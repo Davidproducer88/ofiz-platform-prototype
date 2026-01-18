@@ -323,18 +323,42 @@ export const BillingCenter = ({ businessId, subscription }: BillingCenterProps) 
               </div>
             </div>
 
-            {subscription.mercadopago_subscription_id && (
-              <div className="pt-4 border-t">
+            <div className="pt-4 border-t flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="default"
+                className="flex-1"
+                onClick={() => {
+                  generateBusinessSubscriptionInvoice({
+                    invoiceNumber: generateInvoiceNumber(businessId),
+                    businessName: 'Mi Empresa', // TODO: Get from business profile
+                    planName: subscription.plan_type,
+                    planPrice: subscription.price,
+                    billingPeriod: 'monthly',
+                    periodStart: new Date(subscription.current_period_start),
+                    periodEnd: new Date(subscription.current_period_end),
+                    paymentDate: new Date(subscription.current_period_start),
+                    mercadopagoId: subscription.mercadopago_payment_id,
+                  });
+                  toast({
+                    title: "Factura generada",
+                    description: "La factura PDF de tu suscripción ha sido descargada",
+                  });
+                }}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Descargar Factura
+              </Button>
+              {subscription.mercadopago_subscription_id && (
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="flex-1"
                   onClick={() => window.open('https://www.mercadopago.com.ar/subscriptions', '_blank')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Gestionar en MercadoPago
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
