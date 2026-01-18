@@ -55,16 +55,16 @@ export const DossierMaestros = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-12 md:mt-16 px-4">
             <Card className="p-4 md:p-6 bg-primary/5 border-primary/20">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">+10,000</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Clientes Activos</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">100%</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Pagos Garantizados</div>
             </Card>
             <Card className="p-4 md:p-6 bg-primary/5 border-primary/20">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">$2.5M</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Pagados a Profesionales</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">0%</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Comisiones Ocultas</div>
             </Card>
             <Card className="p-4 md:p-6 bg-primary/5 border-primary/20">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">4.8★</div>
-              <div className="text-xs md:text-sm text-muted-foreground">Satisfacción</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">24/7</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Soporte Disponible</div>
             </Card>
           </div>
 
