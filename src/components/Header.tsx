@@ -77,11 +77,11 @@ export const Header = ({
   return <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button onClick={handleLogoClick} className="flex items-center gap-2 hover:scale-105 transition-all duration-300">
             <img src={logoOfiz} alt="Ofiz - Plataforma de Servicios Profesionales" className="h-8 w-auto" />
           </button>
-          <Badge variant="secondary" className="hidden md:inline-flex shadow-soft">
+          <Badge variant="secondary" className="hidden lg:inline-flex shadow-soft whitespace-nowrap">
             {getUserTypeLabel()}
           </Badge>
         </div>
