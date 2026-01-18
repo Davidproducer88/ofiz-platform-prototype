@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import type { Json } from '@/integrations/supabase/types';
+
+// Create a simple fetch helper for tables not in types
+const SUPABASE_URL = "https://dexrrbbpeidcxoynkyrt.supabase.co";
 
 interface Badge {
   id: string;
@@ -10,7 +11,7 @@ interface Badge {
   icon: string;
   category: string;
   points: number;
-  requirements: Json;
+  requirements: Record<string, unknown> | null;
 }
 
 interface UserBadge {
@@ -37,6 +38,25 @@ interface PointsHistoryEntry {
 // XP required for each level
 const LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500];
 
+// Helper function to make direct REST API calls
+async function fetchFromSupabase<T>(table: string, query: string = ''): Promise<T[]> {
+  const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRleHJyYmJwZWlkY3hveW5reXJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg3NTUxNDMsImV4cCI6MjA0NDMzMTE0M30.oKI9M9wrRJAWHU-M72u9BJCX-GPkCNBb2sLLw4OvuDQ";
+  
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, {
+    headers: {
+      'apikey': anonKey,
+      'Authorization': `Bearer ${anonKey}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch from ${table}`);
+  }
+  
+  return response.json();
+}
+
 export const useGamification = () => {
   const { profile } = useAuth();
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -45,56 +65,57 @@ export const useGamification = () => {
   const [pointsHistory, setPointsHistory] = useState<PointsHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (profile?.id) {
-      fetchGamificationData();
+  const fetchGamificationData = useCallback(async () => {
+    if (!profile?.id) {
+      setLoading(false);
+      return;
     }
-  }, [profile?.id]);
-
-  const fetchGamificationData = async () => {
-    if (!profile?.id) return;
 
     try {
-      // Fetch all badges
-      const { data: allBadges } = await supabase
-        .from('badges')
-        .select('*')
-        .eq('is_active', true);
-
-      // Fetch user's earned badges
-      const { data: earnedBadges } = await supabase
-        .from('user_badges')
-        .select('*, badges(*)')
-        .eq('user_id', profile.id);
-
+      setLoading(true);
+      
+      // Fetch all active badges
+      const allBadges = await fetchFromSupabase<Badge>('badges', '?is_active=eq.true');
+      
+      // Fetch user's earned badges with badge details
+      const earnedBadges = await fetchFromSupabase<any>(
+        'user_badges', 
+        `?user_id=eq.${profile.id}&select=*,badges(*)`
+      );
+      
       // Fetch user level
-      const { data: level } = await supabase
-        .from('user_levels')
-        .select('*')
-        .eq('user_id', profile.id)
-        .single();
-
+      const levels = await fetchFromSupabase<UserLevel>(
+        'user_levels', 
+        `?user_id=eq.${profile.id}`
+      );
+      
       // Fetch points history
-      const { data: history } = await supabase
-        .from('points_history')
-        .select('*')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
+      const history = await fetchFromSupabase<PointsHistoryEntry>(
+        'points_history', 
+        `?user_id=eq.${profile.id}&order=created_at.desc&limit=20`
+      );
 
       setBadges(allBadges || []);
-      setUserBadges(earnedBadges?.map(ub => ({
+      setUserBadges(earnedBadges?.map((ub: any) => ({
         ...ub,
-        badge: ub.badges as unknown as Badge
+        badge: ub.badges as Badge
       })) || []);
-      setUserLevel(level);
+      setUserLevel(levels?.[0] || null);
       setPointsHistory(history || []);
     } catch (error) {
       console.error('Error fetching gamification data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile?.id]);
+
+  useEffect(() => {
+    if (profile?.id) {
+      fetchGamificationData();
+    } else {
+      setLoading(false);
+    }
+  }, [profile?.id, fetchGamificationData]);
 
   const getProgressToNextLevel = () => {
     if (!userLevel) return { current: 0, required: 100, percentage: 0 };
