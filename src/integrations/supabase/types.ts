@@ -89,6 +89,13 @@ export type Database = {
             referencedRelation: "business_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "advertisements_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       badges: {
@@ -242,6 +249,13 @@ export type Database = {
             foreignKeyName: "bookings_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_search_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -311,6 +325,13 @@ export type Database = {
             foreignKeyName: "business_contract_applications_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_search_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_contract_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -368,6 +389,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_contracts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -493,6 +521,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -775,6 +810,13 @@ export type Database = {
             foreignKeyName: "favorite_masters_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_search_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_masters_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -836,6 +878,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_posts_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_search_view"
             referencedColumns: ["id"]
           },
           {
@@ -1411,6 +1460,13 @@ export type Database = {
             foreignKeyName: "master_portfolio_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_search_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_portfolio_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -1466,6 +1522,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: true
             referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_rankings_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: true
+            referencedRelation: "masters_search_view"
             referencedColumns: ["id"]
           },
           {
@@ -1533,6 +1596,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_verification_documents_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_search_view"
             referencedColumns: ["id"]
           },
           {
@@ -2260,6 +2330,13 @@ export type Database = {
             foreignKeyName: "reviews_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_search_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -2339,6 +2416,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_applications_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_search_view"
             referencedColumns: ["id"]
           },
           {
@@ -2494,6 +2578,13 @@ export type Database = {
             foreignKeyName: "services_master_id_fkey"
             columns: ["master_id"]
             isOneToOne: false
+            referencedRelation: "masters_search_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
             referencedRelation: "masters_with_profile_and_services"
             referencedColumns: ["id"]
           },
@@ -2567,6 +2658,13 @@ export type Database = {
             columns: ["master_id"]
             isOneToOne: false
             referencedRelation: "masters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsored_content_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "masters_search_view"
             referencedColumns: ["id"]
           },
           {
@@ -2812,6 +2910,51 @@ export type Database = {
       }
     }
     Views: {
+      business_profiles_public: {
+        Row: {
+          company_name: string | null
+          company_size: string | null
+          company_type: string | null
+          created_at: string | null
+          id: string | null
+          industry: string | null
+          website: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          company_size?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          id?: string | null
+          industry?: string | null
+          website?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          company_size?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          id?: string | null
+          industry?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       masters_public: {
         Row: {
           availability_schedule: Json | null
@@ -2825,6 +2968,39 @@ export type Database = {
           hourly_rate: number | null
           id: string | null
           is_verified: boolean | null
+          rating: number | null
+          total_reviews: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "masters_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "masters_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      masters_search_view: {
+        Row: {
+          avatar_url: string | null
+          business_name: string | null
+          city: string | null
+          description: string | null
+          experience_years: number | null
+          full_name: string | null
+          hourly_rate: number | null
+          id: string | null
+          is_verified: boolean | null
+          latitude: number | null
+          longitude: number | null
           rating: number | null
           total_reviews: number | null
         }
