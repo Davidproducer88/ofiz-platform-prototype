@@ -6,14 +6,17 @@ import {
   Check, 
   X, 
   Edit2, 
-  Clock, 
   DollarSign, 
   MapPin, 
   Calendar,
   MessageSquare,
   PlayCircle,
-  FileSearch
+  FileSearch,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
+import { BookingStatusTimeline } from './chat/BookingStatusTimeline';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -51,6 +54,7 @@ export function BookingActionsInChat({
   const [negotiatePrice, setNegotiatePrice] = useState(booking?.total_price?.toString() || '');
   const [negotiateMessage, setNegotiateMessage] = useState('');
   const [isNegotiating, setIsNegotiating] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   if (!booking) return null;
 
@@ -479,6 +483,28 @@ export function BookingActionsInChat({
               Encargo confirmado - Puedes iniciar el trabajo
             </div>
           )}
+
+          {/* Timeline Collapsible */}
+          <Collapsible open={showTimeline} onOpenChange={setShowTimeline}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-full mt-2 text-xs text-muted-foreground">
+                {showTimeline ? (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    Ocultar progreso
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    Ver progreso del encargo
+                  </>
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              <BookingStatusTimeline booking={booking} />
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </Card>
 
