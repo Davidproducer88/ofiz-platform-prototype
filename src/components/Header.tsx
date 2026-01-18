@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { RealtimeNotificationsBell } from "@/components/RealtimeNotificationsBell";
 import { smoothScrollTo, scrollToTop } from "@/utils/smoothScroll";
 import { getDashboardRoute } from "@/utils/dashboardRedirect";
 import logoOfiz from "@/assets/logo-ofiz-new.png";
@@ -446,7 +447,10 @@ export const Header = ({
           <ThemeToggle />
           
           {userType ? <>
-              {/* Notifications */}
+              {/* Realtime Notifications Bell */}
+              <RealtimeNotificationsBell />
+
+              {/* Legacy Notifications Panel */}
               <NotificationsPanel isOpen={notificationsOpen} onOpenChange={setNotificationsOpen} />
 
               {/* Visible Logout Button for Desktop */}
