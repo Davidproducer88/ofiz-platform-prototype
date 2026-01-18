@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Star } from 'lucide-react';
 import { BookingActions } from '@/components/BookingActions';
+import { InvoiceDownload } from '@/components/client/InvoiceDownload';
 
 interface Booking {
   id: string;
@@ -100,26 +101,42 @@ export function ClientBookingsList({ bookings, onReview, onReschedule, onCancel 
                 </div>
               </div>
 
-              <BookingActions
-                booking={{
-                  id: booking.id,
-                  status: booking.status,
-                  client_id: booking.client_id,
-                  master_id: booking.master_id,
-                  service_id: booking.service_id || '',
-                  scheduled_date: booking.scheduled_date,
-                  total_price: booking.total_price,
-                  client_confirmed_at: booking.client_confirmed_at,
-                  services: booking.services ? {
-                    title: booking.services.title,
-                  } : undefined,
-                }}
-                userType="client"
-                otherUserName={booking.masters?.business_name || 'Profesional'}
-                onReview={() => onReview(booking)}
-                onReschedule={() => onReschedule(booking)}
-                onUpdate={async () => {}}
-              />
+              <div className="flex items-center gap-2 flex-wrap">
+                <BookingActions
+                  booking={{
+                    id: booking.id,
+                    status: booking.status,
+                    client_id: booking.client_id,
+                    master_id: booking.master_id,
+                    service_id: booking.service_id || '',
+                    scheduled_date: booking.scheduled_date,
+                    total_price: booking.total_price,
+                    client_confirmed_at: booking.client_confirmed_at,
+                    services: booking.services ? {
+                      title: booking.services.title,
+                    } : undefined,
+                  }}
+                  userType="client"
+                  otherUserName={booking.masters?.business_name || 'Profesional'}
+                  onReview={() => onReview(booking)}
+                  onReschedule={() => onReschedule(booking)}
+                  onUpdate={async () => {}}
+                />
+                {booking.status === 'completed' && (
+                  <InvoiceDownload
+                    booking={{
+                      id: booking.id,
+                      total_price: booking.total_price,
+                      scheduled_date: booking.scheduled_date,
+                      status: booking.status,
+                      client_address: booking.client_address,
+                      services: booking.services,
+                      masters: { business_name: booking.masters?.business_name || 'Profesional' },
+                      profiles: null
+                    }}
+                  />
+                )}
+              </div>
             </CardContent>
           </Card>
         );
