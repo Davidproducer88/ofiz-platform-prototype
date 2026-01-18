@@ -18,12 +18,9 @@ export const DossierEmpresas = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10">
       {/* Fixed Actions - Mobile Optimized */}
-      <div className="print:hidden fixed top-4 right-4 z-50 flex flex-col gap-2">
+      <div className="print:hidden fixed top-4 right-4 z-50">
         <Button onClick={handleRegister} size="lg" className="shadow-lg">
-          🏢 Solicitar Demo
-        </Button>
-        <Button onClick={handlePrint} size="lg" variant="outline" className="shadow-lg bg-background">
-          📄 Descargar PDF
+          🏢 Pedir una Demo
         </Button>
       </div>
 
@@ -170,8 +167,8 @@ export const DossierEmpresas = () => {
       <div className="min-h-screen p-4 md:p-8 page-break">
         <div className="max-w-6xl mx-auto space-y-8 md:space-y-12">
           <div className="text-center space-y-3 md:space-y-4">
-            <h2 className="text-3xl md:text-5xl font-bold">Funcionalidades Enterprise Explicadas</h2>
-            <p className="text-base md:text-xl text-muted-foreground">Cada herramienta diseñada para ahorrar tiempo y dinero</p>
+            <h2 className="text-3xl md:text-5xl font-bold">Lo que puedes hacer con Ofiz</h2>
+            <p className="text-base md:text-xl text-muted-foreground">Herramientas simples para ahorrar tiempo y dinero</p>
           </div>
 
           <div className="space-y-6 md:space-y-8">
