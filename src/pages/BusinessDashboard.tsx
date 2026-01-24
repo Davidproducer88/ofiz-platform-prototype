@@ -39,6 +39,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBusinessHome } from "@/components/mobile/MobileBusinessHome";
 import { BottomNav } from "@/components/mobile/BottomNav";
 import { cn } from "@/lib/utils";
+import { BusinessDashboardSidebar } from "@/components/business/BusinessDashboardSidebar";
 
 export default function BusinessDashboard() {
   const { user, profile } = useAuth();
@@ -212,7 +213,12 @@ export default function BusinessDashboard() {
     <div className="min-h-screen bg-background">
       <Header userType="business" />
       
-      <main className="container mx-auto px-4 py-8">
+      {/* Sidebar */}
+      <BusinessDashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {/* Main content with sidebar offset */}
+      <main className="lg:pl-56 transition-all duration-300">
+        <div className="container mx-auto px-4 py-8">
         {/* First-time setup prompt */}
         {showProfileSetup && (
           <Card className="mb-8 border-primary bg-primary/5">
@@ -388,10 +394,7 @@ export default function BusinessDashboard() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className={cn(
-            "grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 xl:grid-cols-12 gap-1 h-auto p-1",
-            isMobile && "hidden"
-          )}>
+          <TabsList className="hidden">
             <TabsTrigger value="home" className="text-xs sm:text-sm md:hidden">Inicio</TabsTrigger>
             <TabsTrigger value="feed" className="text-xs sm:text-sm">Feed</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs sm:text-sm">Marketplace</TabsTrigger>
@@ -591,6 +594,7 @@ export default function BusinessDashboard() {
             />
           </TabsContent>
         </Tabs>
+        </div>
       </main>
 
       <Footer />

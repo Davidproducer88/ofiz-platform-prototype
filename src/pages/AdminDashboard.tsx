@@ -30,6 +30,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileAdminHome } from "@/components/mobile/MobileAdminHome";
 import { BottomNav } from "@/components/mobile/BottomNav";
 import { cn } from "@/lib/utils";
+import { AdminDashboardSidebar } from "@/components/admin/AdminDashboardSidebar";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -486,7 +487,7 @@ const AdminDashboard = () => {
   // Desktop view
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
+      <header className="border-b bg-card sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button 
@@ -533,7 +534,12 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      {/* Sidebar */}
+      <AdminDashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {/* Main content with sidebar offset */}
+      <div className="lg:pl-56 transition-all duration-300">
+        <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
@@ -586,10 +592,7 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className={cn(
-            "flex w-full overflow-x-auto gap-1",
-            isMobile && "hidden"
-          )}>
+          <TabsList className="hidden">
             <TabsTrigger value="home" className="md:hidden">Inicio</TabsTrigger>
             <TabsTrigger value="feed">Feed</TabsTrigger>
             <TabsTrigger value="users">Usuarios</TabsTrigger>
@@ -766,6 +769,7 @@ const AdminDashboard = () => {
             <ExecutiveCompensation />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   );
