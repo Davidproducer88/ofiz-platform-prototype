@@ -72,6 +72,7 @@ import { AppBottomNav } from '@/components/mobile/AppBottomNav';
 import { AppHeader } from '@/components/mobile/AppHeader';
 import { cn } from '@/lib/utils';
 import { SERVICE_CATEGORIES } from '@/lib/categories';
+import { MasterDashboardSidebar } from '@/components/master/MasterDashboardSidebar';
 
 interface Service {
   id: string;
@@ -740,7 +741,12 @@ const MasterDashboard = () => {
     <div className="min-h-screen bg-gradient-subtle">
       <Header userType="master" />
       
-      <div className="container py-4 sm:py-8 px-3 sm:px-4">
+      {/* Sidebar */}
+      <MasterDashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {/* Main content with sidebar offset */}
+      <div className="lg:pl-56 transition-all duration-300">
+        <div className="container py-4 sm:py-8 px-3 sm:px-4">
         {/* Welcome Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -819,102 +825,7 @@ const MasterDashboard = () => {
         {isMobile && <AppBottomNav userType="master" userName={profile?.full_name} />}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4 sm:mt-8">
-          <TabsList className={cn(
-            "inline-flex flex-wrap w-full justify-start h-auto p-2 gap-2 bg-muted/50 rounded-xl",
-            isMobile && "hidden"
-          )}>
-            <TabsTrigger value="home" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground md:hidden">
-              <Home className="h-4 w-4" />
-              Inicio
-            </TabsTrigger>
-            <TabsTrigger value="feed" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Feed</span>
-            </TabsTrigger>
-            <TabsTrigger value="marketplace" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Marketplace</span>
-            </TabsTrigger>
-            <TabsTrigger value="services" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Servicios</span>
-            </TabsTrigger>
-            <TabsTrigger value="job-requests" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Trabajos</span>
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Reservas</span>
-            </TabsTrigger>
-            <TabsTrigger value="reviews" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Star className="h-4 w-4" />
-              <span className="hidden sm:inline">Reseñas</span>
-            </TabsTrigger>
-            <TabsTrigger value="portfolio" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Eye className="h-4 w-4" />
-              <span className="hidden sm:inline">Portfolio</span>
-            </TabsTrigger>
-            <TabsTrigger value="disputes" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <AlertCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Disputas</span>
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Mensajes</span>
-            </TabsTrigger>
-            <TabsTrigger value="subscription" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Award className="h-4 w-4" />
-              <span className="hidden sm:inline">Plan</span>
-            </TabsTrigger>
-            <TabsTrigger value="finances" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline">Finanzas</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Análisis</span>
-            </TabsTrigger>
-            <TabsTrigger value="applications" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Propuestas</span>
-            </TabsTrigger>
-            <TabsTrigger value="contracts" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Package className="h-4 w-4" />
-              <span className="hidden sm:inline">Contratos</span>
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Calendario</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">Alertas</span>
-            </TabsTrigger>
-            <TabsTrigger value="escrow" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <CreditCard className="h-4 w-4" />
-              <span className="hidden sm:inline">Escrow</span>
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Transacciones</span>
-            </TabsTrigger>
-            <TabsTrigger value="withdrawals" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <TrendingDown className="h-4 w-4" />
-              <span className="hidden sm:inline">Retiros</span>
-            </TabsTrigger>
-            <TabsTrigger value="verification" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Verificación</span>
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">Logros</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Perfil</span>
-            </TabsTrigger>
+          <TabsList className="hidden">
           </TabsList>
 
           {/* Home Tab (Mobile Only) */}
@@ -1706,6 +1617,7 @@ const MasterDashboard = () => {
             setSelectedRequestId(null);
           }}
         />
+      </div>
       </div>
     </div>
   );
