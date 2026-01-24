@@ -6,7 +6,6 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { 
@@ -56,6 +55,8 @@ import { MobileServiceRequestWizard } from '@/components/mobile/MobileServiceReq
 import { PostServiceFeedback } from '@/components/client/PostServiceFeedback';
 import { BadgesDisplay } from '@/components/gamification/BadgesDisplay';
 import { SponsoredAdBanner } from '@/components/business/SponsoredAdBanner';
+import { ClientDashboardSidebar } from '@/components/client/ClientDashboardSidebar';
+import { cn } from '@/lib/utils';
 
 const ClientDashboard = () => {
   const { profile } = useAuth();
@@ -445,7 +446,7 @@ const ClientDashboard = () => {
     );
   }
 
-  // DESKTOP RENDERING (existente)
+  // DESKTOP RENDERING with Sidebar
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header userType="client" />
@@ -453,304 +454,260 @@ const ClientDashboard = () => {
       {/* Post-service feedback (rating + tip) */}
       {profile?.id && <PostServiceFeedback clientId={profile.id} />}
       
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Hola, {profile?.full_name || 'Cliente'} 👋
-          </h1>
-          <p className="text-muted-foreground">
-            Encuentra y gestiona tus servicios profesionales
-          </p>
-        </div>
+      {/* Sidebar */}
+      <ClientDashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {/* Main Content with sidebar offset - only on desktop */}
+      <main className="lg:pl-56 transition-all duration-300">
+        <div className="max-w-6xl mx-auto px-4 lg:px-6 py-8">
+          {/* Welcome Section */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+              Hola, {profile?.full_name || 'Cliente'} 👋
+            </h1>
+            <p className="text-muted-foreground">
+              Encuentra y gestiona tus servicios profesionales
+            </p>
+          </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="shadow-card hover:shadow-elegant transition-smooth">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <ClipboardList className="h-4 w-4" />
-                Total Reservas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{bookings.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card hover:shadow-elegant transition-smooth">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <CheckCircle className="h-4 w-4" />
-                Completadas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{completedBookings}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card hover:shadow-elegant transition-smooth">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                Favoritos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-500">{favorites.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card hover:shadow-elegant transition-smooth">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Total Gastado
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">
-                $U {totalSpent.toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tabs Section */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 gap-2">
-            <TabsTrigger value="feed" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Feed</span>
-            </TabsTrigger>
-            <TabsTrigger value="marketplace" className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Mercado</span>
-            </TabsTrigger>
-            <TabsTrigger value="services" className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              <span className="hidden sm:inline">Servicios</span>
-            </TabsTrigger>
-            <TabsTrigger value="requests" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Solicitudes</span>
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="flex items-center gap-2">
-              <ClipboardList className="h-4 w-4" />
-              <span className="hidden sm:inline">Reservas</span>
-            </TabsTrigger>
-            <TabsTrigger value="favorites" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              <span className="hidden sm:inline">Favoritos</span>
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Chat</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Perfil</span>
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              <span className="hidden sm:inline">Logros</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Feed Tab */}
-          <TabsContent value="feed" className="space-y-4">
-            <Feed />
-          </TabsContent>
-
-          {/* Marketplace Tab */}
-          <TabsContent value="marketplace" className="space-y-4">
-            <MarketplaceFeed />
-          </TabsContent>
-
-          {/* Services Tab */}
-          <TabsContent value="services" className="space-y-6">
-            <Card className="shadow-card">
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <Search className="h-5 w-5" />
-                    Servicios Disponibles
-                  </CardTitle>
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate('/search-masters')}
-                  >
-                    Ver Todos los Profesionales
-                  </Button>
-                </div>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="shadow-card hover:shadow-elegant transition-smooth">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4" />
+                  Total Reservas
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Buscar servicios, profesionales..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full sm:w-auto"
-                    onClick={() => setFiltersOpen(true)}
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filtros
-                  </Button>
-                </div>
-
-                {/* Categories */}
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
-                    <Button
-                      key={category.id}
-                      variant={selectedCategory === category.id ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedCategory(category.id)}
-                      className="text-xs"
-                    >
-                      <span className="mr-1">{category.icon}</span>
-                      {category.name}
-                    </Button>
-                  ))}
-                </div>
+              <CardContent>
+                <div className="text-2xl font-bold text-primary">{bookings.length}</div>
               </CardContent>
             </Card>
 
-            {/* Services Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  isFavorite={isFavorite(service.master_id)}
-                  onBook={() => {
-                    setSelectedService(service);
-                    setBookingDialogOpen(true);
-                  }}
-                  onToggleFavorite={() => toggleFavorite(service.master_id)}
-                />
-              ))}
-            </div>
+            <Card className="shadow-card hover:shadow-elegant transition-smooth">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  Completadas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{completedBookings}</div>
+              </CardContent>
+            </Card>
 
-            {filteredServices.length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <p className="text-muted-foreground">No se encontraron servicios</p>
+            <Card className="shadow-card hover:shadow-elegant transition-smooth">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Heart className="h-4 w-4" />
+                  Favoritos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-500">{favorites.length}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card hover:shadow-elegant transition-smooth">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Total Gastado
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-primary">
+                  $U {totalSpent.toLocaleString()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Content based on activeTab */}
+          <div className="space-y-6">
+            {/* Feed Tab */}
+            {activeTab === 'feed' && <Feed />}
+
+            {/* Marketplace Tab */}
+            {activeTab === 'marketplace' && <MarketplaceFeed />}
+
+            {/* Services Tab */}
+            {activeTab === 'services' && (
+              <>
+                <Card className="shadow-card">
+                  <CardHeader>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <CardTitle className="flex items-center gap-2">
+                        <Search className="h-5 w-5" />
+                        Servicios Disponibles
+                      </CardTitle>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate('/search-masters')}
+                      >
+                        Ver Todos los Profesionales
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Buscar servicios, profesionales..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="w-full sm:w-auto"
+                        onClick={() => setFiltersOpen(true)}
+                      >
+                        <Filter className="h-4 w-4 mr-2" />
+                        Filtros
+                      </Button>
+                    </div>
+
+                    {/* Categories */}
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((category) => (
+                        <Button
+                          key={category.id}
+                          variant={selectedCategory === category.id ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setSelectedCategory(category.id)}
+                          className="text-xs"
+                        >
+                          <span className="mr-1">{category.icon}</span>
+                          {category.name}
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Services Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredServices.map((service) => (
+                    <ServiceCard
+                      key={service.id}
+                      service={service}
+                      isFavorite={isFavorite(service.master_id)}
+                      onBook={() => {
+                        setSelectedService(service);
+                        setBookingDialogOpen(true);
+                      }}
+                      onToggleFavorite={() => toggleFavorite(service.master_id)}
+                    />
+                  ))}
+                </div>
+
+                {filteredServices.length === 0 && (
+                  <Card>
+                    <CardContent className="p-12 text-center">
+                      <p className="text-muted-foreground">No se encontraron servicios</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
+
+            {/* Requests Tab */}
+            {activeTab === 'requests' && (
+              <Card className="shadow-card">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Mis Solicitudes de Servicio
+                      </CardTitle>
+                      <CardDescription>
+                        Publica lo que necesitas y recibe presupuestos de profesionales
+                      </CardDescription>
+                    </div>
+                    <Button onClick={() => setServiceRequestDialogOpen(true)}>
+                      Nueva Solicitud
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <MyServiceRequests 
+                    refreshTrigger={requestsRefreshTrigger}
+                    onNavigateToChat={() => setActiveTab('chat')}
+                  />
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
 
-          {/* Requests Tab */}
-          <TabsContent value="requests" className="space-y-6">
-            <Card className="shadow-card">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Mis Solicitudes de Servicio
-                    </CardTitle>
-                    <CardDescription>
-                      Publica lo que necesitas y recibe presupuestos de profesionales
-                    </CardDescription>
-                  </div>
-                  <Button onClick={() => setServiceRequestDialogOpen(true)}>
-                    Nueva Solicitud
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <MyServiceRequests 
-                  refreshTrigger={requestsRefreshTrigger}
-                  onNavigateToChat={() => setActiveTab('chat')}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* Bookings Tab */}
+            {activeTab === 'bookings' && (
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5" />
+                    Mis Reservas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ClientBookingsList
+                    bookings={bookings}
+                    onReview={(booking) => {
+                      setSelectedBooking(booking);
+                      setReviewDialogOpen(true);
+                    }}
+                    onReschedule={(booking) => {
+                      setBookingToReschedule(booking);
+                      setRescheduleDialogOpen(true);
+                    }}
+                    onCancel={async (id) => {
+                      await cancelBooking(id);
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
-          {/* Bookings Tab */}
-          <TabsContent value="bookings" className="space-y-4">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ClipboardList className="h-5 w-5" />
-                  Mis Reservas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ClientBookingsList
-                  bookings={bookings}
-                  onReview={(booking) => {
-                    setSelectedBooking(booking);
-                    setReviewDialogOpen(true);
-                  }}
-                  onReschedule={(booking) => {
-                    setBookingToReschedule(booking);
-                    setRescheduleDialogOpen(true);
-                  }}
-                  onCancel={async (id) => {
-                    await cancelBooking(id);
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* Favorites Tab */}
+            {activeTab === 'favorites' && <FavoriteMasters />}
 
-          {/* Favorites Tab */}
-          <TabsContent value="favorites" className="space-y-4">
-            <FavoriteMasters />
-          </TabsContent>
+            {/* Calendar Tab */}
+            {activeTab === 'calendar' && <ClientCalendar />}
 
-          {/* Additional Tabs */}
-          <TabsContent value="calendar">
-            <ClientCalendar />
-          </TabsContent>
+            {/* Payments Tab */}
+            {activeTab === 'payments' && (
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Historial de Pagos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PaymentHistory />
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="payments">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Historial de Pagos
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PaymentHistory />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* Reviews Tab */}
+            {activeTab === 'reviews' && <MyReviews />}
 
-          <TabsContent value="reviews">
-            <MyReviews />
-          </TabsContent>
+            {/* Disputes Tab */}
+            {activeTab === 'disputes' && <MyDisputes userId={profile?.id || ''} />}
 
-          <TabsContent value="disputes">
-            <MyDisputes userId={profile?.id || ''} />
-          </TabsContent>
+            {/* Addresses Tab */}
+            {activeTab === 'addresses' && <AddressBook />}
 
-          <TabsContent value="addresses">
-            <AddressBook />
-          </TabsContent>
+            {/* Chat Tab */}
+            {activeTab === 'chat' && <ChatTab />}
 
-          <TabsContent value="chat">
-            <ChatTab />
-          </TabsContent>
+            {/* Referrals Tab */}
+            {activeTab === 'referrals' && <ReferralProgram userId={profile?.id || ''} />}
 
-          <TabsContent value="referrals">
-            <ReferralProgram userId={profile?.id || ''} />
-          </TabsContent>
-
-          <TabsContent value="profile">
-            {profile && (
+            {/* Profile Tab */}
+            {activeTab === 'profile' && profile && (
               <ClientProfile
                 profile={{
                   id: profile.id,
@@ -764,26 +721,26 @@ const ClientDashboard = () => {
                 onProfileUpdate={() => window.location.reload()}
               />
             )}
-          </TabsContent>
 
-          <TabsContent value="notifications">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notificaciones
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ClientNotifications />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* Notifications Tab */}
+            {activeTab === 'notifications' && (
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="h-5 w-5" />
+                    Notificaciones
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ClientNotifications />
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="achievements">
-            <BadgesDisplay />
-          </TabsContent>
-        </Tabs>
+            {/* Achievements Tab */}
+            {activeTab === 'achievements' && <BadgesDisplay />}
+          </div>
+        </div>
       </main>
 
       {/* Dialogs */}
