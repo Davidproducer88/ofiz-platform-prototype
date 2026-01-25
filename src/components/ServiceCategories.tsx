@@ -124,14 +124,14 @@ de servicio?</h3>
               <p className="md:text-xl opacity-90 max-w-xl text-sm text-center px-0 py-0 my-[2px] mx-0">
                 Publicá tu solicitud GRATIS y recibí hasta <span className="font-bold">5 presupuestos</span> de profesionales especializados
               </p>
-              <div className="flex-wrap pt-2 items-start justify-center flex flex-row gap-[11px] px-0 my-0 mx-0">
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
+              <div className="flex flex-wrap pt-2 items-center justify-center gap-2 sm:gap-[11px] px-2 sm:px-0 my-0 mx-0">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-sm whitespace-nowrap">
                   +50 especialidades
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-sm whitespace-nowrap">
                   Respuesta en 24hs
                 </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm rounded-sm">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-sm whitespace-nowrap">
                   100% Gratis
                 </Badge>
               </div>
