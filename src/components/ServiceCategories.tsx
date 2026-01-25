@@ -113,15 +113,17 @@ export const ServiceCategories = () => {
 
         {/* Banner Image - Enhanced */}
         <div ref={bannerRef as any} className={`relative rounded-2xl overflow-hidden shadow-elegant hover:shadow-soft transition-all duration-1000 group ${bannerVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          <img src={servicesGrid} alt="Servicios disponibles en Ofiz" className="w-full h-64 md:h-80 object-cover transition-transform duration-700 group-hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-secondary/90 items-center justify-center flex flex-row gap-0">
-            <div className="text-center text-white space-y-6 p-8">
+          {/* Background image - hidden on mobile, visible on md+ */}
+          <img src={servicesGrid} alt="Servicios disponibles en Ofiz" className="hidden md:block w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105" />
+          
+          {/* Content overlay - relative on mobile for auto-height, absolute on md+ */}
+          <div className="relative md:absolute md:inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-secondary/90 items-center justify-center flex flex-row gap-0">
+            <div className="text-center text-white space-y-4 sm:space-y-6 p-6 sm:p-8">
               <div className="inline-block px-0 py-0 my-0 mx-0">
-                <Edit className="h-12 w-12 mb-4 animate-float" />
+                <Edit className="h-10 w-10 sm:h-12 sm:w-12 mb-2 sm:mb-4 animate-float" />
               </div>
-              <h3 className="md:text-4xl font-bold drop-shadow-lg text-xl text-center mx-0 px-0 py-px my-[3px]">¿Necesitás otro tipo
-de servicio?</h3>
-              <p className="md:text-xl opacity-90 max-w-xl text-sm text-center px-0 py-0 my-[2px] mx-0">
+              <h3 className="text-lg sm:text-xl md:text-4xl font-bold drop-shadow-lg text-center mx-0 px-0 py-px my-[3px]">¿Necesitás otro tipo de servicio?</h3>
+              <p className="text-xs sm:text-sm md:text-xl opacity-90 max-w-xl text-center px-0 py-0 my-[2px] mx-0">
                 Publicá tu solicitud GRATIS y recibí hasta <span className="font-bold">5 presupuestos</span> de profesionales especializados
               </p>
               <div className="flex flex-wrap pt-2 items-center justify-center gap-2 sm:gap-[11px] px-2 sm:px-0 my-0 mx-0">
