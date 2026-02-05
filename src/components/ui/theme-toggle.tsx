@@ -17,7 +17,7 @@ export function ThemeToggle() {
     return (
       <div className="flex items-center space-x-2">
         <Sun className="h-4 w-4 text-muted-foreground" />
-        <Switch disabled className="data-[state=unchecked]:bg-muted" />
+        <Switch disabled checked={false} className="data-[state=unchecked]:bg-muted" />
         <Moon className="h-4 w-4 text-muted-foreground" />
       </div>
     );
