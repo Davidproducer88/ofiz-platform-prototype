@@ -118,7 +118,8 @@ export const BetaAnnouncementDialog = () => {
                 <span className="text-primary text-base md:text-lg flex-shrink-0">💰</span>
                 <div>
                   <span className="font-bold text-sm md:text-base">20% DE DESCUENTO TEMPORAL</span>
-                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Descuento exclusivo en todos tus servicios de por vida como usuario fundador</p>
+                  <p className="text-muted-foreground mt-0.5 md:mt-1 text-xs md:text-sm">Descuento exclusivo en todos tus servicios
+por 3 meses como usuario fundador</p>
                 </div>
               </li>
               <li className="flex items-start gap-2 md:gap-3 bg-background/50 p-2 md:p-3 rounded-lg">
