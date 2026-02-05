@@ -39,13 +39,15 @@ export const BetaAnnouncementDialog = () => {
             🎉 ¡Únete como Usuario Fundador! 🚀
           </DialogTitle>
           
-          <DialogDescription className="text-center text-sm md:text-base space-y-2 md:space-y-3 px-2">
-            <p className="text-base md:text-lg font-semibold text-foreground">
-              Ofiz Beta: Tu oportunidad de ser pionero en la revolución de servicios profesionales
-            </p>
-            <p className="text-muted-foreground text-sm md:text-base">
-              Regístrate ahora y obtén beneficios exclusivos de usuario fundador que mantendrás de por vida.
-            </p>
+          <DialogDescription asChild>
+            <div className="text-center text-sm md:text-base space-y-2 md:space-y-3 px-2">
+              <p className="text-base md:text-lg font-semibold text-foreground">
+                Ofiz Beta: Tu oportunidad de ser pionero en la revolución de servicios profesionales
+              </p>
+              <p className="text-muted-foreground text-sm md:text-base">
+                Regístrate ahora y obtén beneficios exclusivos de usuario fundador que mantendrás de por vida.
+              </p>
+            </div>
           </DialogDescription>
         </DialogHeader>
 
