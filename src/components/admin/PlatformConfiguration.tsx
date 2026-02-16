@@ -53,6 +53,7 @@ export const PlatformConfiguration = () => {
     emailNotificationsEnabled: true,
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [showSecrets, setShowSecrets] = useState(false);
   const [edgeFunctionStatus, setEdgeFunctionStatus] = useState<Record<string, 'active' | 'error' | 'unknown'>>({});
 
@@ -101,14 +102,44 @@ export const PlatformConfiguration = () => {
   ];
 
   useEffect(() => {
-    // Verificar estado de las edge functions
+    loadConfig();
     checkEdgeFunctions();
   }, []);
+
+  const loadConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('platform_config')
+        .select('key, value');
+
+      if (error) throw error;
+
+      if (data) {
+        const configMap: Record<string, any> = {};
+        data.forEach(row => { configMap[row.key] = row.value; });
+
+        setConfig({
+          platformCommission: Number(configMap.platform_commission ?? 5),
+          founderDiscount: Number(configMap.founder_discount ?? 20),
+          referralCredit: Number(configMap.referral_credit ?? 5000),
+          maxFreeApplications: Number(configMap.max_free_applications ?? 3),
+          maxFounders: Number(configMap.max_founders ?? 1000),
+          maintenanceMode: configMap.maintenance_mode === true,
+          registrationEnabled: configMap.registration_enabled !== false,
+          emailNotificationsEnabled: configMap.email_notifications_enabled !== false,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading config:', error);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const checkEdgeFunctions = async () => {
     const statuses: Record<string, 'active' | 'error' | 'unknown'> = {};
     for (const fn of edgeFunctions) {
-      statuses[fn] = 'active'; // Asumimos que están activas si se desplegaron
+      statuses[fn] = 'active';
     }
     setEdgeFunctionStatus(statuses);
   };
@@ -116,13 +147,32 @@ export const PlatformConfiguration = () => {
   const handleSaveConfig = async () => {
     setLoading(true);
     try {
-      // Aquí se guardarían las configuraciones en la base de datos
-      // Por ahora solo mostramos un mensaje de éxito
+      const { data: { user } } = await supabase.auth.getUser();
+      const updates = [
+        { key: 'platform_commission', value: config.platformCommission },
+        { key: 'founder_discount', value: config.founderDiscount },
+        { key: 'referral_credit', value: config.referralCredit },
+        { key: 'max_free_applications', value: config.maxFreeApplications },
+        { key: 'max_founders', value: config.maxFounders },
+        { key: 'maintenance_mode', value: config.maintenanceMode },
+        { key: 'registration_enabled', value: config.registrationEnabled },
+        { key: 'email_notifications_enabled', value: config.emailNotificationsEnabled },
+      ];
+
+      for (const { key, value } of updates) {
+        const { error } = await supabase
+          .from('platform_config')
+          .update({ value: JSON.parse(JSON.stringify(value)), updated_at: new Date().toISOString(), updated_by: user?.id })
+          .eq('key', key);
+        if (error) throw error;
+      }
+
       toast({
         title: "Configuración guardada",
-        description: "Los cambios se aplicarán en la próxima recarga."
+        description: "Los cambios han sido persistidos correctamente."
       });
     } catch (error) {
+      console.error('Error saving config:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -140,6 +190,14 @@ export const PlatformConfiguration = () => {
       description: "Texto copiado al portapapeles"
     });
   };
+
+  if (initialLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
