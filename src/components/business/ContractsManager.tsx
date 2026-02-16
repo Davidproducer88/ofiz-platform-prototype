@@ -178,7 +178,7 @@ export const ContractsManager = ({ businessId, subscription, onUpdate }: Contrac
   };
 
   const handlePaymentSuccess = async (paymentData: any) => {
-    console.log('Payment successful:', paymentData);
+    
     
     // Create or find conversation with the master
     if (selectedApplication) {

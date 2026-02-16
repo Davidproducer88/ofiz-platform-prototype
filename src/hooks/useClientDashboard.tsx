@@ -98,7 +98,7 @@ export const useClientDashboard = (profileId?: string) => {
     }
 
     try {
-      console.log('Fetching bookings for client:', profileId);
+      
       
       const { data, error } = await supabase
         .from('bookings')
@@ -115,7 +115,7 @@ export const useClientDashboard = (profileId?: string) => {
         throw error;
       }
       
-      console.log('Fetched bookings:', data);
+      
       
       // Mapear para asegurar que masters siempre tenga valores por defecto
       const mappedBookings = (data || []).map(booking => ({
@@ -160,11 +160,6 @@ export const useClientDashboard = (profileId?: string) => {
     }
 
     try {
-      console.log('Creating booking with data:', {
-        client_id: profileId,
-        service_id: bookingData.serviceId,
-        master_id: bookingData.masterId,
-      });
 
       const { data, error } = await supabase
         .from('bookings')
@@ -186,7 +181,7 @@ export const useClientDashboard = (profileId?: string) => {
         throw error;
       }
 
-      console.log('Booking created successfully:', data);
+      
 
       toast({
         title: "¡Reserva creada!",

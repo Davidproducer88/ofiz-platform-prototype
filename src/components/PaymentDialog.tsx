@@ -189,7 +189,7 @@ export const PaymentDialog = ({
   };
 
   const handlePaymentSuccess = async (paymentData: any) => {
-    console.log('Payment completed successfully:', paymentData);
+    
     
     if (paymentData.status === 'approved') {
       toast.success('¡Pago aprobado exitosamente!');

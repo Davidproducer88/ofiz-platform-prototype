@@ -102,7 +102,7 @@ export function useMarketplace(userId?: string) {
           table: 'marketplace_products',
         },
         () => {
-          console.log('Products changed - refreshing...');
+          
           fetchProducts();
         }
       )
@@ -115,7 +115,7 @@ export function useMarketplace(userId?: string) {
           filter: `buyer_id=eq.${userId}`,
         },
         () => {
-          console.log('Orders changed (as buyer) - refreshing...');
+          
           fetchOrders();
           fetchSellerBalance();
         }
@@ -129,7 +129,7 @@ export function useMarketplace(userId?: string) {
           filter: `seller_id=eq.${userId}`,
         },
         () => {
-          console.log('Orders changed (as seller) - refreshing...');
+          
           fetchOrders();
           fetchSellerBalance();
         }
@@ -212,7 +212,7 @@ export function useMarketplace(userId?: string) {
     if (!userId) return;
 
     try {
-      console.log('Fetching orders for user:', userId);
+      
       
       // Fetch orders first
       const { data: ordersData, error: ordersError } = await supabase
@@ -226,7 +226,7 @@ export function useMarketplace(userId?: string) {
         throw ordersError;
       }
 
-      console.log('Orders fetched:', ordersData?.length || 0);
+      
       
       // Enrich orders with product and profile data
       const enrichedOrders = await Promise.all((ordersData || []).map(async (order) => {
@@ -251,7 +251,7 @@ export function useMarketplace(userId?: string) {
         };
       }));
       
-      console.log('Orders enriched with data:', enrichedOrders.length);
+      
       setOrders(enrichedOrders as MarketplaceOrder[]);
     } catch (error) {
       console.error('Error in fetchOrders:', error);
@@ -481,7 +481,7 @@ export function useMarketplace(userId?: string) {
     }
 
     try {
-      console.log('Creating order for user:', userId);
+      
       
       // Get product and seller info
       const { data: product, error: productError } = await supabase
@@ -504,7 +504,7 @@ export function useMarketplace(userId?: string) {
         throw new Error('Stock insuficiente');
       }
 
-      console.log('Product found:', product);
+      
 
       // Generate order number
       const { data: orderNumber, error: orderNumError } = await supabase
@@ -515,7 +515,7 @@ export function useMarketplace(userId?: string) {
         throw new Error('Error al generar número de orden');
       }
 
-      console.log('Order number generated:', orderNumber);
+      
 
       // Create order (amounts will be calculated by trigger)
       const { data: order, error: orderError } = await supabase
@@ -549,7 +549,7 @@ export function useMarketplace(userId?: string) {
         throw new Error('No se recibió la orden creada');
       }
 
-      console.log('Order created successfully:', order);
+      
 
       toast({
         title: '✅ Orden creada',
@@ -576,7 +576,7 @@ export function useMarketplace(userId?: string) {
     status: MarketplaceOrder['status'],
     trackingNumber?: string
   ) => {
-    console.log('updateOrderStatus called:', { orderId, status, trackingNumber });
+    
     try {
       const updateData: any = { status };
       
@@ -584,7 +584,7 @@ export function useMarketplace(userId?: string) {
         updateData.tracking_number = trackingNumber;
       }
 
-      console.log('Updating order with data:', updateData);
+      
       const { data, error } = await supabase
         .from('marketplace_orders')
         .update(updateData)
@@ -597,7 +597,7 @@ export function useMarketplace(userId?: string) {
         throw error;
       }
 
-      console.log('Order updated successfully:', data);
+      
       toast({
         title: 'Estado actualizado',
         description: 'El estado de la orden ha sido actualizado',

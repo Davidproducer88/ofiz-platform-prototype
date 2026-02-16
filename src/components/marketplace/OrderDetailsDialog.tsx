@@ -53,7 +53,7 @@ export function OrderDetailsDialog({
 
   // Sincronizar estado cuando cambia la orden
   useEffect(() => {
-    console.log('Order changed in dialog:', order?.id, order?.status);
+    
     if (order) {
       setStatus(order.status);
       setTrackingNumber(order.tracking_number || '');
@@ -62,13 +62,6 @@ export function OrderDetailsDialog({
 
   if (!order) return null;
 
-  console.log('OrderDetailsDialog rendering:', { 
-    orderId: order.id, 
-    orderStatus: order.status, 
-    paymentStatus: order.payment_status,
-    isSeller,
-    selectedStatus: status
-  });
 
   const statusIcons = {
     pending: Clock,
@@ -94,10 +87,10 @@ export function OrderDetailsDialog({
 
   const handleUpdateStatus = async () => {
     setIsUpdating(true);
-    console.log('Updating order status:', { orderId: order.id, status, trackingNumber });
+    
     try {
       await onUpdateStatus(order.id, status, trackingNumber || undefined);
-      console.log('Order status updated successfully');
+      
       toast({
         title: "Orden actualizada",
         description: "El estado de la orden se actualizó correctamente",
@@ -405,7 +398,7 @@ export function OrderDetailsDialog({
                     <Button
                       className="w-full"
                       onClick={() => {
-                        console.log('Button clicked!', { status, currentOrderStatus: order.status, isUpdating });
+                        
                         handleUpdateStatus();
                       }}
                       disabled={isUpdating}

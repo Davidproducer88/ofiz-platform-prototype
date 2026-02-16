@@ -200,7 +200,7 @@ export const RemainingPaymentDialog = ({
   };
 
   const handlePaymentSuccess = async (paymentData: any) => {
-    console.log('Remaining payment completed:', paymentData);
+    
     
     if (paymentData.status === 'approved') {
       toast.success('¡Pago del saldo completado exitosamente!');
