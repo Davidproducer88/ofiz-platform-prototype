@@ -390,7 +390,7 @@ export default function BusinessDashboard() {
           </Card>
         )}
 
-        {isMobile && <BottomNav userType="business" />}
+        {/* BottomNav is rendered in the mobile path above */}
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
