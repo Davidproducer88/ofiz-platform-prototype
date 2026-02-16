@@ -320,6 +320,32 @@ export const Header = ({
             }} className="text-lg font-medium text-foreground hover:text-primary transition-smooth text-left">
                   Panel Admin
                 </button>}
+
+              {/* Auth buttons for non-logged-in users in mobile */}
+              {!profile && (
+                <div className="flex flex-col gap-3 pt-4 border-t border-border">
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      navigate('/auth');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Iniciar Sesión
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      navigate('/auth');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Registrarse
+                  </Button>
+                </div>
+              )}
             </div>
           </SheetContent>
         </Sheet>
@@ -495,7 +521,17 @@ export const Header = ({
                     </button>
                   </div>}
               </div>
-            </> : null}
+            </> : (
+              /* Auth buttons for non-logged-in users on desktop */
+              <div className="hidden md:flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+                  Iniciar Sesión
+                </Button>
+                <Button size="sm" onClick={() => navigate('/auth')}>
+                  Registrarse
+                </Button>
+              </div>
+            )}
         </div>
       </div>
     </header>;
