@@ -39,6 +39,7 @@ import ToolsForProfessionals from "./pages/ToolsForProfessionals";
 import HelpArticle from "./pages/HelpArticle";
 import PlanesPremium from "./pages/PlanesPremium";
 import Install from "./pages/Install";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -177,6 +178,7 @@ const AppContent = () => {
       <Route path="/herramientas-profesionales" element={<ToolsForProfessionals />} />
       <Route path="/planes-premium" element={<PlanesPremium />} />
       <Route path="/install" element={<Install />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -20,10 +20,41 @@ export const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const {
     signIn
   } = useAuth();
   const navigate = useNavigate();
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        title: 'Ingresá tu email',
+        description: 'Escribí tu email arriba y luego hacé clic en "¿Olvidaste tu contraseña?"',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({
+          title: 'Email enviado',
+          description: 'Revisá tu bandeja de entrada para restablecer tu contraseña',
+        });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo enviar el email', variant: 'destructive' });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -125,5 +156,16 @@ export const LoginForm = () => {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
       </Button>
+
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          className="text-sm text-primary hover:underline transition-colors"
+          disabled={forgotLoading}
+        >
+          {forgotLoading ? 'Enviando enlace...' : '¿Olvidaste tu contraseña?'}
+        </button>
+      </div>
     </form>;
 };
