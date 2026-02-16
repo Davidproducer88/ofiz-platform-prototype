@@ -156,7 +156,7 @@ export const MastersList = ({
       body: { name: 'david' },
     })
     const results: Master[] = await data;
-    console.log(results)
+    
   }
 
   const getCategoryLabel = (category: string) => {

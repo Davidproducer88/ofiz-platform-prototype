@@ -66,12 +66,6 @@ export function MarketplaceFeed() {
     }
 
     try {
-      console.log('Starting purchase process:', {
-        productId: selectedProduct.id,
-        quantity,
-        userId: profile.id,
-        deliveryMethod
-      });
 
       // Calculate shipping cost
       const shippingInfo = selectedProduct.shipping_info as any || {};
@@ -110,7 +104,7 @@ export function MarketplaceFeed() {
         notes: shippingAddress.notes
       };
 
-      console.log('Creating order with data:', orderData);
+      
 
       const newOrder = await createOrder(orderData);
       
@@ -118,7 +112,7 @@ export function MarketplaceFeed() {
         throw new Error('No se pudo crear la orden');
       }
 
-      console.log('Order created successfully:', newOrder.id);
+      
 
       // Return the order to ProductDialog to show payment form
       return newOrder;
@@ -136,8 +130,6 @@ export function MarketplaceFeed() {
 
   const handlePaymentComplete = async (orderId: string, formData: any) => {
     try {
-      console.log('=== MARKETPLACE FEED: Processing payment ===');
-      console.log('Processing payment with form data:', formData);
       
       toast({
         title: 'Procesando pago...',
@@ -151,7 +143,7 @@ export function MarketplaceFeed() {
       const installments = formData.installments;
       const payer = formData.payer;
 
-      console.log('Calling create-marketplace-payment edge function...');
+      
 
       const { data, error } = await supabase.functions.invoke('create-marketplace-payment', {
         body: {
@@ -169,10 +161,10 @@ export function MarketplaceFeed() {
         throw new Error(error.message || 'Error al procesar el pago');
       }
 
-      console.log('Payment processed successfully:', data);
+      
 
       if (data.status === 'approved') {
-        console.log('Payment approved! Updating UI...');
+        
         
         toast({
           title: '✅ ¡Pago exitoso!',
@@ -181,13 +173,13 @@ export function MarketplaceFeed() {
         });
         
         // Close dialog first to unmount the brick properly
-        console.log('Closing product dialog...');
+        
         setShowProductDialog(false);
         setSelectedProduct(null);
         
         // Wait for the dialog to close and brick to unmount, then redirect
         setTimeout(() => {
-          console.log('Redirecting to client dashboard...');
+          
           navigate('/client-dashboard');
         }, 500); // Shorter delay since we're already closing the dialog
         

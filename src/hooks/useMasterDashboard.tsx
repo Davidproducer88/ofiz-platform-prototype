@@ -183,7 +183,7 @@ export const useMasterDashboard = (profileId?: string) => {
     if (!profileId) return;
 
     try {
-      console.log('Fetching bookings for master:', profileId);
+      
       
       const { data, error } = await supabase
         .from('bookings')
@@ -200,7 +200,7 @@ export const useMasterDashboard = (profileId?: string) => {
         throw error;
       }
       
-      console.log('Fetched bookings for master:', data);
+      
       setBookings(data || []);
     } catch (error: any) {
       console.error('Error fetching bookings:', error);

@@ -287,7 +287,7 @@ export const SubscriptionPlans = () => {
   };
 
   const handlePaymentSuccess = async (paymentData: any) => {
-    console.log('Payment successful:', paymentData);
+    
     toast({
       title: "¡Pago exitoso!",
       description: "Tu suscripción ha sido activada",

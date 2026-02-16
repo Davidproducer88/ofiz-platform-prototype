@@ -74,7 +74,7 @@ export const useFeed = () => {
 
   const loadFeed = async (pageNum: number = 0) => {
     try {
-      console.log('🔄 Loading feed, page:', pageNum);
+      
       setLoading(true);
       const pageSize = 10;
       const offset = pageNum * pageSize;
@@ -92,7 +92,7 @@ export const useFeed = () => {
         .order('created_at', { ascending: false })
         .range(offset, offset + Math.floor(pageSize / 2) - 1);
       
-      console.log('📋 Service requests loaded:', serviceRequests?.length || 0, requestsError);
+      
 
       // Enriquecer con datos de perfil del cliente
       const enrichedRequests = await Promise.all((serviceRequests || []).map(async (request) => {
@@ -125,7 +125,7 @@ export const useFeed = () => {
         .order('created_at', { ascending: false })
         .limit(2);
       
-      console.log('🛠️ Services loaded:', services?.length || 0, servicesError);
+      
 
       // Cargar contenido patrocinado
       const { data: sponsored } = await supabase
@@ -178,7 +178,7 @@ export const useFeed = () => {
         .order('rating', { ascending: false })
         .limit(3);
       
-      console.log('👨‍🔧 Available masters loaded:', availableMasters?.length || 0, mastersError);
+      
 
       // Por ahora no cargamos completed works ya que la tabla bookings no tiene campo photos
       // En el futuro se puede agregar esta funcionalidad
@@ -270,7 +270,7 @@ export const useFeed = () => {
         promotedIndex++;
       }
 
-      console.log('✅ Final feed items:', finalFeed.length);
+      
       
       if (pageNum === 0) {
         setFeedItems(finalFeed);

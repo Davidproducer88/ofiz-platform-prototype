@@ -122,7 +122,7 @@ export const BusinessSubscriptionPlans = ({
   };
 
   const handlePaymentSuccess = async (paymentData: any) => {
-    console.log('Payment successful:', paymentData);
+    
     toast({
       title: "¡Pago exitoso!",
       description: "Tu suscripción empresarial ha sido activada",

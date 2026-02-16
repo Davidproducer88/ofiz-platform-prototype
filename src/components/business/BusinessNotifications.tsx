@@ -49,7 +49,7 @@ export const BusinessNotifications = ({ businessId }: BusinessNotificationsProps
             filter: `user_id=eq.${businessId}`
           },
           (payload) => {
-            console.log('New notification:', payload);
+            
             setNotifications(prev => [payload.new, ...prev]);
             
             // Show toast for new notification

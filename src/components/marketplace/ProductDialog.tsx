@@ -93,10 +93,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
             notes,
           };
       
-      console.log('Creating order with address:', shippingAddress);
       const order = await onPurchase(quantity, shippingAddress, deliveryMethod, shippingType);
-      
-      console.log('Order created:', order);
       
       if (order) {
         setCurrentOrder(order);
@@ -112,11 +109,6 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
   };
 
   const handlePaymentSuccess = async (formData: any) => {
-    console.log('=== HANDLE PAYMENT SUCCESS CALLED ===');
-    console.log('Current order:', currentOrder?.id);
-    console.log('onPaymentComplete exists:', !!onPaymentComplete);
-    console.log('Form data:', formData);
-    
     if (!currentOrder || !onPaymentComplete) {
       console.error('Missing required data:', { 
         hasOrder: !!currentOrder, 
@@ -127,9 +119,7 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
     }
     
     try {
-      console.log('Calling onPaymentComplete...');
       await onPaymentComplete(currentOrder.id, formData);
-      console.log('onPaymentComplete completed successfully');
       
       // Keep dialog open to show success message, MarketplaceFeed will handle the rest
     } catch (error) {
@@ -159,7 +149,6 @@ export function ProductDialog({ product, open, onOpenChange, onPurchase, onPayme
     <Dialog open={open} onOpenChange={(isOpen) => {
       // Prevent closing dialog while payment is being processed
       if (!isOpen && showPayment) {
-        console.log('Preventing dialog close during payment');
         return;
       }
       onOpenChange(isOpen);
