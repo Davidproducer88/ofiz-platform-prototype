@@ -19,7 +19,7 @@ export default function Privacy() {
               <h1 className="text-4xl md:text-6xl font-bold gradient-text">
                 Política de Privacidad
               </h1>
-              <p className="text-muted-foreground">Última actualización: Octubre 2025</p>
+              <p className="text-muted-foreground">Última actualización: Febrero 2026</p>
             </div>
 
             <Card className="max-w-4xl mx-auto border-border/50">
