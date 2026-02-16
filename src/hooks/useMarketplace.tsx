@@ -87,7 +87,8 @@ export function useMarketplace(userId?: string) {
   useEffect(() => {
     if (userId) {
       fetchMarketplaceData();
-      subscribeToRealtime();
+      const cleanup = subscribeToRealtime();
+      return cleanup;
     }
   }, [userId]);
 

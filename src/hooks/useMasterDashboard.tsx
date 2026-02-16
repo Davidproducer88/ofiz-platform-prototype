@@ -229,15 +229,18 @@ export const useMasterDashboard = (profileId?: string) => {
 
       const reviewsWithServices = await Promise.all(
         (data || []).map(async (review) => {
-          const { data: serviceData } = await supabase
-            .from('services')
-            .select('title')
+          // Get service title through the booking -> service relationship
+          const { data: bookingData } = await supabase
+            .from('bookings')
+            .select('services(title)')
             .eq('id', review.booking_id)
             .maybeSingle();
 
+          const serviceTitle = (bookingData?.services as any)?.title || 'Servicio no encontrado';
+
           return {
             ...review,
-            services: { title: serviceData?.title || 'Servicio no encontrado' },
+            services: { title: serviceTitle },
           };
         })
       );
